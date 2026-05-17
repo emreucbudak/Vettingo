@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/AuthService/">
+    <Project Path="src/AuthService/Vettingo.AuthService.API/Vettingo.AuthService.API.csproj" />
+    <Project Path="src/AuthService/Vettingo.AuthService.Application/Vettingo.AuthService.Application.csproj" />
+    <Project Path="src/AuthService/Vettingo.AuthService.Domain/Vettingo.AuthService.Domain.csproj" />
+    <Project Path="src/AuthService/Vettingo.AuthService.Infrastructure/Vettingo.AuthService.Infrastructure.csproj" />
+    <Project Path="src/AuthService/Vettingo.AuthService.Persistence/Vettingo.AuthService.Persistence.csproj" />
+  </Folder>
+</Solution>
