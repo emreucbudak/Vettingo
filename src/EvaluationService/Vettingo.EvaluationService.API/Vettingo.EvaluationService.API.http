@@ -1,0 +1,6 @@
+@Vettingo.EvaluationService.API_HostAddress = http://localhost:5083
+
+GET {{Vettingo.EvaluationService.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

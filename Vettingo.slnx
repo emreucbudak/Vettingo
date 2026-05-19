@@ -7,4 +7,11 @@
     <Project Path="src/AuthService/Vettingo.AuthService.Infrastructure/Vettingo.AuthService.Infrastructure.csproj" />
     <Project Path="src/AuthService/Vettingo.AuthService.Persistence/Vettingo.AuthService.Persistence.csproj" />
   </Folder>
+  <Folder Name="/src/JobService/">
+    <Project Path="src/JobService/Vettingo.JobService.API/Vettingo.JobService.API.csproj" Id="25c89c9b-f81e-42bd-bb9b-f975bd283970" />
+    <Project Path="src/JobService/Vettingo.JobService.Application/Vettingo.JobService.Application.csproj" Id="5108ebb0-f4e7-4f01-bc96-f6976dc274f7" />
+    <Project Path="src/JobService/Vettingo.JobService.Domain/Vettingo.JobService.Domain.csproj" Id="481d2377-356b-4c6d-851e-9b05c51d8b26" />
+    <Project Path="src/JobService/Vettingo.JobService.Infrastructure/Vettingo.JobService.Infrastructure.csproj" Id="5d9a56a3-1962-4862-8508-908e7c3275f1" />
+    <Project Path="src/JobService/Vettingo.JobService.Persistence/Vettingo.JobService.Persistence.csproj" Id="d50cb6a5-0968-4d30-9437-debf25cb219d" />
+  </Folder>
 </Solution>
