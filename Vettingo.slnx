@@ -7,6 +7,13 @@
     <Project Path="src/AuthService/Vettingo.AuthService.Infrastructure/Vettingo.AuthService.Infrastructure.csproj" />
     <Project Path="src/AuthService/Vettingo.AuthService.Persistence/Vettingo.AuthService.Persistence.csproj" />
   </Folder>
+  <Folder Name="/src/EvaluationService/">
+    <Project Path="src/EvaluationService/Vettingo.EvaluationService.API/Vettingo.EvaluationService.API.csproj" Id="7d9d1850-750c-4865-91b3-5ca617d848c6" />
+    <Project Path="src/EvaluationService/Vettingo.EvaluationService.Application/Vettingo.EvaluationService.Application.csproj" Id="687cee13-3f65-4fc1-adeb-05c26f3e5449" />
+    <Project Path="src/EvaluationService/Vettingo.EvaluationService.Domain/Vettingo.EvaluationService.Domain.csproj" Id="f9af62e1-b5c8-4b94-8cce-74cff9238775" />
+    <Project Path="src/EvaluationService/Vettingo.EvaluationService.Infrastructure/Vettingo.EvaluationService.Infrastructure.csproj" Id="9ab6fa9f-b99c-4681-8a63-edb30df67e23" />
+    <Project Path="src/EvaluationService/Vettingo.EvaluationService.Persistence/Vettingo.EvaluationService.Persistence.csproj" Id="d8ff9597-e764-4830-a023-55759b40c6ae" />
+  </Folder>
   <Folder Name="/src/JobService/">
     <Project Path="src/JobService/Vettingo.JobService.API/Vettingo.JobService.API.csproj" Id="25c89c9b-f81e-42bd-bb9b-f975bd283970" />
     <Project Path="src/JobService/Vettingo.JobService.Application/Vettingo.JobService.Application.csproj" Id="5108ebb0-f4e7-4f01-bc96-f6976dc274f7" />
