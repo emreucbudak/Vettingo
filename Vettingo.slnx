@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/" />
+  <Folder Name="/src/AnalyticsService/" />
   <Folder Name="/src/AuthService/">
     <Project Path="src/AuthService/Vettingo.AuthService.API/Vettingo.AuthService.API.csproj" />
     <Project Path="src/AuthService/Vettingo.AuthService.Application/Vettingo.AuthService.Application.csproj" />
@@ -14,6 +15,16 @@
     <Project Path="src/EvaluationService/Vettingo.EvaluationService.Infrastructure/Vettingo.EvaluationService.Infrastructure.csproj" Id="9ab6fa9f-b99c-4681-8a63-edb30df67e23" />
     <Project Path="src/EvaluationService/Vettingo.EvaluationService.Persistence/Vettingo.EvaluationService.Persistence.csproj" Id="d8ff9597-e764-4830-a023-55759b40c6ae" />
   </Folder>
+  <Folder Name="/src/Gateway/">
+    <Project Path="src/Gateway/Vettingo.Gateway.API/Vettingo.Gateway.API.csproj" Id="ec73fd32-f476-49a8-a022-9b56003b9ca5" />
+  </Folder>
+  <Folder Name="/src/InterviewService/">
+    <Project Path="src/InterviewService/Vettingo.InterviewService.API/Vettingo.InterviewService.API.csproj" Id="89c1a3c4-16d8-4ae4-ba02-e94cb993ddcb" />
+    <Project Path="src/InterviewService/Vettingo.InterviewService.Application/Vettingo.InterviewService.Application.csproj" Id="c4d7229b-f2b7-40d2-aa14-9647dcbc2d59" />
+    <Project Path="src/InterviewService/Vettingo.InterviewService.Domain/Vettingo.InterviewService.Domain.csproj" Id="8d874ba1-2303-4131-9b53-8bd4b33c4103" />
+    <Project Path="src/InterviewService/Vettingo.InterviewService.Infrastructure/Vettingo.InterviewService.Infrastructure.csproj" Id="3f556952-9937-4479-adb6-04424339854b" />
+    <Project Path="src/InterviewService/Vettingo.InterviewService.Persistence/Vettingo.InterviewService.Persistence.csproj" Id="9e0ed8f6-f6f1-4f70-ad38-d5a8a401ebd9" />
+  </Folder>
   <Folder Name="/src/JobService/">
     <Project Path="src/JobService/Vettingo.JobService.API/Vettingo.JobService.API.csproj" Id="25c89c9b-f81e-42bd-bb9b-f975bd283970" />
     <Project Path="src/JobService/Vettingo.JobService.Application/Vettingo.JobService.Application.csproj" Id="5108ebb0-f4e7-4f01-bc96-f6976dc274f7" />
@@ -21,4 +32,5 @@
     <Project Path="src/JobService/Vettingo.JobService.Infrastructure/Vettingo.JobService.Infrastructure.csproj" Id="5d9a56a3-1962-4862-8508-908e7c3275f1" />
     <Project Path="src/JobService/Vettingo.JobService.Persistence/Vettingo.JobService.Persistence.csproj" Id="d50cb6a5-0968-4d30-9437-debf25cb219d" />
   </Folder>
+  <Folder Name="/src/NotificationService/" />
 </Solution>

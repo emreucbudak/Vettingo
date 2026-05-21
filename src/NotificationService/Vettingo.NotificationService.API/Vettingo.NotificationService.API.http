@@ -1,0 +1,6 @@
+@Vettingo.NotificationService.API_HostAddress = http://localhost:5149
+
+GET {{Vettingo.NotificationService.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
