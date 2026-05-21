@@ -32,5 +32,11 @@
     <Project Path="src/JobService/Vettingo.JobService.Infrastructure/Vettingo.JobService.Infrastructure.csproj" Id="5d9a56a3-1962-4862-8508-908e7c3275f1" />
     <Project Path="src/JobService/Vettingo.JobService.Persistence/Vettingo.JobService.Persistence.csproj" Id="d50cb6a5-0968-4d30-9437-debf25cb219d" />
   </Folder>
-  <Folder Name="/src/NotificationService/" />
+  <Folder Name="/src/NotificationService/">
+    <Project Path="src/NotificationService/Vettingo.NotificationService.API/Vettingo.NotificationService.API.csproj" Id="7395f400-dda1-4e13-b724-f0458767bae5" />
+    <Project Path="src/NotificationService/Vettingo.NotificationService.Application/Vettingo.NotificationService.Application.csproj" Id="771dbe77-907c-4761-b0c7-d31826d7e9a1" />
+    <Project Path="src/NotificationService/Vettingo.NotificationService.Domain/Vettingo.NotificationService.Domain.csproj" Id="390df992-1287-4204-ab36-0968c9f98e29" />
+    <Project Path="src/NotificationService/Vettingo.NotificationService.Infrastructure/Vettingo.NotificationService.Infrastructure.csproj" Id="bb45cb4a-aac3-4b3e-b24f-6d6d877cf970" />
+    <Project Path="Vettingo.NotificationService.Persistence/Vettingo.NotificationService.Persistence.csproj" Id="c3a11399-a274-4ac4-ac02-e664a2b69ec7" />
+  </Folder>
 </Solution>
