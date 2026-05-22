@@ -1,6 +1,8 @@
 <Solution>
   <Folder Name="/src/" />
-  <Folder Name="/src/AnalyticsService/" />
+  <Folder Name="/src/AnalyticsService/">
+    <Project Path="src/AnalyticsService/Vettingo.AnalyticsService.Domain/Vettingo.AnalyticsService.Domain.csproj" Id="a028114d-8c78-4749-9c22-3627d98851df" />
+  </Folder>
   <Folder Name="/src/AuthService/">
     <Project Path="src/AuthService/Vettingo.AuthService.API/Vettingo.AuthService.API.csproj" />
     <Project Path="src/AuthService/Vettingo.AuthService.Application/Vettingo.AuthService.Application.csproj" />
@@ -37,6 +39,6 @@
     <Project Path="src/NotificationService/Vettingo.NotificationService.Application/Vettingo.NotificationService.Application.csproj" Id="771dbe77-907c-4761-b0c7-d31826d7e9a1" />
     <Project Path="src/NotificationService/Vettingo.NotificationService.Domain/Vettingo.NotificationService.Domain.csproj" Id="390df992-1287-4204-ab36-0968c9f98e29" />
     <Project Path="src/NotificationService/Vettingo.NotificationService.Infrastructure/Vettingo.NotificationService.Infrastructure.csproj" Id="bb45cb4a-aac3-4b3e-b24f-6d6d877cf970" />
-    <Project Path="Vettingo.NotificationService.Persistence/Vettingo.NotificationService.Persistence.csproj" Id="c3a11399-a274-4ac4-ac02-e664a2b69ec7" />
+    <Project Path="src/NotificationService/Vettingo.NotificationService.Persistence/Vettingo.NotificationService.Persistence.csproj" Id="6a65af8b-8c8a-4eb1-b9d1-71047bc6c0fc" />
   </Folder>
 </Solution>
