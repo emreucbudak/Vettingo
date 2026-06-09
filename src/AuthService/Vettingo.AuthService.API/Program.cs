@@ -1,14 +1,16 @@
-var builder = WebApplication.CreateBuilder(args);
+using Vettingo.AuthService.Persistence.Registration;
 
-// Add services to the container.
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.SaveDb(builder.Configuration);
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
+
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();

@@ -1,7 +1,11 @@
 <Solution>
   <Folder Name="/src/" />
   <Folder Name="/src/AnalyticsService/">
+    <Project Path="src/AnalyticsService/Vettingo.AnalyticsService.API/Vettingo.AnalyticsService.API.csproj" Id="0df26875-eddf-427e-982c-dfbae2803b30" />
+    <Project Path="src/AnalyticsService/Vettingo.AnalyticsService.Application/Vettingo.AnalyticsService.Application.csproj" Id="b685a061-bbe1-4336-8aa4-2be4103559f2" />
     <Project Path="src/AnalyticsService/Vettingo.AnalyticsService.Domain/Vettingo.AnalyticsService.Domain.csproj" Id="a028114d-8c78-4749-9c22-3627d98851df" />
+    <Project Path="src/AnalyticsService/Vettingo.AnalyticsService.Infrastructure/Vettingo.AnalyticsService.Infrastructure.csproj" Id="5e82110c-832d-4f88-9448-0edac3966077" />
+    <Project Path="src/AnalyticsService/Vettingo.AnalyticsService.Persistence/Vettingo.AnalyticsService.Persistence.csproj" Id="4cbabcf1-6faf-4a00-b57e-cf2248363384" />
   </Folder>
   <Folder Name="/src/AuthService/">
     <Project Path="src/AuthService/Vettingo.AuthService.API/Vettingo.AuthService.API.csproj" />
