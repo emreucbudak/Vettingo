@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Vettingo.AuthService.Application\Vettingo.AuthService.Application.csproj" />
+  </ItemGroup>
+
 </Project>
