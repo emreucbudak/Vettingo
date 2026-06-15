@@ -6,14 +6,23 @@ using Vettingo.AuthService.Domain.Entities;
 
 namespace Vettingo.AuthService.Application.Features.CQRS.Auth.RefreshToken
 {
-    public class RefreshTokenCommandHandler(ITokenService token,UserManager<User> userManager) : IRequestHandler<RefreshTokenCommandRequest, RefreshTokenCommandResponse>
+    public class RefreshTokenCommandHandler(ITokenService token,UserManager<User> userManager,RoleManager<Role> roleManager) : IRequestHandler<RefreshTokenCommandRequest, RefreshTokenCommandResponse>
     {
         public async Task<RefreshTokenCommandResponse> Handle(RefreshTokenCommandRequest request, CancellationToken cancellationToken)
         {
             ClaimsPrincipal claims = token.GetPrincipalFromExpiredToken(request.AccessToken);
             var userId = claims.FindFirst(ClaimTypes.NameIdentifier).Value;
             User user = await userManager.FindByIdAsync(userId);
-            string token = await 
+            IList<string> role = await userManager.GetRolesAsync(user);
+            string accesstoken =  token.CreateAccessToken(user.Id,user.Email,role);
+            string refreshtoken = token.CreateRefreshToken();
+            user.RefreshToken.UpdateToken(refreshtoken);
+
+            return new RefreshTokenCommandResponse
+            {
+                AccessToken = accesstoken,
+                RefreshToken = refreshtoken
+            };
 
 
         }

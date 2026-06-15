@@ -1,6 +1,5 @@
 ﻿using FlashMediator;
 using Microsoft.AspNetCore.Identity;
-using System.IdentityModel.Tokens.Jwt;
 using Vettingo.AuthService.Application.Rules;
 using Vettingo.AuthService.Application.Service;
 using Vettingo.AuthService.Domain.Entities;
@@ -20,7 +19,7 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Login
                     IList<string> userRoles = await userManager.GetRolesAsync(user);
                     string token = tokenService.CreateAccessToken(user.Id, user.Email, userRoles);
                     string refreshToken = tokenService.CreateRefreshToken();
-                    RefreshToken rt = new RefreshToken(refreshToken);
+                    AuthService.Domain.Entities.RefreshToken rt = new AuthService.Domain.Entities.RefreshToken(refreshToken);
                 return new LoginCommandResponse
                     {
                         AccessToken = token,
