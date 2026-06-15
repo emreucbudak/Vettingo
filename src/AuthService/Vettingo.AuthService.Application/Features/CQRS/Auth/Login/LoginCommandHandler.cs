@@ -11,25 +11,23 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Login
     {
         public async Task<LoginCommandResponse> Handle(LoginCommandRequest request, CancellationToken cancellationToken)
         {
-            bool userIsThere = await auth.IsThere(request.Email);
-            if (userIsThere)
-            {
+                await auth.IsThere(request.Email);
+
                 User user = await userManager.FindByEmailAsync(request.Email);
                 bool passwordIsTrue = await auth.IsPasswordCorrect(user, request.Password);
                 if (passwordIsTrue)
                 {
                     IList<string> userRoles = await userManager.GetRolesAsync(user);
-                    JwtSecurityToken token = tokenService.CreateAccessToken(user.Id, user.Email, userRoles);
+                    string token = tokenService.CreateAccessToken(user.Id, user.Email, userRoles);
                     string refreshToken = tokenService.CreateRefreshToken();
-                    return new LoginCommandResponse
+                    RefreshToken rt = new RefreshToken(refreshToken);
+                return new LoginCommandResponse
                     {
                         AccessToken = token,
                         RefreshToken = refreshToken,
-                        AccessTokenExpiration = token.ValidTo.Minute,
                     };
                 }
 
-            }
             throw new Exception("Email veya şifreniz yanlış");
         }
     }

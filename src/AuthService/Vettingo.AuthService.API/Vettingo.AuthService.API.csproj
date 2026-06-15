@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Vettingo.AuthService.Infrastructure\Vettingo.AuthService.Infrastructure.csproj" />
     <ProjectReference Include="..\Vettingo.AuthService.Persistence\Vettingo.AuthService.Persistence.csproj" />
   </ItemGroup>
 

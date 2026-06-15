@@ -45,4 +45,8 @@
     <Project Path="src/NotificationService/Vettingo.NotificationService.Infrastructure/Vettingo.NotificationService.Infrastructure.csproj" Id="bb45cb4a-aac3-4b3e-b24f-6d6d877cf970" />
     <Project Path="src/NotificationService/Vettingo.NotificationService.Persistence/Vettingo.NotificationService.Persistence.csproj" Id="6a65af8b-8c8a-4eb1-b9d1-71047bc6c0fc" />
   </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/Vettingo.AuthService/">
+    <Project Path="Vettingo.AuthService.UnitTests/Vettingo.AuthService.UnitTests.csproj" Id="c0c1a0bc-2318-4f4c-bbe3-f610c6c2a4a1" />
+  </Folder>
 </Solution>

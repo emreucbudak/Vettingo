@@ -3,17 +3,18 @@ using Vettingo.AuthService.Domain.Entities;
 
 namespace Vettingo.AuthService.Application.Rules
 {
-    public class AuthBusinessRules(UserManager<User> user, RoleManager<Role> roleManager)
+    public class AuthBusinessRules(UserManager<User> users, RoleManager<Role> roleManager)
     {
-        public async Task<bool> IsThere(string email)
+        public async Task<User> IsThere(string email)
         {
-            User IsFind = await user.FindByEmailAsync(email);
-            if (IsFind is null)
+            User user = await users.FindByEmailAsync(email);
+            if (user is null)
             {
-                return false;
+                throw new Exception("User not found");
             }
-            return true;
+            return user;
         }
+        
         public async Task<bool> IsRoleThere(string roleName)
         {
             Role role = await roleManager.FindByNameAsync(roleName);
@@ -23,9 +24,9 @@ namespace Vettingo.AuthService.Application.Rules
             }
             return true;
         }
-        public async Task<bool> IsPasswordCorrect(User users, string password)
+        public async Task<bool> IsPasswordCorrect(User user, string password)
         {
-            return await user.CheckPasswordAsync(users, password);
+            return await users.CheckPasswordAsync(user, password);
 
         }
     }
