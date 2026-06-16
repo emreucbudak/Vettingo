@@ -16,5 +16,24 @@
   <ItemGroup>
     <ProjectReference Include="..\Vettingo.AuthService.Domain\Vettingo.AuthService.Domain.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- Company command files are explicit so Visual Studio shows them in Solution Explorer after reload. -->
+    <Compile Remove="Features\CQRS\Company\Command\CreateCompany\CreateCompanyCommandHandler.cs" />
+    <Compile Remove="Features\CQRS\Company\Command\CreateCompany\CreateCompanyCommandRequest.cs" />
+    <Compile Remove="Features\CQRS\Company\Command\DeleteCompany\DeleteCompanyCommandHandler.cs" />
+    <Compile Remove="Features\CQRS\Company\Command\DeleteCompany\DeleteCompanyCommandRequest.cs" />
+    <Compile Remove="Features\CQRS\Company\Command\UpdateCompany\UpdateCompanyCommandHandler.cs" />
+    <Compile Remove="Features\CQRS\Company\Command\UpdateCompany\UpdateCompanyCommandRequest.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Features\CQRS\Company\Command\CreateCompany\CreateCompanyCommandHandler.cs" />
+    <Compile Include="Features\CQRS\Company\Command\CreateCompany\CreateCompanyCommandRequest.cs" />
+    <Compile Include="Features\CQRS\Company\Command\DeleteCompany\DeleteCompanyCommandHandler.cs" />
+    <Compile Include="Features\CQRS\Company\Command\DeleteCompany\DeleteCompanyCommandRequest.cs" />
+    <Compile Include="Features\CQRS\Company\Command\UpdateCompany\UpdateCompanyCommandHandler.cs" />
+    <Compile Include="Features\CQRS\Company\Command\UpdateCompany\UpdateCompanyCommandRequest.cs" />
+  </ItemGroup>
 
 </Project>
+

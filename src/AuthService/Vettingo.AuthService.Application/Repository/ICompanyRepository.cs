@@ -1,12 +1,14 @@
-﻿namespace Vettingo.AuthService.Application.Repository
+﻿using Vettingo.AuthService.Domain.Entities;
+
+namespace Vettingo.AuthService.Application.Repository
 {
     public interface ICompanyRepository
     {
-        Task AddCompanyAsync(AuthService.Domain.Entities.Company company);
-        void UpdateCompany(AuthService.Domain.Entities.Company company);
-        void DeleteCompany(AuthService.Domain.Entities.Company company);
-        Task<AuthService.Domain.Entities.Company> GetCompanyByIdAsync(Guid companyId);
-        Task<IEnumerable<AuthService.Domain.Entities.Company>> GetAllCompaniesAsync();
+        Task AddCompanyAsync(Company company);
+        void UpdateCompany(Company company);
+        void DeleteCompany(Company company);
+        Task<Company?> GetCompanyByIdAsync(Guid companyId);
+        Task<IEnumerable<Company>> GetAllCompaniesAsync();
         Task<int> SaveChangesAsync();
     }
 }

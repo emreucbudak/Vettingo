@@ -4,10 +4,10 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Company.Command.CreateC
 {
     public record CreateCompanyCommandRequest : IRequest
     {
-        public string CompanyName { get; init; }
-        public string CompanyDescription { get; init; }
-        public string CompanyPhone { get; init; }
-        public string CompanyEmail { get; init; }
-        public string CompanyAddress { get; init; }
+        public string CompanyName { get; init; } = string.Empty;
+        public string CompanyDescription { get; init; } = string.Empty;
+        public string CompanyPhone { get; init; } = string.Empty;
+        public string CompanyEmail { get; init; } = string.Empty;
+        public string CompanyAddress { get; init; } = string.Empty;
     }
 }

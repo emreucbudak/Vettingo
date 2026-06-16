@@ -7,25 +7,26 @@ namespace Vettingo.AuthService.Persistence.Repository
 {
     public class CompanyRepository(IdentityDbContext identity) : ICompanyRepository
     {
-        private  DbSet<Company> _companySet => identity.Set<Company>();
+        private DbSet<Company> CompanySet => identity.Set<Company>();
+
         public async Task AddCompanyAsync(Company company)
         {
-            await _companySet.AddAsync(company);
+            await CompanySet.AddAsync(company);
         }
 
         public void DeleteCompany(Company company)
         {
-             _companySet.Remove(company);
+            CompanySet.Remove(company);
         }
 
         public async Task<IEnumerable<Company>> GetAllCompaniesAsync()
         {
-            return await _companySet.ToListAsync();
+            return await CompanySet.ToListAsync();
         }
 
-        public async Task<Company> GetCompanyByIdAsync(Guid companyId)
+        public async Task<Company?> GetCompanyByIdAsync(Guid companyId)
         {
-            return await _companySet.Where(c => c.Id == companyId).FirstOrDefaultAsync();
+            return await CompanySet.FirstOrDefaultAsync(c => c.Id == companyId);
         }
 
         public Task<int> SaveChangesAsync()
@@ -35,8 +36,7 @@ namespace Vettingo.AuthService.Persistence.Repository
 
         public void UpdateCompany(Company company)
         {
-           _companySet.Update(company);
+            CompanySet.Update(company);
         }
-        
     }
 }
