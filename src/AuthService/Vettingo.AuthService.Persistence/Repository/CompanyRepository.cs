@@ -13,7 +13,7 @@ namespace Vettingo.AuthService.Persistence.Repository
             await _companySet.AddAsync(company);
         }
 
-        public void DeleteCompanyAsync(Company company)
+        public void DeleteCompany(Company company)
         {
              _companySet.Remove(company);
         }
@@ -33,7 +33,7 @@ namespace Vettingo.AuthService.Persistence.Repository
             return identity.SaveChangesAsync();
         }
 
-        public void UpdateCompanyAsync(Company company)
+        public void UpdateCompany(Company company)
         {
            _companySet.Update(company);
         }

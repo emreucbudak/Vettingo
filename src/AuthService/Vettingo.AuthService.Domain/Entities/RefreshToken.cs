@@ -11,12 +11,12 @@
             this.UserId = userId;
         }
 
-        public Guid Id { get; set; }
-        public Guid UserId { get; set; }
-        public string? Token { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime ExpiryTime  { get; set; }
-        public DateTime? RevokeTime  { get; set; }
+        public Guid Id { get; private set; }
+        public Guid UserId { get; private set; }
+        public string? Token { get; private set; }
+        public DateTime CreatedAt { get; private set; }
+        public DateTime ExpiryTime  { get; private set; }
+        public DateTime? RevokeTime  { get; private set; }
         public void UpdateToken(string token)
         {
             this.Token = token;

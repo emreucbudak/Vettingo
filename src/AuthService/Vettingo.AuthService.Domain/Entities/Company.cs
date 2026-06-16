@@ -6,7 +6,7 @@
         {
         }
 
-        public Guid Id { get; set; }
+        public Guid Id { get; private set; }
         public string CompanyName { get; private set; }
         public string CompanyDescription { get; private set; }
         public string CompanyPhone { get; private set; }
