@@ -1,0 +1,55 @@
+using FlashMediator;
+using Vettingo.ExamService.Application.Repository;
+
+namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
+{
+    public class GetExamByIdQueryHandler(IExamRepository examRepository) : IRequestHandler<GetExamByIdQueryRequest, GetExamByIdQueryResponse>
+    {
+        public async Task<GetExamByIdQueryResponse> Handle(GetExamByIdQueryRequest request, CancellationToken cancellationToken)
+        {
+            var exam = await examRepository.GetExamByIdAsync(request.ExamId);
+
+            if (exam is null)
+            {
+                throw new Exception("Exam not found");
+            }
+
+            return new GetExamByIdQueryResponse
+            {
+                Id = exam.Id,
+                JobId = exam.JobId,
+                Title = exam.Title,
+                Subject = exam.Subject,
+                Description = exam.Description,
+                DurationMinutes = exam.DurationMinutes,
+                PassingScore = exam.PassingScore,
+                IsActive = exam.IsActive,
+                CreatedAt = exam.CreatedAt,
+                UpdatedAt = exam.UpdatedAt,
+                Questions = exam.Questions
+                    .OrderBy(question => question.DisplayOrder)
+                    .Select(question => new GetExamByIdQuestionResponse
+                    {
+                        Id = question.Id,
+                        QuestionText = question.QuestionText,
+                        Topic = question.Topic,
+                        QuestionType = question.QuestionType,
+                        Point = question.Point,
+                        DisplayOrder = question.DisplayOrder,
+                        Explanation = question.Explanation,
+                        Options = question.Options
+                            .OrderBy(option => option.DisplayOrder)
+                            .Select(option => new GetExamByIdQuestionOptionResponse
+                            {
+                                Id = option.Id,
+                                OptionText = option.OptionText,
+                                IsCorrect = option.IsCorrect,
+                                DisplayOrder = option.DisplayOrder
+                            })
+                            .ToList()
+                    })
+                    .ToList()
+            };
+        }
+    }
+}

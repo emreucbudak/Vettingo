@@ -21,6 +21,13 @@
     <Project Path="src/EvaluationService/Vettingo.EvaluationService.Infrastructure/Vettingo.EvaluationService.Infrastructure.csproj" Id="9ab6fa9f-b99c-4681-8a63-edb30df67e23" />
     <Project Path="src/EvaluationService/Vettingo.EvaluationService.Persistence/Vettingo.EvaluationService.Persistence.csproj" Id="d8ff9597-e764-4830-a023-55759b40c6ae" />
   </Folder>
+  <Folder Name="/src/ExamService/">
+    <Project Path="src/ExamService/Vettingo.ExamService.API/Vettingo.ExamService.API.csproj" />
+    <Project Path="src/ExamService/Vettingo.ExamService.Application/Vettingo.ExamService.Application.csproj" />
+    <Project Path="src/ExamService/Vettingo.ExamService.Domain/Vettingo.ExamService.Domain.csproj" />
+    <Project Path="src/ExamService/Vettingo.ExamService.Infrastructure/Vettingo.ExamService.Infrastructure.csproj" />
+    <Project Path="src/ExamService/Vettingo.ExamService.Persistence/Vettingo.ExamService.Persistence.csproj" />
+  </Folder>
   <Folder Name="/src/Gateway/">
     <Project Path="src/Gateway/Vettingo.Gateway.API/Vettingo.Gateway.API.csproj" Id="ec73fd32-f476-49a8-a022-9b56003b9ca5" />
   </Folder>
