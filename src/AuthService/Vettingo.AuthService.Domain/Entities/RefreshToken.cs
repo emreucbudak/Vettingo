@@ -2,11 +2,13 @@
 {
     public class RefreshToken
     {
-        public RefreshToken(string? token) 
+        public RefreshToken(string? token,Guid userId) 
         {
             this.Token = token;
             this.CreatedAt = DateTime.UtcNow;
             this.ExpiryTime = DateTime.UtcNow.AddDays(1);
+            this.RevokeTime = null;
+            this.UserId = userId;
         }
 
         public Guid Id { get; set; }
@@ -14,12 +16,13 @@
         public string? Token { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime ExpiryTime  { get; set; }
-        public DateTime RevokeTime  { get; set; }
+        public DateTime? RevokeTime  { get; set; }
         public void UpdateToken(string token)
         {
             this.Token = token;
             this.CreatedAt = DateTime.UtcNow;
             this.ExpiryTime = DateTime.UtcNow.AddDays(1);
+            this.RevokeTime = null;
         }
         public void RevokeToken()
         {

@@ -4,7 +4,7 @@ using System.Reflection.Metadata;
 using Vettingo.AuthService.Application.Rules;
 using Vettingo.AuthService.Domain.Entities;
 
-namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Register
+namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Register
 {
     public class RegisterCommandHandler(UserManager<User> userManager,RoleManager<Role> roleManager,AuthBusinessRules businessRules) : IRequestHandler<RegisterCommandRequest>
     {

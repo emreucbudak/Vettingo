@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Vettingo.AuthService.Application.Features.CQRS.Auth.Register;
+using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Register;
 
 namespace Vettingo.AuthService.Application.Validations
 {

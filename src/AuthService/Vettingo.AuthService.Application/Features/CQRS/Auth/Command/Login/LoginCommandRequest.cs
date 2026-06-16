@@ -1,6 +1,6 @@
 ﻿using FlashMediator;
 
-namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Login
+namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Login
 {
     public record LoginCommandRequest : IRequest<LoginCommandResponse>
     {

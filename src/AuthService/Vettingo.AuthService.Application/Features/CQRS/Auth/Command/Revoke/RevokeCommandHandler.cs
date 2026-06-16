@@ -4,7 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Vettingo.AuthService.Application.Rules;
 using Vettingo.AuthService.Domain.Entities;
 
-namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Revoke
+namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Revoke
 {
     public class RevokeCommandHandler(UserManager<User> userManager,AuthBusinessRules auth) : IRequestHandler<RevokeCommandRequest>
     {

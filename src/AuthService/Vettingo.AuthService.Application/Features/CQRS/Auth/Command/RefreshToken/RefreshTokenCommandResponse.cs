@@ -1,4 +1,4 @@
-﻿namespace Vettingo.AuthService.Application.Features.CQRS.Auth.RefreshToken
+﻿namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.RefreshToken
 {
     public record RefreshTokenCommandResponse
     {

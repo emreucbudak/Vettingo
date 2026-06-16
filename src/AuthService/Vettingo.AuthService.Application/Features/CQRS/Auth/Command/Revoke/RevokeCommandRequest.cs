@@ -1,6 +1,6 @@
 ﻿using FlashMediator;
 
-namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Revoke
+namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Revoke
 {
     public record RevokeCommandRequest : IRequest
     {

@@ -1,6 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 
-namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Login
+namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Login
 {
     public class LoginCommandResponse
     {

@@ -4,7 +4,7 @@ using Vettingo.AuthService.Application.Rules;
 using Vettingo.AuthService.Application.Service;
 using Vettingo.AuthService.Domain.Entities;
 
-namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Login
+namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Login
 {
     public class LoginCommandHandler(UserManager<User> userManager, AuthBusinessRules auth, ITokenService tokenService, RoleManager<Role> roles) : IRequestHandler<LoginCommandRequest, LoginCommandResponse>
     {
@@ -19,7 +19,7 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Login
                     IList<string> userRoles = await userManager.GetRolesAsync(user);
                     string token = tokenService.CreateAccessToken(user.Id, user.Email, userRoles);
                     string refreshToken = tokenService.CreateRefreshToken();
-                    AuthService.Domain.Entities.RefreshToken rt = new AuthService.Domain.Entities.RefreshToken(refreshToken);
+                Domain.Entities.RefreshToken rt = new Domain.Entities.RefreshToken(refreshToken,user.Id);
                 return new LoginCommandResponse
                     {
                         AccessToken = token,
