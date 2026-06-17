@@ -22,8 +22,10 @@ namespace Vettingo.ExamService.Persistence.Repository
         public async Task<IEnumerable<Exam>> GetAllExamsAsync()
         {
             return await ExamSet
-                .Include(exam => exam.Questions)
-                .ThenInclude(question => question.Options)
+                .Include(exam => exam.MultipleChoiceQuestions)
+                .Include(exam => exam.TrueFalseQuestions)
+                .Include(exam => exam.ClassicQuestions)
+                .Include(exam => exam.CodeCompletionQuestions)
                 .OrderByDescending(exam => exam.CreatedAt)
                 .ToListAsync();
         }
@@ -31,8 +33,11 @@ namespace Vettingo.ExamService.Persistence.Repository
         public async Task<Exam?> GetExamByIdAsync(Guid examId)
         {
             return await ExamSet
-                .Include(exam => exam.Questions)
+                .Include(exam => exam.MultipleChoiceQuestions)
                 .ThenInclude(question => question.Options)
+                .Include(exam => exam.TrueFalseQuestions)
+                .Include(exam => exam.ClassicQuestions)
+                .Include(exam => exam.CodeCompletionQuestions)
                 .FirstOrDefaultAsync(exam => exam.Id == examId);
         }
 

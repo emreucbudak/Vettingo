@@ -14,7 +14,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam
                 throw new Exception("Exam not found");
             }
 
-            exam.UpdateExam(request.Title, request.Subject, request.Description, request.DurationMinutes, request.PassingScore, request.JobId, request.IsActive);
+            exam.UpdateExam(request.Title, request.Subject, request.Description, request.DurationMinutes, request.PassingScore, request.OwnerType, request.CompanyId, request.JobId, request.IsActive);
             examRepository.UpdateExam(exam);
             await examRepository.SaveChangesAsync();
         }

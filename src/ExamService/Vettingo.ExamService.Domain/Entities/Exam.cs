@@ -1,3 +1,5 @@
+using Vettingo.ExamService.Domain.Enums;
+
 namespace Vettingo.ExamService.Domain.Entities
 {
     public class Exam
@@ -7,7 +9,9 @@ namespace Vettingo.ExamService.Domain.Entities
         }
 
         public Guid Id { get; private set; }
+        public Guid? CompanyId { get; private set; }
         public Guid? JobId { get; private set; }
+        public ExamOwnerType OwnerType { get; private set; }
         public string Title { get; private set; } = string.Empty;
         public string Subject { get; private set; } = string.Empty;
         public string Description { get; private set; } = string.Empty;
@@ -16,7 +20,10 @@ namespace Vettingo.ExamService.Domain.Entities
         public bool IsActive { get; private set; }
         public DateTime CreatedAt { get; private set; }
         public DateTime? UpdatedAt { get; private set; }
-        public List<Question> Questions { get; private set; } = new();
+        public List<MultipleChoiceQuestion> MultipleChoiceQuestions { get; private set; } = new();
+        public List<TrueFalseQuestion> TrueFalseQuestions { get; private set; } = new();
+        public List<ClassicQuestion> ClassicQuestions { get; private set; } = new();
+        public List<CodeCompletionQuestion> CodeCompletionQuestions { get; private set; } = new();
         public List<ExamAttempt> Attempts { get; private set; } = new();
 
         public void SetId()
@@ -24,9 +31,19 @@ namespace Vettingo.ExamService.Domain.Entities
             Id = Guid.CreateVersion7();
         }
 
+        public void setCompanyId(Guid? companyId)
+        {
+            CompanyId = companyId;
+        }
+
         public void setJobId(Guid? jobId)
         {
             JobId = jobId;
+        }
+
+        public void setOwnerType(ExamOwnerType ownerType)
+        {
+            OwnerType = ownerType;
         }
 
         public void setTitle(string title)
@@ -59,7 +76,7 @@ namespace Vettingo.ExamService.Domain.Entities
             IsActive = isActive;
         }
 
-        public void CreateExam(string title, string subject, string description, int durationMinutes, int passingScore, Guid? jobId)
+        public void CreateExam(string title, string subject, string description, int durationMinutes, int passingScore, ExamOwnerType ownerType, Guid? companyId, Guid? jobId)
         {
             SetId();
             setTitle(title);
@@ -67,18 +84,22 @@ namespace Vettingo.ExamService.Domain.Entities
             setDescription(description);
             setDurationMinutes(durationMinutes);
             setPassingScore(passingScore);
+            setOwnerType(ownerType);
+            setCompanyId(companyId);
             setJobId(jobId);
             setIsActive(true);
             CreatedAt = DateTime.UtcNow;
         }
 
-        public void UpdateExam(string title, string subject, string description, int durationMinutes, int passingScore, Guid? jobId, bool isActive)
+        public void UpdateExam(string title, string subject, string description, int durationMinutes, int passingScore, ExamOwnerType ownerType, Guid? companyId, Guid? jobId, bool isActive)
         {
             setTitle(title);
             setSubject(subject);
             setDescription(description);
             setDurationMinutes(durationMinutes);
             setPassingScore(passingScore);
+            setOwnerType(ownerType);
+            setCompanyId(companyId);
             setJobId(jobId);
             setIsActive(isActive);
             UpdatedAt = DateTime.UtcNow;

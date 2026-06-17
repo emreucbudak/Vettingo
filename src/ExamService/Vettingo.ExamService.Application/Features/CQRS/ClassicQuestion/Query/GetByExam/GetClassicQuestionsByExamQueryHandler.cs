@@ -1,0 +1,26 @@
+using FlashMediator;
+using Vettingo.ExamService.Application.Repository;
+
+namespace Vettingo.ExamService.Application.Features.CQRS.ClassicQuestion.Query.GetByExam
+{
+    public class GetClassicQuestionsByExamQueryHandler(IQuestionRepository questionRepository) : IRequestHandler<GetClassicQuestionsByExamQueryRequest, IEnumerable<GetClassicQuestionsByExamQueryResponse>>
+    {
+        public async Task<IEnumerable<GetClassicQuestionsByExamQueryResponse>> Handle(GetClassicQuestionsByExamQueryRequest request, CancellationToken cancellationToken)
+        {
+            var questions = await questionRepository.GetClassicQuestionsByExamIdAsync(request.ExamId);
+
+            return questions.Select(question => new GetClassicQuestionsByExamQueryResponse
+            {
+                Id = question.Id,
+                ExamId = question.ExamId,
+                QuestionText = question.QuestionText,
+                Topic = question.Topic,
+                Point = question.Point,
+                Weight = question.Weight,
+                DisplayOrder = question.DisplayOrder,
+                Explanation = question.Explanation,
+                ExpectedAnswer = question.ExpectedAnswer
+            });
+        }
+    }
+}

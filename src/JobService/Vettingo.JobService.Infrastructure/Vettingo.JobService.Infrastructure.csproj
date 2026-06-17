@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Vettingo.JobService.Application\Vettingo.JobService.Application.csproj" />
+  </ItemGroup>
+
 </Project>

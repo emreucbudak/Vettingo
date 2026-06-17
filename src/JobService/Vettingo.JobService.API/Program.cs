@@ -1,14 +1,20 @@
+using FlashMediator;
+using FluentValidation;
+using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CreateJobPosting;
+using Vettingo.JobService.Persistence.Registration;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.SaveDb(builder.Configuration);
+builder.Services.AddFlashMediator(typeof(CreateJobPostingCommandHandler).Assembly);
+builder.Services.AddValidatorsFromAssemblyContaining<CreateJobPostingCommandRequest>();
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();

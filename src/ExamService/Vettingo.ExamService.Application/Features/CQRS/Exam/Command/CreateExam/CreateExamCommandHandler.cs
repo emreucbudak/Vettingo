@@ -8,7 +8,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam
         public async Task Handle(CreateExamCommandRequest request, CancellationToken cancellationToken)
         {
             Domain.Entities.Exam exam = new();
-            exam.CreateExam(request.Title, request.Subject, request.Description, request.DurationMinutes, request.PassingScore, request.JobId);
+            exam.CreateExam(request.Title, request.Subject, request.Description, request.DurationMinutes, request.PassingScore, request.OwnerType, request.CompanyId, request.JobId);
 
             await examRepository.AddExamAsync(exam);
             await examRepository.SaveChangesAsync();

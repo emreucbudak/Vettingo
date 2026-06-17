@@ -1,6 +1,6 @@
 @Vettingo.JobService.API_HostAddress = http://localhost:5257
 
-GET {{Vettingo.JobService.API_HostAddress}}/weatherforecast/
+GET {{Vettingo.JobService.API_HostAddress}}/api/job-postings
 Accept: application/json
 
 ###

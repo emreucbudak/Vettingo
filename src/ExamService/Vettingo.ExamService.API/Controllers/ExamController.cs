@@ -8,7 +8,7 @@ using Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById;
 
 namespace Vettingo.ExamService.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/exams")]
     [ApiController]
     public class ExamController(IMediator mediator) : ControllerBase
     {
@@ -37,7 +37,9 @@ namespace Vettingo.ExamService.API.Controllers
             await mediator.Send(new UpdateExamCommandRequest
             {
                 ExamId = examId,
+                CompanyId = request.CompanyId,
                 JobId = request.JobId,
+                OwnerType = request.OwnerType,
                 Title = request.Title,
                 Subject = request.Subject,
                 Description = request.Description,

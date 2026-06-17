@@ -12,14 +12,19 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetAll
             return exams.Select(exam => new GetAllExamsQueryResponse
             {
                 Id = exam.Id,
+                CompanyId = exam.CompanyId,
                 JobId = exam.JobId,
+                OwnerType = exam.OwnerType,
                 Title = exam.Title,
                 Subject = exam.Subject,
                 Description = exam.Description,
                 DurationMinutes = exam.DurationMinutes,
                 PassingScore = exam.PassingScore,
                 IsActive = exam.IsActive,
-                QuestionCount = exam.Questions.Count,
+                MultipleChoiceQuestionCount = exam.MultipleChoiceQuestions.Count,
+                TrueFalseQuestionCount = exam.TrueFalseQuestions.Count,
+                ClassicQuestionCount = exam.ClassicQuestions.Count,
+                CodeCompletionQuestionCount = exam.CodeCompletionQuestions.Count,
                 CreatedAt = exam.CreatedAt
             });
         }

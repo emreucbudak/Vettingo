@@ -1,4 +1,4 @@
 @Vettingo.ExamService.API_HostAddress = http://localhost:5260
 
-GET {{Vettingo.ExamService.API_HostAddress}}/api/Exam
+GET {{Vettingo.ExamService.API_HostAddress}}/api/exams
 Accept: application/json
