@@ -53,7 +53,25 @@
     <Project Path="src/NotificationService/Vettingo.NotificationService.Persistence/Vettingo.NotificationService.Persistence.csproj" Id="6a65af8b-8c8a-4eb1-b9d1-71047bc6c0fc" />
   </Folder>
   <Folder Name="/tests/" />
+  <Folder Name="/tests/Vettingo.AnalyticsService.Tests/">
+    <Project Path="tests/Vettingo.AnalyticsService.Tests/Vettingo.AnalyticsService.UnitTests/Vettingo.AnalyticsService.UnitTests.csproj" />
+  </Folder>
   <Folder Name="/tests/Vettingo.AuthService.Tests/">
     <Project Path="tests/Vettingo.AuthService.Tests/Vettingo.AuthService.UnitTests/Vettingo.AuthService.UnitTests.csproj" Id="fb511d05-4fab-4ef0-bce0-46766bf4cad2" />
+  </Folder>
+  <Folder Name="/tests/Vettingo.EvaluationService.Tests/">
+    <Project Path="tests/Vettingo.EvaluationService.Tests/Vettingo.EvaluationService.UnitTests/Vettingo.EvaluationService.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Vettingo.ExamService.Tests/">
+    <Project Path="tests/Vettingo.ExamService.Tests/Vettingo.ExamService.UnitTests/Vettingo.ExamService.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Vettingo.InterviewService.Tests/">
+    <Project Path="tests/Vettingo.InterviewService.Tests/Vettingo.InterviewService.UnitTests/Vettingo.InterviewService.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Vettingo.JobService.Tests/">
+    <Project Path="tests/Vettingo.JobService.Tests/Vettingo.JobService.UnitTests/Vettingo.JobService.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Vettingo.NotificationService.Tests/">
+    <Project Path="tests/Vettingo.NotificationService.Tests/Vettingo.NotificationService.UnitTests/Vettingo.NotificationService.UnitTests.csproj" />
   </Folder>
 </Solution>
