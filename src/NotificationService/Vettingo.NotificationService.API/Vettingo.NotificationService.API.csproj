@@ -7,7 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Vettingo.NotificationService.Application\Vettingo.NotificationService.Application.csproj" />
+    <ProjectReference Include="..\Vettingo.NotificationService.Infrastructure\Vettingo.NotificationService.Infrastructure.csproj" />
+    <ProjectReference Include="..\Vettingo.NotificationService.Persistence\Vettingo.NotificationService.Persistence.csproj" />
   </ItemGroup>
 
 </Project>

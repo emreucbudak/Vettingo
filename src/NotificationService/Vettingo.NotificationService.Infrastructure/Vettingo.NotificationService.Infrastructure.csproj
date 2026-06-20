@@ -1,9 +1,18 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Vettingo.NotificationService.Application\Vettingo.NotificationService.Application.csproj" />
+    <ProjectReference Include="..\Vettingo.NotificationService.Domain\Vettingo.NotificationService.Domain.csproj" />
+  </ItemGroup>
 
 </Project>
