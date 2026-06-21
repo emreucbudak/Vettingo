@@ -1,12 +1,14 @@
-using FlashMediator;
+﻿using FlashMediator;
+using Microsoft.Extensions.Logging;
 using Vettingo.ExamService.Application.Repository;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.ClassicQuestion.Query.GetByExam
 {
-    public class GetClassicQuestionsByExamQueryHandler(IQuestionRepository questionRepository) : IRequestHandler<GetClassicQuestionsByExamQueryRequest, IEnumerable<GetClassicQuestionsByExamQueryResponse>>
+    public class GetClassicQuestionsByExamQueryHandler(IQuestionRepository questionRepository, ILogger<GetClassicQuestionsByExamQueryHandler> logger) : IRequestHandler<GetClassicQuestionsByExamQueryRequest, IEnumerable<GetClassicQuestionsByExamQueryResponse>>
     {
         public async Task<IEnumerable<GetClassicQuestionsByExamQueryResponse>> Handle(GetClassicQuestionsByExamQueryRequest request, CancellationToken cancellationToken)
         {
+            logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetClassicQuestionsByExamQueryHandler));
             var questions = await questionRepository.GetClassicQuestionsByExamIdAsync(request.ExamId);
 
             return questions.Select(question => new GetClassicQuestionsByExamQueryResponse
@@ -24,3 +26,5 @@ namespace Vettingo.ExamService.Application.Features.CQRS.ClassicQuestion.Query.G
         }
     }
 }
+
+

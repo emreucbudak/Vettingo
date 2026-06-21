@@ -1,6 +1,6 @@
 @Vettingo.AnalyticsService.API_HostAddress = http://localhost:5266
 
-GET {{Vettingo.AnalyticsService.API_HostAddress}}/weatherforecast/
+GET {{Vettingo.AnalyticsService.API_HostAddress}}/api/analytics/companies/00000000-0000-0000-0000-000000000000/recommendations
 Accept: application/json
 
 ###

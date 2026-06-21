@@ -1,17 +1,20 @@
-using FlashMediator;
+﻿using FlashMediator;
+using Vettingo.ExamService.Application.Exceptions;
+using Microsoft.Extensions.Logging;
 using Vettingo.ExamService.Application.Repository;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.Command.UpdateMultipleChoiceQuestion
 {
-    public class UpdateMultipleChoiceQuestionCommandHandler(IQuestionRepository questionRepository) : IRequestHandler<UpdateMultipleChoiceQuestionCommandRequest>
+    public class UpdateMultipleChoiceQuestionCommandHandler(IQuestionRepository questionRepository, ILogger<UpdateMultipleChoiceQuestionCommandHandler> logger) : IRequestHandler<UpdateMultipleChoiceQuestionCommandRequest>
     {
         public async Task Handle(UpdateMultipleChoiceQuestionCommandRequest request, CancellationToken cancellationToken)
         {
+            logger.LogInformation("{HandlerName} isteği işleniyor", nameof(UpdateMultipleChoiceQuestionCommandHandler));
             var question = await questionRepository.GetMultipleChoiceQuestionByIdAsync(request.QuestionId);
 
             if (question is null)
             {
-                throw new Exception("Multiple choice question not found");
+                throw new NotFoundException("Çoktan seçmeli soru bulunamadı");
             }
 
             question.UpdateQuestion(request.QuestionText, request.Topic, request.Point, request.Weight, request.DisplayOrder, request.Explanation);
@@ -29,3 +32,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.
         }
     }
 }
+
+
+

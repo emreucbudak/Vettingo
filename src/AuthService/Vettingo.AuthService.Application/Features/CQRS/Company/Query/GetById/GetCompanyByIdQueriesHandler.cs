@@ -1,17 +1,20 @@
 ﻿using FlashMediator;
+using Vettingo.AuthService.Application.Exceptions;
+using Microsoft.Extensions.Logging;
 using Vettingo.AuthService.Application.Repository;
 
 namespace Vettingo.AuthService.Application.Features.CQRS.Company.Query.GetById
 {
-    public class GetCompanyByIdQueriesHandler(ICompanyRepository companyRepository) : IRequestHandler<GetCompanyByIdQueriesRequest, GetCompanyByIdQueriesResponse>
+    public class GetCompanyByIdQueriesHandler(ICompanyRepository companyRepository, ILogger<GetCompanyByIdQueriesHandler> logger) : IRequestHandler<GetCompanyByIdQueriesRequest, GetCompanyByIdQueriesResponse>
     {
         public async Task<GetCompanyByIdQueriesResponse> Handle(GetCompanyByIdQueriesRequest request, CancellationToken cancellationToken)
         {
+            logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetCompanyByIdQueriesHandler));
             var company = await companyRepository.GetCompanyByIdAsync(request.CompanyId);
 
             if (company is null)
             {
-                throw new Exception("Company not found");
+                throw new NotFoundException("Şirket bulunamadı");
             }
 
             return new GetCompanyByIdQueriesResponse
@@ -26,3 +29,6 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Company.Query.GetById
         }
     }
 }
+
+
+

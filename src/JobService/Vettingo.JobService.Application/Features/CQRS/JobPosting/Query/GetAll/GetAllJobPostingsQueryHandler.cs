@@ -1,12 +1,14 @@
-using FlashMediator;
+﻿using FlashMediator;
+using Microsoft.Extensions.Logging;
 using Vettingo.JobService.Application.Repository;
 
 namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetAll
 {
-    public class GetAllJobPostingsQueryHandler(IJobPostingRepository jobPostingRepository) : IRequestHandler<GetAllJobPostingsQueryRequest, IEnumerable<GetAllJobPostingsQueryResponse>>
+    public class GetAllJobPostingsQueryHandler(IJobPostingRepository jobPostingRepository, ILogger<GetAllJobPostingsQueryHandler> logger) : IRequestHandler<GetAllJobPostingsQueryRequest, IEnumerable<GetAllJobPostingsQueryResponse>>
     {
         public async Task<IEnumerable<GetAllJobPostingsQueryResponse>> Handle(GetAllJobPostingsQueryRequest request, CancellationToken cancellationToken)
         {
+            logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetAllJobPostingsQueryHandler));
             var jobPostings = request.CompanyId.HasValue
                 ? await jobPostingRepository.GetJobPostingsByCompanyIdAsync(request.CompanyId.Value)
                 : await jobPostingRepository.GetAllJobPostingsAsync();
@@ -30,3 +32,5 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetAll
         }
     }
 }
+
+

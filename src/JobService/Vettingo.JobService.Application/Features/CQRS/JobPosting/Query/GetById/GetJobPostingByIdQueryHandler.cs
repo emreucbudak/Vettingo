@@ -1,17 +1,20 @@
-using FlashMediator;
+﻿using FlashMediator;
+using Vettingo.JobService.Application.Exceptions;
+using Microsoft.Extensions.Logging;
 using Vettingo.JobService.Application.Repository;
 
 namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetById
 {
-    public class GetJobPostingByIdQueryHandler(IJobPostingRepository jobPostingRepository) : IRequestHandler<GetJobPostingByIdQueryRequest, GetJobPostingByIdQueryResponse>
+    public class GetJobPostingByIdQueryHandler(IJobPostingRepository jobPostingRepository, ILogger<GetJobPostingByIdQueryHandler> logger) : IRequestHandler<GetJobPostingByIdQueryRequest, GetJobPostingByIdQueryResponse>
     {
         public async Task<GetJobPostingByIdQueryResponse> Handle(GetJobPostingByIdQueryRequest request, CancellationToken cancellationToken)
         {
+            logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetJobPostingByIdQueryHandler));
             var jobPosting = await jobPostingRepository.GetJobPostingByIdAsync(request.JobPostingId);
 
             if (jobPosting is null)
             {
-                throw new Exception("Job posting not found");
+                throw new NotFoundException("İş ilanı bulunamadı");
             }
 
             return new GetJobPostingByIdQueryResponse
@@ -36,3 +39,6 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetById
         }
     }
 }
+
+
+

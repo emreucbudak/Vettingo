@@ -1,12 +1,14 @@
-using FlashMediator;
+﻿using FlashMediator;
+using Microsoft.Extensions.Logging;
 using Vettingo.ExamService.Application.Repository;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.Query.GetByExam
 {
-    public class GetMultipleChoiceQuestionsByExamQueryHandler(IQuestionRepository questionRepository) : IRequestHandler<GetMultipleChoiceQuestionsByExamQueryRequest, IEnumerable<GetMultipleChoiceQuestionsByExamQueryResponse>>
+    public class GetMultipleChoiceQuestionsByExamQueryHandler(IQuestionRepository questionRepository, ILogger<GetMultipleChoiceQuestionsByExamQueryHandler> logger) : IRequestHandler<GetMultipleChoiceQuestionsByExamQueryRequest, IEnumerable<GetMultipleChoiceQuestionsByExamQueryResponse>>
     {
         public async Task<IEnumerable<GetMultipleChoiceQuestionsByExamQueryResponse>> Handle(GetMultipleChoiceQuestionsByExamQueryRequest request, CancellationToken cancellationToken)
         {
+            logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetMultipleChoiceQuestionsByExamQueryHandler));
             var questions = await questionRepository.GetMultipleChoiceQuestionsByExamIdAsync(request.ExamId);
 
             return questions.Select(question => new GetMultipleChoiceQuestionsByExamQueryResponse
@@ -33,3 +35,5 @@ namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.
         }
     }
 }
+
+

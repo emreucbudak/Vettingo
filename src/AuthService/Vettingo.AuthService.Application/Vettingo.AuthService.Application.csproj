@@ -1,18 +1,16 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="FlashMediator" Version="1.0.1" />
     <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.19.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.8" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Vettingo.AuthService.Domain\Vettingo.AuthService.Domain.csproj" />
   </ItemGroup>
@@ -25,7 +23,6 @@
     <Compile Remove="Features\CQRS\Company\Command\UpdateCompany\UpdateCompanyCommandHandler.cs" />
     <Compile Remove="Features\CQRS\Company\Command\UpdateCompany\UpdateCompanyCommandRequest.cs" />
   </ItemGroup>
-
   <ItemGroup>
     <Compile Include="Features\CQRS\Company\Command\CreateCompany\CreateCompanyCommandHandler.cs" />
     <Compile Include="Features\CQRS\Company\Command\CreateCompany\CreateCompanyCommandRequest.cs" />
@@ -34,6 +31,4 @@
     <Compile Include="Features\CQRS\Company\Command\UpdateCompany\UpdateCompanyCommandHandler.cs" />
     <Compile Include="Features\CQRS\Company\Command\UpdateCompany\UpdateCompanyCommandRequest.cs" />
   </ItemGroup>
-
 </Project>
-

@@ -1,15 +1,16 @@
-using FlashMediator;
+﻿using FlashMediator;
+using Microsoft.Extensions.Logging;
 using Vettingo.NotificationService.Application.Repository;
 using Vettingo.NotificationService.Application.Services;
 
 namespace Vettingo.NotificationService.Application.Features.CQRS.Notification.Command.CreateNotification
 {
-    public class CreateNotificationCommandHandler(
-        INotificationRepository notificationRepository,
-        INotificationSender notificationSender) : IRequestHandler<CreateNotificationCommandRequest, CreateNotificationCommandResponse>
+    public class CreateNotificationCommandHandler(INotificationRepository notificationRepository,
+        INotificationSender notificationSender, ILogger<CreateNotificationCommandHandler> logger) : IRequestHandler<CreateNotificationCommandRequest, CreateNotificationCommandResponse>
     {
         public async Task<CreateNotificationCommandResponse> Handle(CreateNotificationCommandRequest request, CancellationToken cancellationToken)
         {
+            logger.LogInformation("{HandlerName} isteği işleniyor", nameof(CreateNotificationCommandHandler));
             Domain.Entities.Notification notification = new();
             notification.CreateNotification(request.UserId, request.Title, request.Message, request.Type);
 
@@ -30,3 +31,5 @@ namespace Vettingo.NotificationService.Application.Features.CQRS.Notification.Co
         }
     }
 }
+
+

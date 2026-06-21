@@ -1,17 +1,20 @@
-using FlashMediator;
+﻿using FlashMediator;
+using Vettingo.ExamService.Application.Exceptions;
+using Microsoft.Extensions.Logging;
 using Vettingo.ExamService.Application.Repository;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
 {
-    public class GetExamByIdQueryHandler(IExamRepository examRepository) : IRequestHandler<GetExamByIdQueryRequest, GetExamByIdQueryResponse>
+    public class GetExamByIdQueryHandler(IExamRepository examRepository, ILogger<GetExamByIdQueryHandler> logger) : IRequestHandler<GetExamByIdQueryRequest, GetExamByIdQueryResponse>
     {
         public async Task<GetExamByIdQueryResponse> Handle(GetExamByIdQueryRequest request, CancellationToken cancellationToken)
         {
+            logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetExamByIdQueryHandler));
             var exam = await examRepository.GetExamByIdAsync(request.ExamId);
 
             if (exam is null)
             {
-                throw new Exception("Exam not found");
+                throw new NotFoundException("Sınav bulunamadı");
             }
 
             return new GetExamByIdQueryResponse
@@ -98,3 +101,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
         }
     }
 }
+
+
+

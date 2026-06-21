@@ -29,7 +29,7 @@
             this.Token = null;
             this.RevokeTime = DateTime.UtcNow;
         }
-        public RefreshToken FindRefreshToken(string token)
+        public RefreshToken? FindRefreshToken(string token)
         {
             return this.Token == token ? this : null;
         }
@@ -37,3 +37,4 @@
 
     }
 }
+

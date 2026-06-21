@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Vettingo.AuthService.Application.Exceptions;
 using Vettingo.AuthService.Domain.Entities;
 
 namespace Vettingo.AuthService.Application.Rules
@@ -7,27 +8,26 @@ namespace Vettingo.AuthService.Application.Rules
     {
         public async Task<User> IsThere(string email)
         {
-            User user = await users.FindByEmailAsync(email);
+            User? user = await users.FindByEmailAsync(email);
+
             if (user is null)
             {
-                throw new Exception("User not found");
+                throw new NotFoundException("Kullanıcı bulunamadı");
             }
+
             return user;
         }
-        
+
         public async Task<bool> IsRoleThere(string roleName)
         {
-            Role role = await roleManager.FindByNameAsync(roleName);
-            if (role is null)
-            {
-                return false;
-            }
-            return true;
+            Role? role = await roleManager.FindByNameAsync(roleName);
+            return role is not null;
         }
+
         public async Task<bool> IsPasswordCorrect(User user, string password)
         {
             return await users.CheckPasswordAsync(user, password);
-
         }
     }
 }
+
