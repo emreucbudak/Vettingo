@@ -6,4 +6,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Update="Common\BaseEntity.cs" />
+    <Compile Update="Entities\InterviewAnswer.cs" />
+    <Compile Update="Entities\InterviewExam.cs" />
+    <Compile Update="Entities\InterviewExamQuestion.cs" />
+    <Compile Update="Entities\InterviewQuestion.cs" />
+  </ItemGroup>
+
 </Project>
