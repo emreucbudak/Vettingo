@@ -1,0 +1,51 @@
+name: Vettingo Auth Service  CI
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - src/AuthService/**
+      - tests/Vettingo.AuthService.Tests/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - src/AuthService/**
+      - tests/Vettingo.AuthService.Tests/**
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('src/AuthService/**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+      - name: Restore .Net Projects
+        run: |
+          dotnet restore  src/AuthService/**/*.csproj
+      - name: Build .Net API
+        run: |
+          dotnet build  src/AuthService/Vettingo.AuthService.API --configuration Release
+      - name: Test Service
+        run: dotnet test tests/Vettingo.AuthService.Tests --configuration Release --verbosity normal  --logger "trx;LogFileName=test_results.trx" --collect:"XPlat Code Coverage"
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ./tests/Vettingo.AuthService.Tests/TestResults/
+          retention-days: 30
+      - name: upload code coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage-results
+          path: ./tests/Vettingo.AuthService.Tests/TestResults/**/coverage.cobertura.xml
+          retention-days: 30
+

@@ -1,0 +1,50 @@
+name: Vettingo Analytics Service CI
+on:
+  push:
+    branches:
+      - master
+    paths:
+    - 'src/AnalyticsService/**'
+    - 'tests/Vettingo.AnalyticsService.Tests/**'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'src/AnalyticsService/**'
+      - 'tests/Vettingo.AnalyticsService.Tests/**'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('src/AnalyticsService/**/*.csproj') }}
+          restore-keys: ${{ runner.os }}-nuget- 
+      - name: Install dependencies
+        run: |
+          dotnet restore  src/AnalyticsService/**/*.csproj
+      - name: Build
+        run: |
+          dotnet build src/AnalyticsService/Vettingo.AnalyticsService.API --configuration Release
+      - name: Run tests
+        run: |
+          dotnet test tests/Vettingo.AnalyticsService.Tests --configuration Release --verbosity normal --no-build --logger "trx;LogFileName=test_results.trx" --collect:"XPlat Code Coverage" 
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ./tests/Vettingo.AnalyticsService.Tests/TestResults/
+          retention-days: 30
+      - name: upload code coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage-results
+          path: ./tests/Vettingo.AnalyticsService.Tests/TestResults/**/coverage.cobertura.xml
+          retention-days: 30
