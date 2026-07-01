@@ -2,13 +2,13 @@ name: Vettingo Auth Service  CI
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - src/AuthService/**
       - tests/Vettingo.AuthService.Tests/**
   pull_request:
     branches:
-      - main
+      - master
     paths:
       - src/AuthService/**
       - tests/Vettingo.AuthService.Tests/**

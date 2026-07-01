@@ -2,13 +2,13 @@ name: Vettingo Evaluation Service CI
 on:
   push:
     branches:
-      - main
+      - master
     path:
       - src/EvaluationService/**
       - tests/Vettingo.EvaluatonService.Tests/**
   pull_request:
     branches:
-      - main
+      - master
     path:
       - src/EvaluationService/**
       - tests/Vettingo.EvaluationService.Tests/**
