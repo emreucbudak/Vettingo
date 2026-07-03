@@ -10,8 +10,6 @@ namespace Vettingo.ExamService.Domain.Entities
         public Guid ExamId { get; private set; }
         public Exam? Exam { get; private set; }
         public string QuestionText { get; private set; } = string.Empty;
-        public string Topic { get; private set; } = string.Empty;
-        public int Point { get; private set; }
         public decimal Weight { get; private set; }
         public int DisplayOrder { get; private set; }
         public string Explanation { get; private set; } = string.Empty;
@@ -27,14 +25,12 @@ namespace Vettingo.ExamService.Domain.Entities
         {
             SetId();
             ExamId = examId;
-            UpdateQuestion(questionText, topic, point, weight, displayOrder, explanation, correctAnswer);
+            UpdateQuestion(questionText, weight, displayOrder, explanation, correctAnswer);
         }
 
-        public void UpdateQuestion(string questionText, string topic, int point, decimal weight, int displayOrder, string explanation, bool correctAnswer)
+        public void UpdateQuestion(string questionText,decimal weight, int displayOrder, string explanation, bool correctAnswer)
         {
             QuestionText = questionText;
-            Topic = topic;
-            Point = point;
             Weight = weight;
             DisplayOrder = displayOrder;
             Explanation = explanation;
