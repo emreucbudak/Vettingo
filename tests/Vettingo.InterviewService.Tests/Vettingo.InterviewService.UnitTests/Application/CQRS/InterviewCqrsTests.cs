@@ -19,8 +19,8 @@ namespace Vettingo.InterviewService.UnitTests.Application.CQRS
         public async Task CreateInterviewQuestionCommandHandler_Should_Create_And_Save_Question()
         {
             var repository = Substitute.For<IRepository<InterviewQuestionEntity>>();
-            repository.AddAsync(Arg.Any<InterviewQuestionEntity>()).Returns(Task.CompletedTask);
-            repository.SaveChangesAsync().Returns(Task.FromResult(1));
+            repository.AddAsync(Arg.Any<InterviewQuestionEntity>()).Returns(_ => CompleteAsync());
+            repository.SaveChangesAsync().Returns(_ => ReturnAsync(1));
             var handler = new CreateInterviewQuestionCommandHandler(repository, Substitute.For<ILogger<CreateInterviewQuestionCommandHandler>>());
             var request = new CreateInterviewQuestionCommandRequest
             {
@@ -67,9 +67,9 @@ namespace Vettingo.InterviewService.UnitTests.Application.CQRS
             var questionRepository = Substitute.For<IRepository<InterviewQuestionEntity>>();
             var firstQuestionId = Guid.NewGuid();
             var secondQuestionId = Guid.NewGuid();
-            questionRepository.CountAsync(Arg.Any<Expression<Func<InterviewQuestionEntity, bool>>>()).Returns(Task.FromResult(2));
-            examRepository.AddAsync(Arg.Any<InterviewExamEntity>()).Returns(Task.CompletedTask);
-            examRepository.SaveChangesAsync().Returns(Task.FromResult(1));
+            questionRepository.CountAsync(Arg.Any<Expression<Func<InterviewQuestionEntity, bool>>>()).Returns(_ => ReturnAsync(2));
+            examRepository.AddAsync(Arg.Any<InterviewExamEntity>()).Returns(_ => CompleteAsync());
+            examRepository.SaveChangesAsync().Returns(_ => ReturnAsync(1));
             var handler = new CreateInterviewExamCommandHandler(
                 examRepository,
                 questionRepository,
@@ -97,7 +97,7 @@ namespace Vettingo.InterviewService.UnitTests.Application.CQRS
             var answerRepository = Substitute.For<IRepository<InterviewAnswerEntity>>();
             var examRepository = Substitute.For<IRepository<InterviewExamEntity>>();
             var examId = Guid.NewGuid();
-            examRepository.AnyAsync(exam => exam.Id == examId).Returns(Task.FromResult(false));
+            examRepository.AnyAsync(Arg.Any<Expression<Func<InterviewExamEntity, bool>>>()).Returns(_ => ReturnAsync(false));
             var handler = new CreateInterviewAnswerCommandHandler(
                 answerRepository,
                 examRepository,
@@ -113,6 +113,17 @@ namespace Vettingo.InterviewService.UnitTests.Application.CQRS
             await action.Should().ThrowAsync<NotFoundException>();
             await answerRepository.DidNotReceive().AddAsync(Arg.Any<InterviewAnswerEntity>());
             await answerRepository.DidNotReceive().SaveChangesAsync();
+        }
+
+        private static async Task CompleteAsync()
+        {
+            await Task.Yield();
+        }
+
+        private static async Task<T> ReturnAsync<T>(T value)
+        {
+            await Task.Yield();
+            return value;
         }
     }
 }

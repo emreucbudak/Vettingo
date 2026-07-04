@@ -19,9 +19,9 @@ namespace Vettingo.NotificationService.UnitTests.Application.CQRS
         {
             var repository = Substitute.For<INotificationRepository>();
             var sender = Substitute.For<INotificationSender>();
-            repository.AddNotificationAsync(Arg.Any<Notification>()).Returns(Task.CompletedTask);
-            repository.SaveChangesAsync().Returns(Task.FromResult(1));
-            sender.SendNotificationAsync(Arg.Any<Notification>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+            repository.AddNotificationAsync(Arg.Any<Notification>()).Returns(_ => CompleteAsync());
+            repository.SaveChangesAsync().Returns(_ => ReturnAsync(1));
+            sender.SendNotificationAsync(Arg.Any<Notification>(), Arg.Any<CancellationToken>()).Returns(_ => CompleteAsync());
             var handler = new CreateNotificationCommandHandler(repository, sender, Substitute.For<ILogger<CreateNotificationCommandHandler>>());
             var request = new CreateNotificationCommandRequest
             {
@@ -51,7 +51,7 @@ namespace Vettingo.NotificationService.UnitTests.Application.CQRS
         {
             var repository = Substitute.For<INotificationRepository>();
             var notificationId = Guid.NewGuid();
-            repository.GetNotificationByIdAsync(notificationId).Returns(Task.FromResult<Notification?>(null));
+            repository.GetNotificationByIdAsync(notificationId).Returns(_ => ReturnAsync<Notification?>(null));
             var handler = new MarkNotificationAsReadCommandHandler(repository, Substitute.For<ILogger<MarkNotificationAsReadCommandHandler>>());
 
             Func<Task> action = () => handler.Handle(new MarkNotificationAsReadCommandRequest { NotificationId = notificationId }, CancellationToken.None);
@@ -66,8 +66,8 @@ namespace Vettingo.NotificationService.UnitTests.Application.CQRS
         {
             var repository = Substitute.For<INotificationRepository>();
             var notification = CreateNotification(Guid.NewGuid(), "Reminder");
-            repository.GetNotificationByIdAsync(notification.Id).Returns(Task.FromResult<Notification?>(notification));
-            repository.SaveChangesAsync().Returns(Task.FromResult(1));
+            repository.GetNotificationByIdAsync(notification.Id).Returns(_ => ReturnAsync<Notification?>(notification));
+            repository.SaveChangesAsync().Returns(_ => ReturnAsync(1));
             var handler = new MarkNotificationAsReadCommandHandler(repository, Substitute.For<ILogger<MarkNotificationAsReadCommandHandler>>());
 
             await handler.Handle(new MarkNotificationAsReadCommandRequest { NotificationId = notification.Id }, CancellationToken.None);
@@ -84,7 +84,7 @@ namespace Vettingo.NotificationService.UnitTests.Application.CQRS
             var repository = Substitute.For<INotificationRepository>();
             var userId = Guid.NewGuid();
             var notification = CreateNotification(userId, "Unread");
-            repository.GetUnreadNotificationsByUserIdAsync(userId).Returns(Task.FromResult<IEnumerable<Notification>>([notification]));
+            repository.GetUnreadNotificationsByUserIdAsync(userId).Returns(_ => ReturnAsync<IEnumerable<Notification>>([notification]));
             var handler = new GetUserNotificationsQueryHandler(repository, Substitute.For<ILogger<GetUserNotificationsQueryHandler>>());
 
             var response = (await handler.Handle(new GetUserNotificationsQueryRequest { UserId = userId, UnreadOnly = true }, CancellationToken.None)).ToList();
@@ -100,6 +100,17 @@ namespace Vettingo.NotificationService.UnitTests.Application.CQRS
             Notification notification = new();
             notification.CreateNotification(userId, title, "Notification message", NotificationType.Info);
             return notification;
+        }
+
+        private static async Task CompleteAsync()
+        {
+            await Task.Yield();
+        }
+
+        private static async Task<T> ReturnAsync<T>(T value)
+        {
+            await Task.Yield();
+            return value;
         }
     }
 }

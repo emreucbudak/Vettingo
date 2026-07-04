@@ -17,8 +17,8 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
         public async Task CreateExamCommandHandler_Should_Create_And_Save_Exam()
         {
             var repository = Substitute.For<IExamRepository>();
-            repository.AddExamAsync(Arg.Any<Exam>()).Returns(Task.CompletedTask);
-            repository.SaveChangesAsync().Returns(Task.FromResult(1));
+            repository.AddExamAsync(Arg.Any<Exam>()).Returns(_ => CompleteAsync());
+            repository.SaveChangesAsync().Returns(_ => ReturnAsync(1));
             var handler = new CreateExamCommandHandler(repository, Substitute.For<ILogger<CreateExamCommandHandler>>());
             var request = new CreateExamCommandRequest
             {
@@ -45,7 +45,7 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             var examRepository = Substitute.For<IExamRepository>();
             var questionRepository = Substitute.For<IQuestionRepository>();
             var examId = Guid.NewGuid();
-            examRepository.GetExamByIdAsync(examId).Returns(Task.FromResult<Exam?>(null));
+            examRepository.GetExamByIdAsync(examId).Returns(_ => ReturnAsync<Exam?>(null));
             var handler = new CreateMultipleChoiceQuestionCommandHandler(
                 examRepository,
                 questionRepository,
@@ -65,9 +65,9 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             var questionRepository = Substitute.For<IQuestionRepository>();
             var exam = CreateExam();
             var request = CreateMultipleChoiceQuestionRequest(exam.Id);
-            examRepository.GetExamByIdAsync(exam.Id).Returns(Task.FromResult<Exam?>(exam));
-            questionRepository.AddMultipleChoiceQuestionAsync(Arg.Any<MultipleChoiceQuestion>()).Returns(Task.CompletedTask);
-            questionRepository.SaveChangesAsync().Returns(Task.FromResult(1));
+            examRepository.GetExamByIdAsync(exam.Id).Returns(_ => ReturnAsync<Exam?>(exam));
+            questionRepository.AddMultipleChoiceQuestionAsync(Arg.Any<MultipleChoiceQuestion>()).Returns(_ => CompleteAsync());
+            questionRepository.SaveChangesAsync().Returns(_ => ReturnAsync(1));
             var handler = new CreateMultipleChoiceQuestionCommandHandler(
                 examRepository,
                 questionRepository,
@@ -91,7 +91,7 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             var repository = Substitute.For<IQuestionRepository>();
             var examId = Guid.NewGuid();
             var question = CreateMultipleChoiceQuestion(examId);
-            repository.GetMultipleChoiceQuestionsByExamIdAsync(examId).Returns(Task.FromResult<IEnumerable<MultipleChoiceQuestion>>([question]));
+            repository.GetMultipleChoiceQuestionsByExamIdAsync(examId).Returns(_ => ReturnAsync<IEnumerable<MultipleChoiceQuestion>>([question]));
             var handler = new GetMultipleChoiceQuestionsByExamQueryHandler(repository, Substitute.For<ILogger<GetMultipleChoiceQuestionsByExamQueryHandler>>());
 
             var response = (await handler.Handle(new GetMultipleChoiceQuestionsByExamQueryRequest { ExamId = examId }, CancellationToken.None)).ToList();
@@ -139,6 +139,17 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             question.AddOption(firstOption);
 
             return question;
+        }
+
+        private static async Task CompleteAsync()
+        {
+            await Task.Yield();
+        }
+
+        private static async Task<T> ReturnAsync<T>(T value)
+        {
+            await Task.Yield();
+            return value;
         }
     }
 }

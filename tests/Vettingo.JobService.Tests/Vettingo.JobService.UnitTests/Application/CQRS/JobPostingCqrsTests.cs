@@ -17,8 +17,8 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
         public async Task CreateJobPostingCommandHandler_Should_Create_And_Save_JobPosting()
         {
             var repository = Substitute.For<IJobPostingRepository>();
-            repository.AddJobPostingAsync(Arg.Any<JobPosting>()).Returns(Task.CompletedTask);
-            repository.SaveChangesAsync().Returns(Task.FromResult(1));
+            repository.AddJobPostingAsync(Arg.Any<JobPosting>()).Returns(_ => CompleteAsync());
+            repository.SaveChangesAsync().Returns(_ => ReturnAsync(1));
             var handler = new CreateJobPostingCommandHandler(repository, Substitute.For<ILogger<CreateJobPostingCommandHandler>>());
             var request = CreateJobPostingRequest();
 
@@ -36,7 +36,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
         {
             var repository = Substitute.For<IJobPostingRepository>();
             var jobPostingId = Guid.NewGuid();
-            repository.GetJobPostingByIdAsync(jobPostingId).Returns(Task.FromResult<JobPosting?>(null));
+            repository.GetJobPostingByIdAsync(jobPostingId).Returns(_ => ReturnAsync<JobPosting?>(null));
             var handler = new UpdateJobPostingCommandHandler(repository, Substitute.For<ILogger<UpdateJobPostingCommandHandler>>());
 
             Func<Task> action = () => handler.Handle(CreateUpdateJobPostingRequest(jobPostingId), CancellationToken.None);
@@ -51,7 +51,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
         {
             var repository = Substitute.For<IJobPostingRepository>();
             var jobPosting = CreateJobPosting(Guid.NewGuid(), "Backend Developer");
-            repository.GetJobPostingByIdAsync(jobPosting.Id).Returns(Task.FromResult<JobPosting?>(jobPosting));
+            repository.GetJobPostingByIdAsync(jobPosting.Id).Returns(_ => ReturnAsync<JobPosting?>(jobPosting));
             var handler = new GetJobPostingByIdQueryHandler(repository, Substitute.For<ILogger<GetJobPostingByIdQueryHandler>>());
 
             var response = await handler.Handle(new GetJobPostingByIdQueryRequest { JobPostingId = jobPosting.Id }, CancellationToken.None);
@@ -121,6 +121,17 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 JobPostingStatus.Published);
 
             return jobPosting;
+        }
+
+        private static async Task CompleteAsync()
+        {
+            await Task.Yield();
+        }
+
+        private static async Task<T> ReturnAsync<T>(T value)
+        {
+            await Task.Yield();
+            return value;
         }
     }
 }
