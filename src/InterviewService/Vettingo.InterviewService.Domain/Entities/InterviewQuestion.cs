@@ -1,4 +1,4 @@
-﻿using Vettingo.InterviewService.Domain.Common;
+using Vettingo.InterviewService.Domain.Common;
 
 namespace Vettingo.InterviewService.Domain.Entities
 {
@@ -14,6 +14,7 @@ namespace Vettingo.InterviewService.Domain.Entities
 
         public void CreateQuestion(Guid? companyId, string questionText)
         {
+            CheckInterviewQuestionContent(companyId, questionText);
             SetId();
             CompanyId = companyId;
             QuestionText = questionText;
@@ -23,9 +24,20 @@ namespace Vettingo.InterviewService.Domain.Entities
 
         public void UpdateQuestion(Guid? companyId, string questionText)
         {
+            CheckInterviewQuestionContent(companyId, questionText);
             CompanyId = companyId;
             QuestionText = questionText;
             SetUpdatedAt();
+        }
+
+        public void CheckInterviewQuestionContent(Guid? companyId, string questionText)
+        {
+            if (companyId.HasValue && companyId.Value == Guid.Empty)
+            {
+                throw new ArgumentException("CompanyId boş olamaz.", nameof(companyId));
+            }
+
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(questionText, nameof(questionText));
         }
     }
 }

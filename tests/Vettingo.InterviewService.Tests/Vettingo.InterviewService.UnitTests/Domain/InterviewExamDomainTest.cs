@@ -1,22 +1,57 @@
-﻿using FluentAssertions;
+using FluentAssertions;
+using Vettingo.InterviewService.Domain.Entities;
 
 namespace Vettingo.InterviewService.UnitTests.Domain
 {
     public class InterviewExamDomainTest
     {
         [Fact]
-        public async Task Create_InterviewExam_With_Valid_Parameters()
+        public void Create_InterviewExam_With_Valid_Parameters()
         {
             // Arrange
-            InterviewService.Domain.Entities.InterviewExam interviewExam = new InterviewService.Domain.Entities.InterviewExam();
+            InterviewExam interviewExam = new();
+
             // Act
             Action action = () =>
             {
                 IEnumerable<Guid> questionIds = new List<Guid>();
-                interviewExam.CreateExam(Guid.NewGuid(),"Test Title", "Test Description", questionIds);
+                interviewExam.CreateExam(Guid.NewGuid(), "Test Title", "Test Description", questionIds);
             };
+
             // Assert
             action.Should().NotThrow();
+        }
+
+        [Fact]
+        public void Create_InterviewExam_With_Empty_CompanyId_Should_Throw()
+        {
+            // Arrange
+            InterviewExam interviewExam = new();
+
+            // Act
+            Action action = () =>
+            {
+                interviewExam.CreateExam(Guid.Empty, "Test Title", "Test Description", new List<Guid>());
+            };
+
+            // Assert
+            action.Should().Throw<ArgumentException>();
+        }
+
+        [Fact]
+        public void Create_InterviewExam_With_Empty_QuestionId_Should_Throw()
+        {
+            // Arrange
+            InterviewExam interviewExam = new();
+
+            // Act
+            Action action = () =>
+            {
+                interviewExam.CreateExam(Guid.NewGuid(), "Test Title", "Test Description", new List<Guid> { Guid.Empty });
+            };
+
+            // Assert
+            action.Should().Throw<ArgumentException>();
         }
     }
 }

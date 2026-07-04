@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Vettingo.ExamService.Domain.Entities;
 
 namespace Vettingo.ExamService.UnitTests.Domain
@@ -6,23 +6,52 @@ namespace Vettingo.ExamService.UnitTests.Domain
     public class MultipleChoiceQuestionDomainTest
     {
         [Fact]
-        public async Task Create_MultipleChoiceQuestion_With_Valid_Parameters()
+        public void Create_MultipleChoiceQuestion_With_Valid_Parameters()
         {
             // Arrange
             var examId = Guid.NewGuid();
-            var questionText = "Türkiyenin başkenti neresidir?";
-            var point = 5;
+            var questionText = "Turkiyenin baskenti neresidir?";
             var weight = 1.0m;
             var displayOrder = 1;
-            var explanation = "Türkiyenin başkenti merkez şehridir.";
+            var explanation = "Turkiyenin baskenti merkez sehridir.";
+
             // Act
-            Action act = () =>
+            Action action = () =>
             {
                 var question = new MultipleChoiceQuestion();
-                question.CreateQuestion(examId, questionText,point, weight, displayOrder, explanation);
+                question.CreateQuestion(examId, questionText, weight, displayOrder, explanation);
             };
+
             // Assert
-            act.Should().NotThrow();
+            action.Should().NotThrow();
+        }
+
+        [Fact]
+        public void Create_MultipleChoiceQuestion_With_Empty_QuestionText_Should_Throw()
+        {
+            // Act
+            Action action = () =>
+            {
+                var question = new MultipleChoiceQuestion();
+                question.CreateQuestion(Guid.NewGuid(), string.Empty, 1m, 1, "Explanation");
+            };
+
+            // Assert
+            action.Should().Throw<ArgumentException>();
+        }
+
+        [Fact]
+        public void Create_MultipleChoiceQuestion_With_Zero_Weight_Should_Throw()
+        {
+            // Act
+            Action action = () =>
+            {
+                var question = new MultipleChoiceQuestion();
+                question.CreateQuestion(Guid.NewGuid(), "Question", 0m, 1, "Explanation");
+            };
+
+            // Assert
+            action.Should().Throw<ArgumentOutOfRangeException>();
         }
     }
 }

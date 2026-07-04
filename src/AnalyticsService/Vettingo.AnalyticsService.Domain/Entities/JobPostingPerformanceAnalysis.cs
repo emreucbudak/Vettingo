@@ -41,6 +41,7 @@ namespace Vettingo.AnalyticsService.Domain.Entities
             int topTenPercentMatchCount,
             decimal averageCompatibilityRate)
         {
+            CheckJobPostingPerformanceAnalysisContent(companyId, jobPostingId, viewCount, applicationCount, recommendationCount, hiredRecommendationCount, cvViewCount, matchCount, topTenPercentMatchCount, averageCompatibilityRate);
             SetId();
             CompanyId = companyId;
             JobPostingId = jobPostingId;
@@ -59,19 +60,44 @@ namespace Vettingo.AnalyticsService.Domain.Entities
             int topTenPercentMatchCount,
             decimal averageCompatibilityRate)
         {
-            ViewCount = Math.Max(0, viewCount);
-            ApplicationCount = Math.Max(0, applicationCount);
-            RecommendationCount = Math.Max(0, recommendationCount);
-            HiredRecommendationCount = Math.Max(0, hiredRecommendationCount);
-            CvViewCount = Math.Max(0, cvViewCount);
-            MatchCount = Math.Max(0, matchCount);
-            TopTenPercentMatchCount = Math.Max(0, topTenPercentMatchCount);
-            AverageCompatibilityRate = NormalizeRate(averageCompatibilityRate);
+            CheckJobPostingPerformanceAnalysisContent(CompanyId, JobPostingId, viewCount, applicationCount, recommendationCount, hiredRecommendationCount, cvViewCount, matchCount, topTenPercentMatchCount, averageCompatibilityRate);
+            ViewCount = viewCount;
+            ApplicationCount = applicationCount;
+            RecommendationCount = recommendationCount;
+            HiredRecommendationCount = hiredRecommendationCount;
+            CvViewCount = cvViewCount;
+            MatchCount = matchCount;
+            TopTenPercentMatchCount = topTenPercentMatchCount;
+            AverageCompatibilityRate = averageCompatibilityRate;
             RecommendationHireRate = CalculateRate(HiredRecommendationCount, RecommendationCount);
             ApplicationToHireRate = CalculateRate(HiredRecommendationCount, ApplicationCount);
             CvViewToMatchRate = CalculateRate(MatchCount, CvViewCount);
             TopTenPercentMatchRate = CalculateRate(TopTenPercentMatchCount, MatchCount);
             UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void CheckJobPostingPerformanceAnalysisContent(
+            Guid companyId,
+            Guid jobPostingId,
+            int viewCount,
+            int applicationCount,
+            int recommendationCount,
+            int hiredRecommendationCount,
+            int cvViewCount,
+            int matchCount,
+            int topTenPercentMatchCount,
+            decimal averageCompatibilityRate)
+        {
+            CheckGuid(companyId, nameof(companyId));
+            CheckGuid(jobPostingId, nameof(jobPostingId));
+            CheckNonNegative(viewCount, nameof(viewCount));
+            CheckNonNegative(applicationCount, nameof(applicationCount));
+            CheckNonNegative(recommendationCount, nameof(recommendationCount));
+            CheckNonNegative(hiredRecommendationCount, nameof(hiredRecommendationCount));
+            CheckNonNegative(cvViewCount, nameof(cvViewCount));
+            CheckNonNegative(matchCount, nameof(matchCount));
+            CheckNonNegative(topTenPercentMatchCount, nameof(topTenPercentMatchCount));
+            CheckRate(averageCompatibilityRate, nameof(averageCompatibilityRate));
         }
 
         private static decimal CalculateRate(int numerator, int denominator)
@@ -84,9 +110,28 @@ namespace Vettingo.AnalyticsService.Domain.Entities
             return Math.Round(numerator * 100m / denominator, 2);
         }
 
-        private static decimal NormalizeRate(decimal rate)
+        private static void CheckGuid(Guid value, string parameterName)
         {
-            return Math.Clamp(rate, 0m, 100m);
+            if (value == Guid.Empty)
+            {
+                throw new ArgumentException($"{parameterName} boş olamaz.", parameterName);
+            }
+        }
+
+        private static void CheckNonNegative(int value, string parameterName)
+        {
+            if (value < 0)
+            {
+                throw new ArgumentOutOfRangeException(parameterName, value, "Değer negatif olamaz.");
+            }
+        }
+
+        private static void CheckRate(decimal rate, string parameterName)
+        {
+            if (rate is < 0m or > 100m)
+            {
+                throw new ArgumentOutOfRangeException(parameterName, rate, "Oran 0 ile 100 arasında olmalıdır.");
+            }
         }
     }
 }

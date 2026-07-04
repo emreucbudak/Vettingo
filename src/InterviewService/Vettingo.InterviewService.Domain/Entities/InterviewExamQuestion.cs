@@ -1,4 +1,4 @@
-﻿using Vettingo.InterviewService.Domain.Common;
+using Vettingo.InterviewService.Domain.Common;
 
 namespace Vettingo.InterviewService.Domain.Entities
 {
@@ -16,11 +16,31 @@ namespace Vettingo.InterviewService.Domain.Entities
 
         public void CreateExamQuestion(Guid interviewExamId, Guid interviewQuestionId, int displayOrder)
         {
+            CheckInterviewExamQuestionContent(interviewExamId, interviewQuestionId, displayOrder);
             SetId();
             InterviewExamId = interviewExamId;
             InterviewQuestionId = interviewQuestionId;
             DisplayOrder = displayOrder;
             SetCreatedAt();
+        }
+
+        public void CheckInterviewExamQuestionContent(Guid interviewExamId, Guid interviewQuestionId, int displayOrder)
+        {
+            CheckGuid(interviewExamId, nameof(interviewExamId));
+            CheckGuid(interviewQuestionId, nameof(interviewQuestionId));
+
+            if (displayOrder <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(displayOrder), displayOrder, "Gösterim sırası sıfırdan büyük olmalıdır.");
+            }
+        }
+
+        private static void CheckGuid(Guid value, string parameterName)
+        {
+            if (value == Guid.Empty)
+            {
+                throw new ArgumentException($"{parameterName} boş olamaz.", parameterName);
+            }
         }
     }
 }

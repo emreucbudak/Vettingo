@@ -1,14 +1,17 @@
-﻿using FluentAssertions;
+using FluentAssertions;
+using Vettingo.JobService.Domain.Entities;
+using Vettingo.JobService.Domain.Enums;
 
 namespace Vettingo.JobService.UnitTests.Domain
 {
     public class JobPostingDomainTest
     {
         [Fact]
-        public async Task Create_JobPosting_With_Valid_Parameters()
+        public void Create_JobPosting_With_Valid_Parameters()
         {
             // Arrange
-            Vettingo.JobService.Domain.Entities.JobPosting jobPosting = new Vettingo.JobService.Domain.Entities.JobPosting();
+            JobPosting jobPosting = new();
+
             // Act
             Action action = () =>
             {
@@ -19,16 +22,75 @@ namespace Vettingo.JobService.UnitTests.Domain
                     "Test Requirements",
                     "Test Responsibilities",
                     "Test Location",
-                    Vettingo.JobService.Domain.Enums.EmploymentType.FullTime,
-                    Vettingo.JobService.Domain.Enums.WorkingModel.OnSite,
-                    Vettingo.JobService.Domain.Enums.ExperienceLevel.Lead,
+                    EmploymentType.FullTime,
+                    WorkingModel.OnSite,
+                    ExperienceLevel.Lead,
                     50000m,
                     70000m,
                     DateTime.UtcNow.AddDays(30),
-                    Vettingo.JobService.Domain.Enums.JobPostingStatus.Published);
+                    JobPostingStatus.Published);
             };
+
             // Assert
             action.Should().NotThrow();
+        }
+
+        [Fact]
+        public void Create_JobPosting_With_Empty_CompanyId_Should_Throw()
+        {
+            // Arrange
+            JobPosting jobPosting = new();
+
+            // Act
+            Action action = () =>
+            {
+                jobPosting.CreateJobPosting(
+                    Guid.Empty,
+                    "Test Title",
+                    "Test Description",
+                    "Test Requirements",
+                    "Test Responsibilities",
+                    "Test Location",
+                    EmploymentType.FullTime,
+                    WorkingModel.OnSite,
+                    ExperienceLevel.Lead,
+                    50000m,
+                    70000m,
+                    DateTime.UtcNow.AddDays(30),
+                    JobPostingStatus.Published);
+            };
+
+            // Assert
+            action.Should().Throw<ArgumentException>();
+        }
+
+        [Fact]
+        public void Create_JobPosting_With_MinSalary_Greater_Than_MaxSalary_Should_Throw()
+        {
+            // Arrange
+            JobPosting jobPosting = new();
+
+            // Act
+            Action action = () =>
+            {
+                jobPosting.CreateJobPosting(
+                    Guid.NewGuid(),
+                    "Test Title",
+                    "Test Description",
+                    "Test Requirements",
+                    "Test Responsibilities",
+                    "Test Location",
+                    EmploymentType.FullTime,
+                    WorkingModel.OnSite,
+                    ExperienceLevel.Lead,
+                    80000m,
+                    70000m,
+                    DateTime.UtcNow.AddDays(30),
+                    JobPostingStatus.Published);
+            };
+
+            // Assert
+            action.Should().Throw<ArgumentException>();
         }
     }
 }

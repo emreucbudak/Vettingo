@@ -28,6 +28,8 @@ namespace Vettingo.NotificationService.Domain.Entities
             string message,
             NotificationType type)
         {
+            CheckNotificationContent(userId, title, message);
+            CheckNotificationType(type);
             SetId();
             UserId = userId;
             Title = title;
@@ -47,6 +49,23 @@ namespace Vettingo.NotificationService.Domain.Entities
 
             IsRead = true;
             ReadAt = DateTime.UtcNow;
+        }
+        public void CheckNotificationContent(Guid userId, string title, string message)
+        {
+            if (userId == Guid.Empty)
+            {
+                throw new ArgumentException("UserId boş olamaz.", nameof(userId));
+            }
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(title, nameof(title));
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(message, nameof(message));
+        }
+
+        private static void CheckNotificationType(NotificationType type)
+        {
+            if (!Enum.IsDefined(typeof(NotificationType), type))
+            {
+                throw new ArgumentOutOfRangeException(nameof(type), type, "Bildirim tipi geçersiz.");
+            }
         }
     }
 }

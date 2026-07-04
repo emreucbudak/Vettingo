@@ -1,4 +1,4 @@
-﻿using Vettingo.InterviewService.Domain.Common;
+using Vettingo.InterviewService.Domain.Common;
 
 namespace Vettingo.InterviewService.Domain.Entities
 {
@@ -16,6 +16,7 @@ namespace Vettingo.InterviewService.Domain.Entities
 
         public void CreateExam(Guid companyId, string title, string description, IEnumerable<Guid> questionIds)
         {
+            CheckInterviewExamContent(companyId, title, description, questionIds);
             SetId();
             CompanyId = companyId;
             Title = title;
@@ -27,6 +28,7 @@ namespace Vettingo.InterviewService.Domain.Entities
 
         public void UpdateExam(string title, string description, IEnumerable<Guid> questionIds)
         {
+            CheckInterviewExamContent(CompanyId, title, description, questionIds);
             Title = title;
             Description = description;
             SetUpdatedAt();
@@ -35,6 +37,7 @@ namespace Vettingo.InterviewService.Domain.Entities
 
         public void SetQuestions(IEnumerable<Guid> questionIds)
         {
+            CheckQuestionIds(questionIds);
             Questions.Clear();
 
             int displayOrder = 1;
@@ -44,6 +47,32 @@ namespace Vettingo.InterviewService.Domain.Entities
                 examQuestion.CreateExamQuestion(Id, questionId, displayOrder);
                 Questions.Add(examQuestion);
                 displayOrder++;
+            }
+        }
+
+        public void CheckInterviewExamContent(Guid companyId, string title, string description, IEnumerable<Guid> questionIds)
+        {
+            CheckGuid(companyId, nameof(companyId));
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(title, nameof(title));
+            ArgumentNullException.ThrowIfNull(description, nameof(description));
+            CheckQuestionIds(questionIds);
+        }
+
+        private static void CheckQuestionIds(IEnumerable<Guid> questionIds)
+        {
+            ArgumentNullException.ThrowIfNull(questionIds, nameof(questionIds));
+
+            if (questionIds.Any(questionId => questionId == Guid.Empty))
+            {
+                throw new ArgumentException("QuestionIds boş Guid içeremez.", nameof(questionIds));
+            }
+        }
+
+        private static void CheckGuid(Guid value, string parameterName)
+        {
+            if (value == Guid.Empty)
+            {
+                throw new ArgumentException($"{parameterName} boş olamaz.", parameterName);
             }
         }
     }

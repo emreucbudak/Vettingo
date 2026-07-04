@@ -1,20 +1,57 @@
-﻿using FluentAssertions;
-using NSubstitute.ExceptionExtensions;
+using FluentAssertions;
+using Vettingo.NotificationService.Domain.Entities;
+using Vettingo.NotificationService.Domain.Enums;
+
 namespace Vettingo.NotificationService.UnitTests.Domain
 {
     public class NotificationDomainTest
     {
         [Fact]
-        public async Task Create_Notification_With_Valid_Parameters()
+        public void Create_Notification_With_Valid_Parameters()
         {
             // Arrange
-            NotificationService.Domain.Entities.Notification notification = new NotificationService.Domain.Entities.Notification();
+            Notification notification = new();
+
             // Act
-            Action action = () => {
-                notification.CreateNotification(Guid.NewGuid(), "Test Title", "Test Message", NotificationService.Domain.Enums.NotificationType.Info);
+            Action action = () =>
+            {
+                notification.CreateNotification(Guid.NewGuid(), "Test Title", "Test Message", NotificationType.Info);
             };
+
             // Assert
             action.Should().NotThrow();
+        }
+
+        [Fact]
+        public void Create_Notification_With_Empty_UserId_Should_Throw()
+        {
+            // Arrange
+            Notification notification = new();
+
+            // Act
+            Action action = () =>
+            {
+                notification.CreateNotification(Guid.Empty, "Test Title", "Test Message", NotificationType.Info);
+            };
+
+            // Assert
+            action.Should().Throw<ArgumentException>();
+        }
+
+        [Fact]
+        public void Create_Notification_With_Empty_Title_Should_Throw()
+        {
+            // Arrange
+            Notification notification = new();
+
+            // Act
+            Action action = () =>
+            {
+                notification.CreateNotification(Guid.NewGuid(), string.Empty, "Test Message", NotificationType.Info);
+            };
+
+            // Assert
+            action.Should().Throw<ArgumentException>();
         }
     }
 }

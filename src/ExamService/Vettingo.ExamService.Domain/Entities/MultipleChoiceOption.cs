@@ -21,11 +21,27 @@ namespace Vettingo.ExamService.Domain.Entities
 
         public void CreateOption(Guid multipleChoiceQuestionId, string optionText, bool isCorrect, int displayOrder)
         {
+            CheckMultipleChoiceOptionContent(multipleChoiceQuestionId, optionText, displayOrder);
             SetId();
             MultipleChoiceQuestionId = multipleChoiceQuestionId;
             OptionText = optionText;
             IsCorrect = isCorrect;
             DisplayOrder = displayOrder;
+        }
+
+        public void CheckMultipleChoiceOptionContent(Guid multipleChoiceQuestionId, string optionText, int displayOrder)
+        {
+            if (multipleChoiceQuestionId == Guid.Empty)
+            {
+                throw new ArgumentException("MultipleChoiceQuestionId boş olamaz.", nameof(multipleChoiceQuestionId));
+            }
+
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(optionText, nameof(optionText));
+
+            if (displayOrder <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(displayOrder), displayOrder, "Gösterim sırası sıfırdan büyük olmalıdır.");
+            }
         }
     }
 }

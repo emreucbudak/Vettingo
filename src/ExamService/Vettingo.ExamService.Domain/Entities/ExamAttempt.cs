@@ -25,6 +25,7 @@ namespace Vettingo.ExamService.Domain.Entities
 
         public void StartAttempt(Guid examId, Guid candidateId)
         {
+            CheckStartAttemptContent(examId, candidateId);
             SetId();
             ExamId = examId;
             CandidateId = candidateId;
@@ -34,6 +35,7 @@ namespace Vettingo.ExamService.Domain.Entities
 
         public void CompleteAttempt(decimal score)
         {
+            CheckScore(score);
             Score = score;
             CompletedAt = DateTime.UtcNow;
             Status = ExamAttemptStatus.Completed;
@@ -41,6 +43,7 @@ namespace Vettingo.ExamService.Domain.Entities
 
         public void EvaluateAttempt(decimal score)
         {
+            CheckScore(score);
             Score = score;
             Status = ExamAttemptStatus.Evaluated;
         }
@@ -48,6 +51,28 @@ namespace Vettingo.ExamService.Domain.Entities
         public void CancelAttempt()
         {
             Status = ExamAttemptStatus.Cancelled;
+        }
+
+        public void CheckStartAttemptContent(Guid examId, Guid candidateId)
+        {
+            CheckGuid(examId, nameof(examId));
+            CheckGuid(candidateId, nameof(candidateId));
+        }
+
+        public void CheckScore(decimal score)
+        {
+            if (score is < 0m or > 100m)
+            {
+                throw new ArgumentOutOfRangeException(nameof(score), score, "Skor 0 ile 100 arasında olmalıdır.");
+            }
+        }
+
+        private static void CheckGuid(Guid value, string parameterName)
+        {
+            if (value == Guid.Empty)
+            {
+                throw new ArgumentException($"{parameterName} boş olamaz.", parameterName);
+            }
         }
     }
 }

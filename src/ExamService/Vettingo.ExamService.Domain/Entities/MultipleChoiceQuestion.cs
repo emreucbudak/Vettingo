@@ -21,15 +21,17 @@ namespace Vettingo.ExamService.Domain.Entities
             Id = Guid.CreateVersion7();
         }
 
-        public void CreateQuestion(Guid examId, string questionText,int point, decimal weight, int displayOrder, string explanation)
+        public void CreateQuestion(Guid examId, string questionText, decimal weight, int displayOrder, string explanation)
         {
+            CheckMultipleChoiceQuestionContent(examId, questionText, weight, displayOrder, explanation);
             SetId();
             ExamId = examId;
-            UpdateQuestion(questionText,weight, displayOrder, explanation);
+            UpdateQuestion(questionText, weight, displayOrder, explanation);
         }
 
-        public void UpdateQuestion(string questionText,decimal weight, int displayOrder, string explanation)
+        public void UpdateQuestion(string questionText, decimal weight, int displayOrder, string explanation)
         {
+            CheckMultipleChoiceQuestionContent(questionText, weight, displayOrder, explanation);
             QuestionText = questionText;
             Weight = weight;
             DisplayOrder = displayOrder;
@@ -38,12 +40,43 @@ namespace Vettingo.ExamService.Domain.Entities
 
         public void AddOption(MultipleChoiceOption option)
         {
+            ArgumentNullException.ThrowIfNull(option, nameof(option));
             Options.Add(option);
         }
 
         public void ClearOptions()
         {
             Options.Clear();
+        }
+
+        public void CheckMultipleChoiceQuestionContent(Guid examId, string questionText, decimal weight, int displayOrder, string explanation)
+        {
+            CheckGuid(examId, nameof(examId));
+            CheckMultipleChoiceQuestionContent(questionText, weight, displayOrder, explanation);
+        }
+
+        public void CheckMultipleChoiceQuestionContent(string questionText, decimal weight, int displayOrder, string explanation)
+        {
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(questionText, nameof(questionText));
+            ArgumentNullException.ThrowIfNull(explanation, nameof(explanation));
+
+            if (weight <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(weight), weight, "Ağırlık sıfırdan büyük olmalıdır.");
+            }
+
+            if (displayOrder <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(displayOrder), displayOrder, "Gösterim sırası sıfırdan büyük olmalıdır.");
+            }
+        }
+
+        private static void CheckGuid(Guid value, string parameterName)
+        {
+            if (value == Guid.Empty)
+            {
+                throw new ArgumentException($"{parameterName} boş olamaz.", parameterName);
+            }
         }
     }
 }
