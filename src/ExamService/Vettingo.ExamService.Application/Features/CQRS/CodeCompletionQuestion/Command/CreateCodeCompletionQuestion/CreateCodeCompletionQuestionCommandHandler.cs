@@ -18,7 +18,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.CodeCompletionQuestion.
             }
 
             Domain.Entities.CodeCompletionQuestion question = new();
-            question.CreateQuestion(request.ExamId, request.QuestionText, request.Topic, request.Point, request.Weight, request.DisplayOrder, request.Explanation, request.CodeSnippet, request.ExpectedAnswer);
+            question.CreateQuestion(request.ExamId, request.QuestionText, request.Weight, request.DisplayOrder, request.Explanation, request.CodeSnippet, request.ExpectedAnswer);
 
             await questionRepository.AddCodeCompletionQuestionAsync(question);
             await questionRepository.SaveChangesAsync();

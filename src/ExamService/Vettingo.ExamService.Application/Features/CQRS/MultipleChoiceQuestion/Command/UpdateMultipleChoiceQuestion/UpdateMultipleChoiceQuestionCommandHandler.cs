@@ -17,7 +17,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.
                 throw new NotFoundException("Çoktan seçmeli soru bulunamadı");
             }
 
-            question.UpdateQuestion(request.QuestionText, request.Topic, request.Point, request.Weight, request.DisplayOrder, request.Explanation);
+            question.UpdateQuestion(request.QuestionText, request.Weight, request.DisplayOrder, request.Explanation);
             question.ClearOptions();
 
             foreach (var optionRequest in request.Options)

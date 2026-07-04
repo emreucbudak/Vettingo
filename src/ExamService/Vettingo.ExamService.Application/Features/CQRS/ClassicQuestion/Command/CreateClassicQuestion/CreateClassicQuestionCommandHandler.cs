@@ -18,7 +18,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.ClassicQuestion.Command
             }
 
             Domain.Entities.ClassicQuestion question = new();
-            question.CreateQuestion(request.ExamId, request.QuestionText, request.Topic, request.Point, request.Weight, request.DisplayOrder, request.Explanation, request.ExpectedAnswer);
+            question.CreateQuestion(request.ExamId, request.QuestionText, request.Weight, request.DisplayOrder, request.Explanation, request.ExpectedAnswer);
 
             await questionRepository.AddClassicQuestionAsync(question);
             await questionRepository.SaveChangesAsync();

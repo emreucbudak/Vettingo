@@ -37,8 +37,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
                     {
                         Id = question.Id,
                         QuestionText = question.QuestionText,
-                        Topic = question.Topic,
-                        Point = question.Point,
                         Weight = question.Weight,
                         DisplayOrder = question.DisplayOrder,
                         Explanation = question.Explanation,
@@ -60,8 +58,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
                     {
                         Id = question.Id,
                         QuestionText = question.QuestionText,
-                        Topic = question.Topic,
-                        Point = question.Point,
                         Weight = question.Weight,
                         DisplayOrder = question.DisplayOrder,
                         Explanation = question.Explanation,
@@ -74,8 +70,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
                     {
                         Id = question.Id,
                         QuestionText = question.QuestionText,
-                        Topic = question.Topic,
-                        Point = question.Point,
                         Weight = question.Weight,
                         DisplayOrder = question.DisplayOrder,
                         Explanation = question.Explanation,
@@ -88,8 +82,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
                     {
                         Id = question.Id,
                         QuestionText = question.QuestionText,
-                        Topic = question.Topic,
-                        Point = question.Point,
                         Weight = question.Weight,
                         DisplayOrder = question.DisplayOrder,
                         Explanation = question.Explanation,

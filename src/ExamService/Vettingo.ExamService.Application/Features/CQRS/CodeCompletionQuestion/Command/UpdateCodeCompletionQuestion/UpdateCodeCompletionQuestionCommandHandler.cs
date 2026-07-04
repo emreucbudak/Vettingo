@@ -17,7 +17,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.CodeCompletionQuestion.
                 throw new NotFoundException("Kod tamamlama sorusu bulunamadı");
             }
 
-            question.UpdateQuestion(request.QuestionText, request.Topic, request.Point, request.Weight, request.DisplayOrder, request.Explanation, request.CodeSnippet, request.ExpectedAnswer);
+            question.UpdateQuestion(request.QuestionText, request.Weight, request.DisplayOrder, request.Explanation, request.CodeSnippet, request.ExpectedAnswer);
             questionRepository.UpdateCodeCompletionQuestion(question);
             await questionRepository.SaveChangesAsync();
         }

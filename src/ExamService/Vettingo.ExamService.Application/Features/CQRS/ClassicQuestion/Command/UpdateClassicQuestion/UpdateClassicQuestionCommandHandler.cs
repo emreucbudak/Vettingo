@@ -17,7 +17,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.ClassicQuestion.Command
                 throw new NotFoundException("Klasik soru bulunamadı");
             }
 
-            question.UpdateQuestion(request.QuestionText, request.Topic, request.Point, request.Weight, request.DisplayOrder, request.Explanation, request.ExpectedAnswer);
+            question.UpdateQuestion(request.QuestionText, request.Weight, request.DisplayOrder, request.Explanation, request.ExpectedAnswer);
             questionRepository.UpdateClassicQuestion(question);
             await questionRepository.SaveChangesAsync();
         }

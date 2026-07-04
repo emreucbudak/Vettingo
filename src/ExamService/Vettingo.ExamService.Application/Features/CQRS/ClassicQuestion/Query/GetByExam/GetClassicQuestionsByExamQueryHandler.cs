@@ -16,8 +16,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.ClassicQuestion.Query.G
                 Id = question.Id,
                 ExamId = question.ExamId,
                 QuestionText = question.QuestionText,
-                Topic = question.Topic,
-                Point = question.Point,
                 Weight = question.Weight,
                 DisplayOrder = question.DisplayOrder,
                 Explanation = question.Explanation,
