@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Register;
+using Serilog;
 using FluentValidation;
 using Vettingo.AuthService.API.ExceptionHandlers;
 using Vettingo.AuthService.Infrastructure.Register;
@@ -14,7 +15,7 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
 });
 
 builder.Services.SaveDb(builder.Configuration);
-builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterCommandRequest>();
 builder.Services.AddTokenSettings(builder.Configuration);
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
