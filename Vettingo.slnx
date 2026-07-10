@@ -9,6 +9,10 @@
     <File Path="JobCI.yml" />
     <File Path="NotificationCI.yml" />
   </Folder>
+  <Folder Name="/docker-compose/">
+    <File Path="docker-compose/docker-compose.yml" />
+    <File Path=".dockerignore" />
+  </Folder>
   <Folder Name="/src/" />
   <Folder Name="/src/AnalyticsService/">
     <Project Path="src/AnalyticsService/Vettingo.AnalyticsService.API/Vettingo.AnalyticsService.API.csproj" Id="0df26875-eddf-427e-982c-dfbae2803b30" />

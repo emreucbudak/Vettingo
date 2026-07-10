@@ -1,0 +1,560 @@
+﻿name: vettingo
+services:
+  analytics-api:
+    build:
+      context: ..
+      dockerfile: src/AnalyticsService/Vettingo.AnalyticsService.API/Dockerfile
+    depends_on:
+      analytics-db:
+        condition: service_healthy
+        required: true
+      rabbitmq:
+        condition: service_healthy
+        required: true
+      redis:
+        condition: service_healthy
+        required: true
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=analytics-db;Port=5432;Database=AnalyticsServiceDb;Username=vettingo;Password=VettingoPostgres_2026!
+      ConnectionStrings__RabbitMq: amqp://vettingo:VettingoRabbit_2026!@rabbitmq:5672/
+      ConnectionStrings__Redis: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      DOTNET_RUNNING_IN_CONTAINER: "true"
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__Password: VettingoRabbit_2026!
+      RabbitMq__Port: "5672"
+      RabbitMq__UserName: vettingo
+      RabbitMq__VirtualHost: /
+      Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+    image: vettingo/analytics-api:local
+    init: true
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "5266"
+        protocol: tcp
+    restart: unless-stopped
+  analytics-db:
+    environment:
+      POSTGRES_DB: AnalyticsServiceDb
+      POSTGRES_PASSWORD: VettingoPostgres_2026!
+      POSTGRES_USER: vettingo
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U vettingo
+      timeout: 5s
+      interval: 5s
+      retries: 10
+      start_period: 10s
+    image: postgres:16-alpine
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 5432
+        published: "5433"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: analytics-db-data
+        target: /var/lib/postgresql/data
+        volume: {}
+  auth-api:
+    build:
+      context: ..
+      dockerfile: src/AuthService/Vettingo.AuthService.API/Dockerfile
+    depends_on:
+      auth-db:
+        condition: service_healthy
+        required: true
+      rabbitmq:
+        condition: service_healthy
+        required: true
+      redis:
+        condition: service_healthy
+        required: true
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=auth-db;Port=5432;Database=AuthServiceDb;Username=vettingo;Password=VettingoPostgres_2026!
+      ConnectionStrings__RabbitMq: amqp://vettingo:VettingoRabbit_2026!@rabbitmq:5672/
+      ConnectionStrings__Redis: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      DOTNET_RUNNING_IN_CONTAINER: "true"
+      JwtSettings__SecretKey: VettingoJwtSecret_DevelopmentOnly_2026_ChangeBeforeProduction_0123456789
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__Password: VettingoRabbit_2026!
+      RabbitMq__Port: "5672"
+      RabbitMq__UserName: vettingo
+      RabbitMq__VirtualHost: /
+      Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+    image: vettingo/auth-api:local
+    init: true
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "5254"
+        protocol: tcp
+    restart: unless-stopped
+  auth-db:
+    environment:
+      POSTGRES_DB: AuthServiceDb
+      POSTGRES_PASSWORD: VettingoPostgres_2026!
+      POSTGRES_USER: vettingo
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U vettingo
+      timeout: 5s
+      interval: 5s
+      retries: 10
+      start_period: 10s
+    image: postgres:16-alpine
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 5432
+        published: "5434"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: auth-db-data
+        target: /var/lib/postgresql/data
+        volume: {}
+  evaluation-api:
+    build:
+      context: ..
+      dockerfile: src/EvaluationService/Vettingo.EvaluationService.API/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+        required: true
+      redis:
+        condition: service_healthy
+        required: true
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__RabbitMq: amqp://vettingo:VettingoRabbit_2026!@rabbitmq:5672/
+      ConnectionStrings__Redis: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      DOTNET_RUNNING_IN_CONTAINER: "true"
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__Password: VettingoRabbit_2026!
+      RabbitMq__Port: "5672"
+      RabbitMq__UserName: vettingo
+      RabbitMq__VirtualHost: /
+      Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+    image: vettingo/evaluation-api:local
+    init: true
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "5083"
+        protocol: tcp
+    restart: unless-stopped
+  exam-api:
+    build:
+      context: ..
+      dockerfile: src/ExamService/Vettingo.ExamService.API/Dockerfile
+    depends_on:
+      exam-db:
+        condition: service_healthy
+        required: true
+      rabbitmq:
+        condition: service_healthy
+        required: true
+      redis:
+        condition: service_healthy
+        required: true
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=exam-db;Port=5432;Database=ExamServiceDb;Username=vettingo;Password=VettingoPostgres_2026!
+      ConnectionStrings__RabbitMq: amqp://vettingo:VettingoRabbit_2026!@rabbitmq:5672/
+      ConnectionStrings__Redis: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      DOTNET_RUNNING_IN_CONTAINER: "true"
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__Password: VettingoRabbit_2026!
+      RabbitMq__Port: "5672"
+      RabbitMq__UserName: vettingo
+      RabbitMq__VirtualHost: /
+      Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+    image: vettingo/exam-api:local
+    init: true
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "5260"
+        protocol: tcp
+    restart: unless-stopped
+  exam-db:
+    environment:
+      POSTGRES_DB: ExamServiceDb
+      POSTGRES_PASSWORD: VettingoPostgres_2026!
+      POSTGRES_USER: vettingo
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U vettingo
+      timeout: 5s
+      interval: 5s
+      retries: 10
+      start_period: 10s
+    image: postgres:16-alpine
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 5432
+        published: "5435"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: exam-db-data
+        target: /var/lib/postgresql/data
+        volume: {}
+  gateway:
+    build:
+      context: ..
+      dockerfile: src/Gateway/Vettingo.Gateway.API/Dockerfile
+    depends_on:
+      analytics-api:
+        condition: service_started
+        required: true
+      auth-api:
+        condition: service_started
+        required: true
+      evaluation-api:
+        condition: service_started
+        required: true
+      exam-api:
+        condition: service_started
+        required: true
+      interview-api:
+        condition: service_started
+        required: true
+      job-api:
+        condition: service_started
+        required: true
+      notification-api:
+        condition: service_started
+        required: true
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__RabbitMq: amqp://vettingo:VettingoRabbit_2026!@rabbitmq:5672/
+      ConnectionStrings__Redis: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      DOTNET_RUNNING_IN_CONTAINER: "true"
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__Password: VettingoRabbit_2026!
+      RabbitMq__Port: "5672"
+      RabbitMq__UserName: vettingo
+      RabbitMq__VirtualHost: /
+      Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      ReverseProxy__Clusters__analyticsservice__Destinations__analyticsservice__Address: http://analytics-api:8080/api/analytics
+      ReverseProxy__Clusters__authservice__Destinations__authservice__Address: http://auth-api:8080/api/auth
+      ReverseProxy__Clusters__evaluationservice__Destinations__evaluationservice__Address: http://evaluation-api:8080/api/evaluation
+      ReverseProxy__Clusters__examservice__Destinations__examservice__Address: http://exam-api:8080/api/exam
+      ReverseProxy__Clusters__interviewservice__Destinations__interviewservice__Address: http://interview-api:8080/api/interview
+      ReverseProxy__Clusters__jobservice__Destinations__jobservice__Address: http://job-api:8080/api/job
+      ReverseProxy__Clusters__notificationservice__Destinations__notificationservice__Address: http://notification-api:8080/api/notification
+    image: vettingo/gateway:local
+    init: true
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "5135"
+        protocol: tcp
+    restart: unless-stopped
+  interview-api:
+    build:
+      context: ..
+      dockerfile: src/InterviewService/Vettingo.InterviewService.API/Dockerfile
+    depends_on:
+      interview-db:
+        condition: service_healthy
+        required: true
+      rabbitmq:
+        condition: service_healthy
+        required: true
+      redis:
+        condition: service_healthy
+        required: true
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=interview-db;Port=5432;Database=InterviewServiceDb;Username=vettingo;Password=VettingoPostgres_2026!
+      ConnectionStrings__RabbitMq: amqp://vettingo:VettingoRabbit_2026!@rabbitmq:5672/
+      ConnectionStrings__Redis: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      DOTNET_RUNNING_IN_CONTAINER: "true"
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__Password: VettingoRabbit_2026!
+      RabbitMq__Port: "5672"
+      RabbitMq__UserName: vettingo
+      RabbitMq__VirtualHost: /
+      Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+    image: vettingo/interview-api:local
+    init: true
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "5077"
+        protocol: tcp
+    restart: unless-stopped
+  interview-db:
+    environment:
+      POSTGRES_DB: InterviewServiceDb
+      POSTGRES_PASSWORD: VettingoPostgres_2026!
+      POSTGRES_USER: vettingo
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U vettingo
+      timeout: 5s
+      interval: 5s
+      retries: 10
+      start_period: 10s
+    image: postgres:16-alpine
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 5432
+        published: "5436"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: interview-db-data
+        target: /var/lib/postgresql/data
+        volume: {}
+  job-api:
+    build:
+      context: ..
+      dockerfile: src/JobService/Vettingo.JobService.API/Dockerfile
+    depends_on:
+      job-db:
+        condition: service_healthy
+        required: true
+      rabbitmq:
+        condition: service_healthy
+        required: true
+      redis:
+        condition: service_healthy
+        required: true
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=job-db;Port=5432;Database=JobServiceDb;Username=vettingo;Password=VettingoPostgres_2026!
+      ConnectionStrings__RabbitMq: amqp://vettingo:VettingoRabbit_2026!@rabbitmq:5672/
+      ConnectionStrings__Redis: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      DOTNET_RUNNING_IN_CONTAINER: "true"
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__Password: VettingoRabbit_2026!
+      RabbitMq__Port: "5672"
+      RabbitMq__UserName: vettingo
+      RabbitMq__VirtualHost: /
+      Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+    image: vettingo/job-api:local
+    init: true
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "5257"
+        protocol: tcp
+    restart: unless-stopped
+  job-db:
+    environment:
+      POSTGRES_DB: JobServiceDb
+      POSTGRES_PASSWORD: VettingoPostgres_2026!
+      POSTGRES_USER: vettingo
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U vettingo
+      timeout: 5s
+      interval: 5s
+      retries: 10
+      start_period: 10s
+    image: postgres:16-alpine
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 5432
+        published: "5437"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: job-db-data
+        target: /var/lib/postgresql/data
+        volume: {}
+  notification-api:
+    build:
+      context: ..
+      dockerfile: src/NotificationService/Vettingo.NotificationService.API/Dockerfile
+    depends_on:
+      notification-db:
+        condition: service_healthy
+        required: true
+      rabbitmq:
+        condition: service_healthy
+        required: true
+      redis:
+        condition: service_healthy
+        required: true
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=notification-db;Port=5432;Database=NotificationServiceDb;Username=vettingo;Password=VettingoPostgres_2026!
+      ConnectionStrings__RabbitMq: amqp://vettingo:VettingoRabbit_2026!@rabbitmq:5672/
+      ConnectionStrings__Redis: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      DOTNET_RUNNING_IN_CONTAINER: "true"
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__Password: VettingoRabbit_2026!
+      RabbitMq__Port: "5672"
+      RabbitMq__UserName: vettingo
+      RabbitMq__VirtualHost: /
+      Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+    image: vettingo/notification-api:local
+    init: true
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "5149"
+        protocol: tcp
+    restart: unless-stopped
+  notification-db:
+    environment:
+      POSTGRES_DB: NotificationServiceDb
+      POSTGRES_PASSWORD: VettingoPostgres_2026!
+      POSTGRES_USER: vettingo
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U vettingo
+      timeout: 5s
+      interval: 5s
+      retries: 10
+      start_period: 10s
+    image: postgres:16-alpine
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 5432
+        published: "5438"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: notification-db-data
+        target: /var/lib/postgresql/data
+        volume: {}
+  rabbitmq:
+    environment:
+      RABBITMQ_DEFAULT_PASS: VettingoRabbit_2026!
+      RABBITMQ_DEFAULT_USER: vettingo
+      RABBITMQ_DEFAULT_VHOST: /
+    healthcheck:
+      test:
+        - CMD
+        - rabbitmq-diagnostics
+        - -q
+        - ping
+      timeout: 5s
+      interval: 10s
+      retries: 10
+      start_period: 20s
+    image: rabbitmq:3.13-management-alpine
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 5672
+        published: "5672"
+        protocol: tcp
+      - mode: ingress
+        target: 15672
+        published: "15672"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: rabbitmq-data
+        target: /var/lib/rabbitmq
+        volume: {}
+  redis:
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --requirepass
+      - VettingoRedis_2026!
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - -a
+        - VettingoRedis_2026!
+        - ping
+      timeout: 5s
+      interval: 5s
+      retries: 10
+      start_period: 5s
+    image: redis:7-alpine
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 6379
+        published: "6379"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: redis-data
+        target: /data
+        volume: {}
+networks:
+  default:
+    name: vettingo-network
+volumes:
+  analytics-db-data:
+    name: vettingo_analytics-db-data
+  auth-db-data:
+    name: vettingo_auth-db-data
+  exam-db-data:
+    name: vettingo_exam-db-data
+  interview-db-data:
+    name: vettingo_interview-db-data
+  job-db-data:
+    name: vettingo_job-db-data
+  notification-db-data:
+    name: vettingo_notification-db-data
+  rabbitmq-data:
+    name: vettingo_rabbitmq-data
+  redis-data:
+    name: vettingo_redis-data
