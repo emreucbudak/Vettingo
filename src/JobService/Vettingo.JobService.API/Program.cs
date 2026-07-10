@@ -2,7 +2,6 @@
 using FlashMediator;
 using FluentValidation;
 using Vettingo.JobService.API.ExceptionHandlers;
-using Vettingo.JobService.API.Middleware;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CreateJobPosting;
 using Vettingo.JobService.Application.Interfaces;
 using Vettingo.JobService.Infrastructure.Cache;
@@ -20,7 +19,6 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
 builder.Services.SaveDb(builder.Configuration);
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddScoped<ICacheService, CacheService>();
-builder.Services.AddTransient<RedisCacheMiddleware>();
 builder.Services.AddFlashMediator(typeof(CreateJobPostingCommandHandler).Assembly);
 builder.Services.AddValidatorsFromAssemblyContaining<CreateJobPostingCommandRequest>();
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
@@ -54,7 +52,6 @@ app.UseExceptionHandler();
 
 app.UseAuthorization();
 
-app.UseMiddleware<RedisCacheMiddleware>();
 
 app.MapControllers();
 
