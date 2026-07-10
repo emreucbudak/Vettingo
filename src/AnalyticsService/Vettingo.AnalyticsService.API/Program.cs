@@ -2,7 +2,10 @@
 using FlashMediator;
 using FluentValidation;
 using Vettingo.AnalyticsService.API.ExceptionHandlers;
+using Vettingo.AnalyticsService.API.Middleware;
 using Vettingo.AnalyticsService.Application.Features.CQRS.Analytics.Command.RecordCandidateRecommendation;
+using Vettingo.AnalyticsService.Application.Interfaces;
+using Vettingo.AnalyticsService.Infrastructure.Cache;
 using Vettingo.AnalyticsService.Persistence.Registration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +20,9 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
 builder.Services.SaveDb(builder.Configuration);
 builder.Services.AddFlashMediator(typeof(RecordCandidateRecommendationCommandHandler).Assembly);
 builder.Services.AddValidatorsFromAssemblyContaining<RecordCandidateRecommendationCommandRequest>();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddScoped<ICacheService, CacheService>();
+builder.Services.AddTransient<RedisCacheMiddleware>();
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
 builder.Services.AddExceptionHandler<BadRequestExceptionHandler>();
@@ -44,7 +50,11 @@ app.UseHttpsRedirection();
 
 app.UseExceptionHandler();
 
+app.UseRouting();
+
 app.UseAuthorization();
+
+app.UseMiddleware<RedisCacheMiddleware>();
 
 app.MapControllers();
 

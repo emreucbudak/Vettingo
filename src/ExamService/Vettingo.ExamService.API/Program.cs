@@ -2,7 +2,10 @@
 using FlashMediator;
 using FluentValidation;
 using Vettingo.ExamService.API.ExceptionHandlers;
+using Vettingo.ExamService.API.Middleware;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam;
+using Vettingo.ExamService.Application.Interfaces;
+using Vettingo.ExamService.Infrastructure.Cache;
 using Vettingo.ExamService.Persistence.Registration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +20,9 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
 builder.Services.SaveDb(builder.Configuration);
 builder.Services.AddFlashMediator(typeof(CreateExamCommandHandler).Assembly);
 builder.Services.AddValidatorsFromAssemblyContaining<CreateExamCommandRequest>();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddScoped<ICacheService, CacheService>();
+builder.Services.AddTransient<RedisCacheMiddleware>();
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
 builder.Services.AddExceptionHandler<BadRequestExceptionHandler>();
@@ -44,7 +50,11 @@ app.UseHttpsRedirection();
 
 app.UseExceptionHandler();
 
+app.UseRouting();
+
 app.UseAuthorization();
+
+app.UseMiddleware<RedisCacheMiddleware>();
 
 app.MapControllers();
 

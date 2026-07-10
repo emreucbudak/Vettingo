@@ -13,15 +13,15 @@ namespace Vettingo.JobService.API.Controllers
     public class JobPostingController(IMediator mediator) : ControllerBase
     {
         [HttpGet]
-        public async Task<IActionResult> GetAllJobPostings([FromQuery] Guid? companyId)
+        public async Task<IActionResult> GetAllJobPostings([FromQuery] GetAllJobPostingsQueryRequest request)
         {
-            return Ok(await mediator.Send(new GetAllJobPostingsQueryRequest { CompanyId = companyId }));
+            return Ok(await mediator.Send(request));
         }
 
         [HttpGet("{jobPostingId:guid}")]
-        public async Task<IActionResult> GetJobPostingById([FromRoute] Guid jobPostingId)
+        public async Task<IActionResult> GetJobPostingById([FromRoute] GetJobPostingByIdQueryRequest request)
         {
-            return Ok(await mediator.Send(new GetJobPostingByIdQueryRequest { JobPostingId = jobPostingId }));
+            return Ok(await mediator.Send(request));
         }
 
         [HttpPost]

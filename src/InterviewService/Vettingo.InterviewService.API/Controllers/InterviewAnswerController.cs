@@ -10,9 +10,9 @@ namespace Vettingo.InterviewService.API.Controllers
     public class InterviewAnswerController(IMediator mediator) : ControllerBase
     {
         [HttpGet]
-        public async Task<IActionResult> GetInterviewAnswers([FromQuery] Guid? userId, [FromQuery] Guid? interviewExamId)
+        public async Task<IActionResult> GetInterviewAnswers([FromQuery] GetInterviewAnswersQueryRequest request)
         {
-            return Ok(await mediator.Send(new GetInterviewAnswersQueryRequest { UserId = userId, InterviewExamId = interviewExamId }));
+            return Ok(await mediator.Send(request));
         }
 
         [HttpPost]
