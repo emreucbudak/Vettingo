@@ -24,9 +24,9 @@ namespace Vettingo.ExamService.API.Controllers
     public class QuestionController(IMediator mediator) : ControllerBase
     {
         [HttpGet("multiple-choice")]
-        public async Task<IActionResult> GetMultipleChoiceQuestionsByExamId([FromRoute] Guid examId)
+        public async Task<IActionResult> GetMultipleChoiceQuestionsByExamId([FromRoute] GetMultipleChoiceQuestionsByExamQueryRequest request)
         {
-            return Ok(await mediator.Send(new GetMultipleChoiceQuestionsByExamQueryRequest { ExamId = examId }));
+            return Ok(await mediator.Send(request));
         }
 
         [HttpPost("multiple-choice")]
@@ -72,9 +72,9 @@ namespace Vettingo.ExamService.API.Controllers
         }
 
         [HttpGet("true-false")]
-        public async Task<IActionResult> GetTrueFalseQuestionsByExamId([FromRoute] Guid examId)
+        public async Task<IActionResult> GetTrueFalseQuestionsByExamId([FromRoute] GetTrueFalseQuestionsByExamQueryRequest request)
         {
-            return Ok(await mediator.Send(new GetTrueFalseQuestionsByExamQueryRequest { ExamId = examId }));
+            return Ok(await mediator.Send(request));
         }
 
         [HttpPost("true-false")]
@@ -119,9 +119,9 @@ namespace Vettingo.ExamService.API.Controllers
         }
 
         [HttpGet("classic")]
-        public async Task<IActionResult> GetClassicQuestionsByExamId([FromRoute] Guid examId)
+        public async Task<IActionResult> GetClassicQuestionsByExamId([FromRoute] GetClassicQuestionsByExamQueryRequest request)
         {
-            return Ok(await mediator.Send(new GetClassicQuestionsByExamQueryRequest { ExamId = examId }));
+            return Ok(await mediator.Send(request));
         }
 
         [HttpPost("classic")]
@@ -166,9 +166,9 @@ namespace Vettingo.ExamService.API.Controllers
         }
 
         [HttpGet("code-completion")]
-        public async Task<IActionResult> GetCodeCompletionQuestionsByExamId([FromRoute] Guid examId)
+        public async Task<IActionResult> GetCodeCompletionQuestionsByExamId([FromRoute] GetCodeCompletionQuestionsByExamQueryRequest request)
         {
-            return Ok(await mediator.Send(new GetCodeCompletionQuestionsByExamQueryRequest { ExamId = examId }));
+            return Ok(await mediator.Send(request));
         }
 
         [HttpPost("code-completion")]

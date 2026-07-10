@@ -2,7 +2,10 @@
 using FlashMediator;
 using FluentValidation;
 using Vettingo.NotificationService.API.ExceptionHandlers;
+using Vettingo.NotificationService.API.Middleware;
 using Vettingo.NotificationService.Application.Features.CQRS.Notification.Command.CreateNotification;
+using Vettingo.NotificationService.Application.Interfaces;
+using Vettingo.NotificationService.Infrastructure.Cache;
 using Vettingo.NotificationService.Infrastructure.Hubs;
 using Vettingo.NotificationService.Infrastructure.Registration;
 using Vettingo.NotificationService.Persistence.Registration;
@@ -17,6 +20,9 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
 });
 
 builder.Services.SaveDb(builder.Configuration);
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddScoped<ICacheService, CacheService>();
+builder.Services.AddTransient<RedisCacheMiddleware>();
 builder.Services.AddSignalR();
 builder.Services.AddNotificationInfrastructure();
 builder.Services.AddFlashMediator(typeof(CreateNotificationCommandHandler).Assembly);
@@ -46,9 +52,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseRouting();
+
 app.UseExceptionHandler();
 
 app.UseAuthorization();
+
+app.UseMiddleware<RedisCacheMiddleware>();
 
 app.MapControllers();
 app.MapHub<NotificationHub>("/notification-hub");

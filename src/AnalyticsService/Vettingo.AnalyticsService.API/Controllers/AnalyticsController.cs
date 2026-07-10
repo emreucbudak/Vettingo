@@ -20,9 +20,9 @@ namespace Vettingo.AnalyticsService.API.Controllers
         }
 
         [HttpGet("companies/{companyId:guid}/recommendations")]
-        public async Task<IActionResult> GetCompanyRecommendationAnalytics([FromRoute] Guid companyId)
+        public async Task<IActionResult> GetCompanyRecommendationAnalytics([FromRoute] GetCompanyRecommendationAnalyticsQueryRequest request)
         {
-            return Ok(await mediator.Send(new GetCompanyRecommendationAnalyticsQueryRequest { CompanyId = companyId }));
+            return Ok(await mediator.Send(request));
         }
 
         [HttpPost("job-postings/performance")]
@@ -32,9 +32,9 @@ namespace Vettingo.AnalyticsService.API.Controllers
         }
 
         [HttpGet("job-postings/{jobPostingId:guid}/performance")]
-        public async Task<IActionResult> GetJobPostingPerformance([FromRoute] Guid jobPostingId)
+        public async Task<IActionResult> GetJobPostingPerformance([FromRoute] GetJobPostingPerformanceQueryRequest request)
         {
-            return Ok(await mediator.Send(new GetJobPostingPerformanceQueryRequest { JobPostingId = jobPostingId }));
+            return Ok(await mediator.Send(request));
         }
 
         [HttpPost("candidates/cv-analysis")]
@@ -44,9 +44,11 @@ namespace Vettingo.AnalyticsService.API.Controllers
         }
 
         [HttpGet("candidates/{candidateId:guid}/cv-analysis")]
-        public async Task<IActionResult> GetCandidateCvAnalysis([FromRoute] Guid candidateId, [FromQuery] bool latestOnly = false)
+        public async Task<IActionResult> GetCandidateCvAnalysis(
+            [FromRoute] Guid candidateId,
+            [FromQuery] GetCandidateCvAnalysisQueryRequest request)
         {
-            return Ok(await mediator.Send(new GetCandidateCvAnalysisQueryRequest { CandidateId = candidateId, LatestOnly = latestOnly }));
+            return Ok(await mediator.Send(new GetCandidateCvAnalysisQueryRequest(candidateId,latestOnly:request.LatestOnly)));
         }
     }
 }

@@ -13,15 +13,15 @@ namespace Vettingo.InterviewService.API.Controllers
     public class InterviewQuestionController(IMediator mediator) : ControllerBase
     {
         [HttpGet]
-        public async Task<IActionResult> GetAllInterviewQuestions([FromQuery] Guid? companyId)
+        public async Task<IActionResult> GetAllInterviewQuestions([FromQuery] GetAllInterviewQuestionsQueryRequest request)
         {
-            return Ok(await mediator.Send(new GetAllInterviewQuestionsQueryRequest { CompanyId = companyId }));
+            return Ok(await mediator.Send(request));
         }
 
         [HttpGet("{interviewQuestionId:guid}")]
-        public async Task<IActionResult> GetInterviewQuestionById([FromRoute] Guid interviewQuestionId)
+        public async Task<IActionResult> GetInterviewQuestionById([FromRoute] GetInterviewQuestionByIdQueryRequest request)
         {
-            return Ok(await mediator.Send(new GetInterviewQuestionByIdQueryRequest { InterviewQuestionId = interviewQuestionId }));
+            return Ok(await mediator.Send(request));
         }
 
         [HttpPost]

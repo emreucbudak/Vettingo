@@ -2,7 +2,10 @@
 using FluentValidation;
 using Serilog;
 using Vettingo.InterviewService.API.ExceptionHandlers;
+using Vettingo.InterviewService.API.Middleware;
 using Vettingo.InterviewService.Application.Features.CQRS.InterviewQuestion.Command.CreateInterviewQuestion;
+using Vettingo.InterviewService.Application.Interfaces;
+using Vettingo.InterviewService.Infrastructure.Cache;
 using Vettingo.InterviewService.Persistence.Registration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +20,9 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
 builder.Services.SaveDb(builder.Configuration);
 builder.Services.AddFlashMediator(typeof(CreateInterviewQuestionCommandHandler).Assembly);
 builder.Services.AddValidatorsFromAssemblyContaining<CreateInterviewQuestionCommandRequest>();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddScoped<ICacheService, CacheService>();
+builder.Services.AddTransient<RedisCacheMiddleware>();
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
 builder.Services.AddExceptionHandler<BadRequestExceptionHandler>();
@@ -44,7 +50,11 @@ app.UseHttpsRedirection();
 
 app.UseExceptionHandler();
 
+app.UseRouting();
+
 app.UseAuthorization();
+
+app.UseMiddleware<RedisCacheMiddleware>();
 
 app.MapControllers();
 

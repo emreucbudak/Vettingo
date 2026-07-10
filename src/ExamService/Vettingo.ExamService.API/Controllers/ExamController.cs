@@ -13,15 +13,15 @@ namespace Vettingo.ExamService.API.Controllers
     public class ExamController(IMediator mediator) : ControllerBase
     {
         [HttpGet]
-        public async Task<IActionResult> GetAllExams()
+        public async Task<IActionResult> GetAllExams([FromQuery] GetAllExamsQueryRequest request)
         {
-            return Ok(await mediator.Send(new GetAllExamsQueryRequest()));
+            return Ok(await mediator.Send(request));
         }
 
         [HttpGet("{examId:guid}")]
-        public async Task<IActionResult> GetExamById([FromRoute] Guid examId)
+        public async Task<IActionResult> GetExamById([FromRoute] GetExamByIdQueryRequest request)
         {
-            return Ok(await mediator.Send(new GetExamByIdQueryRequest { ExamId = examId }));
+            return Ok(await mediator.Send(request));
         }
 
         [HttpPost]
