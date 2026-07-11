@@ -94,7 +94,7 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             repository.GetMultipleChoiceQuestionsByExamIdAsync(examId).Returns(_ => ReturnAsync<IEnumerable<MultipleChoiceQuestion>>([question]));
             var handler = new GetMultipleChoiceQuestionsByExamQueryHandler(repository, Substitute.For<ILogger<GetMultipleChoiceQuestionsByExamQueryHandler>>());
 
-            var response = (await handler.Handle(new GetMultipleChoiceQuestionsByExamQueryRequest { ExamId = examId }, CancellationToken.None)).ToList();
+            var response = (await handler.Handle(new GetMultipleChoiceQuestionsByExamQueryRequest(examId), CancellationToken.None)).ToList();
 
             response.Should().ContainSingle();
             response[0].QuestionText.Should().Be(question.QuestionText);

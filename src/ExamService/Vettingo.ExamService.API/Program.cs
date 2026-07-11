@@ -1,4 +1,4 @@
-﻿using Serilog;
+using Serilog;
 using FlashMediator;
 using FluentValidation;
 using Vettingo.ExamService.API.ExceptionHandlers;
@@ -30,7 +30,6 @@ builder.Services.AddExceptionHandler<BaseExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
@@ -38,11 +37,6 @@ app.UseSerilogRequestLogging(options =>
 {
     options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} isteği {StatusCode} durum koduyla {Elapsed:0.0000} ms içinde tamamlandı";
 });
-
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
 
 app.UseHttpsRedirection();
 

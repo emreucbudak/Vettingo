@@ -1,4 +1,4 @@
-﻿using FlashMediator;
+using FlashMediator;
 using Vettingo.InterviewService.Application.Interfaces;
 
 namespace Vettingo.InterviewService.Application.Features.CQRS.InterviewQuestion.Query.GetById
@@ -6,5 +6,7 @@ namespace Vettingo.InterviewService.Application.Features.CQRS.InterviewQuestion.
     public record GetInterviewQuestionByIdQueryRequest : IRequest<GetInterviewQuestionByIdQueryResponse>, ICacheableQuery
     {
         public Guid InterviewQuestionId { get; init; }
+        public string CacheKey => $"GetInterviewQuestionById_{InterviewQuestionId}";
+        public TimeSpan ExpirationTime => TimeSpan.FromMinutes(10);
     }
 }

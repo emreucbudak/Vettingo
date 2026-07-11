@@ -54,7 +54,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             repository.GetJobPostingByIdAsync(jobPosting.Id).Returns(_ => ReturnAsync<JobPosting?>(jobPosting));
             var handler = new GetJobPostingByIdQueryHandler(repository, Substitute.For<ILogger<GetJobPostingByIdQueryHandler>>());
 
-            var response = await handler.Handle(new GetJobPostingByIdQueryRequest { JobPostingId = jobPosting.Id }, CancellationToken.None);
+            var response = await handler.Handle(new GetJobPostingByIdQueryRequest(jobPosting.Id), CancellationToken.None);
 
             response.Id.Should().Be(jobPosting.Id);
             response.CompanyId.Should().Be(jobPosting.CompanyId);

@@ -87,7 +87,7 @@ namespace Vettingo.NotificationService.UnitTests.Application.CQRS
             repository.GetUnreadNotificationsByUserIdAsync(userId).Returns(_ => ReturnAsync<IEnumerable<Notification>>([notification]));
             var handler = new GetUserNotificationsQueryHandler(repository, Substitute.For<ILogger<GetUserNotificationsQueryHandler>>());
 
-            var response = (await handler.Handle(new GetUserNotificationsQueryRequest { UserId = userId, UnreadOnly = true }, CancellationToken.None)).ToList();
+            var response = (await handler.Handle(new GetUserNotificationsQueryRequest(userId, true), CancellationToken.None)).ToList();
 
             response.Should().ContainSingle();
             response[0].Id.Should().Be(notification.Id);

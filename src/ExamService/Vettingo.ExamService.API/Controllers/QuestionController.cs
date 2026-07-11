@@ -36,8 +36,6 @@ namespace Vettingo.ExamService.API.Controllers
             {
                 ExamId = examId,
                 QuestionText = request.QuestionText,
-                Topic = request.Topic,
-                Point = request.Point,
                 Weight = request.Weight,
                 DisplayOrder = request.DisplayOrder,
                 Explanation = request.Explanation,
@@ -53,8 +51,6 @@ namespace Vettingo.ExamService.API.Controllers
             {
                 QuestionId = questionId,
                 QuestionText = request.QuestionText,
-                Topic = request.Topic,
-                Point = request.Point,
                 Weight = request.Weight,
                 DisplayOrder = request.DisplayOrder,
                 Explanation = request.Explanation,
@@ -84,8 +80,6 @@ namespace Vettingo.ExamService.API.Controllers
             {
                 ExamId = examId,
                 QuestionText = request.QuestionText,
-                Topic = request.Topic,
-                Point = request.Point,
                 Weight = request.Weight,
                 DisplayOrder = request.DisplayOrder,
                 Explanation = request.Explanation,
@@ -101,8 +95,6 @@ namespace Vettingo.ExamService.API.Controllers
             {
                 QuestionId = questionId,
                 QuestionText = request.QuestionText,
-                Topic = request.Topic,
-                Point = request.Point,
                 Weight = request.Weight,
                 DisplayOrder = request.DisplayOrder,
                 Explanation = request.Explanation,
@@ -131,8 +123,6 @@ namespace Vettingo.ExamService.API.Controllers
             {
                 ExamId = examId,
                 QuestionText = request.QuestionText,
-                Topic = request.Topic,
-                Point = request.Point,
                 Weight = request.Weight,
                 DisplayOrder = request.DisplayOrder,
                 Explanation = request.Explanation,
@@ -148,8 +138,6 @@ namespace Vettingo.ExamService.API.Controllers
             {
                 QuestionId = questionId,
                 QuestionText = request.QuestionText,
-                Topic = request.Topic,
-                Point = request.Point,
                 Weight = request.Weight,
                 DisplayOrder = request.DisplayOrder,
                 Explanation = request.Explanation,
@@ -178,8 +166,6 @@ namespace Vettingo.ExamService.API.Controllers
             {
                 ExamId = examId,
                 QuestionText = request.QuestionText,
-                Topic = request.Topic,
-                Point = request.Point,
                 Weight = request.Weight,
                 DisplayOrder = request.DisplayOrder,
                 Explanation = request.Explanation,
@@ -196,8 +182,6 @@ namespace Vettingo.ExamService.API.Controllers
             {
                 QuestionId = questionId,
                 QuestionText = request.QuestionText,
-                Topic = request.Topic,
-                Point = request.Point,
                 Weight = request.Weight,
                 DisplayOrder = request.DisplayOrder,
                 Explanation = request.Explanation,
