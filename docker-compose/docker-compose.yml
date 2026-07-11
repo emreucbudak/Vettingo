@@ -555,7 +555,7 @@ services:
       interval: 5s
       retries: 10
       start_period: 5s
-    image: redis:7-alpine
+    image: redis:8.8
     networks:
       default: null
     ports:
