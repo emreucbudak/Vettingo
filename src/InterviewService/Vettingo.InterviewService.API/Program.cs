@@ -19,7 +19,12 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
 builder.Services.SaveDb(builder.Configuration);
 builder.Services.AddFlashMediator(typeof(CreateInterviewQuestionCommandHandler).Assembly);
 builder.Services.AddValidatorsFromAssemblyContaining<CreateInterviewQuestionCommandRequest>();
-builder.Services.AddDistributedMemoryCache();
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("Redis")
+        ?? throw new InvalidOperationException("Connection string 'Redis' is not configured.");
+    options.InstanceName = "Vettingo:InterviewService:";
+});
 builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();

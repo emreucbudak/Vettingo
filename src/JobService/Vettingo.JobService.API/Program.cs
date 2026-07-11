@@ -17,7 +17,12 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
 });
 
 builder.Services.SaveDb(builder.Configuration);
-builder.Services.AddDistributedMemoryCache();
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("Redis")
+        ?? throw new InvalidOperationException("Connection string 'Redis' is not configured.");
+    options.InstanceName = "Vettingo:JobService:";
+});
 builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddFlashMediator(typeof(CreateJobPostingCommandHandler).Assembly);
 builder.Services.AddValidatorsFromAssemblyContaining<CreateJobPostingCommandRequest>();

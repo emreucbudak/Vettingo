@@ -16,6 +16,12 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
 
 builder.Services.SaveDb(builder.Configuration);
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterCommandRequest>();
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("Redis")
+        ?? throw new InvalidOperationException("Connection string 'Redis' is not configured.");
+    options.InstanceName = "Vettingo:AuthService:";
+});
 builder.Services.AddTokenSettings(builder.Configuration);
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
