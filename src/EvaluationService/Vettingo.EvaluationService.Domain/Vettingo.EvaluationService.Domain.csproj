@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Models\Evaluation.cs" />
+    <Compile Include="Models\Evaluation.cs" />
+  </ItemGroup>
+
 </Project>

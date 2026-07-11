@@ -3,6 +3,10 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 COPY ["src/EvaluationService/Vettingo.EvaluationService.API/Vettingo.EvaluationService.API.csproj", "src/EvaluationService/Vettingo.EvaluationService.API/"]
+COPY ["src/EvaluationService/Vettingo.EvaluationService.Application/Vettingo.EvaluationService.Application.csproj", "src/EvaluationService/Vettingo.EvaluationService.Application/"]
+COPY ["src/EvaluationService/Vettingo.EvaluationService.Domain/Vettingo.EvaluationService.Domain.csproj", "src/EvaluationService/Vettingo.EvaluationService.Domain/"]
+COPY ["src/EvaluationService/Vettingo.EvaluationService.Infrastructure/Vettingo.EvaluationService.Infrastructure.csproj", "src/EvaluationService/Vettingo.EvaluationService.Infrastructure/"]
+COPY ["src/EvaluationService/Vettingo.EvaluationService.Persistence/Vettingo.EvaluationService.Persistence.csproj", "src/EvaluationService/Vettingo.EvaluationService.Persistence/"]
 RUN dotnet restore "src/EvaluationService/Vettingo.EvaluationService.API/Vettingo.EvaluationService.API.csproj"
 
 COPY ["src/EvaluationService/", "src/EvaluationService/"]
