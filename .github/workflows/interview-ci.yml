@@ -1,0 +1,80 @@
+name: Vettingo Interview Service CI
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - src/InterviewService/**
+      - tests/Vettingo.InterviewService.Tests/**
+      - .github/workflows/interview-ci.yml
+  pull_request:
+    branches: [master]
+    paths:
+      - src/InterviewService/**
+      - tests/Vettingo.InterviewService.Tests/**
+      - .github/workflows/interview-ci.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('src/InterviewService/**/*.csproj', 'tests/Vettingo.InterviewService.Tests/**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore API project
+        run: dotnet restore src/InterviewService/Vettingo.InterviewService.API/Vettingo.InterviewService.API.csproj
+
+      - name: Restore test project
+        run: dotnet restore tests/Vettingo.InterviewService.Tests/Vettingo.InterviewService.UnitTests/Vettingo.InterviewService.UnitTests.csproj
+
+      - name: Build API project
+        run: dotnet build src/InterviewService/Vettingo.InterviewService.API/Vettingo.InterviewService.API.csproj --configuration Release --no-restore
+
+      - name: Run unit tests
+        run: >-
+          dotnet test tests/Vettingo.InterviewService.Tests/Vettingo.InterviewService.UnitTests/Vettingo.InterviewService.UnitTests.csproj
+          --configuration Release
+          --no-restore
+          --verbosity normal
+          --logger "trx;LogFileName=test-results.trx"
+          --results-directory "${{ runner.temp }}/test-results"
+          --collect:"XPlat Code Coverage"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: interview-test-results
+          path: ${{ runner.temp }}/test-results/*.trx
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload code coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: interview-code-coverage
+          path: ${{ runner.temp }}/test-results/**/coverage.cobertura.xml
+          if-no-files-found: warn
+          retention-days: 30
