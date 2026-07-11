@@ -1,13 +1,13 @@
 <Solution>
   <Folder Name="/.github/" />
   <Folder Name="/.github/workflows/">
-    <File Path="AnalyticsCI.yml" />
-    <File Path="AuthCI.yml" />
-    <File Path="EvaluationCI.yml" />
-    <File Path="ExamCI.yml" />
-    <File Path="InterviewCI.yml" />
-    <File Path="JobCI.yml" />
-    <File Path="NotificationCI.yml" />
+    <File Path=".github/workflows/analytics-ci.yml" />
+    <File Path=".github/workflows/auth-ci.yml" />
+    <File Path=".github/workflows/evaluation-ci.yml" />
+    <File Path=".github/workflows/exam-ci.yml" />
+    <File Path=".github/workflows/interview-ci.yml" />
+    <File Path=".github/workflows/job-ci.yml" />
+    <File Path=".github/workflows/notification-ci.yml" />
   </Folder>
   <Folder Name="/docker-compose/">
     <File Path="docker-compose/docker-compose.yml" />
