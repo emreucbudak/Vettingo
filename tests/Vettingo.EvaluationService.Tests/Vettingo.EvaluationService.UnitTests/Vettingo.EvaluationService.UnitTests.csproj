@@ -20,4 +20,9 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\EvaluationService\Vettingo.EvaluationService.Application\Vettingo.EvaluationService.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\EvaluationService\Vettingo.EvaluationService.Domain\Vettingo.EvaluationService.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

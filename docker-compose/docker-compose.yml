@@ -134,6 +134,9 @@ services:
       context: ..
       dockerfile: src/EvaluationService/Vettingo.EvaluationService.API/Dockerfile
     depends_on:
+      evaluation-db:
+        condition: service_healthy
+        required: true
       rabbitmq:
         condition: service_healthy
         required: true
@@ -143,6 +146,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=evaluation-db;Port=5432;Database=EvaluationServiceDb;Username=vettingo;Password=VettingoPostgres_2026!
       ConnectionStrings__RabbitMq: amqp://vettingo:VettingoRabbit_2026!@rabbitmq:5672/
       ConnectionStrings__Redis: redis:6379,password=VettingoRedis_2026!,abortConnect=false
       DOTNET_RUNNING_IN_CONTAINER: "true"
@@ -162,6 +166,33 @@ services:
         published: "5083"
         protocol: tcp
     restart: unless-stopped
+  evaluation-db:
+    environment:
+      POSTGRES_DB: EvaluationServiceDb
+      POSTGRES_PASSWORD: VettingoPostgres_2026!
+      POSTGRES_USER: vettingo
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U vettingo
+      timeout: 5s
+      interval: 5s
+      retries: 10
+      start_period: 10s
+    image: postgres:16-alpine
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 5432
+        published: "5439"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: evaluation-db-data
+        target: /var/lib/postgresql/data
+        volume: {}
   exam-api:
     build:
       context: ..
@@ -546,6 +577,8 @@ volumes:
     name: vettingo_analytics-db-data
   auth-db-data:
     name: vettingo_auth-db-data
+  evaluation-db-data:
+    name: vettingo_evaluation-db-data
   exam-db-data:
     name: vettingo_exam-db-data
   interview-db-data:
