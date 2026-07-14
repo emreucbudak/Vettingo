@@ -18,6 +18,14 @@ namespace Vettingo.AuthService.Application.Rules
             return user;
         }
 
+        public async Task EnsureEmailIsAvailable(string email)
+        {
+            if (await users.FindByEmailAsync(email) is not null)
+            {
+                throw new BusinessException("Bu e-posta adresi zaten kay\u0131tl\u0131");
+            }
+        }
+
         public async Task<bool> IsRoleThere(string roleName)
         {
             Role? role = await roleManager.FindByNameAsync(roleName);

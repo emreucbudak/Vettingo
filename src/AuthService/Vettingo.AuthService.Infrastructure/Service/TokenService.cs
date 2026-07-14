@@ -11,20 +11,17 @@ namespace Vettingo.AuthService.Infrastructure.Service
     {
         public string CreateAccessToken(Guid id, string email, IList<string> role)
         {
-            Claim[] claimss = new Claim[]
+            List<Claim> claims = new()
             {
                 new Claim(JwtRegisteredClaimNames.Sub, id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
-            foreach (var claim in role)
-            {
-                claimss.Append(new Claim(ClaimTypes.Role, claim));
-            }
+            claims.AddRange(role.Select(roleName => new Claim(ClaimTypes.Role, roleName)));
             JwtSecurityToken token = new JwtSecurityToken(
                 issuer: options.Value.Issuer,
                 audience: options.Value.Audience,
-                claims: claimss,
+                claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(options.Value.AccessTokenExpiration),
                 signingCredentials: new Microsoft.IdentityModel.Tokens.SigningCredentials(
                     new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(options.Value.SecretKey)),
