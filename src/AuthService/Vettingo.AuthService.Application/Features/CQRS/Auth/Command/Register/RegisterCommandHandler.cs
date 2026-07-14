@@ -1,6 +1,7 @@
 ﻿using FlashMediator;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Vettingo.AuthService.Application.Exceptions;
 using Vettingo.AuthService.Application.Rules;
 using Vettingo.AuthService.Domain.Entities;
 
@@ -12,8 +13,12 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Register
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(RegisterCommandHandler));
 
-            await businessRules.IsThere(request.Email);
-            await businessRules.IsRoleThere(request.Role);
+            await businessRules.EnsureEmailIsAvailable(request.Email);
+            bool roleExists = await businessRules.IsRoleThere(request.Role);
+            if (!roleExists)
+            {
+                throw new BusinessException("Ge\u00e7ersiz hesap t\u00fcr\u00fc");
+            }
 
             User user = new()
             {
@@ -23,7 +28,18 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Register
                 UserName = request.Email
             };
 
-            await userManager.CreateAsync(user, request.Password);
+            IdentityResult createResult = await userManager.CreateAsync(user, request.Password);
+            if (!createResult.Succeeded)
+            {
+                throw new BusinessException(string.Join(" ", createResult.Errors.Select(error => error.Description)));
+            }
+
+            IdentityResult roleResult = await userManager.AddToRoleAsync(user, request.Role);
+            if (!roleResult.Succeeded)
+            {
+                await userManager.DeleteAsync(user);
+                throw new BusinessException(string.Join(" ", roleResult.Errors.Select(error => error.Description)));
+            }
         }
     }
 }
