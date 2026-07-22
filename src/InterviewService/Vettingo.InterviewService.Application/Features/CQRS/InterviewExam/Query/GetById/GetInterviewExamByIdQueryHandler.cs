@@ -1,4 +1,4 @@
-﻿using FlashMediator;
+using FlashMediator;
 using Microsoft.Extensions.Logging;
 using Vettingo.InterviewService.Application.Exceptions;
 using Vettingo.InterviewService.Application.Features.CQRS.InterviewExam;
@@ -14,14 +14,18 @@ namespace Vettingo.InterviewService.Application.Features.CQRS.InterviewExam.Quer
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetInterviewExamByIdQueryHandler));
 
             InterviewExamEntity exam = await examRepository.GetByIdAsync(request.InterviewExamId, "Questions.InterviewQuestion")
-                ?? throw new NotFoundException("Mülakat sınavı bulunamadı");
+                ?? throw new NotFoundException("Mülakat bulunamadı");
 
             return new GetInterviewExamByIdQueryResponse
             {
                 Id = exam.Id,
                 CompanyId = exam.CompanyId,
+                CandidateId = exam.CandidateId,
                 Title = exam.Title,
                 Description = exam.Description,
+                Type = exam.Type,
+                StartDate = exam.StartDate,
+                EndDate = exam.EndDate,
                 CreatedAt = exam.CreatedAt,
                 UpdatedAt = exam.UpdatedAt,
                 Questions = exam.Questions
@@ -36,5 +40,3 @@ namespace Vettingo.InterviewService.Application.Features.CQRS.InterviewExam.Quer
         }
     }
 }
-
-

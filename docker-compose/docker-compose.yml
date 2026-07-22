@@ -353,7 +353,7 @@ services:
       ReverseProxy__Clusters__authservice__Destinations__authservice__Address: http://auth-api:8080/api/auth
       ReverseProxy__Clusters__evaluationservice__Destinations__evaluationservice__Address: http://evaluation-api:8080/api/evaluation
       ReverseProxy__Clusters__examservice__Destinations__examservice__Address: http://exam-api:8080/api/exam
-      ReverseProxy__Clusters__interviewservice__Destinations__interviewservice__Address: http://interview-api:8080/api/interview
+      ReverseProxy__Clusters__interviewservice__Destinations__interviewservice__Address: http://interview-api:8080/api/
       ReverseProxy__Clusters__jobservice__Destinations__jobservice__Address: http://job-api:8080/api/job
       ReverseProxy__Clusters__notificationservice__Destinations__notificationservice__Address: http://notification-api:8080/api/notification
     image: vettingo/gateway:local

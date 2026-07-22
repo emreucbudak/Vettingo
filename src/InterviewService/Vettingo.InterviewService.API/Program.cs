@@ -1,4 +1,5 @@
-﻿using FlashMediator;
+using System.Text.Json.Serialization;
+using FlashMediator;
 using FluentValidation;
 using Serilog;
 using Vettingo.InterviewService.API.ExceptionHandlers;
@@ -34,7 +35,8 @@ builder.Services.AddExceptionHandler<BusinessExceptionHandler>();
 builder.Services.AddExceptionHandler<BaseExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 var app = builder.Build();
 
@@ -43,17 +45,10 @@ app.UseSerilogRequestLogging(options =>
     options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} isteği {StatusCode} durum koduyla {Elapsed:0.0000} ms içinde tamamlandı";
 });
 
-
-
 app.UseHttpsRedirection();
-
 app.UseExceptionHandler();
-
 app.UseRouting();
-
 app.UseAuthorization();
-
-
 app.MapControllers();
 
 app.Run();

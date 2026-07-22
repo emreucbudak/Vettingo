@@ -1,4 +1,4 @@
-﻿using FlashMediator;
+using FlashMediator;
 using Microsoft.AspNetCore.Mvc;
 using Vettingo.InterviewService.Application.Features.CQRS.InterviewExam.Command.CreateInterviewExam;
 using Vettingo.InterviewService.Application.Features.CQRS.InterviewExam.Command.DeleteInterviewExam;
@@ -37,8 +37,12 @@ namespace Vettingo.InterviewService.API.Controllers
             await mediator.Send(new UpdateInterviewExamCommandRequest
             {
                 InterviewExamId = interviewExamId,
+                CandidateId = request.CandidateId,
                 Title = request.Title,
                 Description = request.Description,
+                Type = request.Type,
+                StartDate = request.StartDate,
+                EndDate = request.EndDate,
                 QuestionIds = request.QuestionIds
             });
 
