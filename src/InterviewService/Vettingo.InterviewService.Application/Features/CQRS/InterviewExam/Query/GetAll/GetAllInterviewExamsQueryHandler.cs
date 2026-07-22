@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using FlashMediator;
 using Microsoft.Extensions.Logging;
 using Vettingo.InterviewService.Application.Features.CQRS.InterviewExam;
@@ -13,20 +13,34 @@ namespace Vettingo.InterviewService.Application.Features.CQRS.InterviewExam.Quer
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetAllInterviewExamsQueryHandler));
 
+            Guid? companyId = request.CompanyId;
+            Guid? candidateId = request.CandidateId;
+            DateTime now = DateTime.UtcNow;
             Expression<Func<InterviewExamEntity, bool>>? predicate = null;
-            if (request.CompanyId.HasValue)
+
+            if (companyId.HasValue || candidateId.HasValue || request.UpcomingOnly)
             {
-                Guid companyId = request.CompanyId.Value;
-                predicate = exam => exam.CompanyId == companyId;
+                predicate = exam =>
+                    (!companyId.HasValue || exam.CompanyId == companyId.Value) &&
+                    (!candidateId.HasValue || exam.CandidateId == candidateId.Value) &&
+                    (!request.UpcomingOnly || exam.StartDate >= now);
             }
 
-            IEnumerable<InterviewExamEntity> exams = await examRepository.GetAllAsync(predicate, query => query.OrderByDescending(exam => exam.CreatedAt), "Questions.InterviewQuestion");
+            IEnumerable<InterviewExamEntity> exams = await examRepository.GetAllAsync(
+                predicate,
+                query => query.OrderBy(exam => exam.StartDate),
+                "Questions.InterviewQuestion");
+
             return exams.Select(exam => new GetAllInterviewExamsQueryResponse
             {
                 Id = exam.Id,
                 CompanyId = exam.CompanyId,
+                CandidateId = exam.CandidateId,
                 Title = exam.Title,
                 Description = exam.Description,
+                Type = exam.Type,
+                StartDate = exam.StartDate,
+                EndDate = exam.EndDate,
                 CreatedAt = exam.CreatedAt,
                 UpdatedAt = exam.UpdatedAt,
                 Questions = exam.Questions
@@ -41,5 +55,3 @@ namespace Vettingo.InterviewService.Application.Features.CQRS.InterviewExam.Quer
         }
     }
 }
-
-

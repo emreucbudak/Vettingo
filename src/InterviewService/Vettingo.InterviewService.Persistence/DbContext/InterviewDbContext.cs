@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Vettingo.InterviewService.Domain.Entities;
 
 namespace Vettingo.InterviewService.Persistence.DbContext
@@ -23,6 +23,13 @@ namespace Vettingo.InterviewService.Persistence.DbContext
             builder.Entity<InterviewExam>()
                 .Property(exam => exam.Description)
                 .HasMaxLength(1000);
+
+            builder.Entity<InterviewExam>()
+                .Property(exam => exam.Type)
+                .HasConversion<string>();
+
+            builder.Entity<InterviewExam>()
+                .HasIndex(exam => new { exam.CandidateId, exam.StartDate });
 
             builder.Entity<InterviewExamQuestion>()
                 .HasIndex(examQuestion => new { examQuestion.InterviewExamId, examQuestion.InterviewQuestionId })
