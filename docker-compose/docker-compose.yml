@@ -64,6 +64,56 @@ services:
         source: analytics-db-data
         target: /var/lib/postgresql/data
         volume: {}
+  application-api:
+    build:
+      context: ..
+      dockerfile: src/ApplicationService/Vettingo.ApplicationService.API/Dockerfile
+    depends_on:
+      application-db:
+        condition: service_healthy
+        required: true
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=application-db;Port=5432;Database=ApplicationServiceDb;Username=vettingo;Password=${VETTINGO_APPLICATION_DB_PASSWORD:?Set VETTINGO_APPLICATION_DB_PASSWORD}
+      DOTNET_RUNNING_IN_CONTAINER: "true"
+    image: vettingo/application-api:local
+    init: true
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "5267"
+        protocol: tcp
+    restart: unless-stopped
+  application-db:
+    environment:
+      POSTGRES_DB: ApplicationServiceDb
+      POSTGRES_PASSWORD: ${VETTINGO_APPLICATION_DB_PASSWORD:?Set VETTINGO_APPLICATION_DB_PASSWORD}
+      POSTGRES_USER: vettingo
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U vettingo
+      timeout: 5s
+      interval: 5s
+      retries: 10
+      start_period: 10s
+    image: postgres:16-alpine
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 5432
+        published: "5439"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: application-db-data
+        target: /var/lib/postgresql/data
+        volume: {}
   auth-api:
     build:
       context: ..
@@ -265,6 +315,9 @@ services:
       analytics-api:
         condition: service_started
         required: true
+      application-api:
+        condition: service_started
+        required: true
       auth-api:
         condition: service_started
         required: true
@@ -296,6 +349,7 @@ services:
       RabbitMq__VirtualHost: /
       Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
       ReverseProxy__Clusters__analyticsservice__Destinations__analyticsservice__Address: http://analytics-api:8080/api/analytics
+      ReverseProxy__Clusters__applicationservice__Destinations__applicationservice__Address: http://application-api:8080/api/
       ReverseProxy__Clusters__authservice__Destinations__authservice__Address: http://auth-api:8080/api/auth
       ReverseProxy__Clusters__evaluationservice__Destinations__evaluationservice__Address: http://evaluation-api:8080/api/evaluation
       ReverseProxy__Clusters__examservice__Destinations__examservice__Address: http://exam-api:8080/api/exam
@@ -575,6 +629,8 @@ networks:
 volumes:
   analytics-db-data:
     name: vettingo_analytics-db-data
+  application-db-data:
+    name: vettingo_application-db-data
   auth-db-data:
     name: vettingo_auth-db-data
   evaluation-db-data:

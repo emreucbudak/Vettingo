@@ -1,0 +1,39 @@
+name: Vettingo Application Service CI
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - src/ApplicationService/**
+      - tests/Vettingo.ApplicationService.Tests/**
+      - .github/workflows/application-ci.yml
+  pull_request:
+    branches: [master]
+    paths:
+      - src/ApplicationService/**
+      - tests/Vettingo.ApplicationService.Tests/**
+      - .github/workflows/application-ci.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Restore
+        run: dotnet restore tests/Vettingo.ApplicationService.Tests/Vettingo.ApplicationService.UnitTests/Vettingo.ApplicationService.UnitTests.csproj
+      - name: Build API
+        run: dotnet build src/ApplicationService/Vettingo.ApplicationService.API/Vettingo.ApplicationService.API.csproj --configuration Release
+      - name: Run unit tests
+        run: dotnet test tests/Vettingo.ApplicationService.Tests/Vettingo.ApplicationService.UnitTests/Vettingo.ApplicationService.UnitTests.csproj --configuration Release --no-restore --verbosity normal
