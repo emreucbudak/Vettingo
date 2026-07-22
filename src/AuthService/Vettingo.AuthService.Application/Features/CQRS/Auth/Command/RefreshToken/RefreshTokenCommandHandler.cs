@@ -1,4 +1,4 @@
-﻿using FlashMediator;
+using FlashMediator;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
@@ -29,8 +29,13 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.RefreshTok
                 throw new UnauthorizedException("Refresh token kullanılamıyor");
             }
 
-            IList<string> role = await userManager.GetRolesAsync(user);
-            string accessToken = token.CreateAccessToken(user.Id, user.Email, role);
+            IList<string> roles = await userManager.GetRolesAsync(user);
+            string accessToken = token.CreateAccessToken(
+                user.Id,
+                user.Email,
+                user.Name,
+                user.Surname,
+                roles);
             string refreshToken = token.CreateRefreshToken();
             user.RefreshToken.UpdateToken(refreshToken);
 
@@ -42,4 +47,3 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.RefreshTok
         }
     }
 }
-

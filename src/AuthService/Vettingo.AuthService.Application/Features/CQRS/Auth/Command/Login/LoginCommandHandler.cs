@@ -1,4 +1,4 @@
-﻿using FlashMediator;
+using FlashMediator;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Vettingo.AuthService.Application.Exceptions;
@@ -23,9 +23,14 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Login
             }
 
             IList<string> userRoles = await userManager.GetRolesAsync(user);
-            string token = tokenService.CreateAccessToken(user.Id, user.Email, userRoles);
+            string token = tokenService.CreateAccessToken(
+                user.Id,
+                user.Email,
+                user.Name,
+                user.Surname,
+                userRoles);
             string refreshToken = tokenService.CreateRefreshToken();
-            Domain.Entities.RefreshToken rt = new(refreshToken, user.Id);
+            Domain.Entities.RefreshToken refreshTokenEntity = new(refreshToken, user.Id);
 
             return new LoginCommandResponse
             {
@@ -35,4 +40,3 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Login
         }
     }
 }
-
