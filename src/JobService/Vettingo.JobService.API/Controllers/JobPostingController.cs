@@ -5,6 +5,7 @@ using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.DeleteJob
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.UpdateJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetAll;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetById;
+using Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.Search;
 
 namespace Vettingo.JobService.API.Controllers
 {
@@ -16,6 +17,14 @@ namespace Vettingo.JobService.API.Controllers
         public async Task<IActionResult> GetAllJobPostings([FromQuery] GetAllJobPostingsQueryRequest request)
         {
             return Ok(await mediator.Send(request));
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchJobPostings(
+            [FromQuery] SearchJobPostingsQueryRequest request,
+            CancellationToken cancellationToken)
+        {
+            return Ok(await mediator.Send(request, cancellationToken));
         }
 
         [HttpGet("{jobPostingId:guid}")]

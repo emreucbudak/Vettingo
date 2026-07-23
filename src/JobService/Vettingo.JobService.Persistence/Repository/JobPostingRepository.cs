@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Vettingo.JobService.Application.Repository;
 using Vettingo.JobService.Domain.Entities;
+using Vettingo.JobService.Domain.Enums;
 using Vettingo.JobService.Persistence.DbContext;
 
 namespace Vettingo.JobService.Persistence.Repository
@@ -37,6 +38,65 @@ namespace Vettingo.JobService.Persistence.Repository
                 .Where(jobPosting => jobPosting.CompanyId == companyId)
                 .OrderByDescending(jobPosting => jobPosting.CreatedAt)
                 .ToListAsync();
+        }
+
+        public async Task<IReadOnlyList<JobPosting>> SearchJobPostingsAsync(
+            JobPostingSearchCriteria criteria,
+            CancellationToken cancellationToken = default)
+        {
+            IQueryable<JobPosting> query = JobPostingSet
+                .AsNoTracking()
+                .Where(jobPosting => jobPosting.Status == JobPostingStatus.Published);
+
+            if (!string.IsNullOrWhiteSpace(criteria.Title))
+            {
+                string normalizedTitle = criteria.Title.Trim().ToLower();
+                query = query.Where(jobPosting =>
+                    jobPosting.Title.ToLower().Contains(normalizedTitle));
+            }
+
+            if (!string.IsNullOrWhiteSpace(criteria.Location))
+            {
+                string normalizedLocation = criteria.Location.Trim().ToLower();
+                query = query.Where(jobPosting =>
+                    jobPosting.Location.ToLower().Contains(normalizedLocation));
+            }
+
+            if (criteria.EmploymentType.HasValue)
+            {
+                query = query.Where(jobPosting =>
+                    jobPosting.EmploymentType == criteria.EmploymentType.Value);
+            }
+
+            if (criteria.WorkingModel.HasValue)
+            {
+                query = query.Where(jobPosting =>
+                    jobPosting.WorkingModel == criteria.WorkingModel.Value);
+            }
+
+            if (criteria.ExperienceLevel.HasValue)
+            {
+                query = query.Where(jobPosting =>
+                    jobPosting.ExperienceLevel == criteria.ExperienceLevel.Value);
+            }
+
+            if (criteria.MinSalary.HasValue)
+            {
+                query = query.Where(jobPosting =>
+                    jobPosting.MaxSalary.HasValue &&
+                    jobPosting.MaxSalary.Value >= criteria.MinSalary.Value);
+            }
+
+            if (criteria.MaxSalary.HasValue)
+            {
+                query = query.Where(jobPosting =>
+                    jobPosting.MinSalary.HasValue &&
+                    jobPosting.MinSalary.Value <= criteria.MaxSalary.Value);
+            }
+
+            return await query
+                .OrderByDescending(jobPosting => jobPosting.CreatedAt)
+                .ToListAsync(cancellationToken);
         }
 
         public Task<int> SaveChangesAsync()
