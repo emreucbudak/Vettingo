@@ -24,6 +24,7 @@ namespace Vettingo.NotificationService.Persistence.Repository
             return await NotificationSet
                 .Where(notification => notification.UserId == userId)
                 .OrderByDescending(notification => notification.CreatedAt)
+                .AsNoTracking()
                 .ToListAsync();
         }
 
@@ -32,6 +33,7 @@ namespace Vettingo.NotificationService.Persistence.Repository
             return await NotificationSet
                 .Where(notification => notification.UserId == userId && !notification.IsRead)
                 .OrderByDescending(notification => notification.CreatedAt)
+                .AsNoTracking()
                 .ToListAsync();
         }
 
