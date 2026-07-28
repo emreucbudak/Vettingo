@@ -1,8 +1,11 @@
+using Microsoft.EntityFrameworkCore;
 using Vettingo.ApplicationService.Domain.Common;
 using Vettingo.ApplicationService.Domain.Enums;
 
 namespace Vettingo.ApplicationService.Domain.Entities
 {
+    [Index(nameof(CandidateId))]
+    [Index(nameof(JobPostingId))]
     public class JobApplication : BaseEntity
     {
         public Guid CandidateId { get; private set; }

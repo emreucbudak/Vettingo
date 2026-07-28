@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="10.0.8" />
+
     <Compile Update="Entities\JobPosting.cs" />
     <Compile Update="Enums\EmploymentType.cs" />
     <Compile Update="Enums\ExperienceLevel.cs" />

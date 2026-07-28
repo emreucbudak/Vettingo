@@ -1,7 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using Vettingo.JobService.Domain.Enums;
 
 namespace Vettingo.JobService.Domain.Entities
 {
+    [Index(nameof(Title), IsUnique = true)]
     public class JobPosting
     {
         public JobPosting()

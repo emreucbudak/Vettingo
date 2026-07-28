@@ -15,10 +15,6 @@ namespace Vettingo.ApplicationService.Persistence.DbContext
                 .HasConversion<string>();
 
             builder.Entity<JobApplication>()
-                .HasIndex(application => new { application.CandidateId, application.JobPostingId })
-                .IsUnique();
-
-            builder.Entity<JobApplication>()
                 .HasIndex(application => application.AppliedAt);
 
             base.OnModelCreating(builder);
