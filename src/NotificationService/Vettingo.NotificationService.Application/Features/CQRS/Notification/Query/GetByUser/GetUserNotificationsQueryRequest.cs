@@ -1,5 +1,5 @@
 using FlashMediator;
-using Vettingo.NotificationService.Application.Interfaces;
+using ICacheableQuery = Vettingo.NotificationService.Application.Interfaces.ICacheableQuery;
 
 namespace Vettingo.NotificationService.Application.Features.CQRS.Notification.Query.GetByUser
 {

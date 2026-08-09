@@ -2,10 +2,7 @@ using FlashMediator;
 using FluentValidation;
 using Serilog;
 using Vettingo.EvaluationService.API.ExceptionHandlers;
-using Vettingo.EvaluationService.API.Pipeline;
 using Vettingo.EvaluationService.Application.Features.CQRS.Evaluation.Command.CreateEvaluation;
-using Vettingo.EvaluationService.Application.Interfaces;
-using Vettingo.EvaluationService.Infrastructure.Cache;
 using Vettingo.EvaluationService.Persistence.Registration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,7 +16,7 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
 
 builder.Services.AddEvaluationPersistence(builder.Configuration);
 builder.Services.AddFlashMediator(typeof(CreateEvaluationCommandHandler).Assembly);
-builder.Services.AddPipelineBehavior(typeof(RedisCachePipelineBehaviour<,>));
+builder.Services.AddFlashMediatorHybridCache();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateEvaluationCommandRequest>();
 builder.Services.AddStackExchangeRedisCache(options =>
 {
@@ -27,7 +24,6 @@ builder.Services.AddStackExchangeRedisCache(options =>
         ?? throw new InvalidOperationException("Connection string 'Redis' is not configured.");
     options.InstanceName = "Vettingo:EvaluationService:";
 });
-builder.Services.AddScoped<ICacheService, CacheService>();
 
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();

@@ -1,5 +1,5 @@
 using FlashMediator;
-using Vettingo.EvaluationService.Application.Interfaces;
+using ICacheableQuery = Vettingo.EvaluationService.Application.Interfaces.ICacheableQuery;
 
 namespace Vettingo.EvaluationService.Application.Features.CQRS.Evaluation.Query.GetEvaluationById;
 

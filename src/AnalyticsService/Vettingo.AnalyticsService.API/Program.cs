@@ -3,8 +3,6 @@ using FlashMediator;
 using FluentValidation;
 using Vettingo.AnalyticsService.API.ExceptionHandlers;
 using Vettingo.AnalyticsService.Application.Features.CQRS.Analytics.Command.RecordCandidateRecommendation;
-using Vettingo.AnalyticsService.Application.Interfaces;
-using Vettingo.AnalyticsService.Infrastructure.Cache;
 using Vettingo.AnalyticsService.Persistence.Registration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +16,7 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
 
 builder.Services.SaveDb(builder.Configuration);
 builder.Services.AddFlashMediator(typeof(RecordCandidateRecommendationCommandHandler).Assembly);
+builder.Services.AddFlashMediatorHybridCache();
 builder.Services.AddValidatorsFromAssemblyContaining<RecordCandidateRecommendationCommandRequest>();
 builder.Services.AddStackExchangeRedisCache(options =>
 {
@@ -25,7 +24,6 @@ builder.Services.AddStackExchangeRedisCache(options =>
         ?? throw new InvalidOperationException("Connection string 'Redis' is not configured.");
     options.InstanceName = "Vettingo:AnalyticsService:";
 });
-builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
 builder.Services.AddExceptionHandler<BadRequestExceptionHandler>();

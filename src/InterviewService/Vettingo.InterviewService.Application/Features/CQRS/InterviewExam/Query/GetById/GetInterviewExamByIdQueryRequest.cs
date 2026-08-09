@@ -1,5 +1,5 @@
 using FlashMediator;
-using Vettingo.InterviewService.Application.Interfaces;
+using ICacheableQuery = Vettingo.InterviewService.Application.Interfaces.ICacheableQuery;
 
 namespace Vettingo.InterviewService.Application.Features.CQRS.InterviewExam.Query.GetById
 {

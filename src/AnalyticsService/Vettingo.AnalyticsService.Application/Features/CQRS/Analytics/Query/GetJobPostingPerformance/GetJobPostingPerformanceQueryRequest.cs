@@ -1,6 +1,6 @@
 using FlashMediator;
 
-using Vettingo.AnalyticsService.Application.Interfaces;
+using ICacheableQuery = Vettingo.AnalyticsService.Application.Interfaces.ICacheableQuery;
 namespace Vettingo.AnalyticsService.Application.Features.CQRS.Analytics.Query.GetJobPostingPerformance
 {
     public class GetJobPostingPerformanceQueryRequest : IRequest<GetJobPostingPerformanceQueryResponse>, ICacheableQuery

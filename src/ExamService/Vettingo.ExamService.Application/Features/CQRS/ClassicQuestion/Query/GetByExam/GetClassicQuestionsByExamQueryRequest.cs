@@ -1,5 +1,5 @@
 using FlashMediator;
-using Vettingo.ExamService.Application.Interfaces;
+using ICacheableQuery = Vettingo.ExamService.Application.Interfaces.ICacheableQuery;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.ClassicQuestion.Query.GetByExam
 {

@@ -1,5 +1,5 @@
 using FlashMediator;
-using Vettingo.JobService.Application.Interfaces;
+using ICacheableQuery = Vettingo.JobService.Application.Interfaces.ICacheableQuery;
 using Vettingo.JobService.Domain.Enums;
 
 namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.Search;

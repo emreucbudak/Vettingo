@@ -3,8 +3,6 @@ using FlashMediator;
 using FluentValidation;
 using Vettingo.ExamService.API.ExceptionHandlers;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam;
-using Vettingo.ExamService.Application.Interfaces;
-using Vettingo.ExamService.Infrastructure.Cache;
 using Vettingo.ExamService.Persistence.Registration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +16,7 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
 
 builder.Services.SaveDb(builder.Configuration);
 builder.Services.AddFlashMediator(typeof(CreateExamCommandHandler).Assembly);
+builder.Services.AddFlashMediatorHybridCache();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateExamCommandRequest>();
 builder.Services.AddStackExchangeRedisCache(options =>
 {
@@ -25,7 +24,6 @@ builder.Services.AddStackExchangeRedisCache(options =>
         ?? throw new InvalidOperationException("Connection string 'Redis' is not configured.");
     options.InstanceName = "Vettingo:ExamService:";
 });
-builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
 builder.Services.AddExceptionHandler<BadRequestExceptionHandler>();

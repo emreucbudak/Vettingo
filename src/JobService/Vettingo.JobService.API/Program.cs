@@ -3,8 +3,6 @@ using FlashMediator;
 using FluentValidation;
 using Vettingo.JobService.API.ExceptionHandlers;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CreateJobPosting;
-using Vettingo.JobService.Application.Interfaces;
-using Vettingo.JobService.Infrastructure.Cache;
 using Vettingo.JobService.Persistence.Registration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,8 +21,8 @@ builder.Services.AddStackExchangeRedisCache(options =>
         ?? throw new InvalidOperationException("Connection string 'Redis' is not configured.");
     options.InstanceName = "Vettingo:JobService:";
 });
-builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddFlashMediator(typeof(CreateJobPostingCommandHandler).Assembly);
+builder.Services.AddFlashMediatorHybridCache();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateJobPostingCommandRequest>();
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();

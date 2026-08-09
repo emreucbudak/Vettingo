@@ -4,8 +4,6 @@ using FluentValidation;
 using Serilog;
 using Vettingo.InterviewService.API.ExceptionHandlers;
 using Vettingo.InterviewService.Application.Features.CQRS.InterviewQuestion.Command.CreateInterviewQuestion;
-using Vettingo.InterviewService.Application.Interfaces;
-using Vettingo.InterviewService.Infrastructure.Cache;
 using Vettingo.InterviewService.Persistence.Registration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +17,7 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
 
 builder.Services.SaveDb(builder.Configuration);
 builder.Services.AddFlashMediator(typeof(CreateInterviewQuestionCommandHandler).Assembly);
+builder.Services.AddFlashMediatorHybridCache();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateInterviewQuestionCommandRequest>();
 builder.Services.AddStackExchangeRedisCache(options =>
 {
@@ -26,7 +25,6 @@ builder.Services.AddStackExchangeRedisCache(options =>
         ?? throw new InvalidOperationException("Connection string 'Redis' is not configured.");
     options.InstanceName = "Vettingo:InterviewService:";
 });
-builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
 builder.Services.AddExceptionHandler<BadRequestExceptionHandler>();
