@@ -369,10 +369,6 @@ services:
         source: postgres-data
         target: /var/lib/postgresql/data
         volume: {}
-      - type: bind
-        source: ./postgres/init-databases.sql
-        target: /docker-entrypoint-initdb.d/01-init-databases.sql
-        read_only: true
   rabbitmq:
     environment:
       RABBITMQ_DEFAULT_PASS: VettingoRabbit_2026!
