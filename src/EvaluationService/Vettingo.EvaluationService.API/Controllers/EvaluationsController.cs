@@ -1,4 +1,5 @@
 using FlashMediator;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vettingo.EvaluationService.Application.Features.CQRS.Evaluation.Command.CreateEvaluation;
 using Vettingo.EvaluationService.Application.Features.CQRS.Evaluation.Command.DeleteEvaluation;
@@ -10,6 +11,7 @@ namespace Vettingo.EvaluationService.API.Controllers;
 
 [ApiController]
 [Route("api/evaluations")]
+[Authorize(Roles = "Candidate")]
 public sealed class EvaluationsController(IMediator mediator) : ControllerBase
 {
     [HttpGet]

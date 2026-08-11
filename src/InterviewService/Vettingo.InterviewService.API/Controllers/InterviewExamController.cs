@@ -1,4 +1,5 @@
 using FlashMediator;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vettingo.InterviewService.Application.Features.CQRS.InterviewExam.Command.CreateInterviewExam;
 using Vettingo.InterviewService.Application.Features.CQRS.InterviewExam.Command.DeleteInterviewExam;
@@ -12,18 +13,21 @@ namespace Vettingo.InterviewService.API.Controllers
     [ApiController]
     public class InterviewExamController(IMediator mediator) : ControllerBase
     {
+        [Authorize(Roles = "Company,Candidate")]
         [HttpGet]
         public async Task<IActionResult> GetAllInterviewExams([FromQuery] GetAllInterviewExamsQueryRequest request)
         {
             return Ok(await mediator.Send(request));
         }
 
+        [Authorize(Roles = "Company,Candidate")]
         [HttpGet("{interviewExamId:guid}")]
         public async Task<IActionResult> GetInterviewExamById([FromRoute] GetInterviewExamByIdQueryRequest request)
         {
             return Ok(await mediator.Send(request));
         }
 
+        [Authorize(Roles = "Company")]
         [HttpPost]
         public async Task<IActionResult> CreateInterviewExam([FromBody] CreateInterviewExamCommandRequest request)
         {
@@ -31,6 +35,7 @@ namespace Vettingo.InterviewService.API.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Company")]
         [HttpPut("{interviewExamId:guid}")]
         public async Task<IActionResult> UpdateInterviewExam([FromRoute] Guid interviewExamId, [FromBody] UpdateInterviewExamCommandRequest request)
         {
@@ -49,6 +54,7 @@ namespace Vettingo.InterviewService.API.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Company")]
         [HttpDelete("{interviewExamId:guid}")]
         public async Task<IActionResult> DeleteInterviewExam([FromRoute] Guid interviewExamId)
         {

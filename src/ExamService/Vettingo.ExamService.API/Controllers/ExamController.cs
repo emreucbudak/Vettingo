@@ -1,4 +1,5 @@
 using FlashMediator;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.DeleteExam;
@@ -12,18 +13,21 @@ namespace Vettingo.ExamService.API.Controllers
     [ApiController]
     public class ExamController(IMediator mediator) : ControllerBase
     {
+        [Authorize(Roles = "Company,Candidate")]
         [HttpGet]
         public async Task<IActionResult> GetAllExams([FromQuery] GetAllExamsQueryRequest request)
         {
             return Ok(await mediator.Send(request));
         }
 
+        [Authorize(Roles = "Company,Candidate")]
         [HttpGet("{examId:guid}")]
         public async Task<IActionResult> GetExamById([FromRoute] GetExamByIdQueryRequest request)
         {
             return Ok(await mediator.Send(request));
         }
 
+        [Authorize(Roles = "Company")]
         [HttpPost]
         public async Task<IActionResult> CreateExam([FromBody] CreateExamCommandRequest request)
         {
@@ -31,6 +35,7 @@ namespace Vettingo.ExamService.API.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Company")]
         [HttpPut("{examId:guid}")]
         public async Task<IActionResult> UpdateExam([FromRoute] Guid examId, [FromBody] UpdateExamCommandRequest request)
         {
@@ -51,6 +56,7 @@ namespace Vettingo.ExamService.API.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Company")]
         [HttpDelete("{examId:guid}")]
         public async Task<IActionResult> DeleteExam([FromRoute] Guid examId)
         {
