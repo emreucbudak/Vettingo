@@ -1,4 +1,5 @@
 using FlashMediator;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vettingo.NotificationService.Application.Features.CQRS.Notification.Command.CreateNotification;
 using Vettingo.NotificationService.Application.Features.CQRS.Notification.Command.MarkNotificationAsRead;
@@ -8,6 +9,7 @@ namespace Vettingo.NotificationService.API.Controllers
 {
     [Route("api/notifications")]
     [ApiController]
+    [Authorize(Roles = "Company,Candidate")]
     public class NotificationController(IMediator mediator) : ControllerBase
     {
         [HttpGet("user/{userId:guid}")]

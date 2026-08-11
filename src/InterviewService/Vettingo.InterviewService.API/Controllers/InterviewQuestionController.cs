@@ -1,4 +1,5 @@
 ﻿using FlashMediator;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vettingo.InterviewService.Application.Features.CQRS.InterviewQuestion.Command.CreateInterviewQuestion;
 using Vettingo.InterviewService.Application.Features.CQRS.InterviewQuestion.Command.DeleteInterviewQuestion;
@@ -10,6 +11,7 @@ namespace Vettingo.InterviewService.API.Controllers
 {
     [Route("api/interview-questions")]
     [ApiController]
+    [Authorize(Roles = "Company")]
     public class InterviewQuestionController(IMediator mediator) : ControllerBase
     {
         [HttpGet]

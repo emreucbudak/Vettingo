@@ -25,7 +25,11 @@ namespace Vettingo.AuthService.Infrastructure.Service
                 new Claim(ClaimTypes.Name, $"{name} {surname}".Trim()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
-            claims.AddRange(roles.Select(roleName => new Claim(ClaimTypes.Role, roleName)));
+            claims.AddRange(roles.Select(roleName => new Claim(
+                ClaimTypes.Role,
+                string.Equals(roleName, "Worker", StringComparison.OrdinalIgnoreCase)
+                    ? "Candidate"
+                    : roleName)));
 
             JwtSecurityToken token = new JwtSecurityToken(
                 issuer: options.Value.Issuer,

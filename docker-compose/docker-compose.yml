@@ -1,4 +1,8 @@
 ﻿name: vettingo
+x-jwt-environment: &jwt-environment
+  JwtSettings__Audience: VettingoAuthServiceClients
+  JwtSettings__Issuer: VettingoAuthService
+  JwtSettings__SecretKey: "${VETTINGO_JWT_SECRET:?VETTINGO_JWT_SECRET must be set}"
 services:
   analytics-api:
     build:
@@ -15,6 +19,7 @@ services:
         condition: service_healthy
         required: true
     environment:
+      <<: *jwt-environment
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=AnalyticsServiceDb;Username=vettingo;Password=${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}
@@ -46,6 +51,7 @@ services:
         condition: service_healthy
         required: true
     environment:
+      <<: *jwt-environment
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=ApplicationServiceDb;Username=vettingo;Password=${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}
@@ -75,13 +81,13 @@ services:
         condition: service_healthy
         required: true
     environment:
+      <<: *jwt-environment
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=AuthServiceDb;Username=vettingo;Password=${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}
       ConnectionStrings__RabbitMq: amqp://vettingo:VettingoRabbit_2026!@rabbitmq:5672/
       ConnectionStrings__Redis: redis:6379,password=VettingoRedis_2026!,abortConnect=false
       DOTNET_RUNNING_IN_CONTAINER: "true"
-      JwtSettings__SecretKey: VettingoJwtSecret_DevelopmentOnly_2026_ChangeBeforeProduction_0123456789
       RabbitMq__HostName: rabbitmq
       RabbitMq__Password: VettingoRabbit_2026!
       RabbitMq__Port: "5672"
@@ -113,6 +119,7 @@ services:
         condition: service_healthy
         required: true
     environment:
+      <<: *jwt-environment
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=EvaluationServiceDb;Username=vettingo;Password=${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}
@@ -150,6 +157,7 @@ services:
         condition: service_healthy
         required: true
     environment:
+      <<: *jwt-environment
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=ExamServiceDb;Username=vettingo;Password=${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}
@@ -246,6 +254,7 @@ services:
         condition: service_healthy
         required: true
     environment:
+      <<: *jwt-environment
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=InterviewServiceDb;Username=vettingo;Password=${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}
@@ -283,6 +292,7 @@ services:
         condition: service_healthy
         required: true
     environment:
+      <<: *jwt-environment
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=JobServiceDb;Username=vettingo;Password=${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}
@@ -320,6 +330,7 @@ services:
         condition: service_healthy
         required: true
     environment:
+      <<: *jwt-environment
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=NotificationServiceDb;Username=vettingo;Password=${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}

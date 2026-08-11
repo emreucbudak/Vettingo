@@ -26,6 +26,8 @@ namespace Vettingo.AuthService.API.Controllers
         {
             return Ok(await mediator.Send(new GetCompanyByIdQueriesRequest { CompanyId = companyId }));
         }
+
+        [Authorize(Roles = "Company")]
         [HttpPost]
         public async Task<IActionResult> CreateCompany([FromBody] CreateCompanyCommandRequest request)
         {

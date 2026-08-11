@@ -33,7 +33,7 @@ namespace Vettingo.AuthService.UnitTests
             jwt.Subject.Should().Be(userId.ToString());
             jwt.Claims.Single(claim => claim.Type == JwtRegisteredClaimNames.GivenName).Value.Should().Be("Ayşe");
             jwt.Claims.Single(claim => claim.Type == JwtRegisteredClaimNames.FamilyName).Value.Should().Be("Yılmaz");
-            jwt.Claims.Should().Contain(claim => claim.Type == ClaimTypes.Role && claim.Value == "Worker");
+            jwt.Claims.Should().Contain(claim => claim.Type == ClaimTypes.Role && claim.Value == "Candidate");
         }
     }
 }

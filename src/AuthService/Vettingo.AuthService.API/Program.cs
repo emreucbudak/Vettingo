@@ -1,6 +1,8 @@
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Register;
 using Serilog;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Vettingo.AuthService.API.ExceptionHandlers;
 using Vettingo.AuthService.Infrastructure.Register;
 using Vettingo.AuthService.Persistence.Registration;
@@ -13,6 +15,32 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
         .Enrich.FromLogContext()
         .WriteTo.Console();
 });
+
+string jwtSecretKey = builder.Configuration["JwtSettings:SecretKey"]
+    ?? throw new InvalidOperationException("JwtSettings:SecretKey is not configured.");
+string jwtIssuer = builder.Configuration["JwtSettings:Issuer"]
+    ?? throw new InvalidOperationException("JwtSettings:Issuer is not configured.");
+string jwtAudience = builder.Configuration["JwtSettings:Audience"]
+    ?? throw new InvalidOperationException("JwtSettings:Audience is not configured.");
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwtIssuer,
+            ValidateAudience = true,
+            ValidAudience = jwtAudience,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtSecretKey)),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+builder.Services.AddAuthorization();
+builder.Services.AddProblemDetails();
 
 builder.Services.SaveDb(builder.Configuration);
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterCommandRequest>();
@@ -44,6 +72,7 @@ app.UseHttpsRedirection();
 
 app.UseExceptionHandler();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
