@@ -14,7 +14,7 @@ namespace Vettingo.AuthService.Infrastructure.Service
             string email,
             string name,
             string surname,
-            string role)
+            IList<string> roles)
         {
             List<Claim> claims = new()
             {
@@ -23,8 +23,11 @@ namespace Vettingo.AuthService.Infrastructure.Service
                 new Claim(JwtRegisteredClaimNames.GivenName, name),
                 new Claim(JwtRegisteredClaimNames.FamilyName, surname),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("Role", role)
             };
+            foreach (var role in roles)
+            {
+                 claims.Add(new Claim("Role", role));
+            }
 
 
             JwtSecurityToken token = new JwtSecurityToken(

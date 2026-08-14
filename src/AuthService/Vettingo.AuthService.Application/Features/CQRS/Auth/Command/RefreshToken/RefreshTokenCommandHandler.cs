@@ -19,14 +19,14 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.RefreshTok
 
             if (string.IsNullOrWhiteSpace(userId))
             {
-                throw new UnauthorizedException("Refresh token kullanılamıyor");
+                throw new UnauthorizedException("Bilgiler çekilemedi!");
             }
 
             User? user = await userManager.FindByIdAsync(userId);
 
             if (user is null || user.RefreshToken is null || user.RefreshToken.ExpiryTime < DateTime.UtcNow || user.RefreshToken.RevokeTime is not null || string.IsNullOrWhiteSpace(user.Email))
             {
-                throw new UnauthorizedException("Refresh token kullanılamıyor");
+                throw new UnauthorizedException("Bilgiler Çekilemedi");
             }
 
             IList<string> roles = await userManager.GetRolesAsync(user);

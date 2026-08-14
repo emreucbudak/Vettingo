@@ -9,7 +9,7 @@ namespace Vettingo.AuthService.Application.Service
             string email,
             string name,
             string surname,
-            string role);
+            IList<string> roles);
         string CreateRefreshToken();
         ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
     }
