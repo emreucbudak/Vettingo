@@ -27,13 +27,13 @@ namespace Vettingo.AuthService.UnitTests
                 "ayse@example.com",
                 "Ayşe",
                 "Yılmaz",
-                ["Worker"]);
+                ["Candidate"]);
 
             JwtSecurityToken jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
             jwt.Subject.Should().Be(userId.ToString());
             jwt.Claims.Single(claim => claim.Type == JwtRegisteredClaimNames.GivenName).Value.Should().Be("Ayşe");
             jwt.Claims.Single(claim => claim.Type == JwtRegisteredClaimNames.FamilyName).Value.Should().Be("Yılmaz");
-            jwt.Claims.Should().Contain(claim => claim.Type == ClaimTypes.Role && claim.Value == "Candidate");
+            jwt.Claims.Should().Contain(claim => claim.Type == "Role" && claim.Value == "Candidate");
         }
     }
 }
