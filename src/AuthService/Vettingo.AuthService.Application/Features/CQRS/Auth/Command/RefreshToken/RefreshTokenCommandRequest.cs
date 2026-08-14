@@ -4,6 +4,6 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.RefreshTok
 {
     public record RefreshTokenCommandRequest : IRequest<RefreshTokenCommandResponse>
     {
-        public string AccessToken { get; init; }
+        public string RefreshToken { get; init; }
     }
 }

@@ -26,7 +26,7 @@ public sealed class SearchJobPostingsQueryTests
         var request = new SearchJobPostingsQueryRequest
         {
             Title = "backend",
-            Location = "˜stanbul",
+            Location = "İstanbul",
             EmploymentType = EmploymentType.FullTime,
             WorkingModel = WorkingModel.Hybrid,
             ExperienceLevel = ExperienceLevel.Senior,
@@ -62,7 +62,7 @@ public sealed class SearchJobPostingsQueryTests
             "Build reliable services.",
             "C# and PostgreSQL.",
             "Develop backend capabilities.",
-            "˜stanbul",
+            "İstanbul",
             EmploymentType.FullTime,
             WorkingModel.Hybrid,
             ExperienceLevel.Senior,
