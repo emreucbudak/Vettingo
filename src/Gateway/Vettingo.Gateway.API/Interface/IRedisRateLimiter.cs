@@ -2,6 +2,6 @@
 {
     public interface IRedisRateLimiter
     {
-        Task<bool> CheckRateLimit();
+        Task<bool> CheckRateLimit(string key);
     }
 }
