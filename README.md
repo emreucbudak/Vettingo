@@ -615,6 +615,6 @@ dotnet test Vettingo.slnx
 
 <div align="center">
 
-Built with **.NET 10**, PostgreSQL, Redis, and a modular microservice architecture.
+Built with **.NET 10**, PostgreSQL, Redis, and a microservice architecture.
 
 </div>
