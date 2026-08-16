@@ -1,5 +1,6 @@
 using StackExchange.Redis;
 using Vettingo.Gateway.API.Interface;
+using Vettingo.Gateway.API.Middleware;
 using Vettingo.Gateway.API.RateLimiter;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,7 +32,7 @@ builder.Services.AddControllers();
 builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
 var app = builder.Build();
-
+app.UseMiddleware<RedisRateLimitMiddleware>();
 app.MapReverseProxy();
 app.UseHttpsRedirection();
 app.UseCors();
