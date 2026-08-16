@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System.Threading.RateLimiting;
 using FlashMediator;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -41,6 +43,21 @@ builder.Services
     });
 builder.Services.AddAuthorization();
 builder.Services.AddProblemDetails();
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        RateLimitPartition.GetSlidingWindowLimiter(
+            partitionKey: context.User.FindFirst(ClaimTypes.Email)!.Value.Trim().ToLowerInvariant(),
+            factory: _ => new SlidingWindowRateLimiterOptions
+            {
+                PermitLimit = 1,
+                Window = TimeSpan.FromMinutes(1),
+                SegmentsPerWindow = 6,
+                QueueLimit = 0,
+                AutoReplenishment = true
+            }));
+});
 
 builder.Services.AddEvaluationPersistence(builder.Configuration);
 builder.Services.AddFlashMediator(typeof(CreateEvaluationCommandHandler).Assembly);
@@ -74,6 +91,7 @@ app.UseSerilogRequestLogging(options =>
 app.UseHttpsRedirection();
 app.UseExceptionHandler();
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseAuthorization();
 app.MapControllers();
 
