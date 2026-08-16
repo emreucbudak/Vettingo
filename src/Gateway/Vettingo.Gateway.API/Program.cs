@@ -1,3 +1,7 @@
+using StackExchange.Redis;
+using Vettingo.Gateway.API.Interface;
+using Vettingo.Gateway.API.RateLimiter;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -12,6 +16,17 @@ builder.Services.AddCors(opt =>
         .AllowAnyMethod();
     });
 });
+builder.Services.AddSingleton<IRedisRateLimiter, RedisRateLimiter>();
+var redisOptions = new ConfigurationOptions
+{
+    EndPoints = { builder.Configuration.GetConnectionString("Redis") },
+    AbortOnConnectFail = false, 
+    ConnectTimeout = 5000,
+    SyncTimeout = 5000
+};
+builder.Services.AddSingleton<IConnectionMultiplexer>(provider =>
+     ConnectionMultiplexer.Connect(redisOptions));
+;
 builder.Services.AddControllers();
 builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
