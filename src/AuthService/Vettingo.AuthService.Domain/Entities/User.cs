@@ -8,6 +8,9 @@ namespace Vettingo.AuthService.Domain.Entities
         public string Surname { get; set; }
         public Guid RefreshTokenId { get; set; }
         public RefreshToken RefreshToken { get; set; }
+        public string? Biography { get; set; }
+        public string? TargetRole { get; set; }
+
 
     }
 }
