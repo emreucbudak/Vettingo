@@ -1,9 +1,13 @@
-﻿using FlashMediator;
+using FlashMediator;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Login;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.RefreshToken;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Register;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Revoke;
+using Vettingo.AuthService.Application.Features.CQRS.Users.Query.GetByEmail;
 
 namespace Vettingo.AuthService.API.Controllers
 {
@@ -35,6 +39,21 @@ namespace Vettingo.AuthService.API.Controllers
         {
             await mediator.Send(request);
             return Ok();
+        }
+
+        [Authorize]
+        [HttpGet("user")]
+        public async Task<IActionResult> GetUserByEmail([FromQuery] string email)
+        {
+            string? authenticatedEmail = User.FindFirstValue(ClaimTypes.Email)
+                ?? User.FindFirstValue(JwtRegisteredClaimNames.Email);
+
+            if (!string.Equals(email, authenticatedEmail, StringComparison.OrdinalIgnoreCase))
+            {
+                return Forbid();
+            }
+
+            return Ok(await mediator.Send(new GetUserByEmailQueryRequest { Email = email }));
         }
     }
 }
