@@ -32,8 +32,6 @@ services:
       Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
     image: vettingo/analytics-api:local
     init: true
-    networks:
-      default: null
     ports:
       - mode: ingress
         target: 8080
@@ -58,8 +56,6 @@ services:
       DOTNET_RUNNING_IN_CONTAINER: "true"
     image: vettingo/application-api:local
     init: true
-    networks:
-      default: null
     ports:
       - mode: ingress
         target: 8080
@@ -98,8 +94,6 @@ services:
       Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
     image: vettingo/auth-api:local
     init: true
-    networks:
-      default: null
     ports:
       - mode: ingress
         target: 8080
@@ -138,8 +132,6 @@ services:
       Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
     image: vettingo/evaluation-api:local
     init: true
-    networks:
-      default: null
     ports:
       - mode: ingress
         target: 8080
@@ -178,8 +170,6 @@ services:
       Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
     image: vettingo/exam-api:local
     init: true
-    networks:
-      default: null
     ports:
       - mode: ingress
         target: 8080
@@ -237,8 +227,6 @@ services:
       ReverseProxy__Clusters__notificationservice__Destinations__notificationservice__Address: http://notification-api:8080/api/notification
     image: vettingo/gateway:local
     init: true
-    networks:
-      default: null
     ports:
       - mode: ingress
         target: 8080
@@ -277,8 +265,6 @@ services:
       Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
     image: vettingo/interview-api:local
     init: true
-    networks:
-      default: null
     ports:
       - mode: ingress
         target: 8080
@@ -317,8 +303,6 @@ services:
       Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
     image: vettingo/job-api:local
     init: true
-    networks:
-      default: null
     ports:
       - mode: ingress
         target: 8080
@@ -357,8 +341,6 @@ services:
       Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
     image: vettingo/notification-api:local
     init: true
-    networks:
-      default: null
     ports:
       - mode: ingress
         target: 8080
@@ -379,8 +361,6 @@ services:
       retries: 10
       start_period: 10s
     image: postgres:16-alpine
-    networks:
-      default: null
     ports:
       - mode: ingress
         target: 5432
@@ -408,8 +388,6 @@ services:
       retries: 10
       start_period: 20s
     image: rabbitmq:3.13-management-alpine
-    networks:
-      default: null
     ports:
       - mode: ingress
         target: 5672
@@ -444,8 +422,6 @@ services:
       retries: 10
       start_period: 5s
     image: redis:8.8
-    networks:
-      default: null
     ports:
       - mode: ingress
         target: 6379
@@ -457,9 +433,6 @@ services:
         source: redis-data
         target: /data
         volume: {}
-networks:
-  default:
-    name: vettingo-network
 volumes:
   postgres-data:
     name: vettingo_postgres-data
