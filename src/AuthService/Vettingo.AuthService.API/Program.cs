@@ -1,4 +1,7 @@
+using FlashMediator;
+using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Login;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Register;
+using Vettingo.AuthService.Application.Rules;
 using Serilog;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -44,6 +47,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddProblemDetails();
 
 builder.Services.SaveDb(builder.Configuration);
+builder.Services.AddFlashMediator(typeof(LoginCommandHandler).Assembly);
+builder.Services.AddScoped<AuthBusinessRules>();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterCommandRequest>();
 builder.Services.AddStackExchangeRedisCache(options =>
 {
