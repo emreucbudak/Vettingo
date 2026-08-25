@@ -72,6 +72,13 @@
     <Project Path="src/NotificationService/Vettingo.NotificationService.Infrastructure/Vettingo.NotificationService.Infrastructure.csproj" Id="bb45cb4a-aac3-4b3e-b24f-6d6d877cf970" />
     <Project Path="src/NotificationService/Vettingo.NotificationService.Persistence/Vettingo.NotificationService.Persistence.csproj" Id="6a65af8b-8c8a-4eb1-b9d1-71047bc6c0fc" />
   </Folder>
+  <Folder Name="/src/SubscriptionService/">
+    <Project Path="src/SubscriptionService/Vettingo.SubscriptionService.API/Vettingo.SubscriptionService.API.csproj" />
+    <Project Path="src/SubscriptionService/Vettingo.SubscriptionService.Application/Vettingo.SubscriptionService.Application.csproj" />
+    <Project Path="src/SubscriptionService/Vettingo.SubscriptionService.Domain/Vettingo.SubscriptionService.Domain.csproj" />
+    <Project Path="src/SubscriptionService/Vettingo.SubscriptionService.Infrastructure/Vettingo.SubscriptionService.Infrastructure.csproj" />
+    <Project Path="src/SubscriptionService/Vettingo.SubscriptionService.Persistence/Vettingo.SubscriptionService.Persistence.csproj" />
+  </Folder>
   <Folder Name="/tests/" />
   <Folder Name="/tests/Vettingo.AnalyticsService.Tests/">
     <Project Path="tests/Vettingo.AnalyticsService.Tests/Vettingo.AnalyticsService.UnitTests/Vettingo.AnalyticsService.UnitTests.csproj" />
@@ -96,5 +103,8 @@
   </Folder>
   <Folder Name="/tests/Vettingo.NotificationService.Tests/">
     <Project Path="tests/Vettingo.NotificationService.Tests/Vettingo.NotificationService.UnitTests/Vettingo.NotificationService.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Vettingo.SubscriptionService.Tests/">
+    <Project Path="tests/Vettingo.SubscriptionService.Tests/Vettingo.SubscriptionService.UnitTests/Vettingo.SubscriptionService.UnitTests.csproj" />
   </Folder>
 </Solution>
