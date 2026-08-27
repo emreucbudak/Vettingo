@@ -13,12 +13,11 @@ namespace Vettingo.AuthService.Persistence.DbContext
         protected IdentityDbContext()
         {
         }
-        public DbSet<User> Users { get; set; }
-        public DbSet<Role> Roles { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Company> Companys { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            base.OnModelCreating(builder);
             builder.ApplyConfigurationsFromAssembly(typeof(IdentityDbContext).Assembly);
         }
     }
