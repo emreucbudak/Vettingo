@@ -18,13 +18,6 @@ namespace Vettingo.SubscriptionService.Persistence.DbContext
                 entity.Property(plan => plan.Id)
                     .ValueGeneratedOnAdd();
 
-                entity.Property(plan => plan.PlanName)
-                    .HasMaxLength(100)
-                    .IsRequired();
-
-                entity.Property(plan => plan.Price)
-                    .IsRequired();
-
                 entity.HasMany(plan => plan.PlanProperties)
                     .WithOne()
                     .HasForeignKey("PlanId")
