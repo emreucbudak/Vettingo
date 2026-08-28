@@ -18,10 +18,29 @@ namespace Vettingo.SubscriptionService.Domain.Entities
             Price = price;
         }
 
+        public void UpdatePlan(string planName, int price)
+        {
+            CheckPlanContent(planName, price);
+            PlanName = planName;
+            Price = price;
+        }
+
         public void AddPlanProperty(PlanProperties planProperty)
         {
             ArgumentNullException.ThrowIfNull(planProperty);
             PlanProperties.Add(planProperty);
+        }
+
+        public void ReplacePlanProperties(IEnumerable<PlanProperties> planProperties)
+        {
+            ArgumentNullException.ThrowIfNull(planProperties);
+
+            PlanProperties.Clear();
+
+            foreach (PlanProperties planProperty in planProperties)
+            {
+                AddPlanProperty(planProperty);
+            }
         }
 
         public void CheckPlanContent(string planName, int price)
