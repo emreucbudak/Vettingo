@@ -9,9 +9,9 @@ namespace Vettingo.SubscriptionService.Persistence.Repository
     {
         private DbSet<Plan> PlanSet => context.Set<Plan>();
 
-        public async Task AddPlanAsync(Plan plan)
+        public async Task AddPlanAsync(Plan plan, CancellationToken cancellationToken = default)
         {
-            await PlanSet.AddAsync(plan);
+            await PlanSet.AddAsync(plan, cancellationToken);
         }
 
         public void DeletePlan(Plan plan)
@@ -19,24 +19,24 @@ namespace Vettingo.SubscriptionService.Persistence.Repository
             PlanSet.Remove(plan);
         }
 
-        public async Task<IEnumerable<Plan>> GetAllPlansAsync()
+        public async Task<IReadOnlyList<Plan>> GetAllPlansAsync(CancellationToken cancellationToken = default)
         {
             return await PlanSet
                 .Include(plan => plan.PlanProperties)
                 .AsNoTracking()
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
         }
 
-        public async Task<Plan?> GetPlanByIdAsync(int planId)
+        public async Task<Plan?> GetPlanByIdAsync(int planId, CancellationToken cancellationToken = default)
         {
             return await PlanSet
                 .Include(plan => plan.PlanProperties)
-                .FirstOrDefaultAsync(plan => plan.Id == planId);
+                .FirstOrDefaultAsync(plan => plan.Id == planId, cancellationToken);
         }
 
-        public Task<int> SaveChangesAsync()
+        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            return context.SaveChangesAsync();
+            return context.SaveChangesAsync(cancellationToken);
         }
 
         public void UpdatePlan(Plan plan)
