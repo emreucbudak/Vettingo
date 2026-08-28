@@ -47,7 +47,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddProblemDetails();
 
 builder.Services.SaveDb(builder.Configuration);
-builder.Services.AddCapServices();
+builder.Services.AddCapServices(builder.Configuration);
 builder.Services.AddFlashMediator(typeof(LoginCommandHandler).Assembly);
 builder.Services.AddScoped<AuthBusinessRules>();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterCommandRequest>();
