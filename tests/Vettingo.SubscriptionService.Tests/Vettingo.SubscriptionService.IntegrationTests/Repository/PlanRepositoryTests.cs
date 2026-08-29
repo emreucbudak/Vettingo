@@ -1,22 +1,24 @@
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using Vettingo.SubscriptionService.Domain.Entities;
+using Vettingo.SubscriptionService.IntegrationTests;
 using Vettingo.SubscriptionService.Persistence.DbContext;
 using Vettingo.SubscriptionService.Persistence.Repository;
 
 namespace Vettingo.SubscriptionService.UnitTests.Repository;
 
-public sealed class PlanRepositoryTests
+public sealed class PlanRepositoryTests : IClassFixture<PostgreSqlContainerFixture>
 {
+    private readonly PostgreSqlContainerFixture _fixture;
+
+    public PlanRepositoryTests(PostgreSqlContainerFixture fixture)
+    {
+        _fixture = fixture;
+    }
+
     [Fact]
     public async Task Repository_Should_Add_Update_And_Delete_Plan_With_Properties()
     {
-        DbContextOptions<SubscriptionDbContext> options =
-            new DbContextOptionsBuilder<SubscriptionDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-
-        await using SubscriptionDbContext context = new(options);
+        await using SubscriptionDbContext context = _fixture.CreateDbContext();
         PlanRepository repository = new(context);
         Plan plan = CreatePlan("Starter", 99, "Job postings", 1);
 

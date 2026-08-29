@@ -1,18 +1,25 @@
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using Vettingo.JobService.Domain.Entities;
 using Vettingo.JobService.Domain.Enums;
+using Vettingo.JobService.IntegrationTests;
 using Vettingo.JobService.Persistence.DbContext;
 using Vettingo.JobService.Persistence.Repository;
 
 namespace Vettingo.JobService.UnitTests.Repository
 {
-    public class JobPostingRepositoryTests
+    public class JobPostingRepositoryTests : IClassFixture<PostgreSqlContainerFixture>
     {
+        private readonly PostgreSqlContainerFixture _fixture;
+
+        public JobPostingRepositoryTests(PostgreSqlContainerFixture fixture)
+        {
+            _fixture = fixture;
+        }
+
         [Fact]
         public async Task AddJobPostingAsync_Then_GetJobPostingByIdAsync_Should_Return_JobPosting()
         {
-            await using var context = CreateContext();
+            await using JobDbContext context = _fixture.CreateDbContext();
             var repository = new JobPostingRepository(context);
             var jobPosting = CreateJobPosting(Guid.NewGuid(), "Backend Developer");
 
@@ -29,7 +36,7 @@ namespace Vettingo.JobService.UnitTests.Repository
         [Fact]
         public async Task GetJobPostingsByCompanyIdAsync_Should_Return_Only_Company_JobPostings()
         {
-            await using var context = CreateContext();
+            await using JobDbContext context = _fixture.CreateDbContext();
             var repository = new JobPostingRepository(context);
             var companyId = Guid.NewGuid();
             var otherCompanyId = Guid.NewGuid();
@@ -43,15 +50,6 @@ namespace Vettingo.JobService.UnitTests.Repository
 
             result.Should().HaveCount(2);
             result.Should().OnlyContain(jobPosting => jobPosting.CompanyId == companyId);
-        }
-
-        private static JobDbContext CreateContext()
-        {
-            var options = new DbContextOptionsBuilder<JobDbContext>()
-                .UseInMemoryDatabase($"job-posting-repository-{Guid.NewGuid()}")
-                .Options;
-
-            return new JobDbContext(options);
         }
 
         private static JobPosting CreateJobPosting(Guid companyId, string title)

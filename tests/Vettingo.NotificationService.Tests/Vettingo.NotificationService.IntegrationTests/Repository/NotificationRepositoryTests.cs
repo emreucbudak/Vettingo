@@ -1,18 +1,25 @@
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using Vettingo.NotificationService.Domain.Entities;
 using Vettingo.NotificationService.Domain.Enums;
+using Vettingo.NotificationService.IntegrationTests;
 using Vettingo.NotificationService.Persistence.DbContext;
 using Vettingo.NotificationService.Persistence.Repository;
 
 namespace Vettingo.NotificationService.UnitTests.Repository
 {
-    public class NotificationRepositoryTests
+    public class NotificationRepositoryTests : IClassFixture<PostgreSqlContainerFixture>
     {
+        private readonly PostgreSqlContainerFixture _fixture;
+
+        public NotificationRepositoryTests(PostgreSqlContainerFixture fixture)
+        {
+            _fixture = fixture;
+        }
+
         [Fact]
         public async Task AddNotificationAsync_Then_GetNotificationByIdAsync_Should_Return_Notification()
         {
-            await using var context = CreateContext();
+            await using NotificationDbContext context = _fixture.CreateDbContext();
             var repository = new NotificationRepository(context);
             var notification = CreateNotification(Guid.NewGuid(), "Welcome");
 
@@ -29,7 +36,7 @@ namespace Vettingo.NotificationService.UnitTests.Repository
         [Fact]
         public async Task GetNotificationsByUserIdAsync_Should_Return_Only_User_Notifications()
         {
-            await using var context = CreateContext();
+            await using NotificationDbContext context = _fixture.CreateDbContext();
             var repository = new NotificationRepository(context);
             var userId = Guid.NewGuid();
             var otherUserId = Guid.NewGuid();
@@ -48,7 +55,7 @@ namespace Vettingo.NotificationService.UnitTests.Repository
         [Fact]
         public async Task GetUnreadNotificationsByUserIdAsync_Should_Exclude_Read_Notifications()
         {
-            await using var context = CreateContext();
+            await using NotificationDbContext context = _fixture.CreateDbContext();
             var repository = new NotificationRepository(context);
             var userId = Guid.NewGuid();
             var unreadNotification = CreateNotification(userId, "Unread");
@@ -64,15 +71,6 @@ namespace Vettingo.NotificationService.UnitTests.Repository
             result.Should().ContainSingle();
             result[0].Id.Should().Be(unreadNotification.Id);
             result[0].IsRead.Should().BeFalse();
-        }
-
-        private static NotificationDbContext CreateContext()
-        {
-            var options = new DbContextOptionsBuilder<NotificationDbContext>()
-                .UseInMemoryDatabase($"notification-repository-{Guid.NewGuid()}")
-                .Options;
-
-            return new NotificationDbContext(options);
         }
 
         private static Notification CreateNotification(Guid userId, string title)

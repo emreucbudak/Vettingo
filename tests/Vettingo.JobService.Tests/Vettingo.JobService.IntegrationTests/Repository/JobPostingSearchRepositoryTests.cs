@@ -1,19 +1,26 @@
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using Vettingo.JobService.Application.Repository;
 using Vettingo.JobService.Domain.Entities;
 using Vettingo.JobService.Domain.Enums;
+using Vettingo.JobService.IntegrationTests;
 using Vettingo.JobService.Persistence.DbContext;
 using Vettingo.JobService.Persistence.Repository;
 
 namespace Vettingo.JobService.UnitTests.Repository;
 
-public sealed class JobPostingSearchRepositoryTests
+public sealed class JobPostingSearchRepositoryTests : IClassFixture<PostgreSqlContainerFixture>
 {
+    private readonly PostgreSqlContainerFixture _fixture;
+
+    public JobPostingSearchRepositoryTests(PostgreSqlContainerFixture fixture)
+    {
+        _fixture = fixture;
+    }
+
     [Fact]
     public async Task SearchJobPostingsAsync_Should_Apply_Text_Enum_Salary_And_Status_Filters()
     {
-        await using var context = CreateContext();
+        await using JobDbContext context = _fixture.CreateDbContext();
         var repository = new JobPostingRepository(context);
         JobPosting expected = CreateJobPosting(
             "Senior Backend Developer",
@@ -63,14 +70,6 @@ public sealed class JobPostingSearchRepositoryTests
 
         result.Should().ContainSingle("maaş aralığı hibrit ilanla kesişmeli");
         result[0].Id.Should().Be(expected.Id);
-    }
-
-    private static JobDbContext CreateContext()
-    {
-        var options = new DbContextOptionsBuilder<JobDbContext>()
-            .UseInMemoryDatabase($"job-posting-search-{Guid.NewGuid()}")
-            .Options;
-        return new JobDbContext(options);
     }
 
     private static JobPosting CreateJobPosting(

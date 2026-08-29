@@ -1,17 +1,24 @@
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using Vettingo.InterviewService.Domain.Entities;
 using Vettingo.InterviewService.Domain.Enums;
+using Vettingo.InterviewService.IntegrationTests;
 using Vettingo.InterviewService.Persistence.DbContext;
 
 namespace Vettingo.InterviewService.UnitTests.Repository
 {
-    public class InterviewRepositoryTests
+    public class InterviewRepositoryTests : IClassFixture<PostgreSqlContainerFixture>
     {
+        private readonly PostgreSqlContainerFixture _fixture;
+
+        public InterviewRepositoryTests(PostgreSqlContainerFixture fixture)
+        {
+            _fixture = fixture;
+        }
+
         [Fact]
         public async Task AddAsync_Then_GetByIdAsync_Should_Return_Entity()
         {
-            await using var context = CreateContext();
+            await using InterviewDbContext context = _fixture.CreateDbContext();
             var repository = new Persistence.Repository.Repository<InterviewQuestion>(context);
             var question = CreateQuestion(Guid.NewGuid(), "Tell us about your last project.");
 
@@ -28,7 +35,7 @@ namespace Vettingo.InterviewService.UnitTests.Repository
         [Fact]
         public async Task GetAllAsync_Should_Filter_Entities_With_Predicate()
         {
-            await using var context = CreateContext();
+            await using InterviewDbContext context = _fixture.CreateDbContext();
             var repository = new Persistence.Repository.Repository<InterviewQuestion>(context);
             var companyId = Guid.NewGuid();
             var otherCompanyId = Guid.NewGuid();
@@ -47,7 +54,7 @@ namespace Vettingo.InterviewService.UnitTests.Repository
         [Fact]
         public async Task GetByIdAsync_With_IncludeProperties_Should_Load_Navigation()
         {
-            await using var context = CreateContext();
+            await using InterviewDbContext context = _fixture.CreateDbContext();
             var repository = new Persistence.Repository.Repository<InterviewExam>(context);
             var questionId = Guid.NewGuid();
             var exam = new InterviewExam();
@@ -75,7 +82,7 @@ namespace Vettingo.InterviewService.UnitTests.Repository
         [Fact]
         public async Task GetAllAsync_Should_Filter_Upcoming_Interviews_By_Candidate()
         {
-            await using var context = CreateContext();
+            await using InterviewDbContext context = _fixture.CreateDbContext();
             var repository = new Persistence.Repository.Repository<InterviewExam>(context);
             var candidateId = Guid.NewGuid();
             var upcoming = CreateHumanInterview(candidateId, DateTime.UtcNow.AddDays(1));
@@ -93,15 +100,6 @@ namespace Vettingo.InterviewService.UnitTests.Repository
 
             result.Should().ContainSingle();
             result.Single().Id.Should().Be(upcoming.Id);
-        }
-
-        private static InterviewDbContext CreateContext()
-        {
-            var options = new DbContextOptionsBuilder<InterviewDbContext>()
-                .UseInMemoryDatabase($"interview-repository-{Guid.NewGuid()}")
-                .Options;
-
-            return new InterviewDbContext(options);
         }
 
         private static InterviewQuestion CreateQuestion(Guid? companyId, string questionText)

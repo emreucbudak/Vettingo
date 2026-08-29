@@ -1,18 +1,25 @@
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using Vettingo.ExamService.Domain.Entities;
 using Vettingo.ExamService.Domain.Enums;
+using Vettingo.ExamService.IntegrationTests;
 using Vettingo.ExamService.Persistence.DbContext;
 using Vettingo.ExamService.Persistence.Repository;
 
 namespace Vettingo.ExamService.UnitTests.Repository
 {
-    public class ExamRepositoryTests
+    public class ExamRepositoryTests : IClassFixture<PostgreSqlContainerFixture>
     {
+        private readonly PostgreSqlContainerFixture _fixture;
+
+        public ExamRepositoryTests(PostgreSqlContainerFixture fixture)
+        {
+            _fixture = fixture;
+        }
+
         [Fact]
         public async Task AddExamAsync_Then_GetExamByIdAsync_Should_Return_Exam()
         {
-            await using var context = CreateContext();
+            await using ExamDbContext context = _fixture.CreateDbContext();
             var repository = new ExamRepository(context);
             var exam = CreateExam("Backend Exam");
 
@@ -29,7 +36,7 @@ namespace Vettingo.ExamService.UnitTests.Repository
         [Fact]
         public async Task QuestionRepository_Should_Return_MultipleChoiceQuestions_With_Options_By_ExamId()
         {
-            await using var context = CreateContext();
+            await using ExamDbContext context = _fixture.CreateDbContext();
             var repository = new QuestionRepository(context);
             var examId = Guid.NewGuid();
             var firstQuestion = CreateMultipleChoiceQuestion(examId, "First question", 2);
@@ -47,15 +54,6 @@ namespace Vettingo.ExamService.UnitTests.Repository
             result.Select(question => question.DisplayOrder).Should().Equal(1, 2);
             result.Should().OnlyContain(question => question.ExamId == examId);
             result[0].Options.Should().HaveCount(2);
-        }
-
-        private static ExamDbContext CreateContext()
-        {
-            var options = new DbContextOptionsBuilder<ExamDbContext>()
-                .UseInMemoryDatabase($"exam-repository-{Guid.NewGuid()}")
-                .Options;
-
-            return new ExamDbContext(options);
         }
 
         private static Exam CreateExam(string title)

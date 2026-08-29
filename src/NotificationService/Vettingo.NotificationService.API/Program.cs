@@ -91,7 +91,3 @@ app.MapHub<NotificationHub>("/notification-hub");
 
 app.Run();
 
-public partial class Program
-{
-}
-
