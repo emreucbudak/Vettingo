@@ -5,8 +5,7 @@ namespace Vettingo.SubscriptionService.IntegrationTests;
 
 public sealed class DatabaseWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _postgreSqlContainer = new PostgreSqlBuilder()
-        .WithImage("postgres:16-alpine")
+    private readonly PostgreSqlContainer _postgreSqlContainer = new PostgreSqlBuilder("postgres:16-alpine")
         .Build();
 
     public async Task InitializeAsync()
