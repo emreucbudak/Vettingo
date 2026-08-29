@@ -1,0 +1,21 @@
+using Microsoft.AspNetCore.Mvc.Testing;
+using Testcontainers.PostgreSql;
+
+namespace Vettingo.InterviewService.IntegrationTests;
+
+public sealed class DatabaseWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
+{
+    private readonly PostgreSqlContainer _postgreSqlContainer = new PostgreSqlBuilder()
+        .WithImage("postgres:16-alpine")
+        .Build();
+
+    public async Task InitializeAsync()
+    {
+        await _postgreSqlContainer.StartAsync();
+    }
+
+    public new async Task DisposeAsync()
+    {
+        await _postgreSqlContainer.StopAsync();
+    }
+}
