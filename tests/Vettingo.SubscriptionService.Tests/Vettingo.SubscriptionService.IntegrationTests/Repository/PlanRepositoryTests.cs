@@ -33,11 +33,7 @@ public sealed class PlanRepositoryTests : IClassFixture<PostgreSqlContainerFixtu
 
         storedPlan.PlanProperties.Should().ContainSingle();
         storedPlan.UpdatePlan("Business", 999);
-        storedPlan.ReplacePlanProperties(
-        [
-            CreatePlanProperty("Job postings", 50),
-            CreatePlanProperty("Candidate searches", 500)
-        ]);
+        storedPlan.AddProperty("Candidate searches", 500);
 
         repository.UpdatePlan(storedPlan);
         await repository.SaveChangesAsync();
@@ -49,6 +45,9 @@ public sealed class PlanRepositoryTests : IClassFixture<PostgreSqlContainerFixtu
         updatedPlan.PlanName.Should().Be("Business");
         updatedPlan.Price.Should().Be(999);
         updatedPlan.PlanProperties.Should().HaveCount(2);
+        updatedPlan.PlanProperties.Should().Contain(property =>
+            property.PropertiesName == "Candidate searches" &&
+            property.Count == 500);
 
         repository.DeletePlan(updatedPlan);
         await repository.SaveChangesAsync();
@@ -65,14 +64,7 @@ public sealed class PlanRepositoryTests : IClassFixture<PostgreSqlContainerFixtu
     {
         Plan plan = new();
         plan.CreatePlan(planName, price);
-        plan.AddPlanProperty(CreatePlanProperty(propertyName, propertyCount));
+        plan.AddProperty(propertyName, propertyCount);
         return plan;
-    }
-
-    private static PlanProperties CreatePlanProperty(string propertyName, int count)
-    {
-        PlanProperties planProperty = new();
-        planProperty.CreatePlanProperty(propertyName, count);
-        return planProperty;
     }
 }

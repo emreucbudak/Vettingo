@@ -2,7 +2,7 @@ namespace Vettingo.SubscriptionService.Domain.Entities
 {
     public class PlanProperties
     {
-        public PlanProperties()
+        private PlanProperties()
         {
         }
 
@@ -10,14 +10,18 @@ namespace Vettingo.SubscriptionService.Domain.Entities
         public string PropertiesName { get; private set; } = string.Empty;
         public int Count { get; private set; }
 
-        public void CreatePlanProperty(string propertiesName, int count)
+        internal static PlanProperties Create(string propertiesName, int count)
         {
             CheckPlanPropertyContent(propertiesName, count);
-            PropertiesName = propertiesName;
-            Count = count;
+
+            return new PlanProperties
+            {
+                PropertiesName = propertiesName,
+                Count = count
+            };
         }
 
-        public void CheckPlanPropertyContent(string propertiesName, int count)
+        private static void CheckPlanPropertyContent(string propertiesName, int count)
         {
             ArgumentNullException.ThrowIfNullOrWhiteSpace(propertiesName, nameof(propertiesName));
 

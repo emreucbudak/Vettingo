@@ -9,11 +9,5 @@ public sealed class CreatePlanCommandRequestValidator : AbstractValidator<Create
     {
         RuleFor(request => request.PlanName).NotEmpty().MaximumLength(100);
         RuleFor(request => request.Price).GreaterThanOrEqualTo(0);
-        RuleFor(request => request.PlanProperties).NotNull();
-        RuleForEach(request => request.PlanProperties).ChildRules(properties =>
-        {
-            properties.RuleFor(property => property.PropertiesName).NotEmpty().MaximumLength(100);
-            properties.RuleFor(property => property.Count).GreaterThanOrEqualTo(0);
-        });
     }
 }

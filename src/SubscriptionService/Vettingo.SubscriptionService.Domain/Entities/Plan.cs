@@ -2,6 +2,8 @@ namespace Vettingo.SubscriptionService.Domain.Entities
 {
     public class Plan
     {
+        private readonly List<PlanProperties> _planProperties = new();
+
         public Plan()
         {
         }
@@ -9,7 +11,7 @@ namespace Vettingo.SubscriptionService.Domain.Entities
         public int Id { get; private set; }
         public string PlanName { get; private set; } = string.Empty;
         public int Price { get; private set; }
-        public ICollection<PlanProperties> PlanProperties { get; private set; } = new List<PlanProperties>();
+        public IReadOnlyCollection<PlanProperties> PlanProperties => _planProperties.AsReadOnly();
 
         public void CreatePlan(string planName, int price)
         {
@@ -25,22 +27,13 @@ namespace Vettingo.SubscriptionService.Domain.Entities
             Price = price;
         }
 
-        public void AddPlanProperty(PlanProperties planProperty)
+        public void AddProperty(string propertyName, int count)
         {
-            ArgumentNullException.ThrowIfNull(planProperty);
-            PlanProperties.Add(planProperty);
-        }
-
-        public void ReplacePlanProperties(IEnumerable<PlanProperties> planProperties)
-        {
-            ArgumentNullException.ThrowIfNull(planProperties);
-
-            PlanProperties.Clear();
-
-            foreach (PlanProperties planProperty in planProperties)
-            {
-                AddPlanProperty(planProperty);
-            }
+            PlanProperties planProperty =
+                global::Vettingo.SubscriptionService.Domain.Entities.PlanProperties.Create(
+                    propertyName,
+                    count);
+            _planProperties.Add(planProperty);
         }
 
         public void CheckPlanContent(string planName, int price)
