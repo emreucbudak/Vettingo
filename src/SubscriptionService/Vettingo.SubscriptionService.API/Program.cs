@@ -2,14 +2,12 @@ using FlashMediator;
 using FluentValidation;
 using Vettingo.SubscriptionService.API.ExceptionHandlers;
 using Vettingo.SubscriptionService.Application.Features.CQRS.Plan.Command.CreatePlan;
-using Vettingo.SubscriptionService.Infrastructure.Register;
 using Vettingo.SubscriptionService.Persistence.Registration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddProblemDetails();
 builder.Services.AddSubscriptionPersistence(builder.Configuration);
-builder.Services.AddSubscriptionCapServices(builder.Configuration);
 builder.Services.AddFlashMediator(typeof(CreatePlanCommandHandler).Assembly);
 builder.Services.AddValidatorsFromAssemblyContaining<CreatePlanCommandRequest>();
 

@@ -24,7 +24,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\SubscriptionService\Vettingo.SubscriptionService.Application\Vettingo.SubscriptionService.Application.csproj" />
     <ProjectReference Include="..\..\..\src\SubscriptionService\Vettingo.SubscriptionService.Domain\Vettingo.SubscriptionService.Domain.csproj" />
-    <ProjectReference Include="..\..\..\src\SubscriptionService\Vettingo.SubscriptionService.Infrastructure\Vettingo.SubscriptionService.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\src\SubscriptionService\Vettingo.SubscriptionService.Persistence\Vettingo.SubscriptionService.Persistence.csproj" />
   </ItemGroup>
 
