@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Vettingo.SubscriptionService.Application\Vettingo.SubscriptionService.Application.csproj" />
+    <ProjectReference Include="..\Vettingo.SubscriptionService.Infrastructure\Vettingo.SubscriptionService.Infrastructure.csproj" />
     <ProjectReference Include="..\Vettingo.SubscriptionService.Persistence\Vettingo.SubscriptionService.Persistence.csproj" />
   </ItemGroup>
 

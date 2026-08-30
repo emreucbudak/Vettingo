@@ -200,6 +200,9 @@ services:
       notification-api:
         condition: service_started
         required: true
+      subscription-api:
+        condition: service_started
+        required: true
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
@@ -336,6 +339,34 @@ services:
       - mode: ingress
         target: 8080
         published: "5149"
+        protocol: tcp
+    restart: unless-stopped
+  subscription-api:
+    build:
+      context: ..
+      dockerfile: src/SubscriptionService/Vettingo.SubscriptionService.API/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: true
+      rabbitmq:
+        condition: service_healthy
+        required: true
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=SubscriptionServiceDb;Username=vettingo;Password=${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}
+      DOTNET_RUNNING_IN_CONTAINER: "true"
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__Password: VettingoRabbit_2026!
+      RabbitMq__Port: "5672"
+      RabbitMq__UserName: vettingo
+      RabbitMq__VirtualHost: /
+    image: vettingo/subscription-api:local
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "5113"
         protocol: tcp
     restart: unless-stopped
   postgres:
