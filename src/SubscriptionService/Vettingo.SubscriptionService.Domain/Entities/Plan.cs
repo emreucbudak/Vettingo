@@ -1,3 +1,5 @@
+using Vettingo.SubscriptionService.Domain.Enums;
+
 namespace Vettingo.SubscriptionService.Domain.Entities
 {
     public class Plan
@@ -11,20 +13,30 @@ namespace Vettingo.SubscriptionService.Domain.Entities
         public int Id { get; private set; }
         public string PlanName { get; private set; } = string.Empty;
         public int Price { get; private set; }
+        public PlanType PlanType { get; private set; } = PlanType.Employer;
         public IReadOnlyCollection<PlanProperties> PlanProperties => _planProperties.AsReadOnly();
 
-        public void CreatePlan(string planName, int price)
+        public void CreatePlan(
+            string planName,
+            int price,
+            PlanType planType = PlanType.Employer)
         {
-            CheckPlanContent(planName, price);
+            CheckPlanContent(planName, price, planType);
             PlanName = planName;
             Price = price;
+            PlanType = planType;
         }
 
-        public void UpdatePlan(string planName, int price)
+        public void UpdatePlan(
+            string planName,
+            int price,
+            PlanType? planType = null)
         {
-            CheckPlanContent(planName, price);
+            PlanType updatedPlanType = planType ?? PlanType;
+            CheckPlanContent(planName, price, updatedPlanType);
             PlanName = planName;
             Price = price;
+            PlanType = updatedPlanType;
         }
 
         public void AddProperty(string propertyName, int count)
@@ -36,13 +48,21 @@ namespace Vettingo.SubscriptionService.Domain.Entities
             _planProperties.Add(planProperty);
         }
 
-        public void CheckPlanContent(string planName, int price)
+        private static void CheckPlanContent(string planName, int price, PlanType planType)
         {
             ArgumentNullException.ThrowIfNullOrWhiteSpace(planName, nameof(planName));
 
             if (price < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(price), price, "Plan fiyatı negatif olamaz.");
+            }
+
+            if (!Enum.IsDefined(planType))
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(planType),
+                    planType,
+                    "Geçersiz plan tipi.");
             }
         }
     }

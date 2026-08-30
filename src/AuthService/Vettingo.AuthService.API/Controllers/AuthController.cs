@@ -3,10 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.CandidateRegister;
+using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.CandidateTempRegister;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.EmployerTempRegister;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Login;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.RefreshToken;
-using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Register;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Revoke;
 using Vettingo.AuthService.Application.Features.CQRS.Users.Query.GetByEmail;
 
@@ -16,8 +17,16 @@ namespace Vettingo.AuthService.API.Controllers
     [ApiController]
     public class AuthController(IMediator mediator) : ControllerBase
     {
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterCommandRequest request)
+        [HttpPost("candidate/temp-register")]
+        public async Task<IActionResult> CandidateTempRegister(
+            [FromBody] CandidateTempRegisterCommandRequest request)
+        {
+            return Ok(await mediator.Send(request));
+        }
+
+        [HttpPost("candidate/register")]
+        public async Task<IActionResult> CandidateRegister(
+            [FromBody] CandidateRegisterCommandRequest request)
         {
             await mediator.Send(request);
             return Ok();

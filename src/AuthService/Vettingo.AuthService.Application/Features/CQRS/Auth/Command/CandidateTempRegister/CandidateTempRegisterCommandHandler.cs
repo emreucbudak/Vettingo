@@ -6,22 +6,24 @@ using Microsoft.Extensions.Logging;
 using Vettingo.AuthService.Application.Rules;
 using Vettingo.AuthService.Domain.Entities;
 
-namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.EmployerTempRegister
+namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.CandidateTempRegister
 {
-    public class EmployerTempRegisterCommandHandler(
+    public sealed class CandidateTempRegisterCommandHandler(
         IDistributedCache cache,
         UserManager<User> userManager,
         AuthBusinessRules businessRules,
-        ILogger<EmployerTempRegisterCommandHandler> logger)
-        : IRequestHandler<EmployerTempRegisterCommandRequest, EmployerTempRegisterCommandResponse>
+        ILogger<CandidateTempRegisterCommandHandler> logger)
+        : IRequestHandler<CandidateTempRegisterCommandRequest, CandidateTempRegisterCommandResponse>
     {
         private static readonly TimeSpan RegistrationLifetime = TimeSpan.FromMinutes(5);
 
-        public async Task<EmployerTempRegisterCommandResponse> Handle(
-            EmployerTempRegisterCommandRequest request,
+        public async Task<CandidateTempRegisterCommandResponse> Handle(
+            CandidateTempRegisterCommandRequest request,
             CancellationToken cancellationToken)
         {
-            logger.LogInformation("{HandlerName} isteği işleniyor", nameof(EmployerTempRegisterCommandHandler));
+            logger.LogInformation(
+                "{HandlerName} isteği işleniyor",
+                nameof(CandidateTempRegisterCommandHandler));
 
             await businessRules.EnsureEmailIsAvailable(request.Email);
 
@@ -39,8 +41,7 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.EmployerTe
                 Surname = request.Surname,
                 Email = request.Email,
                 PasswordHash = userManager.PasswordHasher.HashPassword(user, request.Password),
-                Role = "Company",
-                CompanyName = request.CompanyName
+                Role = "Candidate"
             });
 
             Guid token = Guid.NewGuid();
@@ -55,7 +56,7 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.EmployerTe
                 cacheOptions,
                 cancellationToken);
 
-            return new EmployerTempRegisterCommandResponse
+            return new CandidateTempRegisterCommandResponse
             {
                 Token = token
             };

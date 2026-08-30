@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Vettingo.SubscriptionService.Domain.Entities;
+using Vettingo.SubscriptionService.Domain.Enums;
 using Vettingo.SubscriptionService.IntegrationTests;
 using Vettingo.SubscriptionService.Persistence.DbContext;
 using Vettingo.SubscriptionService.Persistence.Repository;
@@ -21,12 +22,21 @@ public sealed class PlanRepositoryTests : IClassFixture<PostgreSqlContainerFixtu
         await using SubscriptionDbContext context = _fixture.CreateDbContext();
         PlanRepository repository = new(context);
         Plan plan = CreatePlan("Starter", 99, "Job postings", 1);
+        Plan candidatePlan = new();
+        candidatePlan.CreatePlan("Candidate Pro", 199, PlanType.Candidate);
 
         await repository.AddPlanAsync(plan);
+        await repository.AddPlanAsync(candidatePlan);
         await repository.SaveChangesAsync();
 
         plan.Id.Should().BeGreaterThan(0);
+        candidatePlan.Id.Should().BeGreaterThan(0);
         context.ChangeTracker.Clear();
+
+        IReadOnlyList<Plan> candidatePlans =
+            await repository.GetPlansByTypeAsync(PlanType.Candidate);
+        candidatePlans.Should().Contain(candidate => candidate.Id == candidatePlan.Id);
+        candidatePlans.Should().OnlyContain(candidate => candidate.PlanType == PlanType.Candidate);
 
         Plan storedPlan = await repository.GetPlanByIdAsync(plan.Id)
             ?? throw new InvalidOperationException("Kaydedilen plan bulunamadı.");
@@ -50,6 +60,9 @@ public sealed class PlanRepositoryTests : IClassFixture<PostgreSqlContainerFixtu
             property.Count == 500);
 
         repository.DeletePlan(updatedPlan);
+        Plan storedCandidatePlan = await repository.GetPlanByIdAsync(candidatePlan.Id)
+            ?? throw new InvalidOperationException("Aday planı bulunamadı.");
+        repository.DeletePlan(storedCandidatePlan);
         await repository.SaveChangesAsync();
         context.ChangeTracker.Clear();
 

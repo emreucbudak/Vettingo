@@ -1,4 +1,5 @@
 using Vettingo.SubscriptionService.Domain.Entities;
+using Vettingo.SubscriptionService.Domain.Enums;
 
 namespace Vettingo.SubscriptionService.Application.Repository
 {
@@ -8,7 +9,9 @@ namespace Vettingo.SubscriptionService.Application.Repository
         void UpdatePlan(Plan plan);
         void DeletePlan(Plan plan);
         Task<Plan?> GetPlanByIdAsync(int planId, CancellationToken cancellationToken = default);
-        Task<IReadOnlyList<Plan>> GetAllPlansAsync(CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<Plan>> GetPlansByTypeAsync(
+            PlanType planType,
+            CancellationToken cancellationToken = default);
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

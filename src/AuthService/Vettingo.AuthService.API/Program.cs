@@ -1,6 +1,5 @@
 using FlashMediator;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Login;
-using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Register;
 using Vettingo.AuthService.Application.Rules;
 using Serilog;
 using FluentValidation;
@@ -50,7 +49,7 @@ builder.Services.SaveDb(builder.Configuration);
 builder.Services.AddCapServices(builder.Configuration);
 builder.Services.AddFlashMediator(typeof(LoginCommandHandler).Assembly);
 builder.Services.AddScoped<AuthBusinessRules>();
-builder.Services.AddValidatorsFromAssemblyContaining<RegisterCommandRequest>();
+builder.Services.AddValidatorsFromAssemblyContaining<LoginCommandRequest>();
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = builder.Configuration.GetConnectionString("Redis")

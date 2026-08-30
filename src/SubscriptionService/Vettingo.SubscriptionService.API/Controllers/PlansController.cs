@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Vettingo.SubscriptionService.Application.Features.CQRS.Plan.Command.CreatePlan;
 using Vettingo.SubscriptionService.Application.Features.CQRS.Plan.Command.DeletePlan;
 using Vettingo.SubscriptionService.Application.Features.CQRS.Plan.Command.UpdatePlan;
+using Vettingo.SubscriptionService.Application.Features.CQRS.Plan.Query.GetByType;
+using Vettingo.SubscriptionService.Domain.Enums;
 
 namespace Vettingo.SubscriptionService.API.Controllers;
 
@@ -10,6 +12,18 @@ namespace Vettingo.SubscriptionService.API.Controllers;
 [Route("api/plans")]
 public sealed class PlansController(IMediator mediator) : ControllerBase
 {
+    [HttpGet]
+    public async Task<IActionResult> GetByType(
+        [FromQuery] PlanType planType,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<GetPlansByTypeQueryResponse> plans = await mediator.Send(
+            new GetPlansByTypeQueryRequest { PlanType = planType },
+            cancellationToken);
+
+        return Ok(plans);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create(
         [FromBody] CreatePlanCommandRequest request,

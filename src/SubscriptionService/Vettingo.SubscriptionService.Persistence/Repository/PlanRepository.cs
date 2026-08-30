@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Vettingo.SubscriptionService.Application.Repository;
 using Vettingo.SubscriptionService.Domain.Entities;
+using Vettingo.SubscriptionService.Domain.Enums;
 using Vettingo.SubscriptionService.Persistence.DbContext;
 
 namespace Vettingo.SubscriptionService.Persistence.Repository
@@ -19,9 +20,12 @@ namespace Vettingo.SubscriptionService.Persistence.Repository
             PlanSet.Remove(plan);
         }
 
-        public async Task<IReadOnlyList<Plan>> GetAllPlansAsync(CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyList<Plan>> GetPlansByTypeAsync(
+            PlanType planType,
+            CancellationToken cancellationToken = default)
         {
             return await PlanSet
+                .Where(plan => plan.PlanType == planType)
                 .Include(plan => plan.PlanProperties)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
