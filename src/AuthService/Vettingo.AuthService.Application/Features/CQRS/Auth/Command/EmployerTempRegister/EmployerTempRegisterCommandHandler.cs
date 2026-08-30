@@ -3,7 +3,6 @@ using FlashMediator;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
-using Vettingo.AuthService.Application.Exceptions;
 using Vettingo.AuthService.Application.Rules;
 using Vettingo.AuthService.Domain.Entities;
 
@@ -34,9 +33,7 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.EmployerTe
                 UserName = request.Email
             };
 
-            await EnsurePasswordIsValidAsync(user, request.Password);
-
-            EmployerTempRegistrationData registrationData = new()
+            string registrationJson = JsonSerializer.Serialize(new
             {
                 Name = request.Name,
                 Surname = request.Surname,
@@ -48,7 +45,7 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.EmployerTe
                 CompanyPhone = request.CompanyPhone,
                 CompanyEmail = request.CompanyEmail,
                 CompanyAddress = request.CompanyAddress
-            };
+            });
 
             Guid token = Guid.NewGuid();
             DistributedCacheEntryOptions cacheOptions = new()
@@ -58,7 +55,7 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.EmployerTe
 
             await cache.SetStringAsync(
                 token.ToString("D"),
-                JsonSerializer.Serialize(registrationData),
+                registrationJson,
                 cacheOptions,
                 cancellationToken);
 
@@ -66,29 +63,6 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.EmployerTe
             {
                 Token = token
             };
-        }
-
-        private async Task EnsurePasswordIsValidAsync(User user, string password)
-        {
-            List<IdentityError> errors = [];
-
-            foreach (IPasswordValidator<User> passwordValidator in userManager.PasswordValidators)
-            {
-                IdentityResult validationResult = await passwordValidator.ValidateAsync(
-                    userManager,
-                    user,
-                    password);
-
-                if (!validationResult.Succeeded)
-                {
-                    errors.AddRange(validationResult.Errors);
-                }
-            }
-
-            if (errors.Count > 0)
-            {
-                throw new BusinessException(string.Join(" ", errors.Select(error => error.Description)));
-            }
         }
     }
 }

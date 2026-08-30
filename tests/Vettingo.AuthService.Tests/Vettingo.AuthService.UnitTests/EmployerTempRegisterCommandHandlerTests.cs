@@ -88,16 +88,16 @@ namespace Vettingo.AuthService.UnitTests
             string serializedRegistration = Encoding.UTF8.GetString(storedValue!);
             serializedRegistration.Should().NotContain(request.Password);
 
-            EmployerTempRegistrationData? registrationData =
-                JsonSerializer.Deserialize<EmployerTempRegistrationData>(serializedRegistration);
+            using JsonDocument registrationData = JsonDocument.Parse(serializedRegistration);
+            JsonElement registration = registrationData.RootElement;
+            string passwordHash = registration.GetProperty("PasswordHash").GetString()!;
 
-            registrationData.Should().NotBeNull();
-            registrationData!.Email.Should().Be(request.Email);
-            registrationData.CompanyName.Should().Be(request.CompanyName);
-            registrationData.Role.Should().Be("Company");
-            registrationData.PasswordHash.Should().NotBe(request.Password);
+            registration.GetProperty("Email").GetString().Should().Be(request.Email);
+            registration.GetProperty("CompanyName").GetString().Should().Be(request.CompanyName);
+            registration.GetProperty("Role").GetString().Should().Be("Company");
+            passwordHash.Should().NotBe(request.Password);
             passwordHasher
-                .VerifyHashedPassword(new User(), registrationData.PasswordHash, request.Password)
+                .VerifyHashedPassword(new User(), passwordHash, request.Password)
                 .Should()
                 .Be(PasswordVerificationResult.Success);
         }
