@@ -17,7 +17,14 @@ namespace Vettingo.AuthService.Persistence.Registration
             });
 
             collect
-                .AddIdentityCore<User>()
+                .AddIdentityCore<User>(options =>
+                {
+                    options.Password.RequireDigit = true;
+                    options.Password.RequireLowercase = true;
+                    options.Password.RequireUppercase = true;
+                    options.Password.RequiredLength = 6;
+                    options.User.RequireUniqueEmail = true;
+                })
                 .AddRoles<Role>()
                 .AddEntityFrameworkStores<DbContext.IdentityDbContext>();
 
