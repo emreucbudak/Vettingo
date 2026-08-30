@@ -24,6 +24,11 @@ namespace Vettingo.SubscriptionService.Persistence.DbContext
                 entity.Property(plan => plan.Price)
                     .IsRequired();
 
+                entity.Property(plan => plan.PlanType)
+                    .HasConversion<string>()
+                    .HasMaxLength(20)
+                    .IsRequired();
+
                 entity.HasMany(plan => plan.PlanProperties)
                     .WithOne()
                     .HasForeignKey("PlanId")

@@ -6,16 +6,16 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.EmployerTempRegister;
+using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.CandidateTempRegister;
 using Vettingo.AuthService.Application.Rules;
 using Vettingo.AuthService.Domain.Entities;
 
 namespace Vettingo.AuthService.UnitTests
 {
-    public class EmployerTempRegisterCommandHandlerTests
+    public sealed class CandidateTempRegisterCommandHandlerTests
     {
         [Fact]
-        public async Task Handle_ShouldHashPasswordAndCacheRegistrationForFiveMinutes()
+        public async Task Handle_ShouldHashPasswordAndCacheCandidateForFiveMinutes()
         {
             IDistributedCache cache = Substitute.For<IDistributedCache>();
             string? storedKey = null;
@@ -55,31 +55,27 @@ namespace Vettingo.AuthService.UnitTests
                 errorDescriber,
                 NullLogger<RoleManager<Role>>.Instance);
 
-            AuthBusinessRules businessRules = new(userManager, roleManager);
-            EmployerTempRegisterCommandHandler handler = new(
+            CandidateTempRegisterCommandHandler handler = new(
                 cache,
                 userManager,
-                businessRules,
-                NullLogger<EmployerTempRegisterCommandHandler>.Instance);
+                new AuthBusinessRules(userManager, roleManager),
+                NullLogger<CandidateTempRegisterCommandHandler>.Instance);
 
-            EmployerTempRegisterCommandRequest request = new()
+            CandidateTempRegisterCommandRequest request = new()
             {
                 Name = "Emre",
                 Surname = "Üçbudak",
                 Email = "emre@example.com",
-                Password = "Strong1!",
-                CompanyName = "Vettingo"
+                Password = "Strong1!"
             };
 
-            EmployerTempRegisterCommandResponse response = await handler.Handle(
+            CandidateTempRegisterCommandResponse response = await handler.Handle(
                 request,
                 CancellationToken.None);
 
             response.Token.Should().NotBeEmpty();
             storedKey.Should().Be(response.Token.ToString("D"));
-            storedOptions.Should().NotBeNull();
             storedOptions!.AbsoluteExpirationRelativeToNow.Should().Be(TimeSpan.FromMinutes(5));
-            storedValue.Should().NotBeNull();
 
             string serializedRegistration = Encoding.UTF8.GetString(storedValue!);
             serializedRegistration.Should().NotContain(request.Password);
@@ -89,9 +85,7 @@ namespace Vettingo.AuthService.UnitTests
             string passwordHash = registration.GetProperty("PasswordHash").GetString()!;
 
             registration.GetProperty("Email").GetString().Should().Be(request.Email);
-            registration.GetProperty("CompanyName").GetString().Should().Be(request.CompanyName);
-            registration.GetProperty("Role").GetString().Should().Be("Company");
-            passwordHash.Should().NotBe(request.Password);
+            registration.GetProperty("Role").GetString().Should().Be("Candidate");
             passwordHasher
                 .VerifyHashedPassword(new User(), passwordHash, request.Password)
                 .Should()

@@ -4,8 +4,10 @@ using NSubstitute;
 using Vettingo.SubscriptionService.Application.Features.CQRS.Plan.Command.CreatePlan;
 using Vettingo.SubscriptionService.Application.Features.CQRS.Plan.Command.DeletePlan;
 using Vettingo.SubscriptionService.Application.Features.CQRS.Plan.Command.UpdatePlan;
+using Vettingo.SubscriptionService.Application.Features.CQRS.Plan.Query.GetByType;
 using Vettingo.SubscriptionService.Application.Repository;
 using Vettingo.SubscriptionService.Domain.Entities;
+using Vettingo.SubscriptionService.Domain.Enums;
 
 namespace Vettingo.SubscriptionService.UnitTests.Application.CQRS;
 
@@ -22,7 +24,8 @@ public sealed class PlanCqrsTests
         CreatePlanCommandRequest request = new()
         {
             PlanName = "Professional",
-            Price = 499
+            Price = 499,
+            PlanType = PlanType.Candidate
         };
 
         await handler.Handle(request, CancellationToken.None);
@@ -31,6 +34,7 @@ public sealed class PlanCqrsTests
             Arg.Is<Plan>(plan =>
                 plan.PlanName == request.PlanName &&
                 plan.Price == request.Price &&
+                plan.PlanType == request.PlanType &&
                 plan.PlanProperties.Count == 0),
             CancellationToken.None);
         await repository.Received(1).SaveChangesAsync(CancellationToken.None);
@@ -51,17 +55,45 @@ public sealed class PlanCqrsTests
         {
             PlanId = 1,
             PlanName = "Business",
-            Price = 999
+            Price = 999,
+            PlanType = PlanType.Candidate
         };
 
         await handler.Handle(request, CancellationToken.None);
 
         plan.PlanName.Should().Be(request.PlanName);
         plan.Price.Should().Be(request.Price);
+        plan.PlanType.Should().Be(PlanType.Candidate);
         plan.PlanProperties.Should().ContainSingle();
         plan.PlanProperties.Single().Count.Should().Be(1);
         repository.Received(1).UpdatePlan(plan);
         await repository.Received(1).SaveChangesAsync(CancellationToken.None);
+    }
+
+    [Fact]
+    public async Task GetPlansByTypeQueryHandler_Should_Return_Only_Requested_Plan_Type()
+    {
+        IPlanRepository repository = Substitute.For<IPlanRepository>();
+        Plan plan = CreatePlan("Candidate Pro", 199, "Applications", 25);
+        plan.UpdatePlan(plan.PlanName, plan.Price, PlanType.Candidate);
+        repository
+            .GetPlansByTypeAsync(PlanType.Candidate, Arg.Any<CancellationToken>())
+            .Returns([plan]);
+        GetPlansByTypeQueryHandler handler = new(
+            repository,
+            Substitute.For<ILogger<GetPlansByTypeQueryHandler>>());
+
+        IReadOnlyList<GetPlansByTypeQueryResponse> response = await handler.Handle(
+            new GetPlansByTypeQueryRequest { PlanType = PlanType.Candidate },
+            CancellationToken.None);
+
+        response.Should().ContainSingle();
+        response[0].PlanType.Should().Be(PlanType.Candidate);
+        response[0].PlanName.Should().Be(plan.PlanName);
+        response[0].Properties.Should().ContainSingle();
+        await repository.Received(1).GetPlansByTypeAsync(
+            PlanType.Candidate,
+            CancellationToken.None);
     }
 
     [Fact]

@@ -15,7 +15,7 @@ public sealed class CreatePlanCommandHandler(
         logger.LogInformation("{HandlerName} isteği işleniyor", nameof(CreatePlanCommandHandler));
 
         PlanEntity plan = new();
-        plan.CreatePlan(request.PlanName, request.Price);
+        plan.CreatePlan(request.PlanName, request.Price, request.PlanType);
 
         await planRepository.AddPlanAsync(plan, cancellationToken);
         await planRepository.SaveChangesAsync(cancellationToken);

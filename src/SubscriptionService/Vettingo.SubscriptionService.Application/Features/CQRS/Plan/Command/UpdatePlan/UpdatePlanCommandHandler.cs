@@ -18,7 +18,7 @@ public sealed class UpdatePlanCommandHandler(
         PlanEntity plan = await planRepository.GetPlanByIdAsync(request.PlanId, cancellationToken)
             ?? throw new NotFoundException("Plan bulunamadı.");
 
-        plan.UpdatePlan(request.PlanName, request.Price);
+        plan.UpdatePlan(request.PlanName, request.Price, request.PlanType);
 
         planRepository.UpdatePlan(plan);
         await planRepository.SaveChangesAsync(cancellationToken);
