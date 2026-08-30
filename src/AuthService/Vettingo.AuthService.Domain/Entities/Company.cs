@@ -48,6 +48,13 @@ namespace Vettingo.AuthService.Domain.Entities
             Id = Guid.CreateVersion7();
         }
 
+        public void RegisterCompany(string companyName, string companyEmail)
+        {
+            setCompanyName(companyName);
+            setCompanyEmail(companyEmail);
+            SetId();
+        }
+
         public void UpdateCompany(string companyName, string companyDescription, string companyPhone, string companyEmail, string companyAddress)
         {
             CheckCompanyContent(companyName, companyDescription, companyPhone, companyEmail, companyAddress);
