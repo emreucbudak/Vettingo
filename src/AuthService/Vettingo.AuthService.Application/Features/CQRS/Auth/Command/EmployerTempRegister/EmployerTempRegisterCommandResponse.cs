@@ -2,5 +2,6 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.EmployerTe
 {
     public class EmployerTempRegisterCommandResponse
     {
+        public Guid Token { get; init; }
     }
 }
