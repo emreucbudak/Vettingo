@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Vettingo.AuthService.Application.Exceptions;
-using Vettingo.AuthService.Application.Messaging;
 using Vettingo.AuthService.Application.Repository;
 using Vettingo.AuthService.Application.Rules;
 using Vettingo.AuthService.Domain.Entities;
@@ -17,7 +16,6 @@ public sealed class EmployerRegisterCommandHandler(
     UserManager<User> userManager,
     AuthBusinessRules businessRules,
     ICompanyRepository companyRepository,
-    ICompanySubscriptionPublisher subscriptionPublisher,
     ILogger<EmployerRegisterCommandHandler> logger)
     : IRequestHandler<EmployerRegisterCommandRequest>
 {
@@ -30,6 +28,16 @@ public sealed class EmployerRegisterCommandHandler(
         logger.LogInformation(
             "{HandlerName} isteği işleniyor",
             nameof(EmployerRegisterCommandHandler));
+
+        CompanyEntity? existingCompany = await companyRepository.GetCompanyByIdAsync(
+            request.SubscriberId);
+        if (existingCompany is not null)
+        {
+            logger.LogInformation(
+                "Şirket kaydı zaten mevcut. SubscriberId: {SubscriberId}",
+                request.SubscriberId);
+            return;
+        }
 
         string cacheKey = request.Token.ToString("D");
         string registrationJson = await cache.GetStringAsync(cacheKey, cancellationToken)
@@ -82,31 +90,12 @@ public sealed class EmployerRegisterCommandHandler(
         }
 
         CompanyEntity company = new();
-        company.RegisterCompany(companyName, email);
+        company.RegisterCompany(request.SubscriberId, companyName, email);
 
         try
         {
             await companyRepository.AddCompanyAsync(company);
             await companyRepository.SaveChangesAsync();
-
-            DateTime startDateUtc = DateTime.UtcNow;
-            DateTime endDateUtc = string.Equals(
-                request.BillingPeriod,
-                "annual",
-                StringComparison.OrdinalIgnoreCase)
-                ? startDateUtc.AddYears(1)
-                : startDateUtc.AddMonths(1);
-
-            await subscriptionPublisher.PublishSubscriptionRequestedAsync(
-                new CompanySubscriptionRequestedEvent
-                {
-                    CompanyId = company.Id,
-                    PlanCode = request.PlanCode.Trim().ToLowerInvariant(),
-                    BillingPeriod = request.BillingPeriod.Trim().ToLowerInvariant(),
-                    StartDateUtc = startDateUtc,
-                    EndDateUtc = endDateUtc
-                },
-                cancellationToken);
         }
         catch
         {

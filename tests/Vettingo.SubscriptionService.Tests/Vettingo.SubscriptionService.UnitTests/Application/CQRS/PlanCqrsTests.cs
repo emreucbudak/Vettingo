@@ -4,6 +4,7 @@ using NSubstitute;
 using Vettingo.SubscriptionService.Application.Features.CQRS.Plan.Command.CreatePlan;
 using Vettingo.SubscriptionService.Application.Features.CQRS.Plan.Command.DeletePlan;
 using Vettingo.SubscriptionService.Application.Features.CQRS.Plan.Command.UpdatePlan;
+using Vettingo.SubscriptionService.Application.Features.CQRS.Plan.Query.GetById;
 using Vettingo.SubscriptionService.Application.Features.CQRS.Plan.Query.GetByType;
 using Vettingo.SubscriptionService.Application.Repository;
 using Vettingo.SubscriptionService.Domain.Entities;
@@ -38,6 +39,29 @@ public sealed class PlanCqrsTests
                 plan.PlanProperties.Count == 0),
             CancellationToken.None);
         await repository.Received(1).SaveChangesAsync(CancellationToken.None);
+    }
+
+    [Fact]
+    public async Task GetPlanByIdQueryHandler_Should_Return_Plan_Details()
+    {
+        IPlanRepository repository = Substitute.For<IPlanRepository>();
+        Plan plan = CreatePlan("Candidate Pro", 10, "Applications", 25);
+        plan.UpdatePlan(plan.PlanName, plan.Price, PlanType.Candidate);
+        repository.GetPlanByIdAsync(7, Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Plan?>(plan));
+        GetPlanByIdQueryHandler handler = new(
+            repository,
+            Substitute.For<ILogger<GetPlanByIdQueryHandler>>());
+
+        GetPlanByIdQueryResponse response = await handler.Handle(
+            new GetPlanByIdQueryRequest { PlanId = 7 },
+            CancellationToken.None);
+
+        response.PlanName.Should().Be(plan.PlanName);
+        response.Price.Should().Be(10);
+        response.PlanType.Should().Be(PlanType.Candidate);
+        response.Properties.Should().ContainSingle();
+        await repository.Received(1).GetPlanByIdAsync(7, CancellationToken.None);
     }
 
     [Fact]

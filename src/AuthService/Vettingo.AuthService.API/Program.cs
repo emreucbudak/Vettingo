@@ -57,7 +57,6 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.InstanceName = "Vettingo:AuthService:";
 });
 builder.Services.AddTokenSettings(builder.Configuration);
-builder.Services.AddStripePayments(builder.Configuration);
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
 builder.Services.AddExceptionHandler<BadRequestExceptionHandler>();

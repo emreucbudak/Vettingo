@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Vettingo.AuthService.Application.Messaging;
 using Vettingo.AuthService.Infrastructure.Messaging;
 
 namespace Vettingo.AuthService.Infrastructure.Register
@@ -9,8 +8,7 @@ namespace Vettingo.AuthService.Infrastructure.Register
     {
         public static void AddCapServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddScoped<ICompanySubscriptionPublisher, CompanySubscriptionPublisher>();
-            services.AddScoped<ICandidateSubscriptionPublisher, CandidateSubscriptionPublisher>();
+            services.AddTransient<SubscriptionRegistrationRequestedConsumer>();
 
             string databaseConnectionString = configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");
@@ -28,7 +26,8 @@ namespace Vettingo.AuthService.Infrastructure.Register
                 throw new InvalidOperationException("RabbitMq:Port is not configured or is invalid.");
             }
 
-            services.AddCap(options =>
+            services
+                .AddCap(options =>
             {
                 options.UsePostgreSql(databaseConnectionString);
                 options.UseRabbitMQ(rabbitMqOptions =>
@@ -46,7 +45,9 @@ namespace Vettingo.AuthService.Infrastructure.Register
                 options.FailedRetryInterval = 60;
                 options.ConsumerThreadCount = 3;
                 options.FailedRetryCount = 5;
-            });
+            })
+                .AddSubscriberAssembly(
+                    typeof(SubscriptionRegistrationRequestedConsumer));
         }
     }
 }
