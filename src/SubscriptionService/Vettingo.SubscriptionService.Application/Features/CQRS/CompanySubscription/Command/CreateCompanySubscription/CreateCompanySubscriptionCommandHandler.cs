@@ -2,12 +2,14 @@ using FlashMediator;
 using Microsoft.Extensions.Logging;
 using Vettingo.SubscriptionService.Application.Exceptions;
 using Vettingo.SubscriptionService.Application.Repository;
-using SubscriptionEntity = Vettingo.SubscriptionService.Domain.Entities.Subscription;
+using Vettingo.SubscriptionService.Domain.Enums;
+using CompanySubscriptionEntity = Vettingo.SubscriptionService.Domain.Entities.CompanySubscription;
+using PlanEntity = Vettingo.SubscriptionService.Domain.Entities.Plan;
 
-namespace Vettingo.SubscriptionService.Application.Features.CQRS.Subscription.Command.CreateCompanySubscription;
+namespace Vettingo.SubscriptionService.Application.Features.CQRS.CompanySubscription.Command.CreateCompanySubscription;
 
 public sealed class CreateCompanySubscriptionCommandHandler(
-    ISubscriptionRepository subscriptionRepository,
+    ICompanySubscriptionRepository subscriptionRepository,
     IPlanRepository planRepository,
     ILogger<CreateCompanySubscriptionCommandHandler> logger)
     : IRequestHandler<CreateCompanySubscriptionCommandRequest, Guid>
@@ -21,12 +23,12 @@ public sealed class CreateCompanySubscriptionCommandHandler(
             nameof(CreateCompanySubscriptionCommandHandler),
             request.CompanyId);
 
-        IReadOnlyList<SubscriptionEntity> existingSubscriptions =
-            await subscriptionRepository.GetSubscriptionsByCompanyIdAsync(
+        IReadOnlyList<CompanySubscriptionEntity> existingSubscriptions =
+            await subscriptionRepository.GetCompanySubscriptionsByCompanyIdAsync(
                 request.CompanyId,
                 cancellationToken);
 
-        SubscriptionEntity? existingSubscription = existingSubscriptions.FirstOrDefault();
+        CompanySubscriptionEntity? existingSubscription = existingSubscriptions.FirstOrDefault();
 
         if (existingSubscription is not null)
         {
@@ -38,19 +40,24 @@ public sealed class CreateCompanySubscriptionCommandHandler(
             return existingSubscription.Id;
         }
 
-        if (await planRepository.GetPlanByIdAsync(request.PlanId, cancellationToken) is null)
+        PlanEntity? plan = await planRepository.GetPlanByIdAsync(
+            request.PlanId,
+            cancellationToken);
+
+        if (plan is null || plan.PlanType != PlanType.Employer)
         {
-            throw new NotFoundException($"{request.PlanId} kimlikli plan bulunamadı.");
+            throw new NotFoundException(
+                $"{request.PlanId} kimlikli işveren planı bulunamadı.");
         }
 
-        SubscriptionEntity subscription = new();
-        subscription.CreateSubscription(
+        CompanySubscriptionEntity subscription = new();
+        subscription.CreateCompanySubscription(
             request.CompanyId,
             request.PlanId,
             request.StartDate,
             request.EndDate);
 
-        await subscriptionRepository.AddSubscriptionAsync(subscription, cancellationToken);
+        await subscriptionRepository.AddCompanySubscriptionAsync(subscription, cancellationToken);
         await subscriptionRepository.SaveChangesAsync(cancellationToken);
 
         return subscription.Id;

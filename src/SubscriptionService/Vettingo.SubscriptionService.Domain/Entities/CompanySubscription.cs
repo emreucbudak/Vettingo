@@ -1,8 +1,8 @@
 namespace Vettingo.SubscriptionService.Domain.Entities
 {
-    public class Subscription
+    public class CompanySubscription
     {
-        public Subscription()
+        public CompanySubscription()
         {
         }
 
@@ -13,13 +13,13 @@ namespace Vettingo.SubscriptionService.Domain.Entities
         public DateTime? EndDate { get; private set; }
         public Plan? Plan { get; private set; }
 
-        public void CreateSubscription(
+        public void CreateCompanySubscription(
             Guid companyId,
             int planId,
             DateTime startDate,
             DateTime? endDate)
         {
-            CheckSubscriptionContent(companyId, planId, startDate, endDate);
+            CheckCompanySubscriptionContent(companyId, planId, startDate, endDate);
             Id = Guid.CreateVersion7();
             CompanyId = companyId;
             PlanId = planId;
@@ -27,7 +27,7 @@ namespace Vettingo.SubscriptionService.Domain.Entities
             EndDate = endDate.HasValue ? NormalizeUtc(endDate.Value) : null;
         }
 
-        public void CheckSubscriptionContent(
+        public void CheckCompanySubscriptionContent(
             Guid companyId,
             int planId,
             DateTime startDate,

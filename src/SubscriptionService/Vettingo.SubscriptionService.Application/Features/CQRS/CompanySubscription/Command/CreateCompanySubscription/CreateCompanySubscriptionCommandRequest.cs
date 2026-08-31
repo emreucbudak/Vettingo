@@ -1,6 +1,6 @@
 using FlashMediator;
 
-namespace Vettingo.SubscriptionService.Application.Features.CQRS.Subscription.Command.CreateCompanySubscription;
+namespace Vettingo.SubscriptionService.Application.Features.CQRS.CompanySubscription.Command.CreateCompanySubscription;
 
 public sealed record CreateCompanySubscriptionCommandRequest : IRequest<Guid>
 {

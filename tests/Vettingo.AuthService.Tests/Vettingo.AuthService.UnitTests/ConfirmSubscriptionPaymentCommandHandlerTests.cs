@@ -61,7 +61,9 @@ public sealed class ConfirmSubscriptionPaymentCommandHandlerTests
         await mediator.Received(1).Send(
             Arg.Is<IRequest>(command =>
                 command.GetType() == typeof(CandidateRegisterCommandRequest) &&
-                ((CandidateRegisterCommandRequest)command).Token == registrationToken),
+                ((CandidateRegisterCommandRequest)command).Token == registrationToken &&
+                ((CandidateRegisterCommandRequest)command).PlanCode == "pro" &&
+                ((CandidateRegisterCommandRequest)command).BillingPeriod == "monthly"),
             Arg.Any<CancellationToken>());
         await paymentGateway.Received(1).MarkRegistrationCompletedAsync(
             "pi_candidate",

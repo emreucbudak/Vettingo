@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Vettingo.AuthService.Application.Exceptions;
+using Vettingo.AuthService.Application.Messaging;
 using Vettingo.AuthService.Application.Rules;
 using Vettingo.AuthService.Domain.Entities;
 
@@ -13,6 +14,7 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.CandidateR
         IDistributedCache cache,
         UserManager<User> userManager,
         AuthBusinessRules businessRules,
+        ICandidateSubscriptionPublisher subscriptionPublisher,
         ILogger<CandidateRegisterCommandHandler> logger)
         : IRequestHandler<CandidateRegisterCommandRequest>
     {
@@ -53,6 +55,7 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.CandidateR
 
             User user = new()
             {
+                Id = Guid.CreateVersion7(),
                 Name = name,
                 Surname = surname,
                 Email = email,
@@ -73,6 +76,33 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.CandidateR
                 await userManager.DeleteAsync(user);
                 throw new BusinessException(
                     string.Join(" ", roleResult.Errors.Select(error => error.Description)));
+            }
+
+            try
+            {
+                DateTime startDateUtc = DateTime.UtcNow;
+                DateTime endDateUtc = string.Equals(
+                    request.BillingPeriod,
+                    "annual",
+                    StringComparison.OrdinalIgnoreCase)
+                    ? startDateUtc.AddYears(1)
+                    : startDateUtc.AddMonths(1);
+
+                await subscriptionPublisher.PublishSubscriptionRequestedAsync(
+                    new CandidateSubscriptionRequestedEvent
+                    {
+                        CandidateId = user.Id,
+                        PlanCode = request.PlanCode.Trim().ToLowerInvariant(),
+                        BillingPeriod = request.BillingPeriod.Trim().ToLowerInvariant(),
+                        StartDateUtc = startDateUtc,
+                        EndDateUtc = endDateUtc
+                    },
+                    cancellationToken);
+            }
+            catch
+            {
+                await userManager.DeleteAsync(user);
+                throw;
             }
 
             await cache.RemoveAsync(cacheKey, cancellationToken);

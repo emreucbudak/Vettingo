@@ -30,7 +30,9 @@ public sealed class ActivateFreeSubscriptionCommandHandler(IMediator mediator)
                 await mediator.Send(
                     new CandidateRegisterCommandRequest
                     {
-                        Token = request.RegistrationToken
+                        Token = request.RegistrationToken,
+                        PlanCode = planId,
+                        BillingPeriod = billingPeriod
                     },
                     cancellationToken);
                 break;

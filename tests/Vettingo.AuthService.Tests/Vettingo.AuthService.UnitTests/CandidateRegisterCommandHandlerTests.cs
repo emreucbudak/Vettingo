@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.CandidateRegister;
+using Vettingo.AuthService.Application.Messaging;
 using Vettingo.AuthService.Application.Rules;
 using Vettingo.AuthService.Domain.Entities;
 
@@ -15,7 +16,7 @@ namespace Vettingo.AuthService.UnitTests;
 public sealed class CandidateRegisterCommandHandlerTests
 {
     [Fact]
-    public async Task Handle_ShouldCreateCandidateAndRemoveTemporaryRegistration()
+    public async Task Handle_ShouldCreateCandidatePublishSubscriptionAndRemoveTemporaryRegistration()
     {
         Guid token = Guid.NewGuid();
         const string password = "Strong1!";
@@ -92,14 +93,29 @@ public sealed class CandidateRegisterCommandHandlerTests
             errorDescriber,
             NullLogger<RoleManager<Role>>.Instance);
 
+        ICandidateSubscriptionPublisher subscriptionPublisher =
+            Substitute.For<ICandidateSubscriptionPublisher>();
+        CandidateSubscriptionRequestedEvent? publishedEvent = null;
+        subscriptionPublisher
+            .PublishSubscriptionRequestedAsync(
+                Arg.Do<CandidateSubscriptionRequestedEvent>(message => publishedEvent = message),
+                Arg.Any<CancellationToken>())
+            .Returns(Task.CompletedTask);
+
         CandidateRegisterCommandHandler handler = new(
             cache,
             userManager,
             new AuthBusinessRules(userManager, roleManager),
+            subscriptionPublisher,
             NullLogger<CandidateRegisterCommandHandler>.Instance);
 
         await handler.Handle(
-            new CandidateRegisterCommandRequest { Token = token },
+            new CandidateRegisterCommandRequest
+            {
+                Token = token,
+                PlanCode = "Pro",
+                BillingPeriod = "annual"
+            },
             CancellationToken.None);
 
         createdUser.Should().NotBeNull();
@@ -112,6 +128,12 @@ public sealed class CandidateRegisterCommandHandlerTests
             createdUser,
             "CANDIDATE",
             Arg.Any<CancellationToken>());
+        publishedEvent.Should().NotBeNull();
+        publishedEvent!.CandidateId.Should().Be(createdUser.Id);
+        publishedEvent.CandidateId.Should().NotBeEmpty();
+        publishedEvent.PlanCode.Should().Be("pro");
+        publishedEvent.BillingPeriod.Should().Be("annual");
+        publishedEvent.EndDateUtc.Should().Be(publishedEvent.StartDateUtc.AddYears(1));
         await cache.Received(1).RemoveAsync(
             token.ToString("D"),
             Arg.Any<CancellationToken>());
