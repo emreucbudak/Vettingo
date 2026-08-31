@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Vettingo.SubscriptionService.Application.Messaging;
 using Vettingo.SubscriptionService.Infrastructure.Messaging;
 
 namespace Vettingo.SubscriptionService.Infrastructure.Register;
@@ -27,8 +28,9 @@ public static class CapRegister
             throw new InvalidOperationException("RabbitMq:Port is not configured or is invalid.");
         }
 
-        services.AddTransient<CompanySubscriptionRequestedConsumer>();
-        services.AddTransient<CandidateSubscriptionRequestedConsumer>();
+        services.AddScoped<
+            ISubscriptionRegistrationPublisher,
+            SubscriptionRegistrationPublisher>();
         services
             .AddCap(options =>
             {
@@ -48,8 +50,7 @@ public static class CapRegister
                 options.FailedRetryInterval = 60;
                 options.ConsumerThreadCount = 3;
                 options.FailedRetryCount = 5;
-            })
-            .AddSubscriberAssembly(typeof(CompanySubscriptionRequestedConsumer));
+            });
 
         return services;
     }

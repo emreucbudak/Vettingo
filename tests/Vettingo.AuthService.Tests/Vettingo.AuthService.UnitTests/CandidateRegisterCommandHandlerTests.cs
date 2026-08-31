@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.CandidateRegister;
-using Vettingo.AuthService.Application.Messaging;
 using Vettingo.AuthService.Application.Rules;
 using Vettingo.AuthService.Domain.Entities;
 
@@ -16,9 +15,10 @@ namespace Vettingo.AuthService.UnitTests;
 public sealed class CandidateRegisterCommandHandlerTests
 {
     [Fact]
-    public async Task Handle_ShouldCreateCandidatePublishSubscriptionAndRemoveTemporaryRegistration()
+    public async Task Handle_ShouldCreateCandidateWithSubscriberIdAndRemoveTemporaryRegistration()
     {
         Guid token = Guid.NewGuid();
+        Guid subscriberId = Guid.NewGuid();
         const string password = "Strong1!";
         IPasswordHasher<User> passwordHasher = new PasswordHasher<User>();
         string passwordHash = passwordHasher.HashPassword(new User(), password);
@@ -47,6 +47,11 @@ public sealed class CandidateRegisterCommandHandlerTests
 
         emailStore
             .FindByEmailAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns((User?)null);
+        userStore
+            .FindByIdAsync(
+                subscriberId.ToString("D"),
+                Arg.Any<CancellationToken>())
             .Returns((User?)null);
         userStore
             .CreateAsync(
@@ -93,33 +98,23 @@ public sealed class CandidateRegisterCommandHandlerTests
             errorDescriber,
             NullLogger<RoleManager<Role>>.Instance);
 
-        ICandidateSubscriptionPublisher subscriptionPublisher =
-            Substitute.For<ICandidateSubscriptionPublisher>();
-        CandidateSubscriptionRequestedEvent? publishedEvent = null;
-        subscriptionPublisher
-            .PublishSubscriptionRequestedAsync(
-                Arg.Do<CandidateSubscriptionRequestedEvent>(message => publishedEvent = message),
-                Arg.Any<CancellationToken>())
-            .Returns(Task.CompletedTask);
-
         CandidateRegisterCommandHandler handler = new(
             cache,
             userManager,
             new AuthBusinessRules(userManager, roleManager),
-            subscriptionPublisher,
             NullLogger<CandidateRegisterCommandHandler>.Instance);
 
         await handler.Handle(
             new CandidateRegisterCommandRequest
             {
                 Token = token,
-                PlanCode = "Pro",
-                BillingPeriod = "annual"
+                SubscriberId = subscriberId
             },
             CancellationToken.None);
 
         createdUser.Should().NotBeNull();
-        createdUser!.Email.Should().Be("emre@example.com");
+        createdUser!.Id.Should().Be(subscriberId);
+        createdUser.Email.Should().Be("emre@example.com");
         passwordHasher
             .VerifyHashedPassword(createdUser, createdUser.PasswordHash!, password)
             .Should()
@@ -128,12 +123,6 @@ public sealed class CandidateRegisterCommandHandlerTests
             createdUser,
             "CANDIDATE",
             Arg.Any<CancellationToken>());
-        publishedEvent.Should().NotBeNull();
-        publishedEvent!.CandidateId.Should().Be(createdUser.Id);
-        publishedEvent.CandidateId.Should().NotBeEmpty();
-        publishedEvent.PlanCode.Should().Be("pro");
-        publishedEvent.BillingPeriod.Should().Be("annual");
-        publishedEvent.EndDateUtc.Should().Be(publishedEvent.StartDateUtc.AddYears(1));
         await cache.Received(1).RemoveAsync(
             token.ToString("D"),
             Arg.Any<CancellationToken>());

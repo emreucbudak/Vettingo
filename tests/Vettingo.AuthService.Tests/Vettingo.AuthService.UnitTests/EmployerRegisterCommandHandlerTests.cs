@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.EmployerRegister;
-using Vettingo.AuthService.Application.Messaging;
 using Vettingo.AuthService.Application.Repository;
 using Vettingo.AuthService.Application.Rules;
 using Vettingo.AuthService.Domain.Entities;
@@ -17,9 +16,10 @@ namespace Vettingo.AuthService.UnitTests;
 public sealed class EmployerRegisterCommandHandlerTests
 {
     [Fact]
-    public async Task Handle_ShouldCreateEmployerCompanyAndPublishSubscriptionEvent()
+    public async Task Handle_ShouldCreateEmployerCompanyWithSubscriberId()
     {
         Guid token = Guid.NewGuid();
+        Guid subscriberId = Guid.NewGuid();
         const string password = "Strong1!";
         IPasswordHasher<User> passwordHasher = new PasswordHasher<User>();
         string passwordHash = passwordHasher.HashPassword(new User(), password);
@@ -98,33 +98,25 @@ public sealed class EmployerRegisterCommandHandlerTests
         ICompanyRepository companyRepository = Substitute.For<ICompanyRepository>();
         Company? createdCompany = null;
         companyRepository
+            .GetCompanyByIdAsync(subscriberId)
+            .Returns((Company?)null);
+        companyRepository
             .AddCompanyAsync(Arg.Do<Company>(company => createdCompany = company))
             .Returns(Task.CompletedTask);
         companyRepository.SaveChangesAsync().Returns(1);
-
-        ICompanySubscriptionPublisher subscriptionPublisher =
-            Substitute.For<ICompanySubscriptionPublisher>();
-        CompanySubscriptionRequestedEvent? publishedEvent = null;
-        subscriptionPublisher
-            .PublishSubscriptionRequestedAsync(
-                Arg.Do<CompanySubscriptionRequestedEvent>(message => publishedEvent = message),
-                Arg.Any<CancellationToken>())
-            .Returns(Task.CompletedTask);
 
         EmployerRegisterCommandHandler handler = new(
             cache,
             userManager,
             new AuthBusinessRules(userManager, roleManager),
             companyRepository,
-            subscriptionPublisher,
             NullLogger<EmployerRegisterCommandHandler>.Instance);
 
         await handler.Handle(
             new EmployerRegisterCommandRequest
             {
                 Token = token,
-                PlanCode = "Pro",
-                BillingPeriod = "annual"
+                SubscriberId = subscriberId
             },
             CancellationToken.None);
 
@@ -140,15 +132,10 @@ public sealed class EmployerRegisterCommandHandlerTests
             Arg.Any<CancellationToken>());
 
         createdCompany.Should().NotBeNull();
-        createdCompany!.Id.Should().NotBeEmpty();
+        createdCompany!.Id.Should().Be(subscriberId);
         createdCompany.CompanyName.Should().Be("Vettingo");
         createdCompany.CompanyEmail.Should().Be("employer@example.com");
 
-        publishedEvent.Should().NotBeNull();
-        publishedEvent!.CompanyId.Should().Be(createdCompany.Id);
-        publishedEvent.PlanCode.Should().Be("pro");
-        publishedEvent.BillingPeriod.Should().Be("annual");
-        publishedEvent.EndDateUtc.Should().Be(publishedEvent.StartDateUtc.AddYears(1));
         await cache.Received(1).RemoveAsync(
             token.ToString("D"),
             Arg.Any<CancellationToken>());
