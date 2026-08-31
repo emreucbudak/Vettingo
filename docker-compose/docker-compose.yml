@@ -78,6 +78,7 @@ services:
       JwtSettings__Audience: VettingoAuthServiceClients
       JwtSettings__Issuer: VettingoAuthService
       JwtSettings__SecretKey: "${VETTINGO_JWT_SECRET:?VETTINGO_JWT_SECRET must be set}"
+      Stripe__SecretKey: "${VETTINGO_STRIPE_SECRET_KEY:?VETTINGO_STRIPE_SECRET_KEY must be set}"
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=AuthServiceDb;Username=vettingo;Password=${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}
@@ -223,6 +224,7 @@ services:
       ReverseProxy__Clusters__interviewservice__Destinations__interviewservice__Address: http://interview-api:8080/api/
       ReverseProxy__Clusters__jobservice__Destinations__jobservice__Address: http://job-api:8080/api/
       ReverseProxy__Clusters__notificationservice__Destinations__notificationservice__Address: http://notification-api:8080/api/notification
+      ReverseProxy__Clusters__paymentservice__Destinations__paymentservice__Address: http://auth-api:8080/api
     image: vettingo/gateway:local
     ports:
       - mode: ingress
