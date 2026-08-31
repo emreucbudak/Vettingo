@@ -10,6 +10,25 @@ namespace Vettingo.SubscriptionService.UnitTests.Persistence;
 public sealed class SubscriptionDbContextModelTests
 {
     [Fact]
+    public void Model_Should_Map_Company_And_Candidate_Subscriptions_To_Separate_Tables()
+    {
+        DbContextOptions<SubscriptionDbContext> options =
+            new DbContextOptionsBuilder<SubscriptionDbContext>()
+                .UseInMemoryDatabase(nameof(Model_Should_Map_Company_And_Candidate_Subscriptions_To_Separate_Tables))
+                .Options;
+        using SubscriptionDbContext context = new(options);
+
+        context.Model.FindEntityType(typeof(CompanySubscription))
+            ?.GetTableName()
+            .Should()
+            .Be("CompanySubscriptions");
+        context.Model.FindEntityType(typeof(CandidateSubscription))
+            ?.GetTableName()
+            .Should()
+            .Be("CandidateSubscriptions");
+    }
+
+    [Fact]
     public void Model_Should_Map_PlanProperties_Through_Backing_Field()
     {
         DbContextOptions<SubscriptionDbContext> options =

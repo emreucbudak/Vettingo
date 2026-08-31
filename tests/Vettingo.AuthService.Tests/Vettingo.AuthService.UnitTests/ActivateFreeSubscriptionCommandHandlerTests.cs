@@ -31,7 +31,9 @@ public sealed class ActivateFreeSubscriptionCommandHandlerTests
         await mediator.Received(1).Send(
             Arg.Is<IRequest>(command =>
                 command.GetType() == typeof(CandidateRegisterCommandRequest) &&
-                ((CandidateRegisterCommandRequest)command).Token == registrationToken),
+                ((CandidateRegisterCommandRequest)command).Token == registrationToken &&
+                ((CandidateRegisterCommandRequest)command).PlanCode == "basic" &&
+                ((CandidateRegisterCommandRequest)command).BillingPeriod == "monthly"),
             Arg.Any<CancellationToken>());
     }
 

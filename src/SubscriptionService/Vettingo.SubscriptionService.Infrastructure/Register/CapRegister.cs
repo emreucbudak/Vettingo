@@ -28,6 +28,7 @@ public static class CapRegister
         }
 
         services.AddTransient<CompanySubscriptionRequestedConsumer>();
+        services.AddTransient<CandidateSubscriptionRequestedConsumer>();
         services
             .AddCap(options =>
             {

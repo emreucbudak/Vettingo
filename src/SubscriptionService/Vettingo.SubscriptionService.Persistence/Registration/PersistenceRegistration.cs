@@ -17,7 +17,8 @@ namespace Vettingo.SubscriptionService.Persistence.Registration
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
             services.AddScoped<IPlanRepository, PlanRepository>();
-            services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+            services.AddScoped<ICompanySubscriptionRepository, CompanySubscriptionRepository>();
+            services.AddScoped<ICandidateSubscriptionRepository, CandidateSubscriptionRepository>();
 
             return services;
         }

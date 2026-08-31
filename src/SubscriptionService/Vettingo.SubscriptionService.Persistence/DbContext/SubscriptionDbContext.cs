@@ -6,7 +6,8 @@ namespace Vettingo.SubscriptionService.Persistence.DbContext
     public class SubscriptionDbContext(DbContextOptions<SubscriptionDbContext> options) : Microsoft.EntityFrameworkCore.DbContext(options)
     {
         public DbSet<Plan> Plans { get; set; }
-        public DbSet<Subscription> Subscriptions { get; set; }
+        public DbSet<CompanySubscription> CompanySubscriptions { get; set; }
+        public DbSet<CandidateSubscription> CandidateSubscriptions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -53,8 +54,9 @@ namespace Vettingo.SubscriptionService.Persistence.DbContext
                     .IsRequired();
             });
 
-            builder.Entity<Subscription>(entity =>
+            builder.Entity<CompanySubscription>(entity =>
             {
+                entity.ToTable("CompanySubscriptions");
                 entity.HasKey(subscription => subscription.Id);
 
                 entity.Property(subscription => subscription.Id)
@@ -69,6 +71,26 @@ namespace Vettingo.SubscriptionService.Persistence.DbContext
                     .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasIndex(subscription => subscription.CompanyId);
+                entity.HasIndex(subscription => subscription.PlanId);
+            });
+
+            builder.Entity<CandidateSubscription>(entity =>
+            {
+                entity.ToTable("CandidateSubscriptions");
+                entity.HasKey(subscription => subscription.Id);
+
+                entity.Property(subscription => subscription.Id)
+                    .ValueGeneratedNever();
+
+                entity.Property(subscription => subscription.StartDate)
+                    .IsRequired();
+
+                entity.HasOne(subscription => subscription.Plan)
+                    .WithMany()
+                    .HasForeignKey(subscription => subscription.PlanId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(subscription => subscription.CandidateId);
                 entity.HasIndex(subscription => subscription.PlanId);
             });
 

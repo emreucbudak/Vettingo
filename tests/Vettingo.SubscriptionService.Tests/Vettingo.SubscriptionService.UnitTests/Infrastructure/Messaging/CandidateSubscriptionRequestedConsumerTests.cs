@@ -2,7 +2,7 @@ using FlashMediator;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
-using Vettingo.SubscriptionService.Application.Features.CQRS.CompanySubscription.Command.CreateCompanySubscription;
+using Vettingo.SubscriptionService.Application.Features.CQRS.CandidateSubscription.Command.CreateCandidateSubscription;
 using Vettingo.SubscriptionService.Application.Repository;
 using Vettingo.SubscriptionService.Domain.Entities;
 using Vettingo.SubscriptionService.Domain.Enums;
@@ -10,29 +10,29 @@ using Vettingo.SubscriptionService.Infrastructure.Messaging;
 
 namespace Vettingo.SubscriptionService.UnitTests.Infrastructure.Messaging;
 
-public sealed class CompanySubscriptionRequestedConsumerTests
+public sealed class CandidateSubscriptionRequestedConsumerTests
 {
     [Fact]
-    public async Task HandleAsync_ShouldResolveEmployerPlanAndCreateSubscription()
+    public async Task HandleAsync_ShouldResolveCandidatePlanAndCreateSubscription()
     {
         IPlanRepository planRepository = Substitute.For<IPlanRepository>();
         Plan plan = new();
-        plan.CreatePlan("Pro", 2999, PlanType.Employer);
+        plan.CreatePlan("Pro", 999, PlanType.Candidate);
         planRepository
-            .GetPlansByTypeAsync(PlanType.Employer, Arg.Any<CancellationToken>())
+            .GetPlansByTypeAsync(PlanType.Candidate, Arg.Any<CancellationToken>())
             .Returns([plan]);
         IMediator mediator = Substitute.For<IMediator>();
         mediator
-            .Send(Arg.Any<CreateCompanySubscriptionCommandRequest>(), Arg.Any<CancellationToken>())
+            .Send(Arg.Any<CreateCandidateSubscriptionCommandRequest>(), Arg.Any<CancellationToken>())
             .Returns(Guid.NewGuid());
-        CompanySubscriptionRequestedConsumer consumer = new(
+        CandidateSubscriptionRequestedConsumer consumer = new(
             planRepository,
             mediator,
-            NullLogger<CompanySubscriptionRequestedConsumer>.Instance);
-        DateTime startDateUtc = new(2026, 8, 30, 12, 0, 0, DateTimeKind.Utc);
-        CompanySubscriptionRequestedMessage message = new()
+            NullLogger<CandidateSubscriptionRequestedConsumer>.Instance);
+        DateTime startDateUtc = new(2026, 8, 31, 12, 0, 0, DateTimeKind.Utc);
+        CandidateSubscriptionRequestedMessage message = new()
         {
-            CompanyId = Guid.NewGuid(),
+            CandidateId = Guid.NewGuid(),
             PlanCode = "pro",
             BillingPeriod = "annual",
             StartDateUtc = startDateUtc,
@@ -41,9 +41,12 @@ public sealed class CompanySubscriptionRequestedConsumerTests
 
         await consumer.HandleAsync(message, CancellationToken.None);
 
+        await planRepository.Received(1).GetPlansByTypeAsync(
+            PlanType.Candidate,
+            CancellationToken.None);
         await mediator.Received(1).Send(
-            Arg.Is<CreateCompanySubscriptionCommandRequest>(request =>
-                request.CompanyId == message.CompanyId &&
+            Arg.Is<CreateCandidateSubscriptionCommandRequest>(request =>
+                request.CandidateId == message.CandidateId &&
                 request.PlanId == plan.Id &&
                 request.StartDate == message.StartDateUtc &&
                 request.EndDate == message.EndDateUtc),

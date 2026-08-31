@@ -1,14 +1,14 @@
 using FluentValidation;
-using Vettingo.SubscriptionService.Application.Features.CQRS.CompanySubscription.Command.CreateCompanySubscription;
+using Vettingo.SubscriptionService.Application.Features.CQRS.CandidateSubscription.Command.CreateCandidateSubscription;
 
 namespace Vettingo.SubscriptionService.Application.Validations;
 
-public sealed class CreateCompanySubscriptionCommandRequestValidator
-    : AbstractValidator<CreateCompanySubscriptionCommandRequest>
+public sealed class CreateCandidateSubscriptionCommandRequestValidator
+    : AbstractValidator<CreateCandidateSubscriptionCommandRequest>
 {
-    public CreateCompanySubscriptionCommandRequestValidator()
+    public CreateCandidateSubscriptionCommandRequestValidator()
     {
-        RuleFor(request => request.CompanyId).NotEmpty();
+        RuleFor(request => request.CandidateId).NotEmpty();
         RuleFor(request => request.PlanId).GreaterThan(0);
         RuleFor(request => request.StartDate).NotEmpty();
         RuleFor(request => request.EndDate)

@@ -2,44 +2,44 @@ using DotNetCore.CAP;
 using FlashMediator;
 using Microsoft.Extensions.Logging;
 using Vettingo.SubscriptionService.Application.Exceptions;
-using Vettingo.SubscriptionService.Application.Features.CQRS.CompanySubscription.Command.CreateCompanySubscription;
+using Vettingo.SubscriptionService.Application.Features.CQRS.CandidateSubscription.Command.CreateCandidateSubscription;
 using Vettingo.SubscriptionService.Application.Repository;
 using Vettingo.SubscriptionService.Domain.Entities;
 using Vettingo.SubscriptionService.Domain.Enums;
 
 namespace Vettingo.SubscriptionService.Infrastructure.Messaging;
 
-public sealed class CompanySubscriptionRequestedConsumer(
+public sealed class CandidateSubscriptionRequestedConsumer(
     IPlanRepository planRepository,
     IMediator mediator,
-    ILogger<CompanySubscriptionRequestedConsumer> logger)
+    ILogger<CandidateSubscriptionRequestedConsumer> logger)
     : ICapSubscribe
 {
     [CapSubscribe(
-        CompanySubscriptionRequestedMessage.TopicName,
+        CandidateSubscriptionRequestedMessage.TopicName,
         Group = "vettingo.subscription-service")]
     public async Task HandleAsync(
-        CompanySubscriptionRequestedMessage message,
+        CandidateSubscriptionRequestedMessage message,
         CancellationToken cancellationToken)
     {
         logger.LogInformation(
-            "Şirket abonelik eventi işleniyor. CompanyId: {CompanyId}, PlanCode: {PlanCode}",
-            message.CompanyId,
+            "Aday abonelik eventi işleniyor. CandidateId: {CandidateId}, PlanCode: {PlanCode}",
+            message.CandidateId,
             message.PlanCode);
 
         string normalizedPlanCode = NormalizePlanCode(message.PlanCode);
-        IReadOnlyList<Plan> employerPlans = await planRepository.GetPlansByTypeAsync(
-            PlanType.Employer,
+        IReadOnlyList<Plan> candidatePlans = await planRepository.GetPlansByTypeAsync(
+            PlanType.Candidate,
             cancellationToken);
-        Plan plan = employerPlans.FirstOrDefault(
+        Plan plan = candidatePlans.FirstOrDefault(
             candidate => NormalizePlanCode(candidate.PlanName) == normalizedPlanCode)
             ?? throw new NotFoundException(
-                $"'{message.PlanCode}' kodlu işveren planı bulunamadı.");
+                $"'{message.PlanCode}' kodlu aday planı bulunamadı.");
 
         await mediator.Send(
-            new CreateCompanySubscriptionCommandRequest
+            new CreateCandidateSubscriptionCommandRequest
             {
-                CompanyId = message.CompanyId,
+                CandidateId = message.CandidateId,
                 PlanId = plan.Id,
                 StartDate = message.StartDateUtc,
                 EndDate = message.EndDateUtc

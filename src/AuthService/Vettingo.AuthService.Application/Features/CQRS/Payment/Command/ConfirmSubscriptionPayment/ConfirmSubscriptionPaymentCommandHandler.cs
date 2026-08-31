@@ -133,7 +133,9 @@ public sealed class ConfirmSubscriptionPaymentCommandHandler(
                 await mediator.Send(
                     new CandidateRegisterCommandRequest
                     {
-                        Token = request.RegistrationToken
+                        Token = request.RegistrationToken,
+                        PlanCode = planCode,
+                        BillingPeriod = billingPeriod
                     },
                     cancellationToken);
             }

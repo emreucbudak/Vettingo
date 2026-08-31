@@ -10,6 +10,7 @@ namespace Vettingo.AuthService.Infrastructure.Register
         public static void AddCapServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<ICompanySubscriptionPublisher, CompanySubscriptionPublisher>();
+            services.AddScoped<ICandidateSubscriptionPublisher, CandidateSubscriptionPublisher>();
 
             string databaseConnectionString = configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");
