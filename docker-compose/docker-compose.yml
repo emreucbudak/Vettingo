@@ -22,14 +22,14 @@ services:
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=AnalyticsServiceDb;Username=vettingo;Password=${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}
       ConnectionStrings__RabbitMq: amqp://vettingo:VettingoRabbit_2026!@rabbitmq:5672/
-      ConnectionStrings__Redis: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      ConnectionStrings__Redis: redis:6379,password=,abortConnect=false
       DOTNET_RUNNING_IN_CONTAINER: "true"
       RabbitMq__HostName: rabbitmq
       RabbitMq__Password: VettingoRabbit_2026!
       RabbitMq__Port: "5672"
       RabbitMq__UserName: vettingo
       RabbitMq__VirtualHost: /
-      Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      Redis__ConnectionString: redis:6379,password= ,abortConnect=false
     image: vettingo/analytics-api:local
     ports:
       - mode: ingress
@@ -82,14 +82,14 @@ services:
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=AuthServiceDb;Username=vettingo;Password=${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}
       ConnectionStrings__RabbitMq: amqp://vettingo:VettingoRabbit_2026!@rabbitmq:5672/
-      ConnectionStrings__Redis: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      ConnectionStrings__Redis: redis:6379,password= ,abortConnect=false
       DOTNET_RUNNING_IN_CONTAINER: "true"
       RabbitMq__HostName: rabbitmq
       RabbitMq__Password: VettingoRabbit_2026!
       RabbitMq__Port: "5672"
       RabbitMq__UserName: vettingo
       RabbitMq__VirtualHost: /
-      Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      Redis__ConnectionString: redis:6379,password= ,abortConnect=false
     image: vettingo/auth-api:local
     ports:
       - mode: ingress
@@ -119,14 +119,14 @@ services:
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=EvaluationServiceDb;Username=vettingo;Password=${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}
       ConnectionStrings__RabbitMq: amqp://vettingo:VettingoRabbit_2026!@rabbitmq:5672/
-      ConnectionStrings__Redis: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      ConnectionStrings__Redis: redis:6379,password= ,abortConnect=false
       DOTNET_RUNNING_IN_CONTAINER: "true"
       RabbitMq__HostName: rabbitmq
       RabbitMq__Password: VettingoRabbit_2026!
       RabbitMq__Port: "5672"
       RabbitMq__UserName: vettingo
       RabbitMq__VirtualHost: /
-      Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      Redis__ConnectionString: redis:6379,password= ,abortConnect=false
     image: vettingo/evaluation-api:local
     ports:
       - mode: ingress
@@ -156,14 +156,14 @@ services:
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=ExamServiceDb;Username=vettingo;Password=${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}
       ConnectionStrings__RabbitMq: amqp://vettingo:VettingoRabbit_2026!@rabbitmq:5672/
-      ConnectionStrings__Redis: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      ConnectionStrings__Redis: redis:6379,password= ,abortConnect=false
       DOTNET_RUNNING_IN_CONTAINER: "true"
       RabbitMq__HostName: rabbitmq
       RabbitMq__Password: VettingoRabbit_2026!
       RabbitMq__Port: "5672"
       RabbitMq__UserName: vettingo
       RabbitMq__VirtualHost: /
-      Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      Redis__ConnectionString: redis:6379,password=,abortConnect=false
     image: vettingo/exam-api:local
     ports:
       - mode: ingress
@@ -207,14 +207,14 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__RabbitMq: amqp://vettingo:VettingoRabbit_2026!@rabbitmq:5672/
-      ConnectionStrings__Redis: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      ConnectionStrings__Redis: redis:6379,password= ,abortConnect=false
       DOTNET_RUNNING_IN_CONTAINER: "true"
       RabbitMq__HostName: rabbitmq
       RabbitMq__Password: VettingoRabbit_2026!
       RabbitMq__Port: "5672"
       RabbitMq__UserName: vettingo
       RabbitMq__VirtualHost: /
-      Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      Redis__ConnectionString: redis:6379,password=  ,abortConnect=false
       ReverseProxy__Clusters__analyticsservice__Destinations__analyticsservice__Address: http://analytics-api:8080/api/analytics
       ReverseProxy__Clusters__applicationservice__Destinations__applicationservice__Address: http://application-api:8080/api/
       ReverseProxy__Clusters__authservice__Destinations__authservice__Address: http://auth-api:8080/api/auth
@@ -253,14 +253,14 @@ services:
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=InterviewServiceDb;Username=vettingo;Password=${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}
       ConnectionStrings__RabbitMq: amqp://vettingo:VettingoRabbit_2026!@rabbitmq:5672/
-      ConnectionStrings__Redis: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      ConnectionStrings__Redis: redis:6379,password=   ,abortConnect=false
       DOTNET_RUNNING_IN_CONTAINER: "true"
       RabbitMq__HostName: rabbitmq
       RabbitMq__Password: VettingoRabbit_2026!
       RabbitMq__Port: "5672"
       RabbitMq__UserName: vettingo
       RabbitMq__VirtualHost: /
-      Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      Redis__ConnectionString: redis:6379,password=    ,abortConnect=false
     image: vettingo/interview-api:local
     ports:
       - mode: ingress
@@ -290,14 +290,14 @@ services:
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=JobServiceDb;Username=vettingo;Password=${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}
       ConnectionStrings__RabbitMq: amqp://vettingo:VettingoRabbit_2026!@rabbitmq:5672/
-      ConnectionStrings__Redis: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      ConnectionStrings__Redis: redis:6379,password=    ,abortConnect=false
       DOTNET_RUNNING_IN_CONTAINER: "true"
       RabbitMq__HostName: rabbitmq
       RabbitMq__Password: VettingoRabbit_2026!
       RabbitMq__Port: "5672"
       RabbitMq__UserName: vettingo
       RabbitMq__VirtualHost: /
-      Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      Redis__ConnectionString: redis:6379,password=,abortConnect=false
     image: vettingo/job-api:local
     ports:
       - mode: ingress
@@ -327,14 +327,14 @@ services:
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=NotificationServiceDb;Username=vettingo;Password=${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}
       ConnectionStrings__RabbitMq: amqp://vettingo:VettingoRabbit_2026!@rabbitmq:5672/
-      ConnectionStrings__Redis: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      ConnectionStrings__Redis: redis:6379,password=,abortConnect=false
       DOTNET_RUNNING_IN_CONTAINER: "true"
       RabbitMq__HostName: rabbitmq
       RabbitMq__Password: VettingoRabbit_2026!
       RabbitMq__Port: "5672"
       RabbitMq__UserName: vettingo
       RabbitMq__VirtualHost: /
-      Redis__ConnectionString: redis:6379,password=VettingoRedis_2026!,abortConnect=false
+      Redis__ConnectionString: redis:6379,password=,abortConnect=false
     image: vettingo/notification-api:local
     ports:
       - mode: ingress
@@ -378,7 +378,7 @@ services:
   postgres:
     environment:
       POSTGRES_DB: postgres
-      POSTGRES_PASSWORD: ${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}
+      POSTGRES_PASSWORD: ${VETTINGO_POSTGRES_PASSWORD:}
       POSTGRES_USER: vettingo
     healthcheck:
       test:
