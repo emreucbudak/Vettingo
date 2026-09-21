@@ -6,6 +6,7 @@ COPY ["src/ApplicationService/Vettingo.ApplicationService.API/Vettingo.Applicati
 COPY ["src/ApplicationService/Vettingo.ApplicationService.Application/Vettingo.ApplicationService.Application.csproj", "src/ApplicationService/Vettingo.ApplicationService.Application/"]
 COPY ["src/ApplicationService/Vettingo.ApplicationService.Domain/Vettingo.ApplicationService.Domain.csproj", "src/ApplicationService/Vettingo.ApplicationService.Domain/"]
 COPY ["src/ApplicationService/Vettingo.ApplicationService.Persistence/Vettingo.ApplicationService.Persistence.csproj", "src/ApplicationService/Vettingo.ApplicationService.Persistence/"]
+COPY ["src/ApplicationService/Vettingo.ApplicationService.Infrastructure/Vettingo.ApplicationService.Infrastructure.csproj", "src/ApplicationService/Vettingo.ApplicationService.Infrastructure/"]
 RUN dotnet restore "src/ApplicationService/Vettingo.ApplicationService.API/Vettingo.ApplicationService.API.csproj"
 
 COPY ["src/ApplicationService/", "src/ApplicationService/"]

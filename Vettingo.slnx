@@ -23,6 +23,7 @@
     <Project Path="src/AnalyticsService/Vettingo.AnalyticsService.Persistence/Vettingo.AnalyticsService.Persistence.csproj" Id="4cbabcf1-6faf-4a00-b57e-cf2248363384" />
   </Folder>
   <Folder Name="/src/ApplicationService/">
+    <Project Path="src/ApplicationService/Vettingo.ApplicationService.Infrastructure/Vettingo.ApplicationService.Infrastructure.csproj" />
     <Project Path="src/ApplicationService/Vettingo.ApplicationService.API/Vettingo.ApplicationService.API.csproj" />
     <Project Path="src/ApplicationService/Vettingo.ApplicationService.Application/Vettingo.ApplicationService.Application.csproj" />
     <Project Path="src/ApplicationService/Vettingo.ApplicationService.Domain/Vettingo.ApplicationService.Domain.csproj" />

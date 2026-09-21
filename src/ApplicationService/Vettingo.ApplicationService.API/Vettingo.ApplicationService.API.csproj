@@ -11,6 +11,7 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Vettingo.ApplicationService.Infrastructure\Vettingo.ApplicationService.Infrastructure.csproj" />
     <ProjectReference Include="..\Vettingo.ApplicationService.Application\Vettingo.ApplicationService.Application.csproj" />
     <ProjectReference Include="..\Vettingo.ApplicationService.Persistence\Vettingo.ApplicationService.Persistence.csproj" />
   </ItemGroup>

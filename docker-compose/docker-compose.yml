@@ -45,6 +45,9 @@ services:
       postgres:
         condition: service_healthy
         required: true
+      rabbitmq:
+        condition: service_healthy
+        required: true
     environment:
       JwtSettings__Audience: VettingoAuthServiceClients
       JwtSettings__Issuer: VettingoAuthService
@@ -53,6 +56,11 @@ services:
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=ApplicationServiceDb;Username=vettingo;Password=${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}
       DOTNET_RUNNING_IN_CONTAINER: "true"
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__Password: VettingoRabbit_2026!
+      RabbitMq__Port: "5672"
+      RabbitMq__UserName: vettingo
+      RabbitMq__VirtualHost: /
     image: vettingo/application-api:local
     ports:
       - mode: ingress

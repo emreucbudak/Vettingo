@@ -24,6 +24,7 @@ namespace Vettingo.JobService.Domain.Entities
         public decimal? MaxSalary { get; private set; }
         public DateTime? ApplicationDeadline { get; private set; }
         public JobPostingStatus Status { get; private set; }
+        public int ApplicationCount { get; private set; } = 0;
         public DateTime CreatedAt { get; private set; }
         public DateTime? UpdatedAt { get; private set; }
 
@@ -81,6 +82,12 @@ namespace Vettingo.JobService.Domain.Entities
             MinSalary = minSalary;
             MaxSalary = maxSalary;
             ApplicationDeadline = applicationDeadline;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void IncrementApplicationCount()
+        {
+            ApplicationCount++;
             UpdatedAt = DateTime.UtcNow;
         }
 

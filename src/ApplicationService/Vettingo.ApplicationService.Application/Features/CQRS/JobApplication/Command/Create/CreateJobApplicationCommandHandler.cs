@@ -1,4 +1,5 @@
 using FlashMediator;
+using Vettingo.ApplicationService.Application.Messaging;
 using Microsoft.Extensions.Logging;
 using Vettingo.ApplicationService.Application.Exceptions;
 using Vettingo.ApplicationService.Application.Repository;
@@ -8,6 +9,7 @@ namespace Vettingo.ApplicationService.Application.Features.CQRS.JobApplication.C
 {
     public class CreateJobApplicationCommandHandler(
         IJobApplicationRepository repository,
+        IJobApplicationCreatedPublisher publisher,
         ILogger<CreateJobApplicationCommandHandler> logger)
         : IRequestHandler<CreateJobApplicationCommandRequest, CreateJobApplicationCommandResponse>
     {
@@ -29,8 +31,26 @@ namespace Vettingo.ApplicationService.Application.Features.CQRS.JobApplication.C
                 request.AppliedAt ?? DateTime.UtcNow,
                 request.Status);
 
-            await repository.AddAsync(application);
-            await repository.SaveChangesAsync();
+            try
+            {
+                await repository.AddAsync(application);
+                await repository.SaveChangesAsync();
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(exception, "Başvuru kaydedilemedi. JobPostingId: {JobPostingId}, CandidateId: {CandidateId}", application.JobPostingId, application.CandidateId);
+                throw;
+            }
+
+            try
+            {
+                await publisher.PublishAsync(application.JobPostingId, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(exception, "Başvuru kaydedildi ancak ilan sayacı mesajı gönderilemedi. JobPostingId: {JobPostingId}", application.JobPostingId);
+            }
+
             return new CreateJobApplicationCommandResponse(application.Id);
         }
     }
