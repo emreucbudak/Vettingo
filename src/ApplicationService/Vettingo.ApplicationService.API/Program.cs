@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Vettingo.ApplicationService.Infrastructure.Register;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using FlashMediator;
@@ -58,6 +59,7 @@ builder.Services.AddRateLimiter(options =>
 });
 
 builder.Services.AddApplicationPersistence(builder.Configuration);
+builder.Services.AddApplicationCap(builder.Configuration);
 builder.Services.AddFlashMediator(typeof(CreateJobApplicationCommandHandler).Assembly);
 builder.Services.AddValidatorsFromAssemblyContaining<CreateJobApplicationCommandRequest>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

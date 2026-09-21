@@ -29,6 +29,8 @@ namespace Vettingo.JobService.Persistence.DbContext
                     status => status == JobPostingStatus.Active ? "Published" : status.ToString(),
                     value => value == "Published" ? JobPostingStatus.Active : Enum.Parse<JobPostingStatus>(value, false));
 
+            builder.Entity<JobPosting>().Property(posting => posting.ApplicationCount).HasDefaultValue(0);
+
             base.OnModelCreating(builder);
         }
     }

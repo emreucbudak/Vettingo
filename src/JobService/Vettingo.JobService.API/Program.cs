@@ -1,4 +1,7 @@
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
+using Vettingo.JobService.Infrastructure.Register;
+using Vettingo.JobService.Persistence.DbContext;
 using System.Threading.RateLimiting;
 using Serilog;
 using FlashMediator;
@@ -61,6 +64,7 @@ builder.Services.AddRateLimiter(options =>
 });
 
 builder.Services.SaveDb(builder.Configuration);
+builder.Services.AddJobCap(builder.Configuration);
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = builder.Configuration.GetConnectionString("Redis")
@@ -81,6 +85,15 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    var database = scope.ServiceProvider.GetRequiredService<JobDbContext>();
+    await database.Database.EnsureCreatedAsync();
+    await database.Database.ExecuteSqlRawAsync("""
+        ALTER TABLE "JobPostings" ADD COLUMN IF NOT EXISTS "ApplicationCount" integer NOT NULL DEFAULT 0;
+        """);
+}
 
 app.UseSerilogRequestLogging(options =>
 {
