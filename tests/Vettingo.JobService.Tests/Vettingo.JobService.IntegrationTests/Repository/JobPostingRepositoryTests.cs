@@ -52,6 +52,33 @@ namespace Vettingo.JobService.UnitTests.Repository
             result.Should().OnlyContain(jobPosting => jobPosting.CompanyId == companyId);
         }
 
+        [Fact]
+        public async Task Statistics_Should_Count_Only_Company_Postings_And_Active_Status()
+        {
+            await using JobDbContext context = _fixture.CreateDbContext();
+            var repository = new JobPostingRepository(context);
+            var companyId = Guid.NewGuid();
+            var active = CreateJobPosting(companyId, Guid.NewGuid().ToString());
+            var closed = CreateJobPosting(companyId, Guid.NewGuid().ToString());
+            closed.SetStatus(JobPostingStatus.Closed);
+            var draft = CreateJobPosting(companyId, Guid.NewGuid().ToString());
+            draft.SetStatus(JobPostingStatus.Draft);
+            context.JobPostings.AddRange(active, closed, draft,
+                CreateJobPosting(Guid.NewGuid(), Guid.NewGuid().ToString()));
+            await context.SaveChangesAsync();
+
+            var result = await repository.GetStatisticsAsync(companyId);
+            result.TotalJobPostings.Should().Be(3);
+            result.ActiveJobPostings.Should().Be(1);
+            var empty = await repository.GetStatisticsAsync(Guid.NewGuid());
+            empty.TotalJobPostings.Should().Be(0);
+            empty.ActiveJobPostings.Should().Be(0);
+
+            active.SetStatus(JobPostingStatus.Closed);
+            await context.SaveChangesAsync();
+            (await repository.GetStatisticsAsync(companyId)).ActiveJobPostings.Should().Be(0);
+        }
+
         private static JobPosting CreateJobPosting(Guid companyId, string title)
         {
             JobPosting jobPosting = new();
@@ -68,7 +95,7 @@ namespace Vettingo.JobService.UnitTests.Repository
                 50000m,
                 70000m,
                 DateTime.UtcNow.AddDays(30),
-                JobPostingStatus.Published);
+                JobPostingStatus.Active);
 
             return jobPosting;
         }

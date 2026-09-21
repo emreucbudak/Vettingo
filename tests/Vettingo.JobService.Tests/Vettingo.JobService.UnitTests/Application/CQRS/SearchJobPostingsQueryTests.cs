@@ -69,7 +69,7 @@ public sealed class SearchJobPostingsQueryTests
             100000m,
             150000m,
             DateTime.UtcNow.AddDays(30),
-            JobPostingStatus.Published);
+            JobPostingStatus.Active);
         return jobPosting;
     }
 

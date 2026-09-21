@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using FlashMediator;
+using Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetStatistics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CreateJobPosting;
@@ -19,6 +21,19 @@ namespace Vettingo.JobService.API.Controllers
         public async Task<IActionResult> GetAllJobPostings([FromQuery] GetAllJobPostingsQueryRequest request)
         {
             return Ok(await mediator.Send(request));
+        }
+
+        [Authorize(Roles = "Company")]
+        [HttpGet("statistics")]
+        public async Task<IActionResult> GetStatistics(CancellationToken cancellationToken)
+        {
+            var subject = User.FindFirstValue("companyId");
+            if (!Guid.TryParse(subject, out var companyId) || companyId == Guid.Empty)
+            {
+                return Unauthorized();
+            }
+
+            return Ok(await mediator.Send(new GetJobPostingStatisticsQueryRequest(companyId), cancellationToken));
         }
 
         [Authorize(Roles = "Company,Candidate")]

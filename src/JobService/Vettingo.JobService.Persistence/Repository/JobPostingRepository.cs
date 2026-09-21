@@ -46,7 +46,7 @@ namespace Vettingo.JobService.Persistence.Repository
         {
             IQueryable<JobPosting> query = JobPostingSet
                 .AsNoTracking()
-                .Where(jobPosting => jobPosting.Status == JobPostingStatus.Published);
+                .Where(jobPosting => jobPosting.Status == JobPostingStatus.Active);
 
             if (!string.IsNullOrWhiteSpace(criteria.Title))
             {
@@ -97,6 +97,20 @@ namespace Vettingo.JobService.Persistence.Repository
             return await query
                 .OrderByDescending(jobPosting => jobPosting.CreatedAt)
                 .ToListAsync(cancellationToken);
+        }
+
+        public async Task<JobPostingStatistics> GetStatisticsAsync(Guid companyId, CancellationToken cancellationToken = default)
+        {
+            var statistics = await JobPostingSet
+                .AsNoTracking()
+                .Where(jobPosting => jobPosting.CompanyId == companyId)
+                .GroupBy(jobPosting => jobPosting.CompanyId)
+                .Select(group => new JobPostingStatistics(
+                    group.Count(),
+                    group.Count(jobPosting => jobPosting.Status == JobPostingStatus.Active)))
+                .SingleOrDefaultAsync(cancellationToken);
+
+            return statistics ?? new JobPostingStatistics(0, 0);
         }
 
         public Task<int> SaveChangesAsync()
