@@ -28,7 +28,7 @@ namespace Vettingo.JobService.UnitTests.Domain
                     50000m,
                     70000m,
                     DateTime.UtcNow.AddDays(30),
-                    JobPostingStatus.Published);
+                    JobPostingStatus.Active);
             };
 
             // Assert
@@ -57,7 +57,7 @@ namespace Vettingo.JobService.UnitTests.Domain
                     50000m,
                     70000m,
                     DateTime.UtcNow.AddDays(30),
-                    JobPostingStatus.Published);
+                    JobPostingStatus.Active);
             };
 
             // Assert
@@ -86,7 +86,7 @@ namespace Vettingo.JobService.UnitTests.Domain
                     80000m,
                     70000m,
                     DateTime.UtcNow.AddDays(30),
-                    JobPostingStatus.Published);
+                    JobPostingStatus.Active);
             };
 
             // Assert

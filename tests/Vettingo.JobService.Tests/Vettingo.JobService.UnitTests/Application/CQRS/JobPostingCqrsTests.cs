@@ -78,7 +78,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 MinSalary = 50000m,
                 MaxSalary = 70000m,
                 ApplicationDeadline = DateTime.UtcNow.AddDays(30),
-                Status = JobPostingStatus.Published
+                Status = JobPostingStatus.Active
             };
         }
 
@@ -98,7 +98,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 MinSalary = 60000m,
                 MaxSalary = 80000m,
                 ApplicationDeadline = DateTime.UtcNow.AddDays(45),
-                Status = JobPostingStatus.Published
+                Status = JobPostingStatus.Active
             };
         }
 
@@ -118,7 +118,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 50000m,
                 70000m,
                 DateTime.UtcNow.AddDays(30),
-                JobPostingStatus.Published);
+                JobPostingStatus.Active);
 
             return jobPosting;
         }

@@ -1,4 +1,5 @@
 using FlashMediator;
+using Vettingo.AuthService.Application.Repository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
@@ -8,7 +9,7 @@ using Vettingo.AuthService.Domain.Entities;
 
 namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.RefreshToken
 {
-    public class RefreshTokenCommandHandler(ITokenService token, UserManager<User> userManager, ILogger<RefreshTokenCommandHandler> logger) : IRequestHandler<RefreshTokenCommandRequest, RefreshTokenCommandResponse>
+    public class RefreshTokenCommandHandler(ITokenService token, UserManager<User> userManager, ILogger<RefreshTokenCommandHandler> logger, ICompanyRepository companyRepository) : IRequestHandler<RefreshTokenCommandRequest, RefreshTokenCommandResponse>
     {
         public async Task<RefreshTokenCommandResponse> Handle(RefreshTokenCommandRequest request, CancellationToken cancellationToken)
         {
@@ -30,12 +31,21 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.RefreshTok
             }
 
             IList<string> roles = await userManager.GetRolesAsync(user);
+            Guid? companyId = null;
+            if (roles.Contains("Company"))
+            {
+                var company = await companyRepository.GetCompanyByEmailAsync(user.Email)
+                    ?? throw new UnauthorizedException("Şirket hesabı bulunamadı.");
+                companyId = company.Id;
+            }
+
             string accessToken = token.CreateAccessToken(
                 user.Id,
                 user.Email,
                 user.Name,
                 user.Surname,
-                roles);
+                roles,
+                companyId);
             string refreshToken = token.CreateRefreshToken();
             user.RefreshToken.UpdateToken(refreshToken);
 

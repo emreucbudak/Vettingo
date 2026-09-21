@@ -13,6 +13,7 @@ namespace Vettingo.JobService.Application.Repository
         Task<IReadOnlyList<JobPosting>> SearchJobPostingsAsync(
             JobPostingSearchCriteria criteria,
             CancellationToken cancellationToken = default);
+        Task<JobPostingStatistics> GetStatisticsAsync(Guid companyId, CancellationToken cancellationToken = default);
         Task<int> SaveChangesAsync();
     }
 }

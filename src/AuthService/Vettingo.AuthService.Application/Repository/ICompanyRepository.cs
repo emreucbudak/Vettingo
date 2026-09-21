@@ -8,6 +8,7 @@ namespace Vettingo.AuthService.Application.Repository
         void UpdateCompany(Company company);
         void DeleteCompany(Company company);
         Task<Company?> GetCompanyByIdAsync(Guid companyId);
+        Task<Company?> GetCompanyByEmailAsync(string email);
         Task<IEnumerable<Company>> GetAllCompaniesAsync();
         Task<int> SaveChangesAsync();
     }
