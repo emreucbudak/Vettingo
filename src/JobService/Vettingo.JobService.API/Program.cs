@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
-using Vettingo.JobService.Infrastructure.Register;
 using Vettingo.JobService.Persistence.DbContext;
 using System.Threading.RateLimiting;
 using Serilog;
@@ -64,7 +63,6 @@ builder.Services.AddRateLimiter(options =>
 });
 
 builder.Services.SaveDb(builder.Configuration);
-builder.Services.AddJobCap(builder.Configuration);
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = builder.Configuration.GetConnectionString("Redis")
@@ -82,7 +80,8 @@ builder.Services.AddExceptionHandler<BusinessExceptionHandler>();
 builder.Services.AddExceptionHandler<BaseExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+    options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter<Vettingo.JobService.Domain.Enums.ApplicationStatus>()));
 
 var app = builder.Build();
 
@@ -91,7 +90,18 @@ await using (var scope = app.Services.CreateAsyncScope())
     var database = scope.ServiceProvider.GetRequiredService<JobDbContext>();
     await database.Database.EnsureCreatedAsync();
     await database.Database.ExecuteSqlRawAsync("""
-        ALTER TABLE "JobPostings" ADD COLUMN IF NOT EXISTS "ApplicationCount" integer NOT NULL DEFAULT 0;
+        CREATE TABLE IF NOT EXISTS "JobApplications" (
+            "Id" uuid PRIMARY KEY,
+            "CandidateId" uuid NOT NULL,
+            "JobPostingId" uuid NOT NULL REFERENCES "JobPostings" ("Id") ON DELETE RESTRICT,
+            "AppliedAt" timestamp with time zone NOT NULL,
+            "Status" text NOT NULL,
+            "CreatedAt" timestamp with time zone NOT NULL,
+            "UpdatedAt" timestamp with time zone NULL
+        );
+        CREATE INDEX IF NOT EXISTS "IX_JobApplications_CandidateId" ON "JobApplications" ("CandidateId");
+        CREATE INDEX IF NOT EXISTS "IX_JobApplications_JobPostingId" ON "JobApplications" ("JobPostingId");
+        CREATE INDEX IF NOT EXISTS "IX_JobApplications_AppliedAt" ON "JobApplications" ("AppliedAt");
         """);
 }
 

@@ -7,6 +7,7 @@ namespace Vettingo.JobService.Persistence.DbContext
     public class JobDbContext(DbContextOptions<JobDbContext> options) : Microsoft.EntityFrameworkCore.DbContext(options)
     {
         public DbSet<JobPosting> JobPostings { get; set; }
+        public DbSet<JobApplication> JobApplications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -29,7 +30,10 @@ namespace Vettingo.JobService.Persistence.DbContext
                     status => status == JobPostingStatus.Active ? "Published" : status.ToString(),
                     value => value == "Published" ? JobPostingStatus.Active : Enum.Parse<JobPostingStatus>(value, false));
 
-            builder.Entity<JobPosting>().Property(posting => posting.ApplicationCount).HasDefaultValue(0);
+            builder.Entity<JobApplication>().Property(application => application.Status).HasConversion<string>();
+            builder.Entity<JobApplication>().HasIndex(application => application.AppliedAt);
+            builder.Entity<JobApplication>().HasOne<JobPosting>().WithMany()
+                .HasForeignKey(application => application.JobPostingId).OnDelete(DeleteBehavior.Restrict);
 
             base.OnModelCreating(builder);
         }

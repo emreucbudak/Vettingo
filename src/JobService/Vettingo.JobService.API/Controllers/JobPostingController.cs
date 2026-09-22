@@ -24,17 +24,6 @@ namespace Vettingo.JobService.API.Controllers
         }
 
         [Authorize(Roles = "Company")]
-        [HttpGet("mine/ids")]
-        public async Task<IActionResult> GetMyJobPostingIds(
-            [FromServices] Vettingo.JobService.Application.Repository.IJobPostingRepository repository)
-        {
-            if (!Guid.TryParse(User.FindFirstValue("companyId"), out var companyId) || companyId == Guid.Empty)
-                return Unauthorized();
-            var jobs = await repository.GetJobPostingsByCompanyIdAsync(companyId);
-            return Ok(jobs.Select(job => job.Id));
-        }
-
-        [Authorize(Roles = "Company")]
         [HttpGet("statistics")]
         public async Task<IActionResult> GetStatistics(CancellationToken cancellationToken)
         {

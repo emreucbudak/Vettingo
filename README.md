@@ -223,7 +223,6 @@ JWTs contain the assigned roles under the `Role` claim. API endpoints use ASP.NE
 Vettingo/
 ├── src/
 │   ├── AnalyticsService/
-│   ├── ApplicationService/
 │   ├── AuthService/
 │   ├── EvaluationService/
 │   ├── ExamService/
@@ -234,7 +233,6 @@ Vettingo/
 │
 ├── tests/
 │   ├── Vettingo.AnalyticsService.Tests/
-│   ├── Vettingo.ApplicationService.Tests/
 │   ├── Vettingo.AuthService.Tests/
 │   ├── Vettingo.EvaluationService.Tests/
 │   ├── Vettingo.ExamService.Tests/
@@ -363,7 +361,6 @@ dotnet run --project src/JobService/Vettingo.JobService.API/Vettingo.JobService.
 ### Application Service
 
 ```bash
-dotnet run --project src/ApplicationService/Vettingo.ApplicationService.API/Vettingo.ApplicationService.API.csproj
 ```
 
 ### Exam Service
@@ -415,7 +412,6 @@ dotnet run --project src/Gateway/Vettingo.Gateway.API/Vettingo.Gateway.API.cspro
 | Job Service | `http://localhost:5257` |
 | Exam Service | `http://localhost:5260` |
 | Analytics Service | `http://localhost:5266` |
-| Application Service | `http://localhost:5267` |
 | Evaluation Service | `http://localhost:5083` |
 | Interview Service | `http://localhost:5077` |
 | Notification Service | `http://localhost:5149` |
@@ -618,3 +614,7 @@ dotnet test Vettingo.slnx
 Built with **.NET 10**, PostgreSQL, Redis, and a microservice architecture.
 
 </div>
+
+### İlan ve başvuru servisi
+
+İlanlar ve başvurular JobService içinde ayrı aggregate root olarak aynı JobDbContext veritabanında tutulur. /api/job-applications endpointleri gateway üzerinden JobService’e yönlendirilir. Başvuru sayıları doğrudan kayıtlardan hesaplanır; CAP sayacı veya servisler arası HTTP çağrısı yoktur. Eski verilerin aktarımı için docs/job-applications-migration.md dosyasına bakın.

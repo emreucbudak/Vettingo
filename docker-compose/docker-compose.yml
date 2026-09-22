@@ -37,38 +37,6 @@ services:
         published: "5266"
         protocol: tcp
     restart: unless-stopped
-  application-api:
-    build:
-      context: ..
-      dockerfile: src/ApplicationService/Vettingo.ApplicationService.API/Dockerfile
-    depends_on:
-      postgres:
-        condition: service_healthy
-        required: true
-      rabbitmq:
-        condition: service_healthy
-        required: true
-    environment:
-      Services__JobService: http://job-api:8080/
-      JwtSettings__Audience: VettingoAuthServiceClients
-      JwtSettings__Issuer: VettingoAuthService
-      JwtSettings__SecretKey: "${VETTINGO_JWT_SECRET:?VETTINGO_JWT_SECRET must be set}"
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=ApplicationServiceDb;Username=vettingo;Password=${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}
-      DOTNET_RUNNING_IN_CONTAINER: "true"
-      RabbitMq__HostName: rabbitmq
-      RabbitMq__Password: VettingoRabbit_2026!
-      RabbitMq__Port: "5672"
-      RabbitMq__UserName: vettingo
-      RabbitMq__VirtualHost: /
-    image: vettingo/application-api:local
-    ports:
-      - mode: ingress
-        target: 8080
-        published: "5267"
-        protocol: tcp
-    restart: unless-stopped
   auth-api:
     build:
       context: ..
@@ -188,9 +156,6 @@ services:
       analytics-api:
         condition: service_started
         required: true
-      application-api:
-        condition: service_started
-        required: true
       auth-api:
         condition: service_started
         required: true
@@ -225,7 +190,6 @@ services:
       RabbitMq__VirtualHost: /
       Redis__ConnectionString: redis:6379,password=  ,abortConnect=false
       ReverseProxy__Clusters__analyticsservice__Destinations__analyticsservice__Address: http://analytics-api:8080/api/analytics
-      ReverseProxy__Clusters__applicationservice__Destinations__applicationservice__Address: http://application-api:8080/api/
       ReverseProxy__Clusters__authservice__Destinations__authservice__Address: http://auth-api:8080/api/auth
       ReverseProxy__Clusters__evaluationservice__Destinations__evaluationservice__Address: http://evaluation-api:8080/api/
       ReverseProxy__Clusters__examservice__Destinations__examservice__Address: http://exam-api:8080/api/exam
@@ -285,9 +249,6 @@ services:
       postgres:
         condition: service_healthy
         required: true
-      rabbitmq:
-        condition: service_healthy
-        required: true
       redis:
         condition: service_healthy
         required: true
@@ -298,14 +259,8 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=JobServiceDb;Username=vettingo;Password=${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}
-      ConnectionStrings__RabbitMq: amqp://vettingo:VettingoRabbit_2026!@rabbitmq:5672/
       ConnectionStrings__Redis: redis:6379,password=    ,abortConnect=false
       DOTNET_RUNNING_IN_CONTAINER: "true"
-      RabbitMq__HostName: rabbitmq
-      RabbitMq__Password: VettingoRabbit_2026!
-      RabbitMq__Port: "5672"
-      RabbitMq__UserName: vettingo
-      RabbitMq__VirtualHost: /
       Redis__ConnectionString: redis:6379,password=,abortConnect=false
     image: vettingo/job-api:local
     ports:
