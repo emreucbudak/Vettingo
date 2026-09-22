@@ -13,6 +13,17 @@ namespace Vettingo.JobService.API.Controllers
     [Route("api/job-applications")]
     public class JobApplicationsController(IMediator mediator) : ControllerBase
     {
+        [Authorize(Roles = "Candidate")]
+        [HttpGet("my/statistics")]
+        public async Task<IActionResult> GetCandidateStatistics(
+            [FromServices] IJobApplicationRepository repository, CancellationToken cancellationToken)
+        {
+            var subject = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+            if (!Guid.TryParse(subject, out var candidateId) || candidateId == Guid.Empty)
+                return Unauthorized();
+            return Ok(await repository.GetCandidateStatisticsAsync(candidateId, cancellationToken));
+        }
+
         [Authorize(Roles = "Company")]
         [HttpGet("statistics")]
         public async Task<IActionResult> GetStatistics(
