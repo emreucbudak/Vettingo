@@ -10,6 +10,39 @@ namespace Vettingo.JobService.UnitTests.Application;
 public class ApplicationStatisticsTests
 {
     [Fact]
+    public async Task CandidateStatistics_ShouldFilterCandidateAndCountStatuses()
+    {
+        await using var db = new JobDbContext(new DbContextOptionsBuilder<JobDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+        var candidateId = Guid.NewGuid();
+        foreach (var status in Enum.GetValues<ApplicationStatus>())
+        {
+            var application = new JobApplication();
+            application.CreateApplication(candidateId, Guid.NewGuid(), DateTime.UtcNow, status);
+            db.JobApplications.Add(application);
+        }
+        var other = new JobApplication();
+        other.CreateApplication(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, ApplicationStatus.Interview);
+        db.JobApplications.Add(other);
+        await db.SaveChangesAsync();
+        var repository = new JobApplicationRepository(db);
+        var result = await repository.GetCandidateStatisticsAsync(candidateId);
+        result.TotalApplications.Should().Be(5);
+        result.InProgress.Should().Be(3);
+        result.Interviews.Should().Be(1);
+        result.Completed.Should().Be(2);
+        (await repository.GetCandidateStatisticsAsync(Guid.NewGuid()))
+            .Should().Be(new Vettingo.JobService.Application.Repository.CandidateApplicationStatistics(0, 0, 0, 0));
+        db.JobApplications.First(a => a.CandidateId == candidateId && a.Status == ApplicationStatus.Interview)
+            .UpdateStatus(ApplicationStatus.Rejected);
+        await db.SaveChangesAsync();
+        var updated = await repository.GetCandidateStatisticsAsync(candidateId);
+        updated.InProgress.Should().Be(2);
+        updated.Interviews.Should().Be(0);
+        updated.Completed.Should().Be(3);
+    }
+
+    [Fact]
     public async Task Statistics_ShouldCountOnlyRequestedJobsAndExcludeRejectedFromActive()
     {
         await using var db = new JobDbContext(new DbContextOptionsBuilder<JobDbContext>()

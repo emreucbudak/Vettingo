@@ -10,6 +10,7 @@ namespace Vettingo.JobService.Application.Repository
         Task<JobApplication?> GetByIdAsync(Guid applicationId);
         Task<IEnumerable<JobApplication>> GetAllAsync(Guid? candidateId = null, Guid? jobPostingId = null);
         Task<ApplicationStatistics> GetStatisticsAsync(Guid companyId, CancellationToken cancellationToken = default);
+        Task<CandidateApplicationStatistics> GetCandidateStatisticsAsync(Guid candidateId, CancellationToken cancellationToken = default);
         Task<int> SaveChangesAsync();
     }
 }
