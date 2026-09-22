@@ -61,6 +61,9 @@ jobs:
           --results-directory "${{ runner.temp }}/test-results"
           --collect:"XPlat Code Coverage"
 
+      - name: Run integration tests
+        run: dotnet test tests/Vettingo.JobService.Tests/Vettingo.JobService.IntegrationTests/Vettingo.JobService.IntegrationTests.csproj --configuration Release --verbosity normal
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
