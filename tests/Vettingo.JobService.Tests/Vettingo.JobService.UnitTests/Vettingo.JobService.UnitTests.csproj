@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\JobService\Vettingo.JobService.API\Vettingo.JobService.API.csproj" />
     <ProjectReference Include="..\..\..\src\JobService\Vettingo.JobService.Infrastructure\Vettingo.JobService.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\src\JobService\Vettingo.JobService.Application\Vettingo.JobService.Application.csproj" />
     <ProjectReference Include="..\..\..\src\JobService\Vettingo.JobService.Domain\Vettingo.JobService.Domain.csproj" />

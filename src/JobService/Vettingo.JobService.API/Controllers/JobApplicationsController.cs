@@ -38,8 +38,19 @@ namespace Vettingo.JobService.API.Controllers
 
         [Authorize(Roles = "Company,Candidate")]
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] GetJobApplicationsQueryRequest request) =>
-            Ok(await mediator.Send(request));
+        public async Task<IActionResult> GetAll([FromQuery] GetJobApplicationsQueryRequest request)
+        {
+            if (User.IsInRole("Candidate"))
+            {
+                var subject = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+                if (!Guid.TryParse(subject, out var candidateId) || candidateId == Guid.Empty)
+                    return Unauthorized();
+
+                request = request with { CandidateId = candidateId };
+            }
+
+            return Ok(await mediator.Send(request));
+        }
 
         [Authorize(Roles = "Candidate")]
         [HttpPost]
