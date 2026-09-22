@@ -9,6 +9,7 @@ namespace Vettingo.ApplicationService.Application.Repository
         Task<bool> ExistsAsync(Guid candidateId, Guid jobPostingId);
         Task<JobApplication?> GetByIdAsync(Guid applicationId);
         Task<IEnumerable<JobApplication>> GetAllAsync(Guid? candidateId = null, Guid? jobPostingId = null);
+        Task<ApplicationStatistics> GetStatisticsAsync(Guid[] jobPostingIds, CancellationToken cancellationToken = default);
         Task<int> SaveChangesAsync();
     }
 }

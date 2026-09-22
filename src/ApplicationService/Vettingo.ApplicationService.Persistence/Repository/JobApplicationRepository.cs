@@ -37,6 +37,17 @@ namespace Vettingo.ApplicationService.Persistence.Repository
             return await query.OrderByDescending(application => application.AppliedAt).ToListAsync();
         }
 
+        public async Task<ApplicationStatistics> GetStatisticsAsync(Guid[] jobPostingIds, CancellationToken cancellationToken = default)
+        {
+            var result = await Applications.AsNoTracking()
+                .Where(application => jobPostingIds.Contains(application.JobPostingId))
+                .GroupBy(application => 1)
+                .Select(group => new ApplicationStatistics(group.Count(),
+                    group.Count(application => application.Status != Domain.Enums.ApplicationStatus.Rejected)))
+                .SingleOrDefaultAsync(cancellationToken);
+            return result ?? new ApplicationStatistics(0, 0);
+        }
+
         public Task<int> SaveChangesAsync() => context.SaveChangesAsync();
     }
 }
