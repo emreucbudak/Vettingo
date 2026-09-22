@@ -49,6 +49,7 @@ services:
         condition: service_healthy
         required: true
     environment:
+      Services__JobService: http://job-api:8080/
       JwtSettings__Audience: VettingoAuthServiceClients
       JwtSettings__Issuer: VettingoAuthService
       JwtSettings__SecretKey: "${VETTINGO_JWT_SECRET:?VETTINGO_JWT_SECRET must be set}"

@@ -6,7 +6,6 @@ namespace Vettingo.ApplicationService.Domain.Enums
         UnderReview = 2,
         Interview = 3,
         Offer = 4,
-        Rejected = 5,
-        Withdrawn = 6
+        Rejected = 5
     }
 }

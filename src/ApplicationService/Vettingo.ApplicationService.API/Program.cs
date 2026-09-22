@@ -30,6 +30,7 @@ builder.Services
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
+            RoleClaimType = "Role",
             ValidateIssuer = true,
             ValidIssuer = jwtIssuer,
             ValidateAudience = true,
@@ -58,6 +59,10 @@ builder.Services.AddRateLimiter(options =>
             }));
 });
 
+builder.Services.AddHttpClient("JobService", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["Services:JobService"] ?? "http://localhost:5257/");
+});
 builder.Services.AddApplicationPersistence(builder.Configuration);
 builder.Services.AddApplicationCap(builder.Configuration);
 builder.Services.AddFlashMediator(typeof(CreateJobApplicationCommandHandler).Assembly);
