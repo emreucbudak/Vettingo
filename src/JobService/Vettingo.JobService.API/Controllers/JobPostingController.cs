@@ -23,7 +23,7 @@ namespace Vettingo.JobService.API.Controllers
             return Ok(await mediator.Send(request));
         }
 
-        [Authorize(Roles = "Company")]
+        [Authorize(Roles = "Company,Human Resources")]
         [HttpGet("statistics")]
         public async Task<IActionResult> GetStatistics(CancellationToken cancellationToken)
         {
