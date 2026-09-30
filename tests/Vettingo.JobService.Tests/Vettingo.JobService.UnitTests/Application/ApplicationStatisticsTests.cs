@@ -49,7 +49,7 @@ public class ApplicationStatisticsTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         var companyId = Guid.NewGuid();
         var job = new JobPosting();
-        job.CreateJobPosting(companyId, "Stats role", "Description", "Requirements", "Responsibilities", "Remote",
+        job.CreateJobPosting(companyId, "Stats role", "Description", "Requirements", "Responsibilities", 34,
             EmploymentType.FullTime, WorkingModel.Remote, ExperienceLevel.Mid, null, null, null, JobPostingStatus.Active);
         db.JobPostings.Add(job);
         var jobId = job.Id;

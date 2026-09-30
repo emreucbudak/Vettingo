@@ -9,7 +9,7 @@ public sealed class SearchJobPostingsQueryRequestValidator
     public SearchJobPostingsQueryRequestValidator()
     {
         RuleFor(request => request.Title).MaximumLength(200);
-        RuleFor(request => request.Location).MaximumLength(200);
+        RuleFor(request => request.CityId).GreaterThan(0).When(request => request.CityId.HasValue);
         RuleFor(request => request.EmploymentType).IsInEnum().When(request => request.EmploymentType.HasValue);
         RuleFor(request => request.WorkingModel).IsInEnum().When(request => request.WorkingModel.HasValue);
         RuleFor(request => request.ExperienceLevel).IsInEnum().When(request => request.ExperienceLevel.HasValue);

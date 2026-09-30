@@ -55,11 +55,9 @@ namespace Vettingo.JobService.Persistence.Repository
                     jobPosting.Title.ToLower().Contains(normalizedTitle));
             }
 
-            if (!string.IsNullOrWhiteSpace(criteria.Location))
+            if (criteria.CityId.HasValue)
             {
-                string normalizedLocation = criteria.Location.Trim().ToLower();
-                query = query.Where(jobPosting =>
-                    jobPosting.Location.ToLower().Contains(normalizedLocation));
+                query = query.Where(jobPosting => jobPosting.CityId == criteria.CityId.Value);
             }
 
             if (criteria.EmploymentType.HasValue)
