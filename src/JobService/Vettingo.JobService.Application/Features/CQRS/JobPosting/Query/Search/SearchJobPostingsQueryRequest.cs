@@ -10,7 +10,7 @@ public sealed record SearchJobPostingsQueryRequest
     private string? _cacheKey;
 
     public string? Title { get; init; }
-    public string? Location { get; init; }
+    public int? CityId { get; init; }
     public EmploymentType? EmploymentType { get; init; }
     public WorkingModel? WorkingModel { get; init; }
     public ExperienceLevel? ExperienceLevel { get; init; }
@@ -31,7 +31,7 @@ public sealed record SearchJobPostingsQueryRequest
             ':',
             "SearchJobPostings",
             Normalize(Title),
-            Normalize(Location),
+            CityId?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "all",
             EmploymentType?.ToString() ?? "all",
             WorkingModel?.ToString() ?? "all",
             ExperienceLevel?.ToString() ?? "all",

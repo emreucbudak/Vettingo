@@ -16,7 +16,7 @@ namespace Vettingo.JobService.Domain.Entities
         public string Description { get; private set; } = string.Empty;
         public string Requirements { get; private set; } = string.Empty;
         public string Responsibilities { get; private set; } = string.Empty;
-        public string Location { get; private set; } = string.Empty;
+        public int CityId { get; private set; }
         public EmploymentType EmploymentType { get; private set; }
         public WorkingModel WorkingModel { get; private set; }
         public ExperienceLevel ExperienceLevel { get; private set; }
@@ -38,7 +38,7 @@ namespace Vettingo.JobService.Domain.Entities
             string description,
             string requirements,
             string responsibilities,
-            string location,
+            int cityId,
             EmploymentType employmentType,
             WorkingModel workingModel,
             ExperienceLevel experienceLevel,
@@ -47,10 +47,10 @@ namespace Vettingo.JobService.Domain.Entities
             DateTime? applicationDeadline,
             JobPostingStatus status)
         {
-            CheckJobPostingContent(companyId, title, description, requirements, responsibilities, location, employmentType, workingModel, experienceLevel, minSalary, maxSalary, applicationDeadline, status);
+            CheckJobPostingContent(companyId, title, description, requirements, responsibilities, cityId, employmentType, workingModel, experienceLevel, minSalary, maxSalary, applicationDeadline, status);
             SetId();
             CompanyId = companyId;
-            UpdateJobPosting(title, description, requirements, responsibilities, location, employmentType, workingModel, experienceLevel, minSalary, maxSalary, applicationDeadline);
+            UpdateJobPosting(title, description, requirements, responsibilities, cityId, employmentType, workingModel, experienceLevel, minSalary, maxSalary, applicationDeadline);
             Status = status;
             CreatedAt = DateTime.UtcNow;
             UpdatedAt = null;
@@ -61,7 +61,7 @@ namespace Vettingo.JobService.Domain.Entities
             string description,
             string requirements,
             string responsibilities,
-            string location,
+            int cityId,
             EmploymentType employmentType,
             WorkingModel workingModel,
             ExperienceLevel experienceLevel,
@@ -69,12 +69,12 @@ namespace Vettingo.JobService.Domain.Entities
             decimal? maxSalary,
             DateTime? applicationDeadline)
         {
-            CheckJobPostingContent(CompanyId, title, description, requirements, responsibilities, location, employmentType, workingModel, experienceLevel, minSalary, maxSalary, applicationDeadline);
+            CheckJobPostingContent(CompanyId, title, description, requirements, responsibilities, cityId, employmentType, workingModel, experienceLevel, minSalary, maxSalary, applicationDeadline);
             Title = title;
             Description = description;
             Requirements = requirements;
             Responsibilities = responsibilities;
-            Location = location;
+            CityId = cityId;
             EmploymentType = employmentType;
             WorkingModel = workingModel;
             ExperienceLevel = experienceLevel;
@@ -113,7 +113,7 @@ namespace Vettingo.JobService.Domain.Entities
             string description,
             string requirements,
             string responsibilities,
-            string location,
+            int cityId,
             EmploymentType employmentType,
             WorkingModel workingModel,
             ExperienceLevel experienceLevel,
@@ -124,7 +124,7 @@ namespace Vettingo.JobService.Domain.Entities
         {
             CheckJobPosting(companyId, title, description, requirements);
             ArgumentNullException.ThrowIfNullOrWhiteSpace(responsibilities, nameof(responsibilities));
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(location, nameof(location));
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(cityId, nameof(cityId));
 
             if (!Enum.IsDefined(typeof(EmploymentType), employmentType))
             {

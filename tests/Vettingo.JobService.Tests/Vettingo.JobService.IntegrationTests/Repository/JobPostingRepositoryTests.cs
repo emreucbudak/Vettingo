@@ -88,7 +88,7 @@ namespace Vettingo.JobService.UnitTests.Repository
                 "Build and maintain backend services.",
                 "C# and PostgreSQL experience.",
                 "Deliver reliable service features.",
-                "Remote",
+                34,
                 EmploymentType.FullTime,
                 WorkingModel.Remote,
                 ExperienceLevel.Mid,

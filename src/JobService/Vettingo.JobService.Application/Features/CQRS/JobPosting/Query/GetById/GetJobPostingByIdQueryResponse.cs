@@ -10,7 +10,7 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetById
         public string Description { get; init; } = string.Empty;
         public string Requirements { get; init; } = string.Empty;
         public string Responsibilities { get; init; } = string.Empty;
-        public string Location { get; init; } = string.Empty;
+        public int CityId { get; init; }
         public EmploymentType EmploymentType { get; init; }
         public WorkingModel WorkingModel { get; init; }
         public ExperienceLevel ExperienceLevel { get; init; }

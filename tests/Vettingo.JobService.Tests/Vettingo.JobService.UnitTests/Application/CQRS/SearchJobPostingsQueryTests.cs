@@ -26,7 +26,7 @@ public sealed class SearchJobPostingsQueryTests
         var request = new SearchJobPostingsQueryRequest
         {
             Title = "backend",
-            Location = "İstanbul",
+            CityId = 34,
             EmploymentType = EmploymentType.FullTime,
             WorkingModel = WorkingModel.Hybrid,
             ExperienceLevel = ExperienceLevel.Senior,
@@ -44,7 +44,7 @@ public sealed class SearchJobPostingsQueryTests
         await repository.Received(1).SearchJobPostingsAsync(
             Arg.Is<JobPostingSearchCriteria>(criteria =>
                 criteria.Title == request.Title &&
-                criteria.Location == request.Location &&
+                criteria.CityId == request.CityId &&
                 criteria.EmploymentType == request.EmploymentType &&
                 criteria.WorkingModel == request.WorkingModel &&
                 criteria.ExperienceLevel == request.ExperienceLevel &&
@@ -62,7 +62,7 @@ public sealed class SearchJobPostingsQueryTests
             "Build reliable services.",
             "C# and PostgreSQL.",
             "Develop backend capabilities.",
-            "İstanbul",
+            34,
             EmploymentType.FullTime,
             WorkingModel.Hybrid,
             ExperienceLevel.Senior,

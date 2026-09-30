@@ -1,4 +1,4 @@
-﻿using FlashMediator;
+using FlashMediator;
 using Microsoft.Extensions.Logging;
 using Vettingo.JobService.Application.Repository;
 
@@ -16,7 +16,7 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.Creat
                 request.Description,
                 request.Requirements,
                 request.Responsibilities,
-                request.Location,
+                request.CityId,
                 request.EmploymentType,
                 request.WorkingModel,
                 request.ExperienceLevel,

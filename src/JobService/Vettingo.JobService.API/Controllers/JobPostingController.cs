@@ -71,7 +71,7 @@ namespace Vettingo.JobService.API.Controllers
                 Description = request.Description,
                 Requirements = request.Requirements,
                 Responsibilities = request.Responsibilities,
-                Location = request.Location,
+                CityId = request.CityId,
                 EmploymentType = request.EmploymentType,
                 WorkingModel = request.WorkingModel,
                 ExperienceLevel = request.ExperienceLevel,

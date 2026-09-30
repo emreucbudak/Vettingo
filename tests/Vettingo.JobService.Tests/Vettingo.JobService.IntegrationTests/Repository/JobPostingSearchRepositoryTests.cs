@@ -24,25 +24,25 @@ public sealed class JobPostingSearchRepositoryTests : IClassFixture<PostgreSqlCo
         var repository = new JobPostingRepository(context);
         JobPosting expected = CreateJobPosting(
             "Senior Backend Developer",
-            "istanbul Avrupa",
+            34,
             WorkingModel.Hybrid,
             JobPostingStatus.Active);
         await repository.AddJobPostingAsync(expected);
         await repository.AddJobPostingAsync(CreateJobPosting(
             "Senior Backend Developer",
-            "istanbul Avrupa",
+            34,
             WorkingModel.Remote,
             JobPostingStatus.Active));
         await repository.AddJobPostingAsync(CreateJobPosting(
             "Senior Backend Developer",
-            "istanbul Avrupa",
+            34,
             WorkingModel.Hybrid,
             JobPostingStatus.Draft));
         await repository.SaveChangesAsync();
         var criteria = new JobPostingSearchCriteria
         {
             Title = "backend",
-            Location = "istanbul",
+            CityId = 34,
             EmploymentType = EmploymentType.FullTime,
             WorkingModel = WorkingModel.Hybrid,
             ExperienceLevel = ExperienceLevel.Senior,
@@ -55,12 +55,12 @@ public sealed class JobPostingSearchRepositoryTests : IClassFixture<PostgreSqlCo
         (await repository.SearchJobPostingsAsync(new JobPostingSearchCriteria
         {
             Title = criteria.Title,
-            Location = criteria.Location
+            CityId = criteria.CityId
         })).Should().HaveCount(2, "başlık ve lokasyon iki yayınlanmış ilanla eşleşmeli");
         (await repository.SearchJobPostingsAsync(new JobPostingSearchCriteria
         {
             Title = criteria.Title,
-            Location = criteria.Location,
+            CityId = criteria.CityId,
             EmploymentType = criteria.EmploymentType,
             WorkingModel = criteria.WorkingModel,
             ExperienceLevel = criteria.ExperienceLevel
@@ -74,7 +74,7 @@ public sealed class JobPostingSearchRepositoryTests : IClassFixture<PostgreSqlCo
 
     private static JobPosting CreateJobPosting(
         string title,
-        string location,
+        int cityId,
         WorkingModel workingModel,
         JobPostingStatus status)
     {
@@ -85,7 +85,7 @@ public sealed class JobPostingSearchRepositoryTests : IClassFixture<PostgreSqlCo
             "Build reliable services.",
             "C# and PostgreSQL.",
             "Develop backend capabilities.",
-            location,
+            cityId,
             EmploymentType.FullTime,
             workingModel,
             ExperienceLevel.Senior,

@@ -1,4 +1,4 @@
-﻿using FlashMediator;
+using FlashMediator;
 using Vettingo.JobService.Application.Exceptions;
 using Microsoft.Extensions.Logging;
 using Vettingo.JobService.Application.Repository;
@@ -25,7 +25,7 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetById
                 Description = jobPosting.Description,
                 Requirements = jobPosting.Requirements,
                 Responsibilities = jobPosting.Responsibilities,
-                Location = jobPosting.Location,
+                CityId = jobPosting.CityId,
                 EmploymentType = jobPosting.EmploymentType,
                 WorkingModel = jobPosting.WorkingModel,
                 ExperienceLevel = jobPosting.ExperienceLevel,

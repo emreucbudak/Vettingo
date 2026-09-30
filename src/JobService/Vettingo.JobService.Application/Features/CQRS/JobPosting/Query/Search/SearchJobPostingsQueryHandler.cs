@@ -17,7 +17,7 @@ public sealed class SearchJobPostingsQueryHandler(
         var criteria = new JobPostingSearchCriteria
         {
             Title = request.Title,
-            Location = request.Location,
+            CityId = request.CityId,
             EmploymentType = request.EmploymentType,
             WorkingModel = request.WorkingModel,
             ExperienceLevel = request.ExperienceLevel,
@@ -31,7 +31,7 @@ public sealed class SearchJobPostingsQueryHandler(
             CompanyId = jobPosting.CompanyId,
             Title = jobPosting.Title,
             Description = jobPosting.Description,
-            Location = jobPosting.Location,
+            CityId = jobPosting.CityId,
             EmploymentType = jobPosting.EmploymentType,
             WorkingModel = jobPosting.WorkingModel,
             ExperienceLevel = jobPosting.ExperienceLevel,

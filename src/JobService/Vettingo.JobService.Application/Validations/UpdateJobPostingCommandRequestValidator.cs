@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 
 namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.UpdateJobPosting;
 
@@ -11,7 +11,7 @@ public sealed class UpdateJobPostingCommandRequestValidator : AbstractValidator<
         RuleFor(x => x.Description).NotEmpty().MaximumLength(2000);
         RuleFor(x => x.Requirements).NotEmpty().MaximumLength(2000);
         RuleFor(x => x.Responsibilities).NotEmpty().MaximumLength(2000);
-        RuleFor(x => x.Location).NotEmpty().MaximumLength(2000);
+        RuleFor(x => x.CityId).GreaterThan(0);
         RuleFor(x => x.EmploymentType).IsInEnum();
         RuleFor(x => x.WorkingModel).IsInEnum();
         RuleFor(x => x.ExperienceLevel).IsInEnum();

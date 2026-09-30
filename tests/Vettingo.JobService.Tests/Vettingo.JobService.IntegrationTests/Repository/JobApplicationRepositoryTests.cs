@@ -28,7 +28,7 @@ namespace Vettingo.JobService.UnitTests.Repository
             foreach (var application in new[] { older, newer, other })
             {
                 var posting = new JobPosting();
-                posting.CreateJobPosting(Guid.NewGuid(), Guid.NewGuid().ToString(), "Description", "Requirements", "Responsibilities", "Remote",
+                posting.CreateJobPosting(Guid.NewGuid(), Guid.NewGuid().ToString(), "Description", "Requirements", "Responsibilities", 34,
                     EmploymentType.FullTime, WorkingModel.Remote, ExperienceLevel.Mid, null, null, null, JobPostingStatus.Active);
                 application.CreateApplication(application.CandidateId, posting.Id, application.AppliedAt, application.Status);
                 context.JobPostings.Add(posting);
@@ -69,7 +69,7 @@ namespace Vettingo.JobService.UnitTests.Repository
         private static JobPosting NewPosting(Guid companyId)
         {
             var posting = new JobPosting();
-            posting.CreateJobPosting(companyId, Guid.NewGuid().ToString(), "Description", "Requirements", "Responsibilities", "Remote",
+            posting.CreateJobPosting(companyId, Guid.NewGuid().ToString(), "Description", "Requirements", "Responsibilities", 34,
                 EmploymentType.FullTime, WorkingModel.Remote, ExperienceLevel.Mid, null, null, null, JobPostingStatus.Active);
             return posting;
         }
