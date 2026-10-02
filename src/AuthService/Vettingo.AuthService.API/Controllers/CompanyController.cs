@@ -1,4 +1,4 @@
-﻿using FlashMediator;
+using FlashMediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vettingo.AuthService.Application.Features.CQRS.Company.Command.CreateCompany;
@@ -44,8 +44,9 @@ namespace Vettingo.AuthService.API.Controllers
                 CompanyId = companyId,
                 CompanyName = request.CompanyName,
                 CompanyDescription = request.CompanyDescription,
-                CompanyPhone = request.CompanyPhone,
-                CompanyEmail = request.CompanyEmail,
+                CompanySector = request.CompanySector,
+                CompanyWebsite = request.CompanyWebsite,
+                CompanySize = request.CompanySize,
                 CompanyAddress = request.CompanyAddress
             });
 

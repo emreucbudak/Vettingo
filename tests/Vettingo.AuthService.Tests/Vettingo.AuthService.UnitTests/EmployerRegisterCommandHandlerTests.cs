@@ -122,6 +122,7 @@ public sealed class EmployerRegisterCommandHandlerTests
 
         createdUser.Should().NotBeNull();
         createdUser!.Email.Should().Be("employer@example.com");
+        createdUser.CompanyId.Should().Be(subscriberId);
         passwordHasher
             .VerifyHashedPassword(createdUser, createdUser.PasswordHash!, password)
             .Should()
@@ -134,7 +135,6 @@ public sealed class EmployerRegisterCommandHandlerTests
         createdCompany.Should().NotBeNull();
         createdCompany!.Id.Should().Be(subscriberId);
         createdCompany.CompanyName.Should().Be("Vettingo");
-        createdCompany.CompanyEmail.Should().Be("employer@example.com");
 
         await cache.Received(1).RemoveAsync(
             token.ToString("D"),

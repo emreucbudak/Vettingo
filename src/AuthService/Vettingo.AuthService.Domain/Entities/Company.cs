@@ -8,9 +8,10 @@ namespace Vettingo.AuthService.Domain.Entities
 
         public Guid Id { get; private set; }
         public string CompanyName { get; private set; } = string.Empty;
+        public string CompanySector { get; private set; } = string.Empty;
+        public string CompanyWebsite { get; private set; } = string.Empty;
+        public string CompanySize { get; private set; } = string.Empty;
         public string CompanyDescription { get; private set; } = string.Empty;
-        public string CompanyPhone { get; private set; } = string.Empty;
-        public string CompanyEmail { get; private set; } = string.Empty;
         public string CompanyAddress { get; private set; } = string.Empty;
 
         public void setCompanyName(string companyName)
@@ -25,16 +26,22 @@ namespace Vettingo.AuthService.Domain.Entities
             CompanyDescription = companyDescription;
         }
 
-        public void setCompanyPhone(string companyPhone)
+        public void setCompanySector(string companySector)
         {
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(companyPhone, nameof(companyPhone));
-            CompanyPhone = companyPhone;
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(companySector, nameof(companySector));
+            CompanySector = companySector;
         }
 
-        public void setCompanyEmail(string companyEmail)
+        public void setCompanyWebsite(string companyWebsite)
         {
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(companyEmail, nameof(companyEmail));
-            CompanyEmail = companyEmail;
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(companyWebsite, nameof(companyWebsite));
+            CompanyWebsite = companyWebsite;
+        }
+
+        public void setCompanySize(string companySize)
+        {
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(companySize, nameof(companySize));
+            CompanySize = companySize;
         }
 
         public void setCompanyAddress(string companyAddress)
@@ -58,40 +65,38 @@ namespace Vettingo.AuthService.Domain.Entities
             Id = companyId;
         }
 
-        public void RegisterCompany(string companyName, string companyEmail)
+        public void RegisterCompany(string companyName)
         {
             setCompanyName(companyName);
-            setCompanyEmail(companyEmail);
             SetId();
         }
 
         public void RegisterCompany(
             Guid companyId,
-            string companyName,
-            string companyEmail)
+            string companyName)
         {
             setCompanyName(companyName);
-            setCompanyEmail(companyEmail);
             SetId(companyId);
         }
 
-        public void UpdateCompany(string companyName, string companyDescription, string companyPhone, string companyEmail, string companyAddress)
+        public void UpdateCompany(string companyName, string companySector, string companyWebsite, string companySize, string companyDescription, string companyAddress)
         {
-            CheckCompanyContent(companyName, companyDescription, companyPhone, companyEmail, companyAddress);
+            CheckCompanyContent(companyName, companySector, companyWebsite, companySize, companyDescription, companyAddress);
             setCompanyName(companyName);
+            setCompanySector(companySector);
+            setCompanyWebsite(companyWebsite);
+            setCompanySize(companySize);
             setCompanyDescription(companyDescription);
-            setCompanyPhone(companyPhone);
-            setCompanyEmail(companyEmail);
             setCompanyAddress(companyAddress);
-            SetId();
         }
 
-        public void CheckCompanyContent(string companyName, string companyDescription, string companyPhone, string companyEmail, string companyAddress)
+        public void CheckCompanyContent(string companyName, string companySector, string companyWebsite, string companySize, string companyDescription, string companyAddress)
         {
             ArgumentNullException.ThrowIfNullOrWhiteSpace(companyName, nameof(companyName));
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(companySector, nameof(companySector));
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(companyWebsite, nameof(companyWebsite));
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(companySize, nameof(companySize));
             ArgumentNullException.ThrowIfNullOrWhiteSpace(companyDescription, nameof(companyDescription));
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(companyPhone, nameof(companyPhone));
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(companyEmail, nameof(companyEmail));
             ArgumentNullException.ThrowIfNullOrWhiteSpace(companyAddress, nameof(companyAddress));
         }
     }

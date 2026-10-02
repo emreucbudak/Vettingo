@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.ChangePassword;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.CandidateTempRegister;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.EmployerTempRegister;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Login;
@@ -33,6 +34,20 @@ namespace Vettingo.AuthService.API.Controllers
         public async Task<IActionResult> Login([FromBody] LoginCommandRequest request)
         {
             return Ok(await mediator.Send(request));
+        }
+
+        [Authorize(Roles = "Candidate,Company,Human Resources")]
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword(
+            [FromBody] ChangePasswordCommandRequest request,
+            CancellationToken cancellationToken)
+        {
+            string? email = User.FindFirstValue(ClaimTypes.Email)
+                ?? User.FindFirstValue(JwtRegisteredClaimNames.Email);
+            if (string.IsNullOrWhiteSpace(email)) return Unauthorized();
+
+            await mediator.Send(request with { Email = email }, cancellationToken);
+            return NoContent();
         }
 
         [HttpPost("refresh-token")]
