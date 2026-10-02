@@ -32,7 +32,8 @@ namespace Vettingo.AuthService.Persistence.Repository
         public Task<Company?> GetCompanyByEmailAsync(string email)
         {
             var normalizedEmail = email.Trim().ToLowerInvariant();
-            return CompanySet.SingleOrDefaultAsync(company => company.CompanyEmail.ToLower() == normalizedEmail);
+            return CompanySet.SingleOrDefaultAsync(company => identity.Set<User>().Any(
+                user => user.CompanyId == company.Id && user.Email != null && user.Email.ToLower() == normalizedEmail));
         }
 
         public Task<int> SaveChangesAsync()

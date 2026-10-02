@@ -71,7 +71,8 @@ public sealed class EmployerRegisterCommandHandler(
             Surname = surname,
             Email = email,
             UserName = email,
-            PasswordHash = passwordHash
+            PasswordHash = passwordHash,
+            CompanyId = request.SubscriberId
         };
 
         IdentityResult createResult = await userManager.CreateAsync(user);
@@ -90,7 +91,7 @@ public sealed class EmployerRegisterCommandHandler(
         }
 
         CompanyEntity company = new();
-        company.RegisterCompany(request.SubscriberId, companyName, email);
+        company.RegisterCompany(request.SubscriberId, companyName);
 
         try
         {

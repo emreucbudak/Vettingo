@@ -10,7 +10,8 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Company.Command.CreateC
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(CreateCompanyCommandHandler));
             AuthService.Domain.Entities.Company company = new AuthService.Domain.Entities.Company();
-            company.UpdateCompany(request.CompanyName, request.CompanyDescription, request.CompanyPhone, request.CompanyEmail, request.CompanyAddress);
+            company.RegisterCompany(request.CompanyName);
+            company.UpdateCompany(request.CompanyName, request.CompanySector, request.CompanyWebsite, request.CompanySize, request.CompanyDescription, request.CompanyAddress);
             await companyRepository.AddCompanyAsync(company);
             await companyRepository.SaveChangesAsync();
 

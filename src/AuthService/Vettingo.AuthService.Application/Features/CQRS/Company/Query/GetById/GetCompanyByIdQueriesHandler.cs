@@ -1,4 +1,4 @@
-﻿using FlashMediator;
+using FlashMediator;
 using Vettingo.AuthService.Application.Exceptions;
 using Microsoft.Extensions.Logging;
 using Vettingo.AuthService.Application.Repository;
@@ -22,8 +22,9 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Company.Query.GetById
                 Id = company.Id,
                 CompanyName = company.CompanyName,
                 CompanyDescription = company.CompanyDescription,
-                CompanyPhone = company.CompanyPhone,
-                CompanyEmail = company.CompanyEmail,
+                CompanySector = company.CompanySector,
+                CompanyWebsite = company.CompanyWebsite,
+                CompanySize = company.CompanySize,
                 CompanyAddress = company.CompanyAddress
             };
         }

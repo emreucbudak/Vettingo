@@ -19,8 +19,9 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Company.Command.UpdateC
 
             company.setCompanyName(request.CompanyName);
             company.setCompanyDescription(request.CompanyDescription);
-            company.setCompanyPhone(request.CompanyPhone);
-            company.setCompanyEmail(request.CompanyEmail);
+            company.setCompanySector(request.CompanySector);
+            company.setCompanyWebsite(request.CompanyWebsite);
+            company.setCompanySize(request.CompanySize);
             company.setCompanyAddress(request.CompanyAddress);
 
             companyRepository.UpdateCompany(company);
