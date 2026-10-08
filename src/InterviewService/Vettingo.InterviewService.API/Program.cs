@@ -38,6 +38,7 @@ builder.Services
             ValidAudience = jwtAudience,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
+            RoleClaimType = "Role",
             IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtSecretKey)),
             ClockSkew = TimeSpan.Zero
         };
@@ -49,7 +50,9 @@ builder.Services.AddRateLimiter(options =>
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
         RateLimitPartition.GetSlidingWindowLimiter(
-            partitionKey: context.User.FindFirst(ClaimTypes.Email)!.Value.Trim().ToLowerInvariant(),
+            partitionKey: (context.User.FindFirstValue(ClaimTypes.Email)
+                ?? context.Connection.RemoteIpAddress?.ToString()
+                ?? "anonymous").Trim().ToLowerInvariant(),
             factory: _ => new SlidingWindowRateLimiterOptions
             {
                 PermitLimit = 5,
@@ -61,6 +64,7 @@ builder.Services.AddRateLimiter(options =>
 });
 
 builder.Services.SaveDb(builder.Configuration);
+builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
 builder.Services.AddFlashMediator(typeof(CreateInterviewQuestionCommandHandler).Assembly);
 builder.Services.AddFlashMediatorHybridCache();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateInterviewQuestionCommandRequest>();
