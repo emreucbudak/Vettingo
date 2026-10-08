@@ -36,8 +36,33 @@ public sealed class CityModelTests
         posting.FindProperty("Location").Should().BeNull();
         var foreignKey = posting.GetForeignKeys().Single(key => key.PrincipalEntityType.ClrType == typeof(City));
         foreignKey.Properties.Single().Name.Should().Be(nameof(JobPosting.CityId));
+        foreignKey.DependentToPrincipal!.Name.Should().Be(nameof(JobPosting.City));
         foreignKey.IsRequired.Should().BeTrue();
         foreignKey.DeleteBehavior.Should().Be(DeleteBehavior.Restrict);
+    }
+
+    [Fact]
+    public async Task Personalized_Posting_Should_Persist_And_Load_Its_City()
+    {
+        await using var context = CreateContext();
+        await context.Database.EnsureCreatedAsync();
+        var userId = Guid.NewGuid();
+        var posting = new PersonalizedJobPostings
+        {
+            UserId = userId,
+            Title = "Software Developer",
+            CityId = 34
+        };
+        context.PersonalizedJobPostings.Add(posting);
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+
+        var saved = await context.PersonalizedJobPostings.Include(item => item.City).SingleAsync();
+        saved.Id.Should().NotBeEmpty();
+        saved.UserId.Should().Be(userId);
+        saved.Title.Should().Be("Software Developer");
+        saved.City.Id.Should().Be(saved.CityId);
+        saved.City.CityName.Should().Be("İstanbul");
     }
 
     [Theory]
