@@ -27,6 +27,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             await repository.Received(1).AddJobPostingAsync(Arg.Is<JobPosting>(jobPosting =>
                 jobPosting.CompanyId == request.CompanyId &&
                 jobPosting.Title == request.Title &&
+                jobPosting.Salary == request.Salary &&
                 jobPosting.Status == request.Status));
             await repository.Received(1).SaveChangesAsync();
         }
@@ -59,6 +60,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             response.Id.Should().Be(jobPosting.Id);
             response.CompanyId.Should().Be(jobPosting.CompanyId);
             response.Title.Should().Be(jobPosting.Title);
+            response.Salary.Should().Be(jobPosting.Salary);
             response.Status.Should().Be(jobPosting.Status);
         }
 
@@ -75,8 +77,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 EmploymentType = EmploymentType.FullTime,
                 WorkingModel = WorkingModel.Remote,
                 ExperienceLevel = ExperienceLevel.Mid,
-                MinSalary = 50000m,
-                MaxSalary = 70000m,
+                Salary = 50000,
                 ApplicationDeadline = DateTime.UtcNow.AddDays(30),
                 Status = JobPostingStatus.Active
             };
@@ -95,8 +96,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 EmploymentType = EmploymentType.FullTime,
                 WorkingModel = WorkingModel.Hybrid,
                 ExperienceLevel = ExperienceLevel.Senior,
-                MinSalary = 60000m,
-                MaxSalary = 80000m,
+                Salary = 60000,
                 ApplicationDeadline = DateTime.UtcNow.AddDays(45),
                 Status = JobPostingStatus.Active
             };
@@ -115,8 +115,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 EmploymentType.FullTime,
                 WorkingModel.Remote,
                 ExperienceLevel.Mid,
-                50000m,
-                70000m,
+                50000,
                 DateTime.UtcNow.AddDays(30),
                 JobPostingStatus.Active);
 

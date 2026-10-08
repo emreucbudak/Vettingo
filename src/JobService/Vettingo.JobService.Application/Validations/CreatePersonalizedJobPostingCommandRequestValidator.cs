@@ -11,5 +11,6 @@ public sealed class CreatePersonalizedJobPostingCommandRequestValidator : Abstra
         RuleFor(x => x.Title).NotEmpty().MaximumLength(2000);
         RuleFor(x => x.CityId).GreaterThan(0);
         RuleFor(x => x.PublishedDate).NotEmpty();
+        RuleFor(x => x.Salary).GreaterThanOrEqualTo(0);
     }
 }

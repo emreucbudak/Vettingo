@@ -73,7 +73,7 @@ public sealed class CityModelTests
         var posting = new JobPosting();
         Action create = () => posting.CreateJobPosting(Guid.NewGuid(), "Title", "Description", "Requirements",
             "Responsibilities", cityId, EmploymentType.FullTime, WorkingModel.Hybrid, ExperienceLevel.Mid,
-            null, null, null, JobPostingStatus.Active);
+            0, null, JobPostingStatus.Active);
         create.Should().Throw<ArgumentOutOfRangeException>().WithParameterName("cityId");
         new SearchJobPostingsQueryRequestValidator().Validate(new SearchJobPostingsQueryRequest { CityId = cityId })
             .IsValid.Should().BeFalse();
@@ -88,7 +88,7 @@ public sealed class CityModelTests
             var posting = new JobPosting();
             posting.CreateJobPosting(Guid.NewGuid(), $"Developer {cityId}", "Description", "Requirements",
                 "Responsibilities", cityId, EmploymentType.FullTime, WorkingModel.Hybrid, ExperienceLevel.Mid,
-                null, null, null, JobPostingStatus.Active);
+                0, null, JobPostingStatus.Active);
             context.JobPostings.Add(posting);
         }
         await context.SaveChangesAsync();
@@ -106,7 +106,7 @@ public sealed class CityModelTests
         var posting = new JobPosting();
         posting.CreateJobPosting(Guid.NewGuid(), "Remote developer", "Description", "Requirements",
             "Responsibilities", 34, EmploymentType.FullTime, WorkingModel.Remote, ExperienceLevel.Mid,
-            null, null, null, JobPostingStatus.Active);
+            0, null, JobPostingStatus.Active);
         posting.CityId.Should().Be(34);
         posting.WorkingModel.Should().Be(WorkingModel.Remote);
     }

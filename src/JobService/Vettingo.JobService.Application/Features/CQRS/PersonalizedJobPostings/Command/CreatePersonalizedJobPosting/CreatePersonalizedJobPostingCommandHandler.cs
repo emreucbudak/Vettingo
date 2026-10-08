@@ -16,7 +16,8 @@ public class CreatePersonalizedJobPostingCommandHandler(
             UserId = request.UserId,
             Title = request.Title,
             PublishedDate = request.PublishedDate,
-            CityId = request.CityId
+            CityId = request.CityId,
+            Salary = request.Salary
         };
         await repository.AddAsync(posting, cancellationToken);
         await repository.SaveChangesAsync(cancellationToken);

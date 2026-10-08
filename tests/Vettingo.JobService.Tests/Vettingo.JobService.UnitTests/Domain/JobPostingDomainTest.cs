@@ -25,8 +25,7 @@ namespace Vettingo.JobService.UnitTests.Domain
                     EmploymentType.FullTime,
                     WorkingModel.OnSite,
                     ExperienceLevel.Lead,
-                    50000m,
-                    70000m,
+                    50000,
                     DateTime.UtcNow.AddDays(30),
                     JobPostingStatus.Active);
             };
@@ -54,8 +53,7 @@ namespace Vettingo.JobService.UnitTests.Domain
                     EmploymentType.FullTime,
                     WorkingModel.OnSite,
                     ExperienceLevel.Lead,
-                    50000m,
-                    70000m,
+                    50000,
                     DateTime.UtcNow.AddDays(30),
                     JobPostingStatus.Active);
             };
@@ -65,7 +63,7 @@ namespace Vettingo.JobService.UnitTests.Domain
         }
 
         [Fact]
-        public void Create_JobPosting_With_MinSalary_Greater_Than_MaxSalary_Should_Throw()
+        public void Create_JobPosting_With_Negative_Salary_Should_Throw()
         {
             // Arrange
             JobPosting jobPosting = new();
@@ -83,8 +81,7 @@ namespace Vettingo.JobService.UnitTests.Domain
                     EmploymentType.FullTime,
                     WorkingModel.OnSite,
                     ExperienceLevel.Lead,
-                    80000m,
-                    70000m,
+                    -1,
                     DateTime.UtcNow.AddDays(30),
                     JobPostingStatus.Active);
             };

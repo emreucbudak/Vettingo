@@ -29,7 +29,7 @@ namespace Vettingo.JobService.UnitTests.Repository
             {
                 var posting = new JobPosting();
                 posting.CreateJobPosting(Guid.NewGuid(), Guid.NewGuid().ToString(), "Description", "Requirements", "Responsibilities", 34,
-                    EmploymentType.FullTime, WorkingModel.Remote, ExperienceLevel.Mid, null, null, null, JobPostingStatus.Active);
+                    EmploymentType.FullTime, WorkingModel.Remote, ExperienceLevel.Mid, 0, null, JobPostingStatus.Active);
                 application.CreateApplication(application.CandidateId, posting.Id, application.AppliedAt, application.Status);
                 context.JobPostings.Add(posting);
             }
@@ -70,7 +70,7 @@ namespace Vettingo.JobService.UnitTests.Repository
         {
             var posting = new JobPosting();
             posting.CreateJobPosting(companyId, Guid.NewGuid().ToString(), "Description", "Requirements", "Responsibilities", 34,
-                EmploymentType.FullTime, WorkingModel.Remote, ExperienceLevel.Mid, null, null, null, JobPostingStatus.Active);
+                EmploymentType.FullTime, WorkingModel.Remote, ExperienceLevel.Mid, 0, null, JobPostingStatus.Active);
             return posting;
         }
 

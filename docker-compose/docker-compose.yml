@@ -249,6 +249,9 @@ services:
       postgres:
         condition: service_healthy
         required: true
+      rabbitmq:
+        condition: service_healthy
+        required: true
       redis:
         condition: service_healthy
         required: true
@@ -261,6 +264,11 @@ services:
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=JobServiceDb;Username=vettingo;Password=${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}
       ConnectionStrings__Redis: redis:6379,password=    ,abortConnect=false
       DOTNET_RUNNING_IN_CONTAINER: "true"
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__Password: VettingoRabbit_2026!
+      RabbitMq__Port: "5672"
+      RabbitMq__UserName: vettingo
+      RabbitMq__VirtualHost: /
       Redis__ConnectionString: redis:6379,password=,abortConnect=false
     image: vettingo/job-api:local
     ports:
@@ -342,7 +350,7 @@ services:
   postgres:
     environment:
       POSTGRES_DB: postgres
-      POSTGRES_PASSWORD: ${VETTINGO_POSTGRES_PASSWORD:}
+      POSTGRES_PASSWORD: ${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}
       POSTGRES_USER: vettingo
     healthcheck:
       test:

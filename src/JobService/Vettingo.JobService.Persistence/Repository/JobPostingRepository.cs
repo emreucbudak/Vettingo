@@ -81,15 +81,13 @@ namespace Vettingo.JobService.Persistence.Repository
             if (criteria.MinSalary.HasValue)
             {
                 query = query.Where(jobPosting =>
-                    jobPosting.MaxSalary.HasValue &&
-                    jobPosting.MaxSalary.Value >= criteria.MinSalary.Value);
+                    jobPosting.Salary >= criteria.MinSalary.Value);
             }
 
             if (criteria.MaxSalary.HasValue)
             {
                 query = query.Where(jobPosting =>
-                    jobPosting.MinSalary.HasValue &&
-                    jobPosting.MinSalary.Value <= criteria.MaxSalary.Value);
+                    jobPosting.Salary <= criteria.MaxSalary.Value);
             }
 
             return await query
@@ -114,6 +112,24 @@ namespace Vettingo.JobService.Persistence.Repository
         public Task<int> SaveChangesAsync()
         {
             return context.SaveChangesAsync();
+        }
+
+        public async Task<IReadOnlyList<CompanyJobPosting>> GetCompanyJobPostingsAsync(
+            Guid companyId, int? limit = null, CancellationToken cancellationToken = default)
+        {
+            IQueryable<JobPosting> query = JobPostingSet.AsNoTracking()
+                .Where(posting => posting.CompanyId == companyId)
+                .OrderByDescending(posting => posting.CreatedAt)
+                .ThenByDescending(posting => posting.Id);
+
+            if (limit.HasValue)
+                query = query.Take(limit.Value);
+
+            return await query.Select(posting => new CompanyJobPosting(
+                    posting.Id, posting.Title, posting.CityId, posting.City.CityName,
+                    context.JobApplications.Count(application => application.JobPostingId == posting.Id),
+                    posting.CreatedAt, posting.Status))
+                .ToListAsync(cancellationToken);
         }
 
         public void UpdateJobPosting(JobPosting jobPosting)

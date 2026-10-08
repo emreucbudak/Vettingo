@@ -92,8 +92,7 @@ namespace Vettingo.JobService.UnitTests.Repository
                 EmploymentType.FullTime,
                 WorkingModel.Remote,
                 ExperienceLevel.Mid,
-                50000m,
-                70000m,
+                50000,
                 DateTime.UtcNow.AddDays(30),
                 JobPostingStatus.Active);
 

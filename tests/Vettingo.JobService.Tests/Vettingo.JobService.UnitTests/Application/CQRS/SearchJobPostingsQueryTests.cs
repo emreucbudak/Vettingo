@@ -30,8 +30,8 @@ public sealed class SearchJobPostingsQueryTests
             EmploymentType = EmploymentType.FullTime,
             WorkingModel = WorkingModel.Hybrid,
             ExperienceLevel = ExperienceLevel.Senior,
-            MinSalary = 100000m,
-            MaxSalary = 160000m
+            MinSalary = 100000,
+            MaxSalary = 160000
         };
 
         IReadOnlyList<SearchJobPostingsQueryResponse> response = await handler.Handle(
@@ -41,6 +41,7 @@ public sealed class SearchJobPostingsQueryTests
         response.Should().ContainSingle();
         response[0].Id.Should().Be(jobPosting.Id);
         response[0].Title.Should().Be(jobPosting.Title);
+        response[0].Salary.Should().Be(jobPosting.Salary);
         await repository.Received(1).SearchJobPostingsAsync(
             Arg.Is<JobPostingSearchCriteria>(criteria =>
                 criteria.Title == request.Title &&
@@ -66,8 +67,7 @@ public sealed class SearchJobPostingsQueryTests
             EmploymentType.FullTime,
             WorkingModel.Hybrid,
             ExperienceLevel.Senior,
-            100000m,
-            150000m,
+            100000,
             DateTime.UtcNow.AddDays(30),
             JobPostingStatus.Active);
         return jobPosting;

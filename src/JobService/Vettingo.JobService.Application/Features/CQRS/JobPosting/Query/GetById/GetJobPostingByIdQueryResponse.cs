@@ -14,8 +14,7 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetById
         public EmploymentType EmploymentType { get; init; }
         public WorkingModel WorkingModel { get; init; }
         public ExperienceLevel ExperienceLevel { get; init; }
-        public decimal? MinSalary { get; init; }
-        public decimal? MaxSalary { get; init; }
+        public int Salary { get; init; }
         public DateTime? ApplicationDeadline { get; init; }
         public JobPostingStatus Status { get; init; }
         public DateTime CreatedAt { get; init; }

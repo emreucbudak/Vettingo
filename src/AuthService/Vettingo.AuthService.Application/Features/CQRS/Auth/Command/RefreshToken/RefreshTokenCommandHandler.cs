@@ -38,6 +38,10 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.RefreshTok
                     ?? throw new UnauthorizedException("Şirket hesabı bulunamadı.");
                 companyId = company.Id;
             }
+            else if (roles.Contains("Human Resources"))
+            {
+                companyId = user.CompanyId;
+            }
 
             string accessToken = token.CreateAccessToken(
                 user.Id,

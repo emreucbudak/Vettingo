@@ -46,8 +46,8 @@ public sealed class JobPostingSearchRepositoryTests : IClassFixture<PostgreSqlCo
             EmploymentType = EmploymentType.FullTime,
             WorkingModel = WorkingModel.Hybrid,
             ExperienceLevel = ExperienceLevel.Senior,
-            MinSalary = 110000m,
-            MaxSalary = 140000m
+            MinSalary = 110000,
+            MaxSalary = 140000
         };
 
         (await repository.SearchJobPostingsAsync(new JobPostingSearchCriteria()))
@@ -68,7 +68,7 @@ public sealed class JobPostingSearchRepositoryTests : IClassFixture<PostgreSqlCo
 
         IReadOnlyList<JobPosting> result = await repository.SearchJobPostingsAsync(criteria);
 
-        result.Should().ContainSingle("maaş aralığı hibrit ilanla kesişmeli");
+        result.Should().ContainSingle("maaş filtreleri hibrit ilanı kapsamalı");
         result[0].Id.Should().Be(expected.Id);
     }
 
@@ -89,8 +89,7 @@ public sealed class JobPostingSearchRepositoryTests : IClassFixture<PostgreSqlCo
             EmploymentType.FullTime,
             workingModel,
             ExperienceLevel.Senior,
-            100000m,
-            150000m,
+            125000,
             DateTime.UtcNow.AddDays(30),
             status);
         return jobPosting;

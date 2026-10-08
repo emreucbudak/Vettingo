@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.ComponentModel.DataAnnotations;
 using FlashMediator;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetStatistics;
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +10,7 @@ using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.UpdateJob
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetAll;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetById;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.Search;
+using Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetByCompany;
 
 namespace Vettingo.JobService.API.Controllers
 {
@@ -16,6 +18,22 @@ namespace Vettingo.JobService.API.Controllers
     [ApiController]
     public class JobPostingController(IMediator mediator) : ControllerBase
     {
+        [Authorize(Roles = "Company,Human Resources")]
+        [HttpGet("company")]
+        public async Task<IActionResult> GetCompanyJobPostings(
+            CancellationToken cancellationToken,
+            [FromQuery, Range(1, 100)] int? limit = null)
+        {
+            if (!Guid.TryParse(User.FindFirstValue("companyId"), out var companyId) || companyId == Guid.Empty)
+                return Unauthorized();
+
+            return Ok(await mediator.Send(new GetCompanyJobPostingsQueryRequest
+            {
+                CompanyId = companyId,
+                Limit = limit
+            }, cancellationToken));
+        }
+
         [Authorize(Roles = "Company,Candidate")]
         [HttpGet]
         public async Task<IActionResult> GetAllJobPostings([FromQuery] GetAllJobPostingsQueryRequest request)
@@ -75,8 +93,7 @@ namespace Vettingo.JobService.API.Controllers
                 EmploymentType = request.EmploymentType,
                 WorkingModel = request.WorkingModel,
                 ExperienceLevel = request.ExperienceLevel,
-                MinSalary = request.MinSalary,
-                MaxSalary = request.MaxSalary,
+                Salary = request.Salary,
                 ApplicationDeadline = request.ApplicationDeadline,
                 Status = request.Status
             });

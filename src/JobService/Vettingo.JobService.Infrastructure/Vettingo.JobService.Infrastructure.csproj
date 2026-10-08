@@ -5,6 +5,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="DotNetCore.CAP" Version="10.0.2" />
+    <PackageReference Include="DotNetCore.CAP.PostgreSql" Version="10.0.2" />
+    <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="10.0.2" />
+  </ItemGroup>
 
 
   <ItemGroup>

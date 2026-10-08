@@ -8,4 +8,5 @@ public record CreatePersonalizedJobPostingCommandRequest : IRequest
     public string Title { get; init; } = string.Empty;
     public DateOnly PublishedDate { get; init; }
     public int CityId { get; init; }
+    public int Salary { get; init; }
 }

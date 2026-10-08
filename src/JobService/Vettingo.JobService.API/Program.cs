@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Vettingo.JobService.API.ExceptionHandlers;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CreateJobPosting;
 using Vettingo.JobService.Persistence.Registration;
+using Vettingo.JobService.Infrastructure.Register;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -63,6 +64,7 @@ builder.Services.AddRateLimiter(options =>
 });
 
 builder.Services.SaveDb(builder.Configuration);
+builder.Services.AddJobCap(builder.Configuration);
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = builder.Configuration.GetConnectionString("Redis")
