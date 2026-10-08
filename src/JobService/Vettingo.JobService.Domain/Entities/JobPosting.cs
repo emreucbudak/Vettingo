@@ -17,6 +17,7 @@ namespace Vettingo.JobService.Domain.Entities
         public string Requirements { get; private set; } = string.Empty;
         public string Responsibilities { get; private set; } = string.Empty;
         public int CityId { get; private set; }
+        public City City { get; private set; } = null!;
         public EmploymentType EmploymentType { get; private set; }
         public WorkingModel WorkingModel { get; private set; }
         public ExperienceLevel ExperienceLevel { get; private set; }
