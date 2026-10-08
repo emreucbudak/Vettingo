@@ -5,6 +5,7 @@ namespace Vettingo.InterviewService.Persistence.DbContext
 {
     public class InterviewDbContext(DbContextOptions<InterviewDbContext> options) : Microsoft.EntityFrameworkCore.DbContext(options)
     {
+        public DbSet<Interview> Interviews { get; set; }
         public DbSet<InterviewQuestion> InterviewQuestions { get; set; }
         public DbSet<InterviewExam> InterviewExams { get; set; }
         public DbSet<InterviewExamQuestion> InterviewExamQuestions { get; set; }
@@ -12,6 +13,9 @@ namespace Vettingo.InterviewService.Persistence.DbContext
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.Entity<Interview>()
+                .HasIndex(interview => new { interview.CompanyId, interview.InterviewDate, interview.StartedTime });
+
             builder.Entity<InterviewQuestion>()
                 .Property(question => question.QuestionText)
                 .HasMaxLength(1000);
