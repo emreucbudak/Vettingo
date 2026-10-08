@@ -21,8 +21,7 @@ namespace Vettingo.JobService.Domain.Entities
         public EmploymentType EmploymentType { get; private set; }
         public WorkingModel WorkingModel { get; private set; }
         public ExperienceLevel ExperienceLevel { get; private set; }
-        public decimal? MinSalary { get; private set; }
-        public decimal? MaxSalary { get; private set; }
+        public int Salary { get; private set; }
         public DateTime? ApplicationDeadline { get; private set; }
         public JobPostingStatus Status { get; private set; }
         public DateTime CreatedAt { get; private set; }
@@ -43,15 +42,14 @@ namespace Vettingo.JobService.Domain.Entities
             EmploymentType employmentType,
             WorkingModel workingModel,
             ExperienceLevel experienceLevel,
-            decimal? minSalary,
-            decimal? maxSalary,
+            int salary,
             DateTime? applicationDeadline,
             JobPostingStatus status)
         {
-            CheckJobPostingContent(companyId, title, description, requirements, responsibilities, cityId, employmentType, workingModel, experienceLevel, minSalary, maxSalary, applicationDeadline, status);
+            CheckJobPostingContent(companyId, title, description, requirements, responsibilities, cityId, employmentType, workingModel, experienceLevel, salary, applicationDeadline, status);
             SetId();
             CompanyId = companyId;
-            UpdateJobPosting(title, description, requirements, responsibilities, cityId, employmentType, workingModel, experienceLevel, minSalary, maxSalary, applicationDeadline);
+            UpdateJobPosting(title, description, requirements, responsibilities, cityId, employmentType, workingModel, experienceLevel, salary, applicationDeadline);
             Status = status;
             CreatedAt = DateTime.UtcNow;
             UpdatedAt = null;
@@ -66,11 +64,10 @@ namespace Vettingo.JobService.Domain.Entities
             EmploymentType employmentType,
             WorkingModel workingModel,
             ExperienceLevel experienceLevel,
-            decimal? minSalary,
-            decimal? maxSalary,
+            int salary,
             DateTime? applicationDeadline)
         {
-            CheckJobPostingContent(CompanyId, title, description, requirements, responsibilities, cityId, employmentType, workingModel, experienceLevel, minSalary, maxSalary, applicationDeadline);
+            CheckJobPostingContent(CompanyId, title, description, requirements, responsibilities, cityId, employmentType, workingModel, experienceLevel, salary, applicationDeadline);
             Title = title;
             Description = description;
             Requirements = requirements;
@@ -79,8 +76,7 @@ namespace Vettingo.JobService.Domain.Entities
             EmploymentType = employmentType;
             WorkingModel = workingModel;
             ExperienceLevel = experienceLevel;
-            MinSalary = minSalary;
-            MaxSalary = maxSalary;
+            Salary = salary;
             ApplicationDeadline = applicationDeadline;
             UpdatedAt = DateTime.UtcNow;
         }
@@ -118,8 +114,7 @@ namespace Vettingo.JobService.Domain.Entities
             EmploymentType employmentType,
             WorkingModel workingModel,
             ExperienceLevel experienceLevel,
-            decimal? minSalary,
-            decimal? maxSalary,
+            int salary,
             DateTime? applicationDeadline,
             JobPostingStatus? status = null)
         {
@@ -147,20 +142,7 @@ namespace Vettingo.JobService.Domain.Entities
                 throw new ArgumentOutOfRangeException(nameof(status), status.Value, "İş ilanı durumu geçersiz.");
             }
 
-            if (minSalary.HasValue && minSalary.Value < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(minSalary), minSalary, "Minimum maaş negatif olamaz.");
-            }
-
-            if (maxSalary.HasValue && maxSalary.Value < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(maxSalary), maxSalary, "Maksimum maaş negatif olamaz.");
-            }
-
-            if (minSalary.HasValue && maxSalary.HasValue && minSalary.Value > maxSalary.Value)
-            {
-                throw new ArgumentException("Minimum maaş maksimum maaştan büyük olamaz.", nameof(minSalary));
-            }
+            ArgumentOutOfRangeException.ThrowIfNegative(salary, nameof(salary));
 
             if (applicationDeadline.HasValue && applicationDeadline.Value == default)
             {

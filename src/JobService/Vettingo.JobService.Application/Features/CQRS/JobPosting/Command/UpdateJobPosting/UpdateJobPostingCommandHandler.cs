@@ -26,8 +26,7 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.Updat
                 request.EmploymentType,
                 request.WorkingModel,
                 request.ExperienceLevel,
-                request.MinSalary,
-                request.MaxSalary,
+                request.Salary,
                 request.ApplicationDeadline);
             jobPosting.SetStatus(request.Status);
 

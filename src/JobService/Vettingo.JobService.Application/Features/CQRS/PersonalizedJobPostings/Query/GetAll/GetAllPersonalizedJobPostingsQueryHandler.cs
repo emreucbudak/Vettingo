@@ -21,6 +21,7 @@ public class GetAllPersonalizedJobPostingsQueryHandler(
             Title = posting.Title,
             PublishedDate = posting.PublishedDate,
             CityId = posting.CityId,
+            Salary = posting.Salary,
             CityName = posting.City.CityName,
             CreatedAt = posting.CreatedAt,
             UpdatedAt = posting.UpdatedAt

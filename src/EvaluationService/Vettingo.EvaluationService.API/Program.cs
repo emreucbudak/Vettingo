@@ -8,6 +8,7 @@ using Serilog;
 using Vettingo.EvaluationService.API.ExceptionHandlers;
 using Vettingo.EvaluationService.Application.Features.CQRS.Evaluation.Command.CreateEvaluation;
 using Vettingo.EvaluationService.Persistence.Registration;
+using Vettingo.EvaluationService.Infrastructure.Register;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,6 +61,7 @@ builder.Services.AddRateLimiter(options =>
 });
 
 builder.Services.AddEvaluationPersistence(builder.Configuration);
+builder.Services.AddEvaluationCap(builder.Configuration);
 builder.Services.AddFlashMediator(typeof(CreateEvaluationCommandHandler).Assembly);
 builder.Services.AddFlashMediatorHybridCache();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateEvaluationCommandRequest>();

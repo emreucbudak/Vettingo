@@ -9,6 +9,6 @@ public sealed record JobPostingSearchCriteria
     public EmploymentType? EmploymentType { get; init; }
     public WorkingModel? WorkingModel { get; init; }
     public ExperienceLevel? ExperienceLevel { get; init; }
-    public decimal? MinSalary { get; init; }
-    public decimal? MaxSalary { get; init; }
+    public int? MinSalary { get; init; }
+    public int? MaxSalary { get; init; }
 }

@@ -35,8 +35,7 @@ public sealed class SearchJobPostingsQueryHandler(
             EmploymentType = jobPosting.EmploymentType,
             WorkingModel = jobPosting.WorkingModel,
             ExperienceLevel = jobPosting.ExperienceLevel,
-            MinSalary = jobPosting.MinSalary,
-            MaxSalary = jobPosting.MaxSalary,
+            Salary = jobPosting.Salary,
             ApplicationDeadline = jobPosting.ApplicationDeadline,
             Status = jobPosting.Status,
             CreatedAt = jobPosting.CreatedAt
