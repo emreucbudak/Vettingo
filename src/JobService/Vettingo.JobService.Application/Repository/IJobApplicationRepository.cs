@@ -12,5 +12,6 @@ namespace Vettingo.JobService.Application.Repository
         Task<ApplicationStatistics> GetStatisticsAsync(Guid companyId, CancellationToken cancellationToken = default);
         Task<CandidateApplicationStatistics> GetCandidateStatisticsAsync(Guid candidateId, CancellationToken cancellationToken = default);
         Task<int> SaveChangesAsync();
+        Task<CandidateDashboardApplicationStatistics> GetCandidateDashboardStatisticsAsync(Guid userId, CancellationToken cancellationToken = default);
     }
 }

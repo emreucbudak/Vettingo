@@ -65,5 +65,21 @@ namespace Vettingo.JobService.Persistence.Repository
         }
 
         public Task<int> SaveChangesAsync() => context.SaveChangesAsync();
+        public async Task<CandidateDashboardApplicationStatistics> GetCandidateDashboardStatisticsAsync(
+            Guid userId, CancellationToken cancellationToken = default)
+        {
+            var result = await Applications.AsNoTracking()
+                .Where(application => application.CandidateId == userId)
+                .GroupBy(application => 1)
+                .Select(group => new CandidateDashboardApplicationStatistics(
+                    group.Count(),
+                    group.Count(application => application.Status == Domain.Enums.ApplicationStatus.Submitted
+                        || application.Status == Domain.Enums.ApplicationStatus.UnderReview
+                        || application.Status == Domain.Enums.ApplicationStatus.Interview),
+                    group.Count(application => application.Status == Domain.Enums.ApplicationStatus.Offer),
+                    group.Count(application => application.Status == Domain.Enums.ApplicationStatus.Rejected)))
+                .SingleOrDefaultAsync(cancellationToken);
+            return result ?? new CandidateDashboardApplicationStatistics(0, 0, 0, 0);
+        }
     }
 }
