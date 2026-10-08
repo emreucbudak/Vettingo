@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Vettingo.JobService.Application.Features.CQRS.JobApplication.Command.Create;
 using Vettingo.JobService.Application.Features.CQRS.JobApplication.Command.UpdateStatus;
 using Vettingo.JobService.Application.Features.CQRS.JobApplication.Query.GetAll;
+using Vettingo.JobService.Application.Features.CQRS.JobApplication.Query.GetCandidateStatistics;
 
 namespace Vettingo.JobService.API.Controllers
 {
@@ -13,6 +14,21 @@ namespace Vettingo.JobService.API.Controllers
     [Route("api/job-applications")]
     public class JobApplicationsController(IMediator mediator) : ControllerBase
     {
+        [Authorize(Roles = "Candidate")]
+        [HttpGet("candidate/statistics")]
+        public async Task<IActionResult> GetCandidateDashboardStatistics(
+            [FromQuery] GetCandidateApplicationStatisticsQueryRequest request,
+            CancellationToken cancellationToken)
+        {
+            var subject = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+            if (!Guid.TryParse(subject, out var userId) || userId == Guid.Empty)
+                return Unauthorized();
+            if (request.UserId != Guid.Empty && request.UserId != userId)
+                return Forbid();
+
+            return Ok(await mediator.Send(request, cancellationToken));
+        }
+
         [Authorize(Roles = "Candidate")]
         [HttpGet("my/statistics")]
         public async Task<IActionResult> GetCandidateStatistics(
