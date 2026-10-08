@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Command.CreatePersonalizedJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Command.DeletePersonalizedJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Query.GetAll;
+using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Query.GetLatest;
 
 namespace Vettingo.JobService.API.Controllers;
 
@@ -36,6 +37,15 @@ public class PersonalizedJobPostingsController(IMediator mediator) : ControllerB
     [HttpGet]
     public async Task<IActionResult> GetAll(
         [FromQuery] GetAllPersonalizedJobPostingsQueryRequest request,
+        CancellationToken cancellationToken)
+    {
+        return Ok(await mediator.Send(request, cancellationToken));
+    }
+
+    [HttpGet("latest")]
+    [Authorize(Roles = "Candidate")]
+    public async Task<IActionResult> GetLatest(
+        [FromQuery] GetLatestPersonalizedJobPostingsQueryRequest request,
         CancellationToken cancellationToken)
     {
         return Ok(await mediator.Send(request, cancellationToken));

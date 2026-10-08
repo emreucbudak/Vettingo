@@ -29,4 +29,14 @@ public class PersonalizedJobPostingsRepository(JobDbContext context) : IPersonal
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
         context.SaveChangesAsync(cancellationToken);
+
+    public async Task<IEnumerable<PersonalizedJobPostings>> GetLatestAsync(Guid userId, CancellationToken cancellationToken = default) =>
+        await context.PersonalizedJobPostings.AsNoTracking()
+            .Include(posting => posting.City)
+            .Where(posting => posting.UserId == userId)
+            .OrderByDescending(posting => posting.PublishedDate)
+            .ThenByDescending(posting => posting.CreatedAt)
+            .ThenByDescending(posting => posting.Id)
+            .Take(3)
+            .ToListAsync(cancellationToken);
 }
