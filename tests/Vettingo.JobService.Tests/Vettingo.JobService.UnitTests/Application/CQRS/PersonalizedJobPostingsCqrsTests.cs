@@ -5,6 +5,7 @@ using Vettingo.JobService.Application.Exceptions;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Command.CreatePersonalizedJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Command.DeletePersonalizedJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Query.GetAll;
+using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Query.GetLatest;
 using Vettingo.JobService.Application.Validations;
 using Vettingo.JobService.Persistence.DbContext;
 using Vettingo.JobService.Persistence.Repository;
@@ -13,6 +14,50 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS;
 
 public class PersonalizedJobPostingsCqrsTests
 {
+    [Theory]
+    [InlineData(0)]
+    [InlineData(2)]
+    [InlineData(5)]
+    public async Task Latest_Should_Return_At_Most_Three_Postings_For_Requested_User(int count)
+    {
+        await using var context = new JobDbContext(new DbContextOptionsBuilder<JobDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+        await context.Database.EnsureCreatedAsync();
+        var userId = Guid.NewGuid();
+        var date = new DateOnly(2026, 10, 8);
+        for (var index = 0; index < count; index++)
+        {
+            context.PersonalizedJobPostings.Add(new()
+            {
+                UserId = userId, Title = $"Posting {index}", CityId = 34, PublishedDate = date.AddDays(index)
+            });
+        }
+        context.PersonalizedJobPostings.Add(new()
+        {
+            UserId = Guid.NewGuid(), Title = "Other user", CityId = 6, PublishedDate = date.AddDays(100)
+        });
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+        var handler = new GetLatestPersonalizedJobPostingsQueryHandler(
+            new PersonalizedJobPostingsRepository(context),
+            NullLogger<GetLatestPersonalizedJobPostingsQueryHandler>.Instance);
+
+        var results = (await handler.Handle(new() { UserId = userId }, CancellationToken.None)).ToList();
+        results.Should().HaveCount(Math.Min(count, 3));
+        results.Should().OnlyContain(posting => posting.UserId == userId && posting.CityName == "İstanbul");
+        results.Select(posting => posting.Title).Should().Equal(
+            Enumerable.Range(0, count).Reverse().Take(3).Select(index => $"Posting {index}"));
+    }
+
+    [Fact]
+    public void Latest_Should_Require_UserId()
+    {
+        var validator = new GetLatestPersonalizedJobPostingsQueryRequestValidator();
+        validator.Validate(new GetLatestPersonalizedJobPostingsQueryRequest()).IsValid.Should().BeFalse();
+        validator.Validate(new GetLatestPersonalizedJobPostingsQueryRequest { UserId = Guid.NewGuid() })
+            .IsValid.Should().BeTrue();
+    }
+
     [Fact]
     public async Task Create_List_And_Delete_Should_Persist_Filter_And_Load_City()
     {
