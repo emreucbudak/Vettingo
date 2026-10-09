@@ -7,6 +7,7 @@ using Vettingo.JobService.Application.Features.CQRS.JobApplication.Command.Creat
 using Vettingo.JobService.Application.Features.CQRS.JobApplication.Command.UpdateStatus;
 using Vettingo.JobService.Application.Features.CQRS.JobApplication.Query.GetAll;
 using Vettingo.JobService.Application.Features.CQRS.JobApplication.Query.GetCandidateStatistics;
+using Vettingo.JobService.Application.Features.CQRS.JobApplication.Query.GetCompanyStatistics;
 
 namespace Vettingo.JobService.API.Controllers
 {
@@ -50,6 +51,20 @@ namespace Vettingo.JobService.API.Controllers
                 return Unauthorized();
 
             return Ok(await repository.GetStatisticsAsync(companyId, cancellationToken));
+        }
+
+        [Authorize(Roles = "Company,Human Resources")]
+        [HttpGet("company/statistics")]
+        public async Task<IActionResult> GetCompanyStatistics(
+            [FromQuery] GetCompanyApplicationStatisticsQueryRequest request,
+            CancellationToken cancellationToken)
+        {
+            if (!Guid.TryParse(User.FindFirstValue("companyId"), out var companyId) || companyId == Guid.Empty)
+                return Unauthorized();
+            if (request.CompanyId != Guid.Empty && request.CompanyId != companyId)
+                return Forbid();
+
+            return Ok(await mediator.Send(request with { CompanyId = companyId }, cancellationToken));
         }
 
         [Authorize(Roles = "Company,Candidate")]
