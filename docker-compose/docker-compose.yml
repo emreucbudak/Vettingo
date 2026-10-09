@@ -372,6 +372,35 @@ services:
         source: postgres-data
         target: /var/lib/postgresql/data
         volume: {}
+  pgvector:
+    environment:
+      POSTGRES_DB: VettingoVectorDb
+      POSTGRES_PASSWORD: ${VETTINGO_PGVECTOR_PASSWORD:-VettingoPgvector_2026!}
+      POSTGRES_USER: vettingo
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U vettingo -d VettingoVectorDb
+      timeout: 5s
+      interval: 5s
+      retries: 10
+      start_period: 10s
+    image: pgvector/pgvector:pg16
+    ports:
+      - mode: ingress
+        target: 5432
+        published: "5433"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: pgvector-data
+        target: /var/lib/postgresql/data
+        volume: {}
+      - type: bind
+        source: ./pgvector/init.sql
+        target: /docker-entrypoint-initdb.d/01-vector.sql
+        read_only: true
   rabbitmq:
     environment:
       RABBITMQ_DEFAULT_PASS: VettingoRabbit_2026!
@@ -436,6 +465,8 @@ services:
 volumes:
   postgres-data:
     name: vettingo_postgres-data
+  pgvector-data:
+    name: vettingo_pgvector-data
   rabbitmq-data:
     name: vettingo_rabbitmq-data
   redis-data:
