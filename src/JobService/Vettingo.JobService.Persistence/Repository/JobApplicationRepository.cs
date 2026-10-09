@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Vettingo.JobService.Application.Repository;
 using Vettingo.JobService.Domain.Entities;
+using Vettingo.JobService.Domain.Enums;
 using Vettingo.JobService.Persistence.DbContext;
 
 namespace Vettingo.JobService.Persistence.Repository
@@ -47,6 +48,24 @@ namespace Vettingo.JobService.Persistence.Repository
                     group.Count(application => application.Status != Domain.Enums.ApplicationStatus.Rejected)))
                 .SingleOrDefaultAsync(cancellationToken);
             return result ?? new ApplicationStatistics(0, 0);
+        }
+
+        public async Task<CompanyApplicationStatistics> GetCompanyStatisticsAsync(
+            Guid companyId, CancellationToken cancellationToken = default)
+        {
+            var result = await Applications.AsNoTracking()
+                .Where(application => context.JobPostings.Any(posting =>
+                    posting.Id == application.JobPostingId && posting.CompanyId == companyId))
+                .GroupBy(application => 1)
+                .Select(group => new CompanyApplicationStatistics(
+                    group.Count(),
+                    group.Count(application => application.Status == ApplicationStatus.UnderReview),
+                    group.Count(application => application.Status == ApplicationStatus.Interview),
+                    group.Count(application => application.Status == ApplicationStatus.Offer),
+                    group.Count(application => application.Status == ApplicationStatus.Rejected)))
+                .SingleOrDefaultAsync(cancellationToken);
+
+            return result ?? new CompanyApplicationStatistics(0, 0, 0, 0, 0);
         }
 
         public async Task<CandidateApplicationStatistics> GetCandidateStatisticsAsync(Guid candidateId, CancellationToken cancellationToken = default)
