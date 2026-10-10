@@ -1,12 +1,13 @@
+using Vettingo.AnalyticsService.Domain.Common;
+
 namespace Vettingo.AnalyticsService.Domain.Entities
 {
-    public class CandidateRecommendationAnalysis
+    public class CandidateRecommendationAnalysis : BaseEntity
     {
         public CandidateRecommendationAnalysis()
         {
         }
 
-        public Guid Id { get; private set; }
         public Guid CompanyId { get; private set; }
         public Guid JobPostingId { get; private set; }
         public Guid CandidateId { get; private set; }
@@ -15,13 +16,7 @@ namespace Vettingo.AnalyticsService.Domain.Entities
         public bool IsHired { get; private set; }
         public DateTime RecommendedAt { get; private set; }
         public DateTime? HiredAt { get; private set; }
-        public DateTime CreatedAt { get; private set; }
         public DateTime? UpdatedAt { get; private set; }
-
-        public void SetId()
-        {
-            Id = Guid.CreateVersion7();
-        }
 
         public void CreateCandidateRecommendationAnalysis(
             Guid companyId,
