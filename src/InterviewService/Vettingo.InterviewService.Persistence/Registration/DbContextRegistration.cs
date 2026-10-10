@@ -17,6 +17,7 @@ namespace Vettingo.InterviewService.Persistence.Registration
             });
 
             collect.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            collect.AddScoped<IInterviewRepository, InterviewRepository>();
         }
     }
 }

@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\InterviewService\Vettingo.InterviewService.API\Vettingo.InterviewService.API.csproj" />
     <ProjectReference Include="..\..\..\src\InterviewService\Vettingo.InterviewService.Application\Vettingo.InterviewService.Application.csproj" />
     <ProjectReference Include="..\..\..\src\InterviewService\Vettingo.InterviewService.Domain\Vettingo.InterviewService.Domain.csproj" />
     <ProjectReference Include="..\..\..\src\InterviewService\Vettingo.InterviewService.Persistence\Vettingo.InterviewService.Persistence.csproj" />
