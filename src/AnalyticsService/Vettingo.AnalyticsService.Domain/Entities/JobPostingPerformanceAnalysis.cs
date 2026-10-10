@@ -1,12 +1,13 @@
+using Vettingo.AnalyticsService.Domain.Common;
+
 namespace Vettingo.AnalyticsService.Domain.Entities
 {
-    public class JobPostingPerformanceAnalysis
+    public class JobPostingPerformanceAnalysis : BaseEntity
     {
         public JobPostingPerformanceAnalysis()
         {
         }
 
-        public Guid Id { get; private set; }
         public Guid CompanyId { get; private set; }
         public Guid JobPostingId { get; private set; }
         public int ViewCount { get; private set; }
@@ -21,13 +22,7 @@ namespace Vettingo.AnalyticsService.Domain.Entities
         public decimal ApplicationToHireRate { get; private set; }
         public decimal CvViewToMatchRate { get; private set; }
         public decimal TopTenPercentMatchRate { get; private set; }
-        public DateTime CreatedAt { get; private set; }
         public DateTime? UpdatedAt { get; private set; }
-
-        public void SetId()
-        {
-            Id = Guid.CreateVersion7();
-        }
 
         public void CreateJobPostingPerformanceAnalysis(
             Guid companyId,

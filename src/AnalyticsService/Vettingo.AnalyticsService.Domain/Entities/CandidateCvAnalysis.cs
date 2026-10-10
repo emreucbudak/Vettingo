@@ -1,12 +1,13 @@
+using Vettingo.AnalyticsService.Domain.Common;
+
 namespace Vettingo.AnalyticsService.Domain.Entities
 {
-    public class CandidateCvAnalysis
+    public class CandidateCvAnalysis : BaseEntity
     {
         public CandidateCvAnalysis()
         {
         }
 
-        public Guid Id { get; private set; }
         public Guid CandidateId { get; private set; }
         public DateTime PeriodStart { get; private set; }
         public DateTime PeriodEnd { get; private set; }
@@ -15,12 +16,6 @@ namespace Vettingo.AnalyticsService.Domain.Entities
         public int HrViewCount { get; private set; }
         public int MatchCount { get; private set; }
         public decimal AverageMatchRate { get; private set; }
-        public DateTime CreatedAt { get; private set; }
-
-        public void SetId()
-        {
-            Id = Guid.CreateVersion7();
-        }
 
         public void CreateCandidateCvAnalysis(
             Guid candidateId,

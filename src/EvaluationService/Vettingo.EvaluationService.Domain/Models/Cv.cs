@@ -6,6 +6,7 @@ public sealed class Cv : BaseEntity
 {
     public Guid UserId { get; private set; }
     public string TargetRole { get; private set; } = string.Empty;
+    public int TargetSalary { get; private set; }
     public Dictionary<string, int> Skills { get; private set; } = new();
     public Dictionary<string, string> Languages { get; private set; } = new();
     public List<Education> Educations { get; private set; } = new();
