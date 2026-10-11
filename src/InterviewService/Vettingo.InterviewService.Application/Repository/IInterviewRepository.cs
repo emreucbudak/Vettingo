@@ -1,3 +1,5 @@
+using Vettingo.InterviewService.Application.DTOs;
+
 namespace Vettingo.InterviewService.Application.Repository;
 
 public interface IInterviewRepository

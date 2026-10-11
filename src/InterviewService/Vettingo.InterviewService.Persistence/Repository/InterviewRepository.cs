@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Vettingo.InterviewService.Application.DTOs;
 using Vettingo.InterviewService.Application.Repository;
 using Vettingo.InterviewService.Persistence.DbContext;
 
