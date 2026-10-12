@@ -10,6 +10,10 @@ namespace Vettingo.AnalyticsService.Domain.Entities
 
         public Guid CompanyId { get; private set; }
         public DateTime? UpdatedAt { get; private set; }
+        public Guid CandidateSourceId { get; private set; }
+        public CandidateSource CandidateSource { get; private set; } = null!;
+        public Guid HiringVolumeId { get; private set; }
+        public HiringVolume HiringVolume { get; private set; } = null!;
 
         public void CreateCompanyStatistic(Guid companyId)
         {
