@@ -12,8 +12,7 @@ namespace Vettingo.AnalyticsService.Domain.Entities
         public DateTime? UpdatedAt { get; private set; }
         public Guid CandidateSourceId { get; private set; }
         public CandidateSource CandidateSource { get; private set; } = null!;
-        public Guid HiringVolumeId { get; private set; }
-        public HiringVolume HiringVolume { get; private set; } = null!;
+        public ICollection<HiringVolume> HiringVolumes { get; private set; } = new List<HiringVolume>();
 
         public void CreateCompanyStatistic(Guid companyId)
         {
@@ -30,6 +29,14 @@ namespace Vettingo.AnalyticsService.Domain.Entities
             {
                 throw new ArgumentException("CompanyId boş olamaz.", nameof(companyId));
             }
+        }
+
+        public IReadOnlyCollection<HiringVolume> GetLatestHiringVolumes()
+        {
+            return HiringVolumes
+                .OrderBy(volume => volume.CreatedAt)
+                .TakeLast(6)
+                .ToList();
         }
     }
 }
