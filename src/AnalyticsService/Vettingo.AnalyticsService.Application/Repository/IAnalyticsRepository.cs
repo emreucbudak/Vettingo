@@ -15,6 +15,7 @@ namespace Vettingo.AnalyticsService.Application.Repository
         Task<IEnumerable<CandidateCvAnalysis>> GetCandidateCvAnalysesByCandidateIdAsync(Guid candidateId);
         Task<CandidateCvAnalysis?> GetLatestCandidateCvAnalysisAsync(Guid candidateId);
         Task<CompanyStatistic?> GetCompanyStatisticByCompanyIdAsync(Guid companyId, CancellationToken cancellationToken = default);
+        Task<CandidateSource?> GetCandidateSourceByCompanyIdAsync(Guid companyId, CancellationToken cancellationToken = default);
         Task<int> SaveChangesAsync();
     }
 }

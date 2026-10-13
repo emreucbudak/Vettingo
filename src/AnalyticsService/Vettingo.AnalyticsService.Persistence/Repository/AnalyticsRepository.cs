@@ -86,6 +86,15 @@ namespace Vettingo.AnalyticsService.Persistence.Repository
                 .FirstOrDefaultAsync(statistic => statistic.CompanyId == companyId, cancellationToken);
         }
 
+        public async Task<CandidateSource?> GetCandidateSourceByCompanyIdAsync(Guid companyId, CancellationToken cancellationToken = default)
+        {
+            return await CompanyStatisticSet
+                .AsNoTracking()
+                .Where(statistic => statistic.CompanyId == companyId)
+                .Select(statistic => statistic.CandidateSource)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
         public Task<int> SaveChangesAsync()
         {
             return context.SaveChangesAsync();
