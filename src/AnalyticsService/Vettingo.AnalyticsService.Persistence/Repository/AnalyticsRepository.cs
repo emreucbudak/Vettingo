@@ -10,10 +10,12 @@ namespace Vettingo.AnalyticsService.Persistence.Repository
         private DbSet<CandidateRecommendationAnalysis> CandidateRecommendationAnalysisSet => context.Set<CandidateRecommendationAnalysis>();
         private DbSet<JobPostingPerformanceAnalysis> JobPostingPerformanceAnalysisSet => context.Set<JobPostingPerformanceAnalysis>();
         private DbSet<CandidateCvAnalysis> CandidateCvAnalysisSet => context.Set<CandidateCvAnalysis>();
+        private DbSet<CompanyStatistic> CompanyStatisticSet => context.Set<CompanyStatistic>();
 
         public async Task AddCandidateRecommendationAnalysisAsync(CandidateRecommendationAnalysis analysis)
         {
             await CandidateRecommendationAnalysisSet.AddAsync(analysis);
+
         }
 
         public async Task<IEnumerable<CandidateRecommendationAnalysis>> GetCandidateRecommendationAnalysesByCompanyIdAsync(Guid companyId)
@@ -74,6 +76,14 @@ namespace Vettingo.AnalyticsService.Persistence.Repository
                 .Where(analysis => analysis.CandidateId == candidateId)
                 .OrderByDescending(analysis => analysis.PeriodEnd)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<CompanyStatistic?> GetCompanyStatisticByCompanyIdAsync(Guid companyId, CancellationToken cancellationToken = default)
+        {
+            return await CompanyStatisticSet
+                .AsNoTracking()
+                .Include(statistic => statistic.HiringVolumes)
+                .FirstOrDefaultAsync(statistic => statistic.CompanyId == companyId, cancellationToken);
         }
 
         public Task<int> SaveChangesAsync()

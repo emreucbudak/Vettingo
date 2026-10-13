@@ -8,9 +8,23 @@ namespace Vettingo.AnalyticsService.Persistence.DbContext
         public DbSet<CandidateRecommendationAnalysis> CandidateRecommendationAnalyses { get; set; }
         public DbSet<JobPostingPerformanceAnalysis> JobPostingPerformanceAnalyses { get; set; }
         public DbSet<CandidateCvAnalysis> CandidateCvAnalyses { get; set; }
+        public DbSet<CompanyStatistic> CompanyStatistics { get; set; }
+        public DbSet<HiringVolume> HiringVolumes { get; set; }
+        public DbSet<CandidateSource> CandidateSources { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.Entity<CompanyStatistic>(entity =>
+            {
+                entity.HasIndex(statistic => statistic.CompanyId);
+                entity.HasMany(statistic => statistic.HiringVolumes)
+                    .WithOne()
+                    .HasForeignKey(volume => volume.CompanyStatisticId);
+                entity.HasOne(statistic => statistic.CandidateSource)
+                    .WithMany()
+                    .HasForeignKey(statistic => statistic.CandidateSourceId);
+            });
+
             builder.Entity<CandidateRecommendationAnalysis>(entity =>
             {
                 entity.HasKey(analysis => analysis.Id);
