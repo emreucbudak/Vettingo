@@ -6,5 +6,6 @@ namespace Vettingo.AnalyticsService.Domain.Entities
     {
         public int Application { get; private set; }
         public int Scout { get; private set; }
+        public int CandidateCount { get; private set; }
     }
 }
