@@ -2,7 +2,7 @@ using Vettingo.ExamService.Domain.Enums;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetAll
 {
-    public class GetAllExamsQueryResponse
+    public sealed record GetAllExamsQueryResponse
     {
         public Guid Id { get; init; }
         public Guid? CompanyId { get; init; }

@@ -1,6 +1,6 @@
 namespace Vettingo.ExamService.Application.Features.CQRS.TrueFalseQuestion.Query.GetByExam
 {
-    public class GetTrueFalseQuestionsByExamQueryResponse
+    public sealed record GetTrueFalseQuestionsByExamQueryResponse
     {
         public Guid Id { get; init; }
         public Guid ExamId { get; init; }

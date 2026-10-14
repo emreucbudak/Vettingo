@@ -1,6 +1,6 @@
 namespace Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Query.GetAll;
 
-public class GetAllPersonalizedJobPostingsQueryResponse
+public sealed record GetAllPersonalizedJobPostingsQueryResponse
 {
     public Guid Id { get; init; }
     public Guid UserId { get; init; }

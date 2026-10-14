@@ -1,6 +1,6 @@
 namespace Vettingo.ExamService.Application.Features.CQRS.CodeCompletionQuestion.Query.GetByExam
 {
-    public class GetCodeCompletionQuestionsByExamQueryResponse
+    public sealed record GetCodeCompletionQuestionsByExamQueryResponse
     {
         public Guid Id { get; init; }
         public Guid ExamId { get; init; }

@@ -1,6 +1,6 @@
 namespace Vettingo.ExamService.Application.Features.CQRS.ClassicQuestion.Query.GetByExam
 {
-    public class GetClassicQuestionsByExamQueryResponse
+    public sealed record GetClassicQuestionsByExamQueryResponse
     {
         public Guid Id { get; init; }
         public Guid ExamId { get; init; }

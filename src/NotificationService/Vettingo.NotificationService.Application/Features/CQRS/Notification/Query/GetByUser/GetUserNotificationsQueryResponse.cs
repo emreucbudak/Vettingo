@@ -2,7 +2,7 @@ using Vettingo.NotificationService.Domain.Enums;
 
 namespace Vettingo.NotificationService.Application.Features.CQRS.Notification.Query.GetByUser
 {
-    public class GetUserNotificationsQueryResponse
+    public sealed record GetUserNotificationsQueryResponse
     {
         public Guid Id { get; init; }
         public Guid UserId { get; init; }

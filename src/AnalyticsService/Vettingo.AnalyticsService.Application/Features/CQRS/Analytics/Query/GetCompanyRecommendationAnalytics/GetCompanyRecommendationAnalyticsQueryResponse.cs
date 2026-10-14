@@ -1,6 +1,6 @@
 namespace Vettingo.AnalyticsService.Application.Features.CQRS.Analytics.Query.GetCompanyRecommendationAnalytics
 {
-    public class GetCompanyRecommendationAnalyticsQueryResponse
+    public sealed record GetCompanyRecommendationAnalyticsQueryResponse
     {
         public Guid CompanyId { get; init; }
         public int RecommendedCandidateCount { get; init; }
@@ -10,7 +10,7 @@ namespace Vettingo.AnalyticsService.Application.Features.CQRS.Analytics.Query.Ge
         public IEnumerable<CompanyRecommendationAnalyticsItemResponse> Recommendations { get; init; } = [];
     }
 
-    public class CompanyRecommendationAnalyticsItemResponse
+    public sealed record CompanyRecommendationAnalyticsItemResponse
     {
         public Guid Id { get; init; }
         public Guid JobPostingId { get; init; }

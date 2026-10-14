@@ -1,6 +1,6 @@
 namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.Query.GetByExam
 {
-    public class GetMultipleChoiceQuestionsByExamQueryResponse
+    public sealed record GetMultipleChoiceQuestionsByExamQueryResponse
     {
         public Guid Id { get; init; }
         public Guid ExamId { get; init; }
@@ -11,7 +11,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.
         public List<GetMultipleChoiceQuestionOptionResponse> Options { get; init; } = new();
     }
 
-    public class GetMultipleChoiceQuestionOptionResponse
+    public sealed record GetMultipleChoiceQuestionOptionResponse
     {
         public Guid Id { get; init; }
         public string OptionText { get; init; } = string.Empty;

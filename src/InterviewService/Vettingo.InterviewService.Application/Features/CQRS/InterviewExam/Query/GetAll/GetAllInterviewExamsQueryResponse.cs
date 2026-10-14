@@ -3,7 +3,7 @@ using Vettingo.InterviewService.Domain.Enums;
 
 namespace Vettingo.InterviewService.Application.Features.CQRS.InterviewExam.Query.GetAll
 {
-    public record GetAllInterviewExamsQueryResponse
+    public sealed record GetAllInterviewExamsQueryResponse
     {
         public Guid Id { get; init; }
         public Guid CompanyId { get; init; }
