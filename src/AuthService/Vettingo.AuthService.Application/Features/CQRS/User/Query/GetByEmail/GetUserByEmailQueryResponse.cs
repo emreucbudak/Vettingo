@@ -1,6 +1,6 @@
 namespace Vettingo.AuthService.Application.Features.CQRS.Users.Query.GetByEmail
 {
-    public class GetUserByEmailQueryResponse
+    public sealed record GetUserByEmailQueryResponse
     {
         public string Name { get; init; } = string.Empty;
         public string Surname { get; init; } = string.Empty;

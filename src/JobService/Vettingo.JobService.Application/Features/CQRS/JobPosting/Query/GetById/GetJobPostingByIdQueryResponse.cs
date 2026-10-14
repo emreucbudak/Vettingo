@@ -2,7 +2,7 @@ using Vettingo.JobService.Domain.Enums;
 
 namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetById
 {
-    public class GetJobPostingByIdQueryResponse
+    public sealed record GetJobPostingByIdQueryResponse
     {
         public Guid Id { get; init; }
         public Guid CompanyId { get; init; }

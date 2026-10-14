@@ -14,6 +14,12 @@ namespace Vettingo.EvaluationService.API.Controllers;
 [Authorize(Roles = "Candidate")]
 public sealed class EvaluationsController(IMediator mediator) : ControllerBase
 {
+    [HttpGet("scout")]
+    public IActionResult Scout()
+    {
+        return Ok();
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetAll(
         [FromQuery] GetEvaluationsQueryRequest request,

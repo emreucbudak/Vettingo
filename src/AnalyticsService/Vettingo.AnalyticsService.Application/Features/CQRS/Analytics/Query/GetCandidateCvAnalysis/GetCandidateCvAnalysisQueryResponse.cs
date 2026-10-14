@@ -1,6 +1,6 @@
 namespace Vettingo.AnalyticsService.Application.Features.CQRS.Analytics.Query.GetCandidateCvAnalysis
 {
-    public class GetCandidateCvAnalysisQueryResponse
+    public sealed record GetCandidateCvAnalysisQueryResponse
     {
         public Guid Id { get; init; }
         public Guid CandidateId { get; init; }

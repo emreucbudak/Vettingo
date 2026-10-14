@@ -1,6 +1,6 @@
 namespace Vettingo.InterviewService.Application.Features.CQRS.Interview.Query.GetToday
 {
-    public record GetTodayInterviewsQueryResponse
+    public sealed record GetTodayInterviewsQueryResponse
     {
         public Guid Id { get; init; }
         public string Name { get; init; } = string.Empty;

@@ -1,6 +1,6 @@
 ﻿namespace Vettingo.InterviewService.Application.Features.CQRS.InterviewQuestion.Query.GetAll
 {
-    public record GetAllInterviewQuestionsQueryResponse
+    public sealed record GetAllInterviewQuestionsQueryResponse
     {
         public Guid Id { get; init; }
         public Guid? CompanyId { get; init; }

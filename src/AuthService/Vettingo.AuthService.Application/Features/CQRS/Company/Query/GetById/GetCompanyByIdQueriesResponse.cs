@@ -1,6 +1,6 @@
 namespace Vettingo.AuthService.Application.Features.CQRS.Company.Query.GetById
 {
-    public class GetCompanyByIdQueriesResponse
+    public sealed record GetCompanyByIdQueriesResponse
     {
         public Guid Id { get; init; }
         public string CompanyName { get; init; } = string.Empty;

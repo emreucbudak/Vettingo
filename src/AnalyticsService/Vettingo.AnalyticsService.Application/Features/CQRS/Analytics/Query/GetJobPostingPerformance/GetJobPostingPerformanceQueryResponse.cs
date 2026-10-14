@@ -1,6 +1,6 @@
 namespace Vettingo.AnalyticsService.Application.Features.CQRS.Analytics.Query.GetJobPostingPerformance
 {
-    public class GetJobPostingPerformanceQueryResponse
+    public sealed record GetJobPostingPerformanceQueryResponse
     {
         public Guid Id { get; init; }
         public Guid CompanyId { get; init; }

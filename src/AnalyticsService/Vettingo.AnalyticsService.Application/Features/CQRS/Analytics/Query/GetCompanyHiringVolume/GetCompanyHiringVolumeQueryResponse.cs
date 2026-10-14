@@ -1,6 +1,6 @@
 namespace Vettingo.AnalyticsService.Application.Features.CQRS.Analytics.Query.GetCompanyHiringVolume;
 
-public sealed class GetCompanyHiringVolumeQueryResponse
+public sealed record GetCompanyHiringVolumeQueryResponse
 {
     public int Year { get; init; }
     public int Month { get; init; }

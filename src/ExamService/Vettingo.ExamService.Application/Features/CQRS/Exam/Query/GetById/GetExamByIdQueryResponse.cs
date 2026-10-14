@@ -1,6 +1,6 @@
 namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
 {
-    public class GetExamByIdQueryResponse
+    public sealed record GetExamByIdQueryResponse
     {
         public Guid Id { get; init; }
         public Guid? CompanyId { get; init; }
@@ -20,7 +20,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
         public List<GetExamByIdCodeCompletionQuestionResponse> CodeCompletionQuestions { get; init; } = new();
     }
 
-    public class GetExamByIdQuestionBaseResponse
+    public record GetExamByIdQuestionBaseResponse
     {
         public Guid Id { get; init; }
         public string QuestionText { get; init; } = string.Empty;
@@ -29,12 +29,12 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
         public string Explanation { get; init; } = string.Empty;
     }
 
-    public class GetExamByIdMultipleChoiceQuestionResponse : GetExamByIdQuestionBaseResponse
+    public sealed record GetExamByIdMultipleChoiceQuestionResponse : GetExamByIdQuestionBaseResponse
     {
         public List<GetExamByIdMultipleChoiceOptionResponse> Options { get; init; } = new();
     }
 
-    public class GetExamByIdMultipleChoiceOptionResponse
+    public sealed record GetExamByIdMultipleChoiceOptionResponse
     {
         public Guid Id { get; init; }
         public string OptionText { get; init; } = string.Empty;
@@ -42,17 +42,17 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
         public int DisplayOrder { get; init; }
     }
 
-    public class GetExamByIdTrueFalseQuestionResponse : GetExamByIdQuestionBaseResponse
+    public sealed record GetExamByIdTrueFalseQuestionResponse : GetExamByIdQuestionBaseResponse
     {
         public bool CorrectAnswer { get; init; }
     }
 
-    public class GetExamByIdClassicQuestionResponse : GetExamByIdQuestionBaseResponse
+    public sealed record GetExamByIdClassicQuestionResponse : GetExamByIdQuestionBaseResponse
     {
         public string ExpectedAnswer { get; init; } = string.Empty;
     }
 
-    public class GetExamByIdCodeCompletionQuestionResponse : GetExamByIdQuestionBaseResponse
+    public sealed record GetExamByIdCodeCompletionQuestionResponse : GetExamByIdQuestionBaseResponse
     {
         public string CodeSnippet { get; init; } = string.Empty;
         public string ExpectedAnswer { get; init; } = string.Empty;
