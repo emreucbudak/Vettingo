@@ -25,8 +25,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetAll
                 IsActive = exam.IsActive,
                 MultipleChoiceQuestionCount = exam.MultipleChoiceQuestions.Count,
                 TrueFalseQuestionCount = exam.TrueFalseQuestions.Count,
-                ClassicQuestionCount = exam.ClassicQuestions.Count,
-                CodeCompletionQuestionCount = exam.CodeCompletionQuestions.Count,
                 CreatedAt = exam.CreatedAt
             });
         }

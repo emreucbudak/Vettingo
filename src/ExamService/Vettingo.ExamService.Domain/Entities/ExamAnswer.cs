@@ -15,10 +15,6 @@ namespace Vettingo.ExamService.Domain.Entities
         public MultipleChoiceOption? MultipleChoiceOption { get; private set; }
         public Guid? TrueFalseQuestionId { get; private set; }
         public TrueFalseQuestion? TrueFalseQuestion { get; private set; }
-        public Guid? ClassicQuestionId { get; private set; }
-        public ClassicQuestion? ClassicQuestion { get; private set; }
-        public Guid? CodeCompletionQuestionId { get; private set; }
-        public CodeCompletionQuestion? CodeCompletionQuestion { get; private set; }
         public string AnswerText { get; private set; } = string.Empty;
         public bool? BooleanAnswer { get; private set; }
         public bool? IsCorrect { get; private set; }
@@ -50,26 +46,6 @@ namespace Vettingo.ExamService.Domain.Entities
             IsCorrect = isCorrect;
         }
 
-        public void CreateClassicAnswer(Guid examAttemptId, Guid questionId, string answerText, bool? isCorrect)
-        {
-            CheckTextAnswerContent(examAttemptId, questionId, answerText);
-            SetId();
-            ExamAttemptId = examAttemptId;
-            ClassicQuestionId = questionId;
-            AnswerText = answerText;
-            IsCorrect = isCorrect;
-        }
-
-        public void CreateCodeCompletionAnswer(Guid examAttemptId, Guid questionId, string answerText, bool? isCorrect)
-        {
-            CheckTextAnswerContent(examAttemptId, questionId, answerText);
-            SetId();
-            ExamAttemptId = examAttemptId;
-            CodeCompletionQuestionId = questionId;
-            AnswerText = answerText;
-            IsCorrect = isCorrect;
-        }
-
         public void CheckMultipleChoiceAnswerContent(Guid examAttemptId, Guid questionId, Guid? optionId, string answerText)
         {
             CheckAnswerIds(examAttemptId, questionId);
@@ -80,12 +56,6 @@ namespace Vettingo.ExamService.Domain.Entities
             {
                 throw new ArgumentException("Çoktan seçmeli cevap optionId veya answerText içermelidir.", nameof(answerText));
             }
-        }
-
-        public void CheckTextAnswerContent(Guid examAttemptId, Guid questionId, string answerText)
-        {
-            CheckAnswerIds(examAttemptId, questionId);
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(answerText, nameof(answerText));
         }
 
         public void CheckAnswerIds(Guid examAttemptId, Guid questionId)

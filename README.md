@@ -71,8 +71,6 @@ The exact seeded name of the HR role in the identity system is `Human Resources`
 - Exam creation and management
 - Multiple-choice questions
 - True/false questions
-- Classic open-ended questions
-- Code-completion questions
 - Candidate exam participation
 - Company-controlled assessment content
 
@@ -487,8 +485,6 @@ Question resources are grouped under an exam:
 ```text
 /api/exams/{examId}/questions/multiple-choice
 /api/exams/{examId}/questions/true-false
-/api/exams/{examId}/questions/classic
-/api/exams/{examId}/questions/code-completion
 ```
 
 ### Interviews

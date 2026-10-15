@@ -16,8 +16,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetAll
         public bool IsActive { get; init; }
         public int MultipleChoiceQuestionCount { get; init; }
         public int TrueFalseQuestionCount { get; init; }
-        public int ClassicQuestionCount { get; init; }
-        public int CodeCompletionQuestionCount { get; init; }
         public DateTime CreatedAt { get; init; }
     }
 }

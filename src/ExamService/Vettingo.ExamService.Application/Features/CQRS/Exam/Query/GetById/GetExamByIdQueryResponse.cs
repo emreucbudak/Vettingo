@@ -16,8 +16,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
         public DateTime? UpdatedAt { get; init; }
         public List<GetExamByIdMultipleChoiceQuestionResponse> MultipleChoiceQuestions { get; init; } = new();
         public List<GetExamByIdTrueFalseQuestionResponse> TrueFalseQuestions { get; init; } = new();
-        public List<GetExamByIdClassicQuestionResponse> ClassicQuestions { get; init; } = new();
-        public List<GetExamByIdCodeCompletionQuestionResponse> CodeCompletionQuestions { get; init; } = new();
     }
 
     public record GetExamByIdQuestionBaseResponse
@@ -47,14 +45,4 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
         public bool CorrectAnswer { get; init; }
     }
 
-    public sealed record GetExamByIdClassicQuestionResponse : GetExamByIdQuestionBaseResponse
-    {
-        public string ExpectedAnswer { get; init; } = string.Empty;
-    }
-
-    public sealed record GetExamByIdCodeCompletionQuestionResponse : GetExamByIdQuestionBaseResponse
-    {
-        public string CodeSnippet { get; init; } = string.Empty;
-        public string ExpectedAnswer { get; init; } = string.Empty;
-    }
 }
