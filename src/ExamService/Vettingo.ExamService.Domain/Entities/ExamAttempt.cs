@@ -1,14 +1,14 @@
+using Vettingo.ExamService.Domain.Common;
 using Vettingo.ExamService.Domain.Enums;
 
 namespace Vettingo.ExamService.Domain.Entities
 {
-    public class ExamAttempt
+    public class ExamAttempt : BaseEntity
     {
         public ExamAttempt()
         {
         }
 
-        public Guid Id { get; private set; }
         public Guid ExamId { get; private set; }
         public Exam? Exam { get; private set; }
         public Guid CandidateId { get; private set; }
@@ -18,15 +18,11 @@ namespace Vettingo.ExamService.Domain.Entities
         public ExamAttemptStatus Status { get; private set; }
         public List<ExamAnswer> Answers { get; private set; } = new();
 
-        public void SetId()
-        {
-            Id = Guid.CreateVersion7();
-        }
-
         public void StartAttempt(Guid examId, Guid candidateId)
         {
             CheckStartAttemptContent(examId, candidateId);
             SetId();
+            SetCreatedAt();
             ExamId = examId;
             CandidateId = candidateId;
             StartedAt = DateTime.UtcNow;

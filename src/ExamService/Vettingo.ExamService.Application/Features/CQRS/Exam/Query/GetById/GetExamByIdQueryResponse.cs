@@ -12,7 +12,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
         public int DurationMinutes { get; init; }
         public int PassingScore { get; init; }
         public bool IsActive { get; init; }
-        public DateTime CreatedAt { get; init; }
+        public DateOnly CreatedAt { get; init; }
         public DateTime? UpdatedAt { get; init; }
         public List<GetExamByIdMultipleChoiceQuestionResponse> MultipleChoiceQuestions { get; init; } = new();
         public List<GetExamByIdTrueFalseQuestionResponse> TrueFalseQuestions { get; init; } = new();

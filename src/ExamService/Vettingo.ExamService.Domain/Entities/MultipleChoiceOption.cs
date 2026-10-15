@@ -1,12 +1,13 @@
+using Vettingo.ExamService.Domain.Common;
+
 namespace Vettingo.ExamService.Domain.Entities
 {
-    public class MultipleChoiceOption
+    public class MultipleChoiceOption : BaseEntity
     {
         public MultipleChoiceOption()
         {
         }
 
-        public Guid Id { get; private set; }
         public Guid MultipleChoiceQuestionId { get; private set; }
         public MultipleChoiceQuestion? MultipleChoiceQuestion { get; private set; }
         public string OptionText { get; private set; } = string.Empty;
@@ -14,15 +15,11 @@ namespace Vettingo.ExamService.Domain.Entities
         public int DisplayOrder { get; private set; }
         public List<ExamAnswer> Answers { get; private set; } = new();
 
-        public void SetId()
-        {
-            Id = Guid.CreateVersion7();
-        }
-
         public void CreateOption(Guid multipleChoiceQuestionId, string optionText, bool isCorrect, int displayOrder)
         {
             CheckMultipleChoiceOptionContent(multipleChoiceQuestionId, optionText, displayOrder);
             SetId();
+            SetCreatedAt();
             MultipleChoiceQuestionId = multipleChoiceQuestionId;
             OptionText = optionText;
             IsCorrect = isCorrect;
