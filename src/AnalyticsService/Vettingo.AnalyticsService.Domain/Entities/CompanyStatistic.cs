@@ -9,6 +9,9 @@ namespace Vettingo.AnalyticsService.Domain.Entities
         }
 
         public Guid CompanyId { get; private set; }
+        public int AverageFeedback { get; private set; }
+        public int TotalJobPostingCount { get; private set; }
+        public int ActiveJobPostingCount { get; private set; }
         public DateTime? UpdatedAt { get; private set; }
         public Guid CandidateSourceId { get; private set; }
         public CandidateSource CandidateSource { get; private set; } = null!;
