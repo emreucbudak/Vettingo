@@ -24,8 +24,6 @@ namespace Vettingo.ExamService.Persistence.Repository
             return await ExamSet
                 .Include(exam => exam.MultipleChoiceQuestions)
                 .Include(exam => exam.TrueFalseQuestions)
-                .Include(exam => exam.ClassicQuestions)
-                .Include(exam => exam.CodeCompletionQuestions)
                 .OrderByDescending(exam => exam.CreatedAt)
                 .ToListAsync();
         }
@@ -36,8 +34,6 @@ namespace Vettingo.ExamService.Persistence.Repository
                 .Include(exam => exam.MultipleChoiceQuestions)
                 .ThenInclude(question => question.Options)
                 .Include(exam => exam.TrueFalseQuestions)
-                .Include(exam => exam.ClassicQuestions)
-                .Include(exam => exam.CodeCompletionQuestions)
                 .FirstOrDefaultAsync(exam => exam.Id == examId);
         }
 

@@ -9,8 +9,6 @@ namespace Vettingo.ExamService.Persistence.Repository
     {
         private DbSet<MultipleChoiceQuestion> MultipleChoiceQuestionSet => context.Set<MultipleChoiceQuestion>();
         private DbSet<TrueFalseQuestion> TrueFalseQuestionSet => context.Set<TrueFalseQuestion>();
-        private DbSet<ClassicQuestion> ClassicQuestionSet => context.Set<ClassicQuestion>();
-        private DbSet<CodeCompletionQuestion> CodeCompletionQuestionSet => context.Set<CodeCompletionQuestion>();
 
         public async Task AddMultipleChoiceQuestionAsync(MultipleChoiceQuestion question)
         {
@@ -61,52 +59,6 @@ namespace Vettingo.ExamService.Persistence.Repository
                 .ToListAsync();
         }
 
-        public async Task AddClassicQuestionAsync(ClassicQuestion question)
-        {
-            await ClassicQuestionSet.AddAsync(question);
-        }
-
-        public void DeleteClassicQuestion(ClassicQuestion question)
-        {
-            ClassicQuestionSet.Remove(question);
-        }
-
-        public async Task<ClassicQuestion?> GetClassicQuestionByIdAsync(Guid questionId)
-        {
-            return await ClassicQuestionSet.FirstOrDefaultAsync(question => question.Id == questionId);
-        }
-
-        public async Task<IEnumerable<ClassicQuestion>> GetClassicQuestionsByExamIdAsync(Guid examId)
-        {
-            return await ClassicQuestionSet
-                .Where(question => question.ExamId == examId)
-                .OrderBy(question => question.DisplayOrder)
-                .ToListAsync();
-        }
-
-        public async Task AddCodeCompletionQuestionAsync(CodeCompletionQuestion question)
-        {
-            await CodeCompletionQuestionSet.AddAsync(question);
-        }
-
-        public void DeleteCodeCompletionQuestion(CodeCompletionQuestion question)
-        {
-            CodeCompletionQuestionSet.Remove(question);
-        }
-
-        public async Task<CodeCompletionQuestion?> GetCodeCompletionQuestionByIdAsync(Guid questionId)
-        {
-            return await CodeCompletionQuestionSet.FirstOrDefaultAsync(question => question.Id == questionId);
-        }
-
-        public async Task<IEnumerable<CodeCompletionQuestion>> GetCodeCompletionQuestionsByExamIdAsync(Guid examId)
-        {
-            return await CodeCompletionQuestionSet
-                .Where(question => question.ExamId == examId)
-                .OrderBy(question => question.DisplayOrder)
-                .ToListAsync();
-        }
-
         public Task<int> SaveChangesAsync()
         {
             return context.SaveChangesAsync();
@@ -122,14 +74,5 @@ namespace Vettingo.ExamService.Persistence.Repository
             TrueFalseQuestionSet.Update(question);
         }
 
-        public void UpdateClassicQuestion(ClassicQuestion question)
-        {
-            ClassicQuestionSet.Update(question);
-        }
-
-        public void UpdateCodeCompletionQuestion(CodeCompletionQuestion question)
-        {
-            CodeCompletionQuestionSet.Update(question);
-        }
     }
 }

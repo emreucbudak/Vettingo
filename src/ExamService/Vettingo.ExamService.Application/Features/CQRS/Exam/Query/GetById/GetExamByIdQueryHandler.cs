@@ -63,31 +63,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
                         Explanation = question.Explanation,
                         CorrectAnswer = question.CorrectAnswer
                     })
-                    .ToList(),
-                ClassicQuestions = exam.ClassicQuestions
-                    .OrderBy(question => question.DisplayOrder)
-                    .Select(question => new GetExamByIdClassicQuestionResponse
-                    {
-                        Id = question.Id,
-                        QuestionText = question.QuestionText,
-                        Weight = question.Weight,
-                        DisplayOrder = question.DisplayOrder,
-                        Explanation = question.Explanation,
-                        ExpectedAnswer = question.ExpectedAnswer
-                    })
-                    .ToList(),
-                CodeCompletionQuestions = exam.CodeCompletionQuestions
-                    .OrderBy(question => question.DisplayOrder)
-                    .Select(question => new GetExamByIdCodeCompletionQuestionResponse
-                    {
-                        Id = question.Id,
-                        QuestionText = question.QuestionText,
-                        Weight = question.Weight,
-                        DisplayOrder = question.DisplayOrder,
-                        Explanation = question.Explanation,
-                        CodeSnippet = question.CodeSnippet,
-                        ExpectedAnswer = question.ExpectedAnswer
-                    })
                     .ToList()
             };
         }

@@ -22,8 +22,6 @@ namespace Vettingo.ExamService.Domain.Entities
         public DateTime? UpdatedAt { get; private set; }
         public List<MultipleChoiceQuestion> MultipleChoiceQuestions { get; private set; } = new();
         public List<TrueFalseQuestion> TrueFalseQuestions { get; private set; } = new();
-        public List<ClassicQuestion> ClassicQuestions { get; private set; } = new();
-        public List<CodeCompletionQuestion> CodeCompletionQuestions { get; private set; } = new();
         public List<ExamAttempt> Attempts { get; private set; } = new();
 
         public void SetId()

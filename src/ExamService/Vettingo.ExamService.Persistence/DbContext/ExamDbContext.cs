@@ -9,8 +9,6 @@ namespace Vettingo.ExamService.Persistence.DbContext
         public DbSet<MultipleChoiceQuestion> MultipleChoiceQuestions { get; set; }
         public DbSet<MultipleChoiceOption> MultipleChoiceOptions { get; set; }
         public DbSet<TrueFalseQuestion> TrueFalseQuestions { get; set; }
-        public DbSet<ClassicQuestion> ClassicQuestions { get; set; }
-        public DbSet<CodeCompletionQuestion> CodeCompletionQuestions { get; set; }
         public DbSet<ExamAttempt> ExamAttempts { get; set; }
         public DbSet<ExamAnswer> ExamAnswers { get; set; }
 
@@ -28,18 +26,6 @@ namespace Vettingo.ExamService.Persistence.DbContext
 
             builder.Entity<Exam>()
                 .HasMany(exam => exam.TrueFalseQuestions)
-                .WithOne(question => question.Exam)
-                .HasForeignKey(question => question.ExamId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<Exam>()
-                .HasMany(exam => exam.ClassicQuestions)
-                .WithOne(question => question.Exam)
-                .HasForeignKey(question => question.ExamId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<Exam>()
-                .HasMany(exam => exam.CodeCompletionQuestions)
                 .WithOne(question => question.Exam)
                 .HasForeignKey(question => question.ExamId)
                 .OnDelete(DeleteBehavior.Cascade);
@@ -72,18 +58,6 @@ namespace Vettingo.ExamService.Persistence.DbContext
                 .HasMany(question => question.Answers)
                 .WithOne(answer => answer.TrueFalseQuestion)
                 .HasForeignKey(answer => answer.TrueFalseQuestionId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder.Entity<ClassicQuestion>()
-                .HasMany(question => question.Answers)
-                .WithOne(answer => answer.ClassicQuestion)
-                .HasForeignKey(answer => answer.ClassicQuestionId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder.Entity<CodeCompletionQuestion>()
-                .HasMany(question => question.Answers)
-                .WithOne(answer => answer.CodeCompletionQuestion)
-                .HasForeignKey(answer => answer.CodeCompletionQuestionId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<ExamAttempt>()
