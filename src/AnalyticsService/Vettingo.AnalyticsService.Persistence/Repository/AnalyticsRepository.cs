@@ -7,32 +7,8 @@ namespace Vettingo.AnalyticsService.Persistence.Repository
 {
     public class AnalyticsRepository(AnalyticsDbContext context) : IAnalyticsRepository
     {
-        private DbSet<CandidateRecommendationAnalysis> CandidateRecommendationAnalysisSet => context.Set<CandidateRecommendationAnalysis>();
         private DbSet<JobPostingPerformanceAnalysis> JobPostingPerformanceAnalysisSet => context.Set<JobPostingPerformanceAnalysis>();
-        private DbSet<CandidateCvAnalysis> CandidateCvAnalysisSet => context.Set<CandidateCvAnalysis>();
         private DbSet<CompanyStatistic> CompanyStatisticSet => context.Set<CompanyStatistic>();
-
-        public async Task AddCandidateRecommendationAnalysisAsync(CandidateRecommendationAnalysis analysis)
-        {
-            await CandidateRecommendationAnalysisSet.AddAsync(analysis);
-
-        }
-
-        public async Task<IEnumerable<CandidateRecommendationAnalysis>> GetCandidateRecommendationAnalysesByCompanyIdAsync(Guid companyId)
-        {
-            return await CandidateRecommendationAnalysisSet
-                .Where(analysis => analysis.CompanyId == companyId)
-                .OrderByDescending(analysis => analysis.RecommendedAt)
-                .ToListAsync();
-        }
-
-        public async Task<IEnumerable<CandidateRecommendationAnalysis>> GetCandidateRecommendationAnalysesByJobPostingIdAsync(Guid jobPostingId)
-        {
-            return await CandidateRecommendationAnalysisSet
-                .Where(analysis => analysis.JobPostingId == jobPostingId)
-                .OrderByDescending(analysis => analysis.RecommendedAt)
-                .ToListAsync();
-        }
 
         public async Task AddJobPostingPerformanceAnalysisAsync(JobPostingPerformanceAnalysis analysis)
         {
@@ -55,27 +31,6 @@ namespace Vettingo.AnalyticsService.Persistence.Repository
         public void UpdateJobPostingPerformanceAnalysis(JobPostingPerformanceAnalysis analysis)
         {
             JobPostingPerformanceAnalysisSet.Update(analysis);
-        }
-
-        public async Task AddCandidateCvAnalysisAsync(CandidateCvAnalysis analysis)
-        {
-            await CandidateCvAnalysisSet.AddAsync(analysis);
-        }
-
-        public async Task<IEnumerable<CandidateCvAnalysis>> GetCandidateCvAnalysesByCandidateIdAsync(Guid candidateId)
-        {
-            return await CandidateCvAnalysisSet
-                .Where(analysis => analysis.CandidateId == candidateId)
-                .OrderByDescending(analysis => analysis.PeriodEnd)
-                .ToListAsync();
-        }
-
-        public async Task<CandidateCvAnalysis?> GetLatestCandidateCvAnalysisAsync(Guid candidateId)
-        {
-            return await CandidateCvAnalysisSet
-                .Where(analysis => analysis.CandidateId == candidateId)
-                .OrderByDescending(analysis => analysis.PeriodEnd)
-                .FirstOrDefaultAsync();
         }
 
         public async Task<CompanyStatistic?> GetCompanyStatisticByCompanyIdAsync(Guid companyId, CancellationToken cancellationToken = default)

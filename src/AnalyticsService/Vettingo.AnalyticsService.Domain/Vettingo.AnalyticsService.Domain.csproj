@@ -7,8 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Update="Entities\CandidateCvAnalysis.cs" />
-    <Compile Update="Entities\CandidateRecommendationAnalysis.cs" />
     <Compile Update="Entities\JobPostingPerformanceAnalysis.cs" />
   </ItemGroup>
 

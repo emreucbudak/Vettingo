@@ -6,7 +6,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Vettingo.AnalyticsService.API.ExceptionHandlers;
-using Vettingo.AnalyticsService.Application.Features.CQRS.Analytics.Command.RecordCandidateRecommendation;
+using Vettingo.AnalyticsService.Application.Features.CQRS.Analytics.Command.RecordJobPostingPerformance;
 using Vettingo.AnalyticsService.Persistence.Registration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -60,9 +60,9 @@ builder.Services.AddRateLimiter(options =>
 });
 
 builder.Services.SaveDb(builder.Configuration);
-builder.Services.AddFlashMediator(typeof(RecordCandidateRecommendationCommandHandler).Assembly);
+builder.Services.AddFlashMediator(typeof(RecordJobPostingPerformanceCommandHandler).Assembly);
 builder.Services.AddFlashMediatorHybridCache();
-builder.Services.AddValidatorsFromAssemblyContaining<RecordCandidateRecommendationCommandRequest>();
+builder.Services.AddValidatorsFromAssemblyContaining<RecordJobPostingPerformanceCommandRequest>();
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = builder.Configuration.GetConnectionString("Redis")
