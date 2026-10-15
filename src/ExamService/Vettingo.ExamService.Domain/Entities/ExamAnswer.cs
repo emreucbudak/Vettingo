@@ -1,12 +1,13 @@
+using Vettingo.ExamService.Domain.Common;
+
 namespace Vettingo.ExamService.Domain.Entities
 {
-    public class ExamAnswer
+    public class ExamAnswer : BaseEntity
     {
         public ExamAnswer()
         {
         }
 
-        public Guid Id { get; private set; }
         public Guid ExamAttemptId { get; private set; }
         public ExamAttempt? ExamAttempt { get; private set; }
         public Guid? MultipleChoiceQuestionId { get; private set; }
@@ -19,15 +20,11 @@ namespace Vettingo.ExamService.Domain.Entities
         public bool? BooleanAnswer { get; private set; }
         public bool? IsCorrect { get; private set; }
 
-        public void SetId()
-        {
-            Id = Guid.CreateVersion7();
-        }
-
         public void CreateMultipleChoiceAnswer(Guid examAttemptId, Guid questionId, Guid? optionId, string answerText, bool? isCorrect)
         {
             CheckMultipleChoiceAnswerContent(examAttemptId, questionId, optionId, answerText);
             SetId();
+            SetCreatedAt();
             ExamAttemptId = examAttemptId;
             MultipleChoiceQuestionId = questionId;
             MultipleChoiceOptionId = optionId;
@@ -39,6 +36,7 @@ namespace Vettingo.ExamService.Domain.Entities
         {
             CheckAnswerIds(examAttemptId, questionId);
             SetId();
+            SetCreatedAt();
             ExamAttemptId = examAttemptId;
             TrueFalseQuestionId = questionId;
             BooleanAnswer = booleanAnswer;
