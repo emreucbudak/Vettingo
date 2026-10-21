@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Vettingo.JobService.Application.Messaging;
 using Vettingo.JobService.Infrastructure.Messaging;
 
 namespace Vettingo.JobService.Infrastructure.Register;
@@ -27,6 +28,7 @@ public static class CapRegister
             throw new InvalidOperationException("RabbitMq:Port is not configured or is invalid.");
         }
 
+        services.AddTransient<IJobAnalyticsPublisher, JobAnalyticsPublisher>();
         services.AddTransient<PersonalizedJobPostingRequestedConsumer>();
         services
             .AddCap(options =>
