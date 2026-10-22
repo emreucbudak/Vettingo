@@ -41,6 +41,18 @@ namespace Vettingo.AnalyticsService.Persistence.Repository
                 .FirstOrDefaultAsync(statistic => statistic.CompanyId == companyId, cancellationToken);
         }
 
+        public Task IncrementCompanyJobPostingCountAsync(Guid companyId, CancellationToken cancellationToken = default)
+        {
+            var updatedAt = DateTime.UtcNow;
+
+            return CompanyStatisticSet
+                .Where(statistic => statistic.CompanyId == companyId)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(statistic => statistic.TotalJobPostingCount, statistic => statistic.TotalJobPostingCount + 1)
+                    .SetProperty(statistic => statistic.UpdatedAt, updatedAt),
+                    cancellationToken);
+        }
+
         public async Task<CandidateSource?> GetCandidateSourceByCompanyIdAsync(Guid companyId, CancellationToken cancellationToken = default)
         {
             return await CompanyStatisticSet

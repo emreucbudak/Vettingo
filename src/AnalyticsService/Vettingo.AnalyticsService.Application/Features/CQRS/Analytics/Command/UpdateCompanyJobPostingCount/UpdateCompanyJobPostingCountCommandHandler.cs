@@ -1,15 +1,15 @@
 using FlashMediator;
+using Vettingo.AnalyticsService.Application.Repository;
 
 namespace Vettingo.AnalyticsService.Application.Features.CQRS.Analytics.Command.UpdateCompanyJobPostingCount;
 
-public sealed class UpdateCompanyJobPostingCountCommandHandler
+public sealed class UpdateCompanyJobPostingCountCommandHandler(IAnalyticsRepository analyticsRepository)
     : IRequestHandler<UpdateCompanyJobPostingCountCommandRequest>
 {
     public Task Handle(
         UpdateCompanyJobPostingCountCommandRequest request,
         CancellationToken cancellationToken)
     {
-        // İlan sayısını güncelleme işlemi daha sonra eklenecek.
-        return Task.CompletedTask;
+        return analyticsRepository.IncrementCompanyJobPostingCountAsync(request.CompanyId, cancellationToken);
     }
 }
