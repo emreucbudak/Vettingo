@@ -11,9 +11,6 @@ public class PersonalizedJobPostings : BaseEntity
     }
 
     public Guid UserId { get; set; }
-    public string Title { get; set; } = string.Empty;
-    public DateOnly PublishedDate { get; set; }
-    public int CityId { get; set; }
-    public int Salary { get; set; }
-    public City City { get; set; } = null!;
+    public Guid JobPostingId { get; set; }
+    public JobPosting JobPosting { get; set; } = null!;
 }

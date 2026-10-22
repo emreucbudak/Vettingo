@@ -14,6 +14,8 @@ using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Quer
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Query.GetLatest;
 using Vettingo.JobService.Application.Repository;
 using Vettingo.JobService.Application.Validations;
+using Vettingo.JobService.Domain.Entities;
+using Vettingo.JobService.Domain.Enums;
 using Vettingo.JobService.Infrastructure.Messaging;
 using Vettingo.JobService.Persistence.DbContext;
 using Vettingo.JobService.Persistence.Repository;
@@ -23,7 +25,7 @@ namespace Vettingo.JobService.UnitTests.Application;
 public sealed class PersonalizedJobPostingMessagingTests
 {
     [Fact]
-    public async Task Published_Dto_Should_Be_Consumed_By_Existing_Handler_And_Return_Salary()
+    public async Task Published_Dto_Should_Contain_Only_Ids_And_Load_Referenced_JobPosting()
     {
         var services = new ServiceCollection();
         services.AddLogging();
@@ -35,6 +37,11 @@ public sealed class PersonalizedJobPostingMessagingTests
         await using var scope = provider.CreateAsyncScope();
         var context = scope.ServiceProvider.GetRequiredService<JobDbContext>();
         await context.Database.EnsureCreatedAsync();
+        var jobPosting = new JobPosting();
+        jobPosting.CreateJobPosting(Guid.NewGuid(), "Backend Developer", new Dictionary<string, int> { ["C#"] = 3 },
+            34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 65000, 85000, null, JobPostingStatus.Active);
+        context.JobPostings.Add(jobPosting);
+        await context.SaveChangesAsync();
 
         var cap = Substitute.For<ICapPublisher>();
         cap.PublishAsync(Arg.Any<string>(), Arg.Any<PersonalizedJobPostingDto>(),
@@ -43,10 +50,7 @@ public sealed class PersonalizedJobPostingMessagingTests
         var dto = new PersonalizedJobPostingDto
         {
             UserId = Guid.NewGuid(),
-            Title = "Backend Developer",
-            PublishedDate = new DateOnly(2026, 10, 8),
-            CityId = 34,
-            Salary = 65000
+            JobPostingId = jobPosting.Id
         };
         using var cancellation = new CancellationTokenSource();
         await publisher.PublishAsync(dto, cancellation.Token);
@@ -55,6 +59,9 @@ public sealed class PersonalizedJobPostingMessagingTests
         publishedCall.GetArguments()[0].Should().Be(PersonalizedJobPostingMessage.TopicName);
         publishedCall.GetArguments()[3].Should().Be(cancellation.Token);
         var json = JsonSerializer.Serialize(publishedCall.GetArguments()[1], JsonSerializerOptions.Web);
+        using var document = JsonDocument.Parse(json);
+        document.RootElement.EnumerateObject().Select(property => property.Name)
+            .Should().BeEquivalentTo("userId", "jobPostingId");
         var message = JsonSerializer.Deserialize<PersonalizedJobPostingMessage>(json, JsonSerializerOptions.Web)!;
         var consumer = new PersonalizedJobPostingRequestedConsumer(
             scope.ServiceProvider.GetRequiredService<IMediator>(),
@@ -71,13 +78,14 @@ public sealed class PersonalizedJobPostingMessagingTests
         var persisted = (await all.Handle(new() { UserId = dto.UserId }, cancellation.Token))
             .Should().ContainSingle().Subject;
         persisted.UserId.Should().Be(dto.UserId);
-        persisted.Title.Should().Be(dto.Title);
-        persisted.CityId.Should().Be(dto.CityId);
-        persisted.CityName.Should().Be("İstanbul");
-        persisted.PublishedDate.Should().Be(dto.PublishedDate);
-        persisted.Salary.Should().Be(dto.Salary);
+        persisted.JobPostingId.Should().Be(dto.JobPostingId);
+        persisted.JobPosting.Id.Should().Be(jobPosting.Id);
+        persisted.JobPosting.Title.Should().Be(jobPosting.Title);
+        persisted.JobPosting.CityId.Should().Be(jobPosting.CityId);
+        persisted.JobPosting.MinSalary.Should().Be(jobPosting.MinSalary);
+        persisted.JobPosting.MaxSalary.Should().Be(jobPosting.MaxSalary);
         (await latest.Handle(new() { UserId = dto.UserId }, cancellation.Token))
-            .Should().ContainSingle().Which.Salary.Should().Be(dto.Salary);
+            .Should().ContainSingle().Which.JobPostingId.Should().Be(dto.JobPostingId);
     }
 
     [Fact]
@@ -89,13 +97,13 @@ public sealed class PersonalizedJobPostingMessagingTests
             NullLogger<PersonalizedJobPostingRequestedConsumer>.Instance);
         var message = new PersonalizedJobPostingMessage
         {
-            UserId = Guid.Empty, Title = "", PublishedDate = default, CityId = 0, Salary = -1
+            UserId = Guid.Empty, JobPostingId = Guid.Empty
         };
 
         Func<Task> consume = () => consumer.HandleAsync(message, CancellationToken.None);
         var failure = await consume.Should().ThrowAsync<ValidationException>();
         failure.Which.Errors.Select(error => error.PropertyName).Should()
-            .BeEquivalentTo("UserId", "Title", "PublishedDate", "CityId", "Salary");
+            .BeEquivalentTo("UserId", "JobPostingId");
         mediator.ReceivedCalls().Should().BeEmpty();
     }
 
@@ -110,8 +118,7 @@ public sealed class PersonalizedJobPostingMessagingTests
             NullLogger<PersonalizedJobPostingRequestedConsumer>.Instance);
         var message = new PersonalizedJobPostingMessage
         {
-            UserId = Guid.NewGuid(), Title = "Developer",
-            PublishedDate = new DateOnly(2026, 10, 8), CityId = 34, Salary = 65000
+            UserId = Guid.NewGuid(), JobPostingId = Guid.NewGuid()
         };
 
         Func<Task> consume = () => consumer.HandleAsync(message, CancellationToken.None);

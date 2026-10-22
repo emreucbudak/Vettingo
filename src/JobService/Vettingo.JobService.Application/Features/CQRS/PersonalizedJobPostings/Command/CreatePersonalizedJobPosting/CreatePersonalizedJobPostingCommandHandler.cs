@@ -14,10 +14,7 @@ public class CreatePersonalizedJobPostingCommandHandler(
         var posting = new Domain.Entities.PersonalizedJobPostings
         {
             UserId = request.UserId,
-            Title = request.Title,
-            PublishedDate = request.PublishedDate,
-            CityId = request.CityId,
-            Salary = request.Salary
+            JobPostingId = request.JobPostingId
         };
         await repository.AddAsync(posting, cancellationToken);
         await repository.SaveChangesAsync(cancellationToken);

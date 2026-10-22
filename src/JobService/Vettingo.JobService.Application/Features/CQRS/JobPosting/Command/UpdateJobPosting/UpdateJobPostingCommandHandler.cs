@@ -19,7 +19,6 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.Updat
 
             jobPosting.UpdateJobPosting(
                 request.Title,
-                request.Description,
                 request.RequirementSkills,
                 request.CityId,
                 request.EmploymentType,
