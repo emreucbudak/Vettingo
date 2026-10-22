@@ -5,6 +5,7 @@ using Vettingo.JobService.Application.Exceptions;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CreateJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.UpdateJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetById;
+using Vettingo.JobService.Application.Messaging;
 using Vettingo.JobService.Application.Repository;
 using Vettingo.JobService.Domain.Entities;
 using Vettingo.JobService.Domain.Enums;
@@ -19,7 +20,10 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             var repository = Substitute.For<IJobPostingRepository>();
             repository.AddJobPostingAsync(Arg.Any<JobPosting>()).Returns(_ => CompleteAsync());
             repository.SaveChangesAsync().Returns(_ => ReturnAsync(1));
-            var handler = new CreateJobPostingCommandHandler(repository, Substitute.For<ILogger<CreateJobPostingCommandHandler>>());
+            var handler = new CreateJobPostingCommandHandler(
+                repository,
+                Substitute.For<ILogger<CreateJobPostingCommandHandler>>(),
+                Substitute.For<IJobAnalyticsPublisher>());
             var request = CreateJobPostingRequest();
 
             await handler.Handle(request, CancellationToken.None);
