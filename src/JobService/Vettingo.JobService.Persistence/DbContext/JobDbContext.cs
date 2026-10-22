@@ -52,8 +52,8 @@ namespace Vettingo.JobService.Persistence.DbContext
             builder.ApplyConfiguration(new CityDataSeedConfiguration());
             builder.Entity<JobPosting>().HasOne(jobPosting => jobPosting.City).WithMany()
                 .HasForeignKey(jobPosting => jobPosting.CityId).OnDelete(DeleteBehavior.Restrict);
-            builder.Entity<PersonalizedJobPostings>().HasOne(jobPosting => jobPosting.City).WithMany()
-                .HasForeignKey(jobPosting => jobPosting.CityId).OnDelete(DeleteBehavior.Restrict);
+            builder.Entity<PersonalizedJobPostings>().HasOne(posting => posting.JobPosting).WithMany()
+                .HasForeignKey(posting => posting.JobPostingId).OnDelete(DeleteBehavior.Restrict);
 
             base.OnModelCreating(builder);
         }

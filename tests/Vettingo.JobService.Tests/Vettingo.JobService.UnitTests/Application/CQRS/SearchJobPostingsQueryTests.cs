@@ -64,7 +64,6 @@ public sealed class SearchJobPostingsQueryTests
         jobPosting.CreateJobPosting(
             Guid.NewGuid(),
             "Senior Backend Developer",
-            "Build reliable services.",
             new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
             34,
             EmploymentType.FullTime,

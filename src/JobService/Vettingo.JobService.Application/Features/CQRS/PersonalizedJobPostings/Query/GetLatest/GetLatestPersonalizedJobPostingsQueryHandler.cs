@@ -1,3 +1,4 @@
+using Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetById;
 using FlashMediator;
 using Microsoft.Extensions.Logging;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Query.GetAll;
@@ -19,11 +20,25 @@ public class GetLatestPersonalizedJobPostingsQueryHandler(
         {
             Id = posting.Id,
             UserId = posting.UserId,
-            Title = posting.Title,
-            PublishedDate = posting.PublishedDate,
-            CityId = posting.CityId,
-            Salary = posting.Salary,
-            CityName = posting.City.CityName,
+            JobPostingId = posting.JobPostingId,
+            JobPosting = new GetJobPostingByIdQueryResponse
+            {
+                Id = posting.JobPosting.Id,
+                CompanyId = posting.JobPosting.CompanyId,
+                Title = posting.JobPosting.Title,
+                RequirementSkills = new Dictionary<string, int>(posting.JobPosting.RequirementSkills),
+                CityId = posting.JobPosting.CityId,
+                EmploymentType = posting.JobPosting.EmploymentType,
+                WorkingModel = posting.JobPosting.WorkingModel,
+                MinimumExperienceYear = posting.JobPosting.MinimumExperienceYear,
+                MaximumExperienceYear = posting.JobPosting.MaximumExperienceYear,
+                MinSalary = posting.JobPosting.MinSalary,
+                MaxSalary = posting.JobPosting.MaxSalary,
+                ApplicationDeadline = posting.JobPosting.ApplicationDeadline,
+                Status = posting.JobPosting.Status,
+                CreatedAt = posting.JobPosting.CreatedAt,
+                UpdatedAt = posting.JobPosting.UpdatedAt
+            },
             CreatedAt = posting.CreatedAt,
             UpdatedAt = posting.UpdatedAt
         }).ToList();

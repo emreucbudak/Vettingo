@@ -13,7 +13,6 @@ namespace Vettingo.JobService.Domain.Entities
 
         public Guid CompanyId { get; private set; }
         public string Title { get; private set; } = string.Empty;
-        public string Description { get; private set; } = string.Empty;
         public Dictionary<string, int> RequirementSkills { get; private set; } = new();
         public int CityId { get; private set; }
         public City City { get; private set; } = null!;
@@ -29,7 +28,6 @@ namespace Vettingo.JobService.Domain.Entities
         public void CreateJobPosting(
             Guid companyId,
             string title,
-            string description,
             Dictionary<string, int> requirementSkills,
             int cityId,
             EmploymentType employmentType,
@@ -41,10 +39,10 @@ namespace Vettingo.JobService.Domain.Entities
             DateTime? applicationDeadline,
             JobPostingStatus status)
         {
-            CheckJobPostingContent(companyId, title, description, cityId, employmentType, workingModel, applicationDeadline, status);
+            CheckJobPostingContent(companyId, title, cityId, employmentType, workingModel, applicationDeadline, status);
             SetId();
             CompanyId = companyId;
-            UpdateJobPosting(title, description, requirementSkills, cityId, employmentType, workingModel, minimumExperienceYear, maximumExperienceYear, minSalary, maxSalary, applicationDeadline);
+            UpdateJobPosting(title, requirementSkills, cityId, employmentType, workingModel, minimumExperienceYear, maximumExperienceYear, minSalary, maxSalary, applicationDeadline);
             Status = status;
             SetCreatedAt();
             UpdatedAt = null;
@@ -52,7 +50,6 @@ namespace Vettingo.JobService.Domain.Entities
 
         public void UpdateJobPosting(
             string title,
-            string description,
             Dictionary<string, int> requirementSkills,
             int cityId,
             EmploymentType employmentType,
@@ -63,9 +60,8 @@ namespace Vettingo.JobService.Domain.Entities
             int maxSalary,
             DateTime? applicationDeadline)
         {
-            CheckJobPostingContent(CompanyId, title, description, cityId, employmentType, workingModel, applicationDeadline);
+            CheckJobPostingContent(CompanyId, title, cityId, employmentType, workingModel, applicationDeadline);
             Title = title;
-            Description = description;
             RequirementSkills = new Dictionary<string, int>(requirementSkills);
             CityId = cityId;
             EmploymentType = employmentType;
@@ -89,7 +85,7 @@ namespace Vettingo.JobService.Domain.Entities
             SetUpdatedAt();
         }
 
-        public void CheckJobPosting(Guid companyId, string title, string description)
+        public void CheckJobPosting(Guid companyId, string title)
         {
             if (companyId == Guid.Empty)
             {
@@ -97,20 +93,18 @@ namespace Vettingo.JobService.Domain.Entities
             }
 
             ArgumentNullException.ThrowIfNullOrWhiteSpace(title, nameof(title));
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(description, nameof(description));
         }
 
         public void CheckJobPostingContent(
             Guid companyId,
             string title,
-            string description,
             int cityId,
             EmploymentType employmentType,
             WorkingModel workingModel,
             DateTime? applicationDeadline,
             JobPostingStatus? status = null)
         {
-            CheckJobPosting(companyId, title, description);
+            CheckJobPosting(companyId, title);
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(cityId, nameof(cityId));
 
             if (!Enum.IsDefined(typeof(EmploymentType), employmentType))

@@ -18,7 +18,6 @@ namespace Vettingo.JobService.UnitTests.Domain
                 jobPosting.CreateJobPosting(
                     Guid.NewGuid(),
                     "Test Title",
-                    "Test Description",
                     new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                     34,
                     EmploymentType.FullTime,
@@ -45,7 +44,6 @@ namespace Vettingo.JobService.UnitTests.Domain
                 jobPosting.CreateJobPosting(
                     Guid.Empty,
                     "Test Title",
-                    "Test Description",
                     new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                     34,
                     EmploymentType.FullTime,

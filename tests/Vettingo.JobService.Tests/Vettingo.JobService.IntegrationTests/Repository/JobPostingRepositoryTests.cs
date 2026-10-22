@@ -87,7 +87,6 @@ namespace Vettingo.JobService.UnitTests.Repository
             jobPosting.CreateJobPosting(
                 companyId,
                 title,
-                "Build and maintain backend services.",
                 new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                 34,
                 EmploymentType.FullTime,

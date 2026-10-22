@@ -130,7 +130,6 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             {
                 CompanyId = Guid.NewGuid(),
                 Title = "Backend Developer",
-                Description = "Build and maintain backend services.",
                 RequirementSkills = new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                 CityId = 34,
                 EmploymentType = EmploymentType.FullTime,
@@ -150,7 +149,6 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             {
                 JobPostingId = jobPostingId,
                 Title = "Updated Backend Developer",
-                Description = "Updated description.",
                 RequirementSkills = new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                 CityId = 6,
                 EmploymentType = EmploymentType.FullTime,
@@ -170,7 +168,6 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             jobPosting.CreateJobPosting(
                 companyId,
                 title,
-                "Build and maintain backend services.",
                 new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                 34,
                 EmploymentType.FullTime,

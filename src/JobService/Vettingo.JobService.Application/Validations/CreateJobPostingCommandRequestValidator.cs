@@ -8,7 +8,6 @@ public sealed class CreateJobPostingCommandRequestValidator : AbstractValidator<
     {
         RuleFor(x => x.CompanyId).NotEmpty();
         RuleFor(x => x.Title).NotEmpty().MaximumLength(2000);
-        RuleFor(x => x.Description).NotEmpty().MaximumLength(2000);
         RuleFor(x => x.RequirementSkills).NotEmpty();
         RuleForEach(x => x.RequirementSkills).ChildRules(skill =>
         {

@@ -7,6 +7,8 @@ using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Comm
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Query.GetAll;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Query.GetLatest;
 using Vettingo.JobService.Application.Validations;
+using Vettingo.JobService.Domain.Entities;
+using Vettingo.JobService.Domain.Enums;
 using Vettingo.JobService.Persistence.DbContext;
 using Vettingo.JobService.Persistence.Repository;
 
@@ -24,17 +26,21 @@ public class PersonalizedJobPostingsCqrsTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         await context.Database.EnsureCreatedAsync();
         var userId = Guid.NewGuid();
-        var date = new DateOnly(2026, 10, 8);
+        var date = new DateTime(2026, 10, 8, 0, 0, 0, DateTimeKind.Utc);
         for (var index = 0; index < count; index++)
         {
-            context.PersonalizedJobPostings.Add(new()
+            var jobPosting = CreateJobPosting($"Posting {index}");
+            var posting = new PersonalizedJobPostings
             {
-                UserId = userId, Title = $"Posting {index}", CityId = 34, PublishedDate = date.AddDays(index)
-            });
+                UserId = userId, JobPostingId = jobPosting.Id, JobPosting = jobPosting
+            };
+            context.PersonalizedJobPostings.Add(posting);
+            context.Entry(posting).Property(item => item.CreatedAt).CurrentValue = date.AddDays(index);
         }
+        var otherJobPosting = CreateJobPosting("Other user", 6);
         context.PersonalizedJobPostings.Add(new()
         {
-            UserId = Guid.NewGuid(), Title = "Other user", CityId = 6, PublishedDate = date.AddDays(100)
+            UserId = Guid.NewGuid(), JobPostingId = otherJobPosting.Id, JobPosting = otherJobPosting
         });
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
@@ -44,8 +50,9 @@ public class PersonalizedJobPostingsCqrsTests
 
         var results = (await handler.Handle(new() { UserId = userId }, CancellationToken.None)).ToList();
         results.Should().HaveCount(Math.Min(count, 3));
-        results.Should().OnlyContain(posting => posting.UserId == userId && posting.CityName == "İstanbul");
-        results.Select(posting => posting.Title).Should().Equal(
+        results.Should().OnlyContain(posting => posting.UserId == userId && posting.JobPosting.CityId == 34);
+        results.Should().OnlyContain(posting => posting.JobPostingId == posting.JobPosting.Id);
+        results.Select(posting => posting.JobPosting.Title).Should().Equal(
             Enumerable.Range(0, count).Reverse().Take(3).Select(index => $"Posting {index}"));
     }
 
@@ -59,7 +66,7 @@ public class PersonalizedJobPostingsCqrsTests
     }
 
     [Fact]
-    public async Task Create_List_And_Delete_Should_Persist_Filter_And_Load_City()
+    public async Task Create_List_And_Delete_Should_Persist_Filter_And_Load_JobPosting()
     {
         await using var context = new JobDbContext(new DbContextOptionsBuilder<JobDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
@@ -72,12 +79,16 @@ public class PersonalizedJobPostingsCqrsTests
         var delete = new DeletePersonalizedJobPostingCommandHandler(repository,
             NullLogger<DeletePersonalizedJobPostingCommandHandler>.Instance);
         var userId = Guid.NewGuid();
-        var date = new DateOnly(2026, 10, 8);
+        var developer = CreateJobPosting("Developer");
+        var engineer = CreateJobPosting("Engineer", 6);
+        var designer = CreateJobPosting("Designer");
+        context.JobPostings.AddRange(developer, engineer, designer);
+        await context.SaveChangesAsync();
         foreach (var request in new[]
         {
-            new CreatePersonalizedJobPostingCommandRequest { UserId = userId, Title = "Developer", CityId = 34, PublishedDate = date },
-            new CreatePersonalizedJobPostingCommandRequest { UserId = userId, Title = "Engineer", CityId = 6, PublishedDate = date.AddDays(-1) },
-            new CreatePersonalizedJobPostingCommandRequest { UserId = Guid.NewGuid(), Title = "Designer", CityId = 34, PublishedDate = date }
+            new CreatePersonalizedJobPostingCommandRequest { UserId = userId, JobPostingId = developer.Id },
+            new CreatePersonalizedJobPostingCommandRequest { UserId = userId, JobPostingId = engineer.Id },
+            new CreatePersonalizedJobPostingCommandRequest { UserId = Guid.NewGuid(), JobPostingId = designer.Id }
         })
         {
             await create.Handle(request, CancellationToken.None);
@@ -86,17 +97,20 @@ public class PersonalizedJobPostingsCqrsTests
 
         var results = (await list.Handle(new() { UserId = userId }, CancellationToken.None)).ToList();
         results.Should().HaveCount(2);
-        results.Select(item => item.Title).Should().Equal("Developer", "Engineer");
-        results[0].PublishedDate.Should().Be(date);
-        results[0].CityName.Should().Be("İstanbul");
+        results.Select(item => item.JobPosting.Title).Should().BeEquivalentTo("Developer", "Engineer");
+        var developerResult = results.Single(item => item.JobPostingId == developer.Id);
+        developerResult.JobPosting.CityId.Should().Be(34);
+        developerResult.JobPosting.MinSalary.Should().Be(developer.MinSalary);
+        developerResult.JobPosting.RequirementSkills.Should().BeEquivalentTo(developer.RequirementSkills);
         results[0].CreatedAt.Should().NotBe(default);
         (await list.Handle(new(), CancellationToken.None)).Should().HaveCount(3);
         (await list.Handle(new() { UserId = Guid.NewGuid() }, CancellationToken.None)).Should().BeEmpty();
 
-        var deleteRequest = new DeletePersonalizedJobPostingCommandRequest { PersonalizedJobPostingId = results[0].Id };
+        var deleteRequest = new DeletePersonalizedJobPostingCommandRequest { PersonalizedJobPostingId = developerResult.Id };
         await delete.Handle(deleteRequest, CancellationToken.None);
         (await list.Handle(new() { UserId = userId }, CancellationToken.None))
-            .Should().ContainSingle().Which.Title.Should().Be("Engineer");
+            .Should().ContainSingle().Which.JobPostingId.Should().Be(engineer.Id);
+        (await context.JobPostings.FindAsync(developer.Id)).Should().NotBeNull();
         Func<Task> deleteAgain = () => delete.Handle(deleteRequest, CancellationToken.None);
         await deleteAgain.Should().ThrowAsync<NotFoundException>();
         (await list.Handle(new(), CancellationToken.None)).Should().HaveCount(2);
@@ -107,15 +121,15 @@ public class PersonalizedJobPostingsCqrsTests
     {
         var create = new CreatePersonalizedJobPostingCommandRequestValidator();
         create.Validate(new CreatePersonalizedJobPostingCommandRequest()).Errors.Select(error => error.PropertyName)
-            .Should().BeEquivalentTo("UserId", "Title", "CityId", "PublishedDate");
+            .Should().BeEquivalentTo("UserId", "JobPostingId");
         create.Validate(new CreatePersonalizedJobPostingCommandRequest
         {
-            UserId = Guid.NewGuid(), Title = "Developer", CityId = 34, PublishedDate = new DateOnly(2026, 10, 8)
+            UserId = Guid.NewGuid(), JobPostingId = Guid.NewGuid()
         }).IsValid.Should().BeTrue();
         create.Validate(new CreatePersonalizedJobPostingCommandRequest
         {
-            UserId = Guid.NewGuid(), Title = new string('x', 2001), CityId = -1, PublishedDate = new DateOnly(2026, 10, 8)
-        }).Errors.Select(error => error.PropertyName).Should().BeEquivalentTo("Title", "CityId");
+            UserId = Guid.NewGuid(), JobPostingId = Guid.Empty
+        }).Errors.Select(error => error.PropertyName).Should().BeEquivalentTo("JobPostingId");
         new DeletePersonalizedJobPostingCommandRequestValidator().Validate(new DeletePersonalizedJobPostingCommandRequest()).IsValid.Should().BeFalse();
         new DeletePersonalizedJobPostingCommandRequestValidator()
             .Validate(new DeletePersonalizedJobPostingCommandRequest { PersonalizedJobPostingId = Guid.NewGuid() }).IsValid.Should().BeTrue();
@@ -123,5 +137,13 @@ public class PersonalizedJobPostingsCqrsTests
         list.Validate(new GetAllPersonalizedJobPostingsQueryRequest()).IsValid.Should().BeTrue();
         list.Validate(new GetAllPersonalizedJobPostingsQueryRequest { UserId = Guid.Empty }).IsValid.Should().BeFalse();
         list.Validate(new GetAllPersonalizedJobPostingsQueryRequest { UserId = Guid.NewGuid() }).IsValid.Should().BeTrue();
+    }
+
+    private static JobPosting CreateJobPosting(string title, int cityId = 34)
+    {
+        var posting = new JobPosting();
+        posting.CreateJobPosting(Guid.NewGuid(), title, new Dictionary<string, int> { ["C#"] = 3 },
+            cityId, EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 50000, 75000, null, JobPostingStatus.Active);
+        return posting;
     }
 }

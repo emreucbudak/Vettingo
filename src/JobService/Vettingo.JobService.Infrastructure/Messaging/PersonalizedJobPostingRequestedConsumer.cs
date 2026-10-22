@@ -19,10 +19,7 @@ public sealed class PersonalizedJobPostingRequestedConsumer(
         var request = new CreatePersonalizedJobPostingCommandRequest
         {
             UserId = message.UserId,
-            Title = message.Title,
-            PublishedDate = message.PublishedDate,
-            CityId = message.CityId,
-            Salary = message.Salary
+            JobPostingId = message.JobPostingId
         };
 
         await validator.ValidateAndThrowAsync(request, cancellationToken);

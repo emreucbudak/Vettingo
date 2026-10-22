@@ -19,7 +19,6 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.Creat
             jobPosting.CreateJobPosting(
                 request.CompanyId,
                 request.Title,
-                request.Description,
                 request.RequirementSkills,
                 request.CityId,
                 request.EmploymentType,

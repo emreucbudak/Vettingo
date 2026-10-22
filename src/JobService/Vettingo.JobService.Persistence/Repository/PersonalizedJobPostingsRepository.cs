@@ -17,14 +17,14 @@ public class PersonalizedJobPostingsRepository(JobDbContext context) : IPersonal
 
     public async Task<IEnumerable<PersonalizedJobPostings>> GetAllAsync(Guid? userId = null, CancellationToken cancellationToken = default)
     {
-        var query = context.PersonalizedJobPostings.AsNoTracking().Include(posting => posting.City).AsQueryable();
+        var query = context.PersonalizedJobPostings.AsNoTracking().Include(posting => posting.JobPosting).AsQueryable();
         if (userId.HasValue)
         {
             query = query.Where(posting => posting.UserId == userId.Value);
         }
 
-        return await query.OrderByDescending(posting => posting.PublishedDate)
-            .ThenByDescending(posting => posting.CreatedAt).ToListAsync(cancellationToken);
+        return await query.OrderByDescending(posting => posting.CreatedAt)
+            .ThenByDescending(posting => posting.Id).ToListAsync(cancellationToken);
     }
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
@@ -32,10 +32,9 @@ public class PersonalizedJobPostingsRepository(JobDbContext context) : IPersonal
 
     public async Task<IEnumerable<PersonalizedJobPostings>> GetLatestAsync(Guid userId, CancellationToken cancellationToken = default) =>
         await context.PersonalizedJobPostings.AsNoTracking()
-            .Include(posting => posting.City)
+            .Include(posting => posting.JobPosting)
             .Where(posting => posting.UserId == userId)
-            .OrderByDescending(posting => posting.PublishedDate)
-            .ThenByDescending(posting => posting.CreatedAt)
+            .OrderByDescending(posting => posting.CreatedAt)
             .ThenByDescending(posting => posting.Id)
             .Take(3)
             .ToListAsync(cancellationToken);

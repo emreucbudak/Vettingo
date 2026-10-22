@@ -5,8 +5,5 @@ namespace Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.
 public record CreatePersonalizedJobPostingCommandRequest : IRequest
 {
     public Guid UserId { get; init; }
-    public string Title { get; init; } = string.Empty;
-    public DateOnly PublishedDate { get; init; }
-    public int CityId { get; init; }
-    public int Salary { get; init; }
+    public Guid JobPostingId { get; init; }
 }
