@@ -1,11 +1,17 @@
 using FlashMediator;
 using Microsoft.Extensions.Logging;
+using Vettingo.JobService.Application.Messaging;
 using Vettingo.JobService.Application.Repository;
 
 namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CreateJobPosting
 {
-    public class CreateJobPostingCommandHandler(IJobPostingRepository jobPostingRepository, ILogger<CreateJobPostingCommandHandler> logger) : IRequestHandler<CreateJobPostingCommandRequest>
+    public class CreateJobPostingCommandHandler(
+        IJobPostingRepository jobPostingRepository,
+        ILogger<CreateJobPostingCommandHandler> logger,
+        IJobAnalyticsPublisher jobAnalyticsPublisher) : IRequestHandler<CreateJobPostingCommandRequest>
     {
+        private readonly IJobAnalyticsPublisher _jobAnalyticsPublisher = jobAnalyticsPublisher;
+
         public async Task Handle(CreateJobPostingCommandRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(CreateJobPostingCommandHandler));
