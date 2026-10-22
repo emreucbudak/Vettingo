@@ -67,7 +67,7 @@ public class JobPostingStatisticsTests
         var posting = new JobPosting();
         posting.CreateJobPosting(companyId, Guid.NewGuid().ToString(), "Description", "Requirements",
             "Responsibilities", 34, EmploymentType.FullTime, WorkingModel.Remote,
-            ExperienceLevel.Mid, 0, null, status);
+            2, 5, 0, null, status);
         return posting;
     }
 }

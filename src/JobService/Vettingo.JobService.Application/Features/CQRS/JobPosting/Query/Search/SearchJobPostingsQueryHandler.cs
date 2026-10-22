@@ -20,7 +20,8 @@ public sealed class SearchJobPostingsQueryHandler(
             CityId = request.CityId,
             EmploymentType = request.EmploymentType,
             WorkingModel = request.WorkingModel,
-            ExperienceLevel = request.ExperienceLevel,
+            MinimumExperienceYear = request.MinimumExperienceYear,
+            MaximumExperienceYear = request.MaximumExperienceYear,
             MinSalary = request.MinSalary,
             MaxSalary = request.MaxSalary
         };
@@ -34,7 +35,8 @@ public sealed class SearchJobPostingsQueryHandler(
             CityId = jobPosting.CityId,
             EmploymentType = jobPosting.EmploymentType,
             WorkingModel = jobPosting.WorkingModel,
-            ExperienceLevel = jobPosting.ExperienceLevel,
+            MinimumExperienceYear = jobPosting.MinimumExperienceYear,
+            MaximumExperienceYear = jobPosting.MaximumExperienceYear,
             Salary = jobPosting.Salary,
             ApplicationDeadline = jobPosting.ApplicationDeadline,
             Status = jobPosting.Status,

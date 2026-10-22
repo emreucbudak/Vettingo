@@ -12,7 +12,15 @@ public sealed class SearchJobPostingsQueryRequestValidator
         RuleFor(request => request.CityId).GreaterThan(0).When(request => request.CityId.HasValue);
         RuleFor(request => request.EmploymentType).IsInEnum().When(request => request.EmploymentType.HasValue);
         RuleFor(request => request.WorkingModel).IsInEnum().When(request => request.WorkingModel.HasValue);
-        RuleFor(request => request.ExperienceLevel).IsInEnum().When(request => request.ExperienceLevel.HasValue);
+        RuleFor(request => request.MinimumExperienceYear).GreaterThanOrEqualTo(0)
+            .When(request => request.MinimumExperienceYear.HasValue);
+        RuleFor(request => request.MaximumExperienceYear).GreaterThanOrEqualTo(0)
+            .When(request => request.MaximumExperienceYear.HasValue);
+        RuleFor(request => request)
+            .Must(request => !request.MinimumExperienceYear.HasValue ||
+                !request.MaximumExperienceYear.HasValue ||
+                request.MinimumExperienceYear.Value <= request.MaximumExperienceYear.Value)
+            .WithMessage("Minimum deneyim yılı maksimum deneyim yılından büyük olamaz.");
         RuleFor(request => request.MinSalary).GreaterThanOrEqualTo(0).When(request => request.MinSalary.HasValue);
         RuleFor(request => request.MaxSalary).GreaterThanOrEqualTo(0).When(request => request.MaxSalary.HasValue);
         RuleFor(request => request)

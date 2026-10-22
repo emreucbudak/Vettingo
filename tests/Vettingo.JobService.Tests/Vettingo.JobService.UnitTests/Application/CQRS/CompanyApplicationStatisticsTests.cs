@@ -89,7 +89,7 @@ public sealed class CompanyApplicationStatisticsTests
     {
         var posting = new JobPosting();
         posting.CreateJobPosting(companyId, Guid.NewGuid().ToString(), "Description", "Requirements",
-            "Responsibilities", 34, EmploymentType.FullTime, WorkingModel.Hybrid, ExperienceLevel.Mid,
+            "Responsibilities", 34, EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5,
             0, null, status);
         return posting;
     }

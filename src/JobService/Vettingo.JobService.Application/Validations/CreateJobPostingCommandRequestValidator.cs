@@ -14,7 +14,9 @@ public sealed class CreateJobPostingCommandRequestValidator : AbstractValidator<
         RuleFor(x => x.CityId).GreaterThan(0);
         RuleFor(x => x.EmploymentType).IsInEnum();
         RuleFor(x => x.WorkingModel).IsInEnum();
-        RuleFor(x => x.ExperienceLevel).IsInEnum();
+        RuleFor(x => x.MinimumExperienceYear).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.MaximumExperienceYear).GreaterThanOrEqualTo(0)
+            .GreaterThanOrEqualTo(x => x.MinimumExperienceYear);
         RuleFor(x => x.Salary).GreaterThanOrEqualTo(0);
         RuleFor(x => x.ApplicationDeadline).NotEmpty();
         RuleFor(x => x.Status).IsInEnum();

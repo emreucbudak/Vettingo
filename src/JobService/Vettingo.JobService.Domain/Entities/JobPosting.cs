@@ -1,16 +1,16 @@
 using Microsoft.EntityFrameworkCore;
+using Vettingo.JobService.Domain.Common;
 using Vettingo.JobService.Domain.Enums;
 
 namespace Vettingo.JobService.Domain.Entities
 {
     [Index(nameof(Title), IsUnique = true)]
-    public class JobPosting
+    public class JobPosting : BaseEntity
     {
         public JobPosting()
         {
         }
 
-        public Guid Id { get; private set; }
         public Guid CompanyId { get; private set; }
         public string Title { get; private set; } = string.Empty;
         public string Description { get; private set; } = string.Empty;
@@ -20,17 +20,11 @@ namespace Vettingo.JobService.Domain.Entities
         public City City { get; private set; } = null!;
         public EmploymentType EmploymentType { get; private set; }
         public WorkingModel WorkingModel { get; private set; }
-        public ExperienceLevel ExperienceLevel { get; private set; }
+        public int MinimumExperienceYear { get; private set; }
+        public int MaximumExperienceYear { get; private set; }
         public int Salary { get; private set; }
         public DateTime? ApplicationDeadline { get; private set; }
         public JobPostingStatus Status { get; private set; }
-        public DateTime CreatedAt { get; private set; }
-        public DateTime? UpdatedAt { get; private set; }
-
-        public void SetId()
-        {
-            Id = Guid.CreateVersion7();
-        }
 
         public void CreateJobPosting(
             Guid companyId,
@@ -41,17 +35,18 @@ namespace Vettingo.JobService.Domain.Entities
             int cityId,
             EmploymentType employmentType,
             WorkingModel workingModel,
-            ExperienceLevel experienceLevel,
+            int minimumExperienceYear,
+            int maximumExperienceYear,
             int salary,
             DateTime? applicationDeadline,
             JobPostingStatus status)
         {
-            CheckJobPostingContent(companyId, title, description, requirements, responsibilities, cityId, employmentType, workingModel, experienceLevel, salary, applicationDeadline, status);
+            CheckJobPostingContent(companyId, title, description, requirements, responsibilities, cityId, employmentType, workingModel, salary, applicationDeadline, status);
             SetId();
             CompanyId = companyId;
-            UpdateJobPosting(title, description, requirements, responsibilities, cityId, employmentType, workingModel, experienceLevel, salary, applicationDeadline);
+            UpdateJobPosting(title, description, requirements, responsibilities, cityId, employmentType, workingModel, minimumExperienceYear, maximumExperienceYear, salary, applicationDeadline);
             Status = status;
-            CreatedAt = DateTime.UtcNow;
+            SetCreatedAt();
             UpdatedAt = null;
         }
 
@@ -63,11 +58,12 @@ namespace Vettingo.JobService.Domain.Entities
             int cityId,
             EmploymentType employmentType,
             WorkingModel workingModel,
-            ExperienceLevel experienceLevel,
+            int minimumExperienceYear,
+            int maximumExperienceYear,
             int salary,
             DateTime? applicationDeadline)
         {
-            CheckJobPostingContent(CompanyId, title, description, requirements, responsibilities, cityId, employmentType, workingModel, experienceLevel, salary, applicationDeadline);
+            CheckJobPostingContent(CompanyId, title, description, requirements, responsibilities, cityId, employmentType, workingModel, salary, applicationDeadline);
             Title = title;
             Description = description;
             Requirements = requirements;
@@ -75,10 +71,11 @@ namespace Vettingo.JobService.Domain.Entities
             CityId = cityId;
             EmploymentType = employmentType;
             WorkingModel = workingModel;
-            ExperienceLevel = experienceLevel;
+            MinimumExperienceYear = minimumExperienceYear;
+            MaximumExperienceYear = maximumExperienceYear;
             Salary = salary;
             ApplicationDeadline = applicationDeadline;
-            UpdatedAt = DateTime.UtcNow;
+            SetUpdatedAt();
         }
 
         public void SetStatus(JobPostingStatus status)
@@ -89,7 +86,7 @@ namespace Vettingo.JobService.Domain.Entities
             }
 
             Status = status;
-            UpdatedAt = DateTime.UtcNow;
+            SetUpdatedAt();
         }
 
         public void CheckJobPosting(Guid companyId, string title, string description, string requirements)
@@ -113,7 +110,6 @@ namespace Vettingo.JobService.Domain.Entities
             int cityId,
             EmploymentType employmentType,
             WorkingModel workingModel,
-            ExperienceLevel experienceLevel,
             int salary,
             DateTime? applicationDeadline,
             JobPostingStatus? status = null)
@@ -130,11 +126,6 @@ namespace Vettingo.JobService.Domain.Entities
             if (!Enum.IsDefined(typeof(WorkingModel), workingModel))
             {
                 throw new ArgumentOutOfRangeException(nameof(workingModel), workingModel, "Çalışma modeli geçersiz.");
-            }
-
-            if (!Enum.IsDefined(typeof(ExperienceLevel), experienceLevel))
-            {
-                throw new ArgumentOutOfRangeException(nameof(experienceLevel), experienceLevel, "Deneyim seviyesi geçersiz.");
             }
 
             if (status.HasValue && !Enum.IsDefined(typeof(JobPostingStatus), status.Value))
