@@ -87,13 +87,13 @@ namespace Vettingo.JobService.Persistence.Repository
             if (criteria.MinSalary.HasValue)
             {
                 query = query.Where(jobPosting =>
-                    jobPosting.Salary >= criteria.MinSalary.Value);
+                    jobPosting.MinSalary >= criteria.MinSalary.Value);
             }
 
             if (criteria.MaxSalary.HasValue)
             {
                 query = query.Where(jobPosting =>
-                    jobPosting.Salary <= criteria.MaxSalary.Value);
+                    jobPosting.MaxSalary <= criteria.MaxSalary.Value);
             }
 
             return await query

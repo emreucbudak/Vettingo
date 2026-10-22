@@ -95,8 +95,8 @@ public class CompanyJobPostingsTests
     private static JobPosting CreatePosting(Guid companyId, string title, JobPostingStatus status)
     {
         var posting = new JobPosting();
-        posting.CreateJobPosting(companyId, title, "Description", "Requirements", "Responsibilities", 34,
-            EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5, 0, null, status);
+        posting.CreateJobPosting(companyId, title, "Description", new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34,
+            EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5, 0, 0, null, status);
         return posting;
     }
 }

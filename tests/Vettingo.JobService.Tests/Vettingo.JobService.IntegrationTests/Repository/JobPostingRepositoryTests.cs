@@ -26,11 +26,13 @@ namespace Vettingo.JobService.UnitTests.Repository
             await repository.AddJobPostingAsync(jobPosting);
             await repository.SaveChangesAsync();
 
+            context.ChangeTracker.Clear();
             var result = await repository.GetJobPostingByIdAsync(jobPosting.Id);
 
             result.Should().NotBeNull();
             result!.Id.Should().Be(jobPosting.Id);
             result.Title.Should().Be("Backend Developer");
+            result.RequirementSkills.Should().BeEquivalentTo(jobPosting.RequirementSkills);
         }
 
         [Fact]
@@ -86,13 +88,12 @@ namespace Vettingo.JobService.UnitTests.Repository
                 companyId,
                 title,
                 "Build and maintain backend services.",
-                "C# and PostgreSQL experience.",
-                "Deliver reliable service features.",
+                new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                 34,
                 EmploymentType.FullTime,
                 WorkingModel.Remote,
                 2, 5,
-                50000,
+                50000, 50000,
                 DateTime.UtcNow.AddDays(30),
                 JobPostingStatus.Active);
 

@@ -71,9 +71,8 @@ public sealed class CityModelTests
     public void Posting_Should_Reject_Nonpositive_CityId(int cityId)
     {
         var posting = new JobPosting();
-        Action create = () => posting.CreateJobPosting(Guid.NewGuid(), "Title", "Description", "Requirements",
-            "Responsibilities", cityId, EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5,
-            0, null, JobPostingStatus.Active);
+        Action create = () => posting.CreateJobPosting(Guid.NewGuid(), "Title", "Description", new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, cityId, EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5,
+            0, 0, null, JobPostingStatus.Active);
         create.Should().Throw<ArgumentOutOfRangeException>().WithParameterName("cityId");
         new SearchJobPostingsQueryRequestValidator().Validate(new SearchJobPostingsQueryRequest { CityId = cityId })
             .IsValid.Should().BeFalse();
@@ -86,9 +85,8 @@ public sealed class CityModelTests
         foreach (var cityId in new[] { 6, 34 })
         {
             var posting = new JobPosting();
-            posting.CreateJobPosting(Guid.NewGuid(), $"Developer {cityId}", "Description", "Requirements",
-                "Responsibilities", cityId, EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5,
-                0, null, JobPostingStatus.Active);
+            posting.CreateJobPosting(Guid.NewGuid(), $"Developer {cityId}", "Description", new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, cityId, EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5,
+                0, 0, null, JobPostingStatus.Active);
             context.JobPostings.Add(posting);
         }
         await context.SaveChangesAsync();
@@ -104,9 +102,8 @@ public sealed class CityModelTests
     public void Remote_Posting_Should_Keep_Its_Required_City()
     {
         var posting = new JobPosting();
-        posting.CreateJobPosting(Guid.NewGuid(), "Remote developer", "Description", "Requirements",
-            "Responsibilities", 34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5,
-            0, null, JobPostingStatus.Active);
+        posting.CreateJobPosting(Guid.NewGuid(), "Remote developer", "Description", new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5,
+            0, 0, null, JobPostingStatus.Active);
         posting.CityId.Should().Be(34);
         posting.WorkingModel.Should().Be(WorkingModel.Remote);
     }

@@ -1,4 +1,6 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Vettingo.JobService.Domain.Entities;
 using Vettingo.JobService.Domain.Enums;
 
@@ -13,6 +15,20 @@ namespace Vettingo.JobService.Persistence.DbContext
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.Entity<JobPosting>()
+                .Property(jobPosting => jobPosting.RequirementSkills)
+                .HasColumnType("jsonb")
+                .HasConversion(
+                    skills => JsonSerializer.Serialize(skills, (JsonSerializerOptions?)null),
+                    json => JsonSerializer.Deserialize<Dictionary<string, int>>(json, (JsonSerializerOptions?)null)!)
+                .Metadata.SetValueComparer(new ValueComparer<Dictionary<string, int>>(
+                    (left, right) => left == right ||
+                        (left != null && right != null && left.Count == right.Count &&
+                         left.All(skill => right.ContainsKey(skill.Key) && right[skill.Key] == skill.Value)),
+                    skills => skills.OrderBy(skill => skill.Key, StringComparer.Ordinal)
+                        .Aggregate(0, (hash, skill) => HashCode.Combine(hash, skill.Key, skill.Value)),
+                    skills => new Dictionary<string, int>(skills)));
+
             builder.Entity<JobPosting>()
                 .Property(jobPosting => jobPosting.EmploymentType)
                 .HasConversion<string>();

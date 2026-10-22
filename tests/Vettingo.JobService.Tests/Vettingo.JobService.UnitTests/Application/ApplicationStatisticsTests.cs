@@ -49,8 +49,8 @@ public class ApplicationStatisticsTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         var companyId = Guid.NewGuid();
         var job = new JobPosting();
-        job.CreateJobPosting(companyId, "Stats role", "Description", "Requirements", "Responsibilities", 34,
-            EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 0, null, JobPostingStatus.Active);
+        job.CreateJobPosting(companyId, "Stats role", "Description", new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34,
+            EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 0, 0, null, JobPostingStatus.Active);
         db.JobPostings.Add(job);
         var jobId = job.Id;
         foreach (var status in Enum.GetValues<ApplicationStatus>())

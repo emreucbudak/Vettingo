@@ -87,14 +87,14 @@ namespace Vettingo.JobService.API.Controllers
                 JobPostingId = jobPostingId,
                 Title = request.Title,
                 Description = request.Description,
-                Requirements = request.Requirements,
-                Responsibilities = request.Responsibilities,
+                RequirementSkills = request.RequirementSkills,
                 CityId = request.CityId,
                 EmploymentType = request.EmploymentType,
                 WorkingModel = request.WorkingModel,
                 MinimumExperienceYear = request.MinimumExperienceYear,
                 MaximumExperienceYear = request.MaximumExperienceYear,
-                Salary = request.Salary,
+                MinSalary = request.MinSalary,
+                MaxSalary = request.MaxSalary,
                 ApplicationDeadline = request.ApplicationDeadline,
                 Status = request.Status
             });
