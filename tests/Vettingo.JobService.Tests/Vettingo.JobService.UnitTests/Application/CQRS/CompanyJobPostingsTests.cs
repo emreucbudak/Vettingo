@@ -96,7 +96,7 @@ public class CompanyJobPostingsTests
     {
         var posting = new JobPosting();
         posting.CreateJobPosting(companyId, title, "Description", "Requirements", "Responsibilities", 34,
-            EmploymentType.FullTime, WorkingModel.Hybrid, ExperienceLevel.Mid, 0, null, status);
+            EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5, 0, null, status);
         return posting;
     }
 }

@@ -25,7 +25,8 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.Creat
                 request.CityId,
                 request.EmploymentType,
                 request.WorkingModel,
-                request.ExperienceLevel,
+                request.MinimumExperienceYear,
+                request.MaximumExperienceYear,
                 request.Salary,
                 request.ApplicationDeadline,
                 request.Status);

@@ -92,7 +92,8 @@ namespace Vettingo.JobService.API.Controllers
                 CityId = request.CityId,
                 EmploymentType = request.EmploymentType,
                 WorkingModel = request.WorkingModel,
-                ExperienceLevel = request.ExperienceLevel,
+                MinimumExperienceYear = request.MinimumExperienceYear,
+                MaximumExperienceYear = request.MaximumExperienceYear,
                 Salary = request.Salary,
                 ApplicationDeadline = request.ApplicationDeadline,
                 Status = request.Status

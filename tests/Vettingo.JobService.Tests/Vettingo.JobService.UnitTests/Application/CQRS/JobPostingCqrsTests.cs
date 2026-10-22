@@ -80,7 +80,8 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 CityId = 34,
                 EmploymentType = EmploymentType.FullTime,
                 WorkingModel = WorkingModel.Remote,
-                ExperienceLevel = ExperienceLevel.Mid,
+                MinimumExperienceYear = 2,
+                MaximumExperienceYear = 5,
                 Salary = 50000,
                 ApplicationDeadline = DateTime.UtcNow.AddDays(30),
                 Status = JobPostingStatus.Active
@@ -99,7 +100,8 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 CityId = 6,
                 EmploymentType = EmploymentType.FullTime,
                 WorkingModel = WorkingModel.Hybrid,
-                ExperienceLevel = ExperienceLevel.Senior,
+                MinimumExperienceYear = 2,
+                MaximumExperienceYear = 5,
                 Salary = 60000,
                 ApplicationDeadline = DateTime.UtcNow.AddDays(45),
                 Status = JobPostingStatus.Active
@@ -118,7 +120,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 34,
                 EmploymentType.FullTime,
                 WorkingModel.Remote,
-                ExperienceLevel.Mid,
+                2, 5,
                 50000,
                 DateTime.UtcNow.AddDays(30),
                 JobPostingStatus.Active);

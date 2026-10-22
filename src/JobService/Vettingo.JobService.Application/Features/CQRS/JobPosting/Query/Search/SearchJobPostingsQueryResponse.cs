@@ -11,7 +11,8 @@ public sealed record SearchJobPostingsQueryResponse
     public int CityId { get; init; }
     public EmploymentType EmploymentType { get; init; }
     public WorkingModel WorkingModel { get; init; }
-    public ExperienceLevel ExperienceLevel { get; init; }
+    public int MinimumExperienceYear { get; init; }
+    public int MaximumExperienceYear { get; init; }
     public int Salary { get; init; }
     public DateTime? ApplicationDeadline { get; init; }
     public JobPostingStatus Status { get; init; }

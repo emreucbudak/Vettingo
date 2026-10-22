@@ -37,7 +37,7 @@ public sealed class JobPostingSalarySearchTests
     {
         var posting = new JobPosting();
         posting.CreateJobPosting(Guid.NewGuid(), Guid.NewGuid().ToString(), "Description", "Requirements",
-            "Responsibilities", 34, EmploymentType.FullTime, WorkingModel.Remote, ExperienceLevel.Mid,
+            "Responsibilities", 34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5,
             salary, null, status);
         return posting;
     }

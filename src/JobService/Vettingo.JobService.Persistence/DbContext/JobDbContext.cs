@@ -22,10 +22,6 @@ namespace Vettingo.JobService.Persistence.DbContext
                 .HasConversion<string>();
 
             builder.Entity<JobPosting>()
-                .Property(jobPosting => jobPosting.ExperienceLevel)
-                .HasConversion<string>();
-
-            builder.Entity<JobPosting>()
                 .Property(jobPosting => jobPosting.Status)
                 // Preserve the existing database representation when renaming Published to Active.
                 .HasConversion(

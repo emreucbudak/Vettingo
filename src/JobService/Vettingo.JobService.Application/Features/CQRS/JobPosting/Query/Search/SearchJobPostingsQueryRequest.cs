@@ -13,7 +13,8 @@ public sealed record SearchJobPostingsQueryRequest
     public int? CityId { get; init; }
     public EmploymentType? EmploymentType { get; init; }
     public WorkingModel? WorkingModel { get; init; }
-    public ExperienceLevel? ExperienceLevel { get; init; }
+    public int? MinimumExperienceYear { get; init; }
+    public int? MaximumExperienceYear { get; init; }
     public int? MinSalary { get; init; }
     public int? MaxSalary { get; init; }
 
@@ -34,7 +35,8 @@ public sealed record SearchJobPostingsQueryRequest
             CityId?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "all",
             EmploymentType?.ToString() ?? "all",
             WorkingModel?.ToString() ?? "all",
-            ExperienceLevel?.ToString() ?? "all",
+            MinimumExperienceYear?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "all",
+            MaximumExperienceYear?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "all",
             MinSalary?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "all",
             MaxSalary?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "all");
     }

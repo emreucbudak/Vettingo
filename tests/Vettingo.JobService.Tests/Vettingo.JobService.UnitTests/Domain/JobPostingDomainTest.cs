@@ -24,7 +24,7 @@ namespace Vettingo.JobService.UnitTests.Domain
                     34,
                     EmploymentType.FullTime,
                     WorkingModel.OnSite,
-                    ExperienceLevel.Lead,
+                    2, 5,
                     50000,
                     DateTime.UtcNow.AddDays(30),
                     JobPostingStatus.Active);
@@ -52,7 +52,7 @@ namespace Vettingo.JobService.UnitTests.Domain
                     34,
                     EmploymentType.FullTime,
                     WorkingModel.OnSite,
-                    ExperienceLevel.Lead,
+                    2, 5,
                     50000,
                     DateTime.UtcNow.AddDays(30),
                     JobPostingStatus.Active);
@@ -80,7 +80,7 @@ namespace Vettingo.JobService.UnitTests.Domain
                     34,
                     EmploymentType.FullTime,
                     WorkingModel.OnSite,
-                    ExperienceLevel.Lead,
+                    2, 5,
                     -1,
                     DateTime.UtcNow.AddDays(30),
                     JobPostingStatus.Active);

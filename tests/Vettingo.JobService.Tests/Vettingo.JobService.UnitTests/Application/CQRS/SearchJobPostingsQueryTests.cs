@@ -29,7 +29,8 @@ public sealed class SearchJobPostingsQueryTests
             CityId = 34,
             EmploymentType = EmploymentType.FullTime,
             WorkingModel = WorkingModel.Hybrid,
-            ExperienceLevel = ExperienceLevel.Senior,
+            MinimumExperienceYear = 2,
+            MaximumExperienceYear = 5,
             MinSalary = 100000,
             MaxSalary = 160000
         };
@@ -48,7 +49,8 @@ public sealed class SearchJobPostingsQueryTests
                 criteria.CityId == request.CityId &&
                 criteria.EmploymentType == request.EmploymentType &&
                 criteria.WorkingModel == request.WorkingModel &&
-                criteria.ExperienceLevel == request.ExperienceLevel &&
+                criteria.MinimumExperienceYear == request.MinimumExperienceYear &&
+                criteria.MaximumExperienceYear == request.MaximumExperienceYear &&
                 criteria.MinSalary == request.MinSalary &&
                 criteria.MaxSalary == request.MaxSalary),
             Arg.Any<CancellationToken>());
@@ -66,7 +68,7 @@ public sealed class SearchJobPostingsQueryTests
             34,
             EmploymentType.FullTime,
             WorkingModel.Hybrid,
-            ExperienceLevel.Senior,
+            2, 5,
             100000,
             DateTime.UtcNow.AddDays(30),
             JobPostingStatus.Active);

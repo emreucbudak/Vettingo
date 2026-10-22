@@ -45,7 +45,8 @@ public sealed class JobPostingSearchRepositoryTests : IClassFixture<PostgreSqlCo
             CityId = 34,
             EmploymentType = EmploymentType.FullTime,
             WorkingModel = WorkingModel.Hybrid,
-            ExperienceLevel = ExperienceLevel.Senior,
+            MinimumExperienceYear = 2,
+            MaximumExperienceYear = 5,
             MinSalary = 110000,
             MaxSalary = 140000
         };
@@ -63,7 +64,8 @@ public sealed class JobPostingSearchRepositoryTests : IClassFixture<PostgreSqlCo
             CityId = criteria.CityId,
             EmploymentType = criteria.EmploymentType,
             WorkingModel = criteria.WorkingModel,
-            ExperienceLevel = criteria.ExperienceLevel
+            MinimumExperienceYear = criteria.MinimumExperienceYear,
+            MaximumExperienceYear = criteria.MaximumExperienceYear
         })).Should().ContainSingle("enum filtreleri yalnızca hibrit ilanı bırakmalı");
 
         IReadOnlyList<JobPosting> result = await repository.SearchJobPostingsAsync(criteria);
@@ -88,7 +90,7 @@ public sealed class JobPostingSearchRepositoryTests : IClassFixture<PostgreSqlCo
             cityId,
             EmploymentType.FullTime,
             workingModel,
-            ExperienceLevel.Senior,
+            2, 5,
             125000,
             DateTime.UtcNow.AddDays(30),
             status);

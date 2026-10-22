@@ -72,10 +72,16 @@ namespace Vettingo.JobService.Persistence.Repository
                     jobPosting.WorkingModel == criteria.WorkingModel.Value);
             }
 
-            if (criteria.ExperienceLevel.HasValue)
+            if (criteria.MinimumExperienceYear.HasValue)
             {
                 query = query.Where(jobPosting =>
-                    jobPosting.ExperienceLevel == criteria.ExperienceLevel.Value);
+                    jobPosting.MinimumExperienceYear >= criteria.MinimumExperienceYear.Value);
+            }
+
+            if (criteria.MaximumExperienceYear.HasValue)
+            {
+                query = query.Where(jobPosting =>
+                    jobPosting.MaximumExperienceYear <= criteria.MaximumExperienceYear.Value);
             }
 
             if (criteria.MinSalary.HasValue)
