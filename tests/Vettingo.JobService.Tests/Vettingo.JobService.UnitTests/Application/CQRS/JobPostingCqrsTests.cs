@@ -15,6 +15,56 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
     public class JobPostingCqrsTests
     {
         [Fact]
+        public void Command_Validators_Should_Reject_Missing_Skills_And_Blank_Keys()
+        {
+            Dictionary<string, int>[] invalidSkills = [null!, new(), new() { [" "] = 3 }];
+            foreach (var skills in invalidSkills)
+            {
+                var create = CreateJobPostingRequest() with { RequirementSkills = skills };
+                var update = CreateUpdateJobPostingRequest(Guid.NewGuid()) with { RequirementSkills = skills };
+
+                new CreateJobPostingCommandRequestValidator().Validate(create).IsValid.Should().BeFalse();
+                new UpdateJobPostingCommandRequestValidator().Validate(update).IsValid.Should().BeFalse();
+            }
+        }
+
+        [Fact]
+        public async Task UpdateJobPostingCommandHandler_Should_Replace_RequirementSkills()
+        {
+            var repository = Substitute.For<IJobPostingRepository>();
+            var posting = CreateJobPosting(Guid.NewGuid(), "Backend Developer");
+            repository.GetJobPostingByIdAsync(posting.Id).Returns(_ => ReturnAsync<JobPosting?>(posting));
+            repository.SaveChangesAsync().Returns(_ => ReturnAsync(1));
+            var handler = new UpdateJobPostingCommandHandler(repository, Substitute.For<ILogger<UpdateJobPostingCommandHandler>>());
+            var request = CreateUpdateJobPostingRequest(posting.Id) with
+            {
+                RequirementSkills = new Dictionary<string, int> { ["Go"] = 4 }
+            };
+
+            await handler.Handle(request, CancellationToken.None);
+
+            posting.RequirementSkills.Should().BeEquivalentTo(request.RequirementSkills);
+            repository.Received(1).UpdateJobPosting(posting);
+            await repository.Received(1).SaveChangesAsync();
+        }
+
+        [Theory]
+        [InlineData(-1, 0, false)]
+        [InlineData(0, -1, false)]
+        [InlineData(75000, 50000, false)]
+        [InlineData(0, 0, false)]
+        [InlineData(50000, 50000, false)]
+        [InlineData(50000, 75000, true)]
+        public void Command_Validators_Should_Validate_Salary_Range(int minSalary, int maxSalary, bool isValid)
+        {
+            var create = CreateJobPostingRequest() with { MinSalary = minSalary, MaxSalary = maxSalary };
+            var update = CreateUpdateJobPostingRequest(Guid.NewGuid()) with { MinSalary = minSalary, MaxSalary = maxSalary };
+
+            new CreateJobPostingCommandRequestValidator().Validate(create).IsValid.Should().Be(isValid);
+            new UpdateJobPostingCommandRequestValidator().Validate(update).IsValid.Should().Be(isValid);
+        }
+
+        [Fact]
         public async Task CreateJobPostingCommandHandler_Should_Create_And_Save_JobPosting()
         {
             var repository = Substitute.For<IJobPostingRepository>();
@@ -31,7 +81,11 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             await repository.Received(1).AddJobPostingAsync(Arg.Is<JobPosting>(jobPosting =>
                 jobPosting.CompanyId == request.CompanyId &&
                 jobPosting.Title == request.Title &&
-                jobPosting.Salary == request.Salary &&
+                jobPosting.RequirementSkills.Count == request.RequirementSkills.Count &&
+                jobPosting.RequirementSkills["C#"] == request.RequirementSkills["C#"] &&
+                jobPosting.RequirementSkills["PostgreSQL"] == request.RequirementSkills["PostgreSQL"] &&
+                jobPosting.MinSalary == request.MinSalary &&
+                jobPosting.MaxSalary == request.MaxSalary &&
                 jobPosting.Status == request.Status));
             await repository.Received(1).SaveChangesAsync();
         }
@@ -64,7 +118,9 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             response.Id.Should().Be(jobPosting.Id);
             response.CompanyId.Should().Be(jobPosting.CompanyId);
             response.Title.Should().Be(jobPosting.Title);
-            response.Salary.Should().Be(jobPosting.Salary);
+            response.RequirementSkills.Should().BeEquivalentTo(jobPosting.RequirementSkills);
+            response.MinSalary.Should().Be(jobPosting.MinSalary);
+            response.MaxSalary.Should().Be(jobPosting.MaxSalary);
             response.Status.Should().Be(jobPosting.Status);
         }
 
@@ -75,14 +131,14 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 CompanyId = Guid.NewGuid(),
                 Title = "Backend Developer",
                 Description = "Build and maintain backend services.",
-                Requirements = "C# and PostgreSQL experience.",
-                Responsibilities = "Deliver reliable service features.",
+                RequirementSkills = new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                 CityId = 34,
                 EmploymentType = EmploymentType.FullTime,
                 WorkingModel = WorkingModel.Remote,
                 MinimumExperienceYear = 2,
                 MaximumExperienceYear = 5,
-                Salary = 50000,
+                MinSalary = 50000,
+                MaxSalary = 75000,
                 ApplicationDeadline = DateTime.UtcNow.AddDays(30),
                 Status = JobPostingStatus.Active
             };
@@ -95,14 +151,14 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 JobPostingId = jobPostingId,
                 Title = "Updated Backend Developer",
                 Description = "Updated description.",
-                Requirements = "Updated requirements.",
-                Responsibilities = "Updated responsibilities.",
+                RequirementSkills = new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                 CityId = 6,
                 EmploymentType = EmploymentType.FullTime,
                 WorkingModel = WorkingModel.Hybrid,
                 MinimumExperienceYear = 2,
                 MaximumExperienceYear = 5,
-                Salary = 60000,
+                MinSalary = 60000,
+                MaxSalary = 75000,
                 ApplicationDeadline = DateTime.UtcNow.AddDays(45),
                 Status = JobPostingStatus.Active
             };
@@ -115,13 +171,12 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 companyId,
                 title,
                 "Build and maintain backend services.",
-                "C# and PostgreSQL experience.",
-                "Deliver reliable service features.",
+                new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                 34,
                 EmploymentType.FullTime,
                 WorkingModel.Remote,
                 2, 5,
-                50000,
+                50000, 75000,
                 DateTime.UtcNow.AddDays(30),
                 JobPostingStatus.Active);
 

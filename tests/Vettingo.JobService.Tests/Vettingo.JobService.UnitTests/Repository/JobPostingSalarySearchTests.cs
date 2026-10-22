@@ -15,9 +15,9 @@ public sealed class JobPostingSalarySearchTests
     {
         await using var context = new JobDbContext(new DbContextOptionsBuilder<JobDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
-        foreach (var salary in new[] { 0, 50000, 75000, 100000 })
-            context.JobPostings.Add(CreatePosting(salary, JobPostingStatus.Active));
-        context.JobPostings.Add(CreatePosting(75000, JobPostingStatus.Draft));
+        foreach (var (minSalary, maxSalary) in new[] { (0, 25000), (50000, 75000), (75000, 100000), (100000, 125000) })
+            context.JobPostings.Add(CreatePosting(minSalary, maxSalary, JobPostingStatus.Active));
+        context.JobPostings.Add(CreatePosting(50000, 75000, JobPostingStatus.Draft));
         await context.SaveChangesAsync();
         var repository = new JobPostingRepository(context);
 
@@ -25,20 +25,20 @@ public sealed class JobPostingSalarySearchTests
         {
             MinSalary = 50000, MaxSalary = 75000
         });
-        bounded.Select(posting => posting.Salary).Order().Should().Equal(50000, 75000);
+        bounded.Should().ContainSingle().Which.Should().Match<JobPosting>(posting =>
+            posting.MinSalary == 50000 && posting.MaxSalary == 75000);
         var minimumOnly = await repository.SearchJobPostingsAsync(new() { MinSalary = 75000 });
-        minimumOnly.Select(posting => posting.Salary).Order().Should().Equal(75000, 100000);
-        var maximumOnly = await repository.SearchJobPostingsAsync(new() { MaxSalary = 50000 });
-        maximumOnly.Select(posting => posting.Salary).Order().Should().Equal(0, 50000);
+        minimumOnly.Select(posting => posting.MinSalary).Order().Should().Equal(75000, 100000);
+        var maximumOnly = await repository.SearchJobPostingsAsync(new() { MaxSalary = 75000 });
+        maximumOnly.Select(posting => posting.MaxSalary).Order().Should().Equal(25000, 75000);
         (await repository.SearchJobPostingsAsync(new JobPostingSearchCriteria())).Should().HaveCount(4);
     }
 
-    private static JobPosting CreatePosting(int salary, JobPostingStatus status)
+    private static JobPosting CreatePosting(int minSalary, int maxSalary, JobPostingStatus status)
     {
         var posting = new JobPosting();
-        posting.CreateJobPosting(Guid.NewGuid(), Guid.NewGuid().ToString(), "Description", "Requirements",
-            "Responsibilities", 34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5,
-            salary, null, status);
+        posting.CreateJobPosting(Guid.NewGuid(), Guid.NewGuid().ToString(), "Description", new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5,
+            minSalary, maxSalary, null, status);
         return posting;
     }
 }

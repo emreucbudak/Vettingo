@@ -42,7 +42,9 @@ public sealed class SearchJobPostingsQueryTests
         response.Should().ContainSingle();
         response[0].Id.Should().Be(jobPosting.Id);
         response[0].Title.Should().Be(jobPosting.Title);
-        response[0].Salary.Should().Be(jobPosting.Salary);
+        response[0].RequirementSkills.Should().BeEquivalentTo(jobPosting.RequirementSkills);
+        response[0].MinSalary.Should().Be(jobPosting.MinSalary);
+        response[0].MaxSalary.Should().Be(jobPosting.MaxSalary);
         await repository.Received(1).SearchJobPostingsAsync(
             Arg.Is<JobPostingSearchCriteria>(criteria =>
                 criteria.Title == request.Title &&
@@ -63,13 +65,12 @@ public sealed class SearchJobPostingsQueryTests
             Guid.NewGuid(),
             "Senior Backend Developer",
             "Build reliable services.",
-            "C# and PostgreSQL.",
-            "Develop backend capabilities.",
+            new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
             34,
             EmploymentType.FullTime,
             WorkingModel.Hybrid,
             2, 5,
-            100000,
+            100000, 150000,
             DateTime.UtcNow.AddDays(30),
             JobPostingStatus.Active);
         return jobPosting;

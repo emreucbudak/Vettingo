@@ -20,14 +20,14 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.Creat
                 request.CompanyId,
                 request.Title,
                 request.Description,
-                request.Requirements,
-                request.Responsibilities,
+                request.RequirementSkills,
                 request.CityId,
                 request.EmploymentType,
                 request.WorkingModel,
                 request.MinimumExperienceYear,
                 request.MaximumExperienceYear,
-                request.Salary,
+                request.MinSalary,
+                request.MaxSalary,
                 request.ApplicationDeadline,
                 request.Status);
 

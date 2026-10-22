@@ -85,13 +85,12 @@ public sealed class JobPostingSearchRepositoryTests : IClassFixture<PostgreSqlCo
             Guid.NewGuid(),
             title,
             "Build reliable services.",
-            "C# and PostgreSQL.",
-            "Develop backend capabilities.",
+            new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
             cityId,
             EmploymentType.FullTime,
             workingModel,
             2, 5,
-            125000,
+            125000, 135000,
             DateTime.UtcNow.AddDays(30),
             status);
         return jobPosting;

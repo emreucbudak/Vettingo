@@ -88,9 +88,8 @@ public sealed class CompanyApplicationStatisticsTests
     private static JobPosting CreatePosting(Guid companyId, JobPostingStatus status)
     {
         var posting = new JobPosting();
-        posting.CreateJobPosting(companyId, Guid.NewGuid().ToString(), "Description", "Requirements",
-            "Responsibilities", 34, EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5,
-            0, null, status);
+        posting.CreateJobPosting(companyId, Guid.NewGuid().ToString(), "Description", new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34, EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5,
+            0, 0, null, status);
         return posting;
     }
 

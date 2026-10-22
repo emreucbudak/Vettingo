@@ -14,15 +14,15 @@ namespace Vettingo.JobService.Domain.Entities
         public Guid CompanyId { get; private set; }
         public string Title { get; private set; } = string.Empty;
         public string Description { get; private set; } = string.Empty;
-        public string Requirements { get; private set; } = string.Empty;
-        public string Responsibilities { get; private set; } = string.Empty;
+        public Dictionary<string, int> RequirementSkills { get; private set; } = new();
         public int CityId { get; private set; }
         public City City { get; private set; } = null!;
         public EmploymentType EmploymentType { get; private set; }
         public WorkingModel WorkingModel { get; private set; }
         public int MinimumExperienceYear { get; private set; }
         public int MaximumExperienceYear { get; private set; }
-        public int Salary { get; private set; }
+        public int MinSalary { get; private set; }
+        public int MaxSalary { get; private set; }
         public DateTime? ApplicationDeadline { get; private set; }
         public JobPostingStatus Status { get; private set; }
 
@@ -30,21 +30,21 @@ namespace Vettingo.JobService.Domain.Entities
             Guid companyId,
             string title,
             string description,
-            string requirements,
-            string responsibilities,
+            Dictionary<string, int> requirementSkills,
             int cityId,
             EmploymentType employmentType,
             WorkingModel workingModel,
             int minimumExperienceYear,
             int maximumExperienceYear,
-            int salary,
+            int minSalary,
+            int maxSalary,
             DateTime? applicationDeadline,
             JobPostingStatus status)
         {
-            CheckJobPostingContent(companyId, title, description, requirements, responsibilities, cityId, employmentType, workingModel, salary, applicationDeadline, status);
+            CheckJobPostingContent(companyId, title, description, cityId, employmentType, workingModel, applicationDeadline, status);
             SetId();
             CompanyId = companyId;
-            UpdateJobPosting(title, description, requirements, responsibilities, cityId, employmentType, workingModel, minimumExperienceYear, maximumExperienceYear, salary, applicationDeadline);
+            UpdateJobPosting(title, description, requirementSkills, cityId, employmentType, workingModel, minimumExperienceYear, maximumExperienceYear, minSalary, maxSalary, applicationDeadline);
             Status = status;
             SetCreatedAt();
             UpdatedAt = null;
@@ -53,27 +53,27 @@ namespace Vettingo.JobService.Domain.Entities
         public void UpdateJobPosting(
             string title,
             string description,
-            string requirements,
-            string responsibilities,
+            Dictionary<string, int> requirementSkills,
             int cityId,
             EmploymentType employmentType,
             WorkingModel workingModel,
             int minimumExperienceYear,
             int maximumExperienceYear,
-            int salary,
+            int minSalary,
+            int maxSalary,
             DateTime? applicationDeadline)
         {
-            CheckJobPostingContent(CompanyId, title, description, requirements, responsibilities, cityId, employmentType, workingModel, salary, applicationDeadline);
+            CheckJobPostingContent(CompanyId, title, description, cityId, employmentType, workingModel, applicationDeadline);
             Title = title;
             Description = description;
-            Requirements = requirements;
-            Responsibilities = responsibilities;
+            RequirementSkills = new Dictionary<string, int>(requirementSkills);
             CityId = cityId;
             EmploymentType = employmentType;
             WorkingModel = workingModel;
             MinimumExperienceYear = minimumExperienceYear;
             MaximumExperienceYear = maximumExperienceYear;
-            Salary = salary;
+            MinSalary = minSalary;
+            MaxSalary = maxSalary;
             ApplicationDeadline = applicationDeadline;
             SetUpdatedAt();
         }
@@ -89,7 +89,7 @@ namespace Vettingo.JobService.Domain.Entities
             SetUpdatedAt();
         }
 
-        public void CheckJobPosting(Guid companyId, string title, string description, string requirements)
+        public void CheckJobPosting(Guid companyId, string title, string description)
         {
             if (companyId == Guid.Empty)
             {
@@ -98,24 +98,19 @@ namespace Vettingo.JobService.Domain.Entities
 
             ArgumentNullException.ThrowIfNullOrWhiteSpace(title, nameof(title));
             ArgumentNullException.ThrowIfNullOrWhiteSpace(description, nameof(description));
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(requirements, nameof(requirements));
         }
 
         public void CheckJobPostingContent(
             Guid companyId,
             string title,
             string description,
-            string requirements,
-            string responsibilities,
             int cityId,
             EmploymentType employmentType,
             WorkingModel workingModel,
-            int salary,
             DateTime? applicationDeadline,
             JobPostingStatus? status = null)
         {
-            CheckJobPosting(companyId, title, description, requirements);
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(responsibilities, nameof(responsibilities));
+            CheckJobPosting(companyId, title, description);
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(cityId, nameof(cityId));
 
             if (!Enum.IsDefined(typeof(EmploymentType), employmentType))
@@ -132,8 +127,6 @@ namespace Vettingo.JobService.Domain.Entities
             {
                 throw new ArgumentOutOfRangeException(nameof(status), status.Value, "İş ilanı durumu geçersiz.");
             }
-
-            ArgumentOutOfRangeException.ThrowIfNegative(salary, nameof(salary));
 
             if (applicationDeadline.HasValue && applicationDeadline.Value == default)
             {
