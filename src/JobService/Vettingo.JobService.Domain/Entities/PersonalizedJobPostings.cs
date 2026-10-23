@@ -1,7 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using Vettingo.JobService.Domain.Common;
 
 namespace Vettingo.JobService.Domain.Entities;
 
+[Index(nameof(UserId))]
 public class PersonalizedJobPostings : BaseEntity
 {
     public PersonalizedJobPostings()
