@@ -10,7 +10,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(CreateExamCommandHandler));
             Domain.Entities.Exam exam = new();
-            exam.CreateExam(request.Title, request.Subject, request.Description, request.DurationMinutes, request.PassingScore, request.OwnerType, request.CompanyId, request.JobId);
+            exam.CreateExam(request.Title, request.Description, request.DurationMinutes, request.PassingScore, request.OwnerType, request.CompanyId, request.JobId);
 
             await examRepository.AddExamAsync(exam);
             await examRepository.SaveChangesAsync();

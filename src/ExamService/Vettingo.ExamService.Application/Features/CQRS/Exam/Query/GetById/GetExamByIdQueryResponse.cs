@@ -7,11 +7,9 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
         public Guid? JobId { get; init; }
         public Domain.Enums.ExamOwnerType OwnerType { get; init; }
         public string Title { get; init; } = string.Empty;
-        public string Subject { get; init; } = string.Empty;
         public string Description { get; init; } = string.Empty;
         public int DurationMinutes { get; init; }
         public int PassingScore { get; init; }
-        public bool IsActive { get; init; }
         public DateOnly CreatedAt { get; init; }
         public DateTime? UpdatedAt { get; init; }
         public List<GetExamByIdMultipleChoiceQuestionResponse> MultipleChoiceQuestions { get; init; } = new();
@@ -22,7 +20,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
     {
         public Guid Id { get; init; }
         public string QuestionText { get; init; } = string.Empty;
-        public decimal Weight { get; init; }
+        public int Weight { get; init; }
         public int DisplayOrder { get; init; }
         public string Explanation { get; init; } = string.Empty;
     }
@@ -37,7 +35,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
         public Guid Id { get; init; }
         public string OptionText { get; init; } = string.Empty;
         public bool IsCorrect { get; init; }
-        public int DisplayOrder { get; init; }
     }
 
     public sealed record GetExamByIdTrueFalseQuestionResponse : GetExamByIdQuestionBaseResponse

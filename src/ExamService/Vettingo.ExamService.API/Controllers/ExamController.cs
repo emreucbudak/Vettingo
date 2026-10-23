@@ -46,11 +46,9 @@ namespace Vettingo.ExamService.API.Controllers
                 JobId = request.JobId,
                 OwnerType = request.OwnerType,
                 Title = request.Title,
-                Subject = request.Subject,
                 Description = request.Description,
                 DurationMinutes = request.DurationMinutes,
-                PassingScore = request.PassingScore,
-                IsActive = request.IsActive
+                PassingScore = request.PassingScore
             });
 
             return Ok();

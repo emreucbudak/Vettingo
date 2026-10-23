@@ -13,11 +13,9 @@ namespace Vettingo.ExamService.Domain.Entities
         public Guid? JobId { get; private set; }
         public ExamOwnerType OwnerType { get; private set; }
         public string Title { get; private set; } = string.Empty;
-        public string Subject { get; private set; } = string.Empty;
         public string Description { get; private set; } = string.Empty;
         public int DurationMinutes { get; private set; }
         public int PassingScore { get; private set; }
-        public bool IsActive { get; private set; }
         public DateTime? UpdatedAt { get; private set; }
         public List<MultipleChoiceQuestion> MultipleChoiceQuestions { get; private set; } = new();
         public List<TrueFalseQuestion> TrueFalseQuestions { get; private set; } = new();
@@ -47,12 +45,6 @@ namespace Vettingo.ExamService.Domain.Entities
             Title = title;
         }
 
-        public void setSubject(string subject)
-        {
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(subject, nameof(subject));
-            Subject = subject;
-        }
-
         public void setDescription(string description)
         {
             ArgumentNullException.ThrowIfNullOrWhiteSpace(description, nameof(description));
@@ -79,46 +71,36 @@ namespace Vettingo.ExamService.Domain.Entities
             PassingScore = passingScore;
         }
 
-        public void setIsActive(bool isActive)
+        public void CreateExam(string title, string description, int durationMinutes, int passingScore, ExamOwnerType ownerType, Guid? companyId, Guid? jobId)
         {
-            IsActive = isActive;
-        }
-
-        public void CreateExam(string title, string subject, string description, int durationMinutes, int passingScore, ExamOwnerType ownerType, Guid? companyId, Guid? jobId)
-        {
-            CheckExamContent(title, subject, description, durationMinutes, passingScore, ownerType, companyId, jobId);
+            CheckExamContent(title, description, durationMinutes, passingScore, ownerType, companyId, jobId);
             SetId();
             setTitle(title);
-            setSubject(subject);
             setDescription(description);
             setDurationMinutes(durationMinutes);
             setPassingScore(passingScore);
             setOwnerType(ownerType);
             setCompanyId(companyId);
             setJobId(jobId);
-            setIsActive(true);
             SetCreatedAt();
         }
 
-        public void UpdateExam(string title, string subject, string description, int durationMinutes, int passingScore, ExamOwnerType ownerType, Guid? companyId, Guid? jobId, bool isActive)
+        public void UpdateExam(string title, string description, int durationMinutes, int passingScore, ExamOwnerType ownerType, Guid? companyId, Guid? jobId)
         {
-            CheckExamContent(title, subject, description, durationMinutes, passingScore, ownerType, companyId, jobId);
+            CheckExamContent(title, description, durationMinutes, passingScore, ownerType, companyId, jobId);
             setTitle(title);
-            setSubject(subject);
             setDescription(description);
             setDurationMinutes(durationMinutes);
             setPassingScore(passingScore);
             setOwnerType(ownerType);
             setCompanyId(companyId);
             setJobId(jobId);
-            setIsActive(isActive);
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void CheckExamContent(string title, string subject, string description, int durationMinutes, int passingScore, ExamOwnerType ownerType, Guid? companyId, Guid? jobId)
+        public void CheckExamContent(string title, string description, int durationMinutes, int passingScore, ExamOwnerType ownerType, Guid? companyId, Guid? jobId)
         {
             ArgumentNullException.ThrowIfNullOrWhiteSpace(title, nameof(title));
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(subject, nameof(subject));
             ArgumentNullException.ThrowIfNullOrWhiteSpace(description, nameof(description));
             CheckOwnerType(ownerType);
             CheckNullableGuid(companyId, nameof(companyId));

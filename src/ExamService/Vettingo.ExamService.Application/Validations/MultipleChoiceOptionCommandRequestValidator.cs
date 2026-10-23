@@ -7,7 +7,6 @@ public sealed class MultipleChoiceOptionCommandRequestValidator : AbstractValida
     public MultipleChoiceOptionCommandRequestValidator()
     {
         RuleFor(x => x.OptionText).NotEmpty().MaximumLength(2000);
-        RuleFor(x => x.DisplayOrder).GreaterThanOrEqualTo(0);
     }
 }
 

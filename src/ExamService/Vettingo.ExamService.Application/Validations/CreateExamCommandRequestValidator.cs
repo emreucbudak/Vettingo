@@ -10,7 +10,6 @@ public sealed class CreateExamCommandRequestValidator : AbstractValidator<Create
         RuleFor(x => x.JobId).NotEmpty().When(x => x.JobId.HasValue);
         RuleFor(x => x.OwnerType).IsInEnum();
         RuleFor(x => x.Title).NotEmpty().MaximumLength(2000);
-        RuleFor(x => x.Subject).NotEmpty().MaximumLength(2000);
         RuleFor(x => x.Description).NotEmpty().MaximumLength(2000);
         RuleFor(x => x.DurationMinutes).GreaterThanOrEqualTo(0);
         RuleFor(x => x.PassingScore).InclusiveBetween(0, 100);

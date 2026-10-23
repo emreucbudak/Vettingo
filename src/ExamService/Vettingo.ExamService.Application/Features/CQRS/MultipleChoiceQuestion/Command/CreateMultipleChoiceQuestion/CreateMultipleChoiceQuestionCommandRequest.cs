@@ -6,7 +6,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.
     {
         public Guid ExamId { get; init; }
         public string QuestionText { get; init; } = string.Empty;
-        public decimal Weight { get; init; }
+        public int Weight { get; init; }
         public int DisplayOrder { get; init; }
         public string Explanation { get; init; } = string.Empty;
         public List<MultipleChoiceOptionCommandRequest> Options { get; init; } = new();
@@ -16,6 +16,5 @@ namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.
     {
         public string OptionText { get; init; } = string.Empty;
         public bool IsCorrect { get; init; }
-        public int DisplayOrder { get; init; }
     }
 }
