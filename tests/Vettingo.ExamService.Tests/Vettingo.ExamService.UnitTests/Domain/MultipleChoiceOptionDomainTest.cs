@@ -12,13 +12,12 @@ namespace Vettingo.ExamService.UnitTests.Domain
             var multipleChoiceQuestionId = Guid.NewGuid();
             var optionText = "Ankara";
             var isCorrect = true;
-            var displayOrder = 1;
 
             // Act
             Action action = () =>
             {
                 var option = new MultipleChoiceOption();
-                option.CreateOption(multipleChoiceQuestionId, optionText, isCorrect, displayOrder);
+                option.CreateOption(multipleChoiceQuestionId, optionText, isCorrect);
             };
 
             // Assert
@@ -32,7 +31,7 @@ namespace Vettingo.ExamService.UnitTests.Domain
             Action action = () =>
             {
                 var option = new MultipleChoiceOption();
-                option.CreateOption(Guid.Empty, "Ankara", true, 1);
+                option.CreateOption(Guid.Empty, "Ankara", true);
             };
 
             // Assert
@@ -46,7 +45,7 @@ namespace Vettingo.ExamService.UnitTests.Domain
             Action action = () =>
             {
                 var option = new MultipleChoiceOption();
-                option.CreateOption(Guid.NewGuid(), string.Empty, true, 1);
+                option.CreateOption(Guid.NewGuid(), string.Empty, true);
             };
 
             // Assert

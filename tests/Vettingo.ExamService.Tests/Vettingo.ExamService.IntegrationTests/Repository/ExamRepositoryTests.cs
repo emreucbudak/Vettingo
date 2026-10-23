@@ -59,19 +59,19 @@ namespace Vettingo.ExamService.UnitTests.Repository
         private static Exam CreateExam(string title)
         {
             Exam exam = new();
-            exam.CreateExam(title, "Backend", "Backend exam description", 60, 70, ExamOwnerType.System, null, null);
+            exam.CreateExam(title, "Backend exam description", 60, 70, ExamOwnerType.System, null, null);
             return exam;
         }
 
         private static MultipleChoiceQuestion CreateMultipleChoiceQuestion(Guid examId, string questionText, int displayOrder)
         {
             MultipleChoiceQuestion question = new();
-            question.CreateQuestion(examId, questionText, 1m, displayOrder, "Explanation");
+            question.CreateQuestion(examId, questionText, 1, displayOrder, "Explanation");
 
             MultipleChoiceOption firstOption = new();
-            firstOption.CreateOption(question.Id, "A", true, 2);
+            firstOption.CreateOption(question.Id, "A", true);
             MultipleChoiceOption secondOption = new();
-            secondOption.CreateOption(question.Id, "B", false, 1);
+            secondOption.CreateOption(question.Id, "B", false);
             question.AddOption(firstOption);
             question.AddOption(secondOption);
 

@@ -23,7 +23,6 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             var request = new CreateExamCommandRequest
             {
                 Title = "Backend Exam",
-                Subject = "Backend",
                 Description = "Backend exam description",
                 DurationMinutes = 60,
                 PassingScore = 70,
@@ -34,7 +33,6 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
 
             await repository.Received(1).AddExamAsync(Arg.Is<Exam>(exam =>
                 exam.Title == request.Title &&
-                exam.Subject == request.Subject &&
                 exam.PassingScore == request.PassingScore));
             await repository.Received(1).SaveChangesAsync();
         }
@@ -99,7 +97,12 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             response.Should().ContainSingle();
             response[0].QuestionText.Should().Be(question.QuestionText);
             response[0].Weight.Should().Be(question.Weight);
-            response[0].Options.Select(option => option.DisplayOrder).Should().Equal(1, 2);
+            response[0].Options.Should().BeEquivalentTo(question.Options.Select(option => new
+            {
+                option.Id,
+                option.OptionText,
+                option.IsCorrect
+            }));
         }
 
         private static CreateMultipleChoiceQuestionCommandRequest CreateMultipleChoiceQuestionRequest(Guid examId)
@@ -108,13 +111,13 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             {
                 ExamId = examId,
                 QuestionText = "Which option is correct?",
-                Weight = 1.5m,
+                Weight = 2,
                 DisplayOrder = 1,
                 Explanation = "Explanation",
                 Options =
                 [
-                    new MultipleChoiceOptionCommandRequest { OptionText = "A", IsCorrect = true, DisplayOrder = 1 },
-                    new MultipleChoiceOptionCommandRequest { OptionText = "B", IsCorrect = false, DisplayOrder = 2 }
+                    new MultipleChoiceOptionCommandRequest { OptionText = "A", IsCorrect = true },
+                    new MultipleChoiceOptionCommandRequest { OptionText = "B", IsCorrect = false }
                 ]
             };
         }
@@ -122,19 +125,19 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
         private static Exam CreateExam()
         {
             Exam exam = new();
-            exam.CreateExam("Backend Exam", "Backend", "Backend exam description", 60, 70, ExamOwnerType.System, null, null);
+            exam.CreateExam("Backend Exam", "Backend exam description", 60, 70, ExamOwnerType.System, null, null);
             return exam;
         }
 
         private static MultipleChoiceQuestion CreateMultipleChoiceQuestion(Guid examId)
         {
             MultipleChoiceQuestion question = new();
-            question.CreateQuestion(examId, "Which option is correct?", 1.5m, 1, "Explanation");
+            question.CreateQuestion(examId, "Which option is correct?", 2, 1, "Explanation");
 
             MultipleChoiceOption secondOption = new();
-            secondOption.CreateOption(question.Id, "B", false, 2);
+            secondOption.CreateOption(question.Id, "B", false);
             MultipleChoiceOption firstOption = new();
-            firstOption.CreateOption(question.Id, "A", true, 1);
+            firstOption.CreateOption(question.Id, "A", true);
             question.AddOption(secondOption);
             question.AddOption(firstOption);
 

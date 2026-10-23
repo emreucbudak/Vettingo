@@ -6,7 +6,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.TrueFalseQuestion.Comma
     {
         public Guid QuestionId { get; init; }
         public string QuestionText { get; init; } = string.Empty;
-        public decimal Weight { get; init; }
+        public int Weight { get; init; }
         public int DisplayOrder { get; init; }
         public string Explanation { get; init; } = string.Empty;
         public bool CorrectAnswer { get; init; }

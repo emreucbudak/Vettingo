@@ -11,7 +11,7 @@ namespace Vettingo.ExamService.UnitTests.Domain
             // Arrange
             var examId = Guid.NewGuid();
             var questionText = "Turkiyenin baskenti neresidir?";
-            var weight = 1.0m;
+            var weight = 1;
             var displayOrder = 1;
             var explanation = "Turkiyenin baskenti merkez sehridir.";
 
@@ -33,7 +33,7 @@ namespace Vettingo.ExamService.UnitTests.Domain
             Action action = () =>
             {
                 var question = new MultipleChoiceQuestion();
-                question.CreateQuestion(Guid.NewGuid(), string.Empty, 1m, 1, "Explanation");
+                question.CreateQuestion(Guid.NewGuid(), string.Empty, 1, 1, "Explanation");
             };
 
             // Assert
@@ -47,7 +47,7 @@ namespace Vettingo.ExamService.UnitTests.Domain
             Action action = () =>
             {
                 var question = new MultipleChoiceQuestion();
-                question.CreateQuestion(Guid.NewGuid(), "Question", 0m, 1, "Explanation");
+                question.CreateQuestion(Guid.NewGuid(), "Question", 0, 1, "Explanation");
             };
 
             // Assert

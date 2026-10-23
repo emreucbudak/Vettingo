@@ -14,13 +14,13 @@ namespace Vettingo.ExamService.UnitTests.Domain
         {
             var before = DateOnly.FromDateTime(DateTime.UtcNow);
             var exam = new Exam();
-            exam.CreateExam("Backend", "C#", "Backend exam", 60, 70, ExamOwnerType.System, null, null);
+            exam.CreateExam("Backend", "Backend exam", 60, 70, ExamOwnerType.System, null, null);
             var question = new MultipleChoiceQuestion();
-            question.CreateQuestion(exam.Id, "Which option?", 1m, 1, "Explanation");
+            question.CreateQuestion(exam.Id, "Which option?", 1, 1, "Explanation");
             var option = new MultipleChoiceOption();
-            option.CreateOption(question.Id, "A", true, 1);
+            option.CreateOption(question.Id, "A", true);
             var trueFalseQuestion = new TrueFalseQuestion();
-            trueFalseQuestion.CreateQuestion(exam.Id, "Is this true?", 1m, 2, "Explanation", true);
+            trueFalseQuestion.CreateQuestion(exam.Id, "Is this true?", 1, 2, "Explanation", true);
             var attempt = new ExamAttempt();
             attempt.StartAttempt(exam.Id, Guid.NewGuid());
             var multipleChoiceAnswer = new ExamAnswer();

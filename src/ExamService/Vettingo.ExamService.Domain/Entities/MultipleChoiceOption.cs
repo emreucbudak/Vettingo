@@ -12,21 +12,19 @@ namespace Vettingo.ExamService.Domain.Entities
         public MultipleChoiceQuestion? MultipleChoiceQuestion { get; private set; }
         public string OptionText { get; private set; } = string.Empty;
         public bool IsCorrect { get; private set; }
-        public int DisplayOrder { get; private set; }
         public List<ExamAnswer> Answers { get; private set; } = new();
 
-        public void CreateOption(Guid multipleChoiceQuestionId, string optionText, bool isCorrect, int displayOrder)
+        public void CreateOption(Guid multipleChoiceQuestionId, string optionText, bool isCorrect)
         {
-            CheckMultipleChoiceOptionContent(multipleChoiceQuestionId, optionText, displayOrder);
+            CheckMultipleChoiceOptionContent(multipleChoiceQuestionId, optionText);
             SetId();
             SetCreatedAt();
             MultipleChoiceQuestionId = multipleChoiceQuestionId;
             OptionText = optionText;
             IsCorrect = isCorrect;
-            DisplayOrder = displayOrder;
         }
 
-        public void CheckMultipleChoiceOptionContent(Guid multipleChoiceQuestionId, string optionText, int displayOrder)
+        public void CheckMultipleChoiceOptionContent(Guid multipleChoiceQuestionId, string optionText)
         {
             if (multipleChoiceQuestionId == Guid.Empty)
             {
@@ -34,11 +32,6 @@ namespace Vettingo.ExamService.Domain.Entities
             }
 
             ArgumentNullException.ThrowIfNullOrWhiteSpace(optionText, nameof(optionText));
-
-            if (displayOrder <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(displayOrder), displayOrder, "Gösterim sırası sıfırdan büyük olmalıdır.");
-            }
         }
     }
 }

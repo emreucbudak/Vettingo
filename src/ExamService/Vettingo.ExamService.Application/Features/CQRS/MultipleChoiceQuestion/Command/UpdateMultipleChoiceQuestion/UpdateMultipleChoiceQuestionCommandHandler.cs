@@ -23,7 +23,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.
             foreach (var optionRequest in request.Options)
             {
                 Domain.Entities.MultipleChoiceOption option = new();
-                option.CreateOption(question.Id, optionRequest.OptionText, optionRequest.IsCorrect, optionRequest.DisplayOrder);
+                option.CreateOption(question.Id, optionRequest.OptionText, optionRequest.IsCorrect);
                 question.AddOption(option);
             }
 

@@ -20,13 +20,11 @@ namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.
                 DisplayOrder = question.DisplayOrder,
                 Explanation = question.Explanation,
                 Options = question.Options
-                    .OrderBy(option => option.DisplayOrder)
                     .Select(option => new GetMultipleChoiceQuestionOptionResponse
                     {
                         Id = option.Id,
                         OptionText = option.OptionText,
-                        IsCorrect = option.IsCorrect,
-                        DisplayOrder = option.DisplayOrder
+                        IsCorrect = option.IsCorrect
                     })
                     .ToList()
             });

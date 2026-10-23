@@ -24,11 +24,9 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
                 JobId = exam.JobId,
                 OwnerType = exam.OwnerType,
                 Title = exam.Title,
-                Subject = exam.Subject,
                 Description = exam.Description,
                 DurationMinutes = exam.DurationMinutes,
                 PassingScore = exam.PassingScore,
-                IsActive = exam.IsActive,
                 CreatedAt = exam.CreatedAt,
                 UpdatedAt = exam.UpdatedAt,
                 MultipleChoiceQuestions = exam.MultipleChoiceQuestions
@@ -41,13 +39,11 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
                         DisplayOrder = question.DisplayOrder,
                         Explanation = question.Explanation,
                         Options = question.Options
-                            .OrderBy(option => option.DisplayOrder)
                             .Select(option => new GetExamByIdMultipleChoiceOptionResponse
                             {
                                 Id = option.Id,
                                 OptionText = option.OptionText,
-                                IsCorrect = option.IsCorrect,
-                                DisplayOrder = option.DisplayOrder
+                                IsCorrect = option.IsCorrect
                             })
                             .ToList()
                     })
