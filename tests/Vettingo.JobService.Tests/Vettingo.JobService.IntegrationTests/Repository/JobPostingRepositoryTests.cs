@@ -63,9 +63,9 @@ namespace Vettingo.JobService.UnitTests.Repository
             var active = CreateJobPosting(companyId, Guid.NewGuid().ToString());
             var closed = CreateJobPosting(companyId, Guid.NewGuid().ToString());
             closed.SetStatus(JobPostingStatus.Closed);
-            var draft = CreateJobPosting(companyId, Guid.NewGuid().ToString());
-            draft.SetStatus(JobPostingStatus.Draft);
-            context.JobPostings.AddRange(active, closed, draft,
+            var deleted = CreateJobPosting(companyId, Guid.NewGuid().ToString());
+            deleted.SetStatus(JobPostingStatus.Deleted);
+            context.JobPostings.AddRange(active, closed, deleted,
                 CreateJobPosting(Guid.NewGuid(), Guid.NewGuid().ToString()));
             await context.SaveChangesAsync();
 

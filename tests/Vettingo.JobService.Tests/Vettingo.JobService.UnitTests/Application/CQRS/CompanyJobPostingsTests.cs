@@ -12,16 +12,16 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS;
 public class CompanyJobPostingsTests
 {
     [Fact]
-    public async Task List_Should_Filter_Company_And_Return_City_Counts_And_Draft_Date()
+    public async Task List_Should_Filter_Company_And_Return_City_Counts_And_Publication_Dates()
     {
         await using var context = new JobDbContext(new DbContextOptionsBuilder<JobDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         await context.Database.EnsureCreatedAsync();
         var companyId = Guid.NewGuid();
         var active = CreatePosting(companyId, "Active posting", JobPostingStatus.Active);
-        var draft = CreatePosting(companyId, "Draft posting", JobPostingStatus.Draft);
+        var closed = CreatePosting(companyId, "Closed posting", JobPostingStatus.Closed);
         var other = CreatePosting(Guid.NewGuid(), "Other company", JobPostingStatus.Active);
-        context.JobPostings.AddRange(active, draft, other);
+        context.JobPostings.AddRange(active, closed, other);
         foreach (var posting in new[] { active, active, other })
         {
             var application = new JobApplication();
@@ -39,9 +39,10 @@ public class CompanyJobPostingsTests
         savedActive.Applicants.Should().Be(2);
         savedActive.Status.Should().Be("Active");
         savedActive.PublishedAt.Should().Be(active.CreatedAt);
-        var savedDraft = result.Single(posting => posting.Id == draft.Id);
-        savedDraft.Applicants.Should().Be(0);
-        savedDraft.PublishedAt.Should().BeNull();
+        var savedClosed = result.Single(posting => posting.Id == closed.Id);
+        savedClosed.Applicants.Should().Be(0);
+        savedClosed.Status.Should().Be("Closed");
+        savedClosed.PublishedAt.Should().Be(closed.CreatedAt);
         (await handler.Handle(new() { CompanyId = Guid.NewGuid() }, CancellationToken.None)).Should().BeEmpty();
     }
 

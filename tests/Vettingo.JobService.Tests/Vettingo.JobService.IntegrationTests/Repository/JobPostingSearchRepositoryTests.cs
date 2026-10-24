@@ -37,7 +37,12 @@ public sealed class JobPostingSearchRepositoryTests : IClassFixture<PostgreSqlCo
             "Senior Backend Developer",
             34,
             WorkingModel.Hybrid,
-            JobPostingStatus.Draft));
+            JobPostingStatus.Closed));
+        await repository.AddJobPostingAsync(CreateJobPosting(
+            "Senior Backend Developer",
+            34,
+            WorkingModel.Hybrid,
+            JobPostingStatus.Deleted));
         await repository.SaveChangesAsync();
         var criteria = new JobPostingSearchCriteria
         {

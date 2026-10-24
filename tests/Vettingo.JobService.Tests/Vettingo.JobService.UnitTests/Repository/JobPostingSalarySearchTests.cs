@@ -17,7 +17,8 @@ public sealed class JobPostingSalarySearchTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         foreach (var (minSalary, maxSalary) in new[] { (0, 25000), (50000, 75000), (75000, 100000), (100000, 125000) })
             context.JobPostings.Add(CreatePosting(minSalary, maxSalary, JobPostingStatus.Active));
-        context.JobPostings.Add(CreatePosting(50000, 75000, JobPostingStatus.Draft));
+        context.JobPostings.Add(CreatePosting(50000, 75000, JobPostingStatus.Closed));
+        context.JobPostings.Add(CreatePosting(50000, 75000, JobPostingStatus.Deleted));
         await context.SaveChangesAsync();
         var repository = new JobPostingRepository(context);
 
