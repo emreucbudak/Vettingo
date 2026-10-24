@@ -48,7 +48,7 @@ namespace Vettingo.ExamService.UnitTests.Domain
             attempt.StartAttempt(Guid.NewGuid(), Guid.NewGuid());
 
             // Act
-            Action action = () => attempt.CompleteAttempt(101m);
+            Action action = () => attempt.CompleteAttempt(101);
 
             // Assert
             action.Should().Throw<ArgumentOutOfRangeException>();

@@ -10,7 +10,6 @@ namespace Vettingo.ExamService.Persistence.DbContext
         public DbSet<MultipleChoiceOption> MultipleChoiceOptions { get; set; }
         public DbSet<TrueFalseQuestion> TrueFalseQuestions { get; set; }
         public DbSet<ExamAttempt> ExamAttempts { get; set; }
-        public DbSet<ExamAnswer> ExamAnswers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -40,30 +39,6 @@ namespace Vettingo.ExamService.Persistence.DbContext
                 .HasMany(question => question.Options)
                 .WithOne(option => option.MultipleChoiceQuestion)
                 .HasForeignKey(option => option.MultipleChoiceQuestionId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<MultipleChoiceQuestion>()
-                .HasMany(question => question.Answers)
-                .WithOne(answer => answer.MultipleChoiceQuestion)
-                .HasForeignKey(answer => answer.MultipleChoiceQuestionId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder.Entity<MultipleChoiceOption>()
-                .HasMany(option => option.Answers)
-                .WithOne(answer => answer.MultipleChoiceOption)
-                .HasForeignKey(answer => answer.MultipleChoiceOptionId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder.Entity<TrueFalseQuestion>()
-                .HasMany(question => question.Answers)
-                .WithOne(answer => answer.TrueFalseQuestion)
-                .HasForeignKey(answer => answer.TrueFalseQuestionId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder.Entity<ExamAttempt>()
-                .HasMany(attempt => attempt.Answers)
-                .WithOne(answer => answer.ExamAttempt)
-                .HasForeignKey(answer => answer.ExamAttemptId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<ExamAttempt>()

@@ -23,13 +23,9 @@ namespace Vettingo.ExamService.UnitTests.Domain
             trueFalseQuestion.CreateQuestion(exam.Id, "Is this true?", 1, 2, "True", "False");
             var attempt = new ExamAttempt();
             attempt.StartAttempt(exam.Id, Guid.NewGuid());
-            var multipleChoiceAnswer = new ExamAnswer();
-            multipleChoiceAnswer.CreateMultipleChoiceAnswer(attempt.Id, question.Id, option.Id, "A", true);
-            var trueFalseAnswer = new ExamAnswer();
-            trueFalseAnswer.CreateTrueFalseAnswer(attempt.Id, trueFalseQuestion.Id, true, true);
             var after = DateOnly.FromDateTime(DateTime.UtcNow);
 
-            BaseEntity[] entities = [exam, question, option, trueFalseQuestion, attempt, multipleChoiceAnswer, trueFalseAnswer];
+            BaseEntity[] entities = [exam, question, option, trueFalseQuestion, attempt];
             entities.Select(entity => entity.Id).Should().OnlyHaveUniqueItems();
             foreach (var entity in entities)
             {

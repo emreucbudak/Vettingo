@@ -15,7 +15,6 @@ namespace Vettingo.ExamService.Domain.Entities
         public int DisplayOrder { get; private set; }
         public string TrueAnswer { get; private set; } = string.Empty;
         public string FalseAnswer { get; private set; } = string.Empty;
-        public List<ExamAnswer> Answers { get; private set; } = new();
 
         public void CreateQuestion(Guid examId, string questionText, int weight, int displayOrder, string trueAnswer, string falseAnswer)
         {
