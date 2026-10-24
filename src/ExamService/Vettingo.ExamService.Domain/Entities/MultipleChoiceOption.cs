@@ -9,10 +9,9 @@ namespace Vettingo.ExamService.Domain.Entities
         }
 
         public Guid MultipleChoiceQuestionId { get; private set; }
-        public MultipleChoiceQuestion? MultipleChoiceQuestion { get; private set; }
+        public MultipleChoiceQuestion MultipleChoiceQuestion { get; private set; } = null!;
         public string OptionText { get; private set; } = string.Empty;
         public bool IsCorrect { get; private set; }
-        public List<ExamAnswer> Answers { get; private set; } = new();
 
         public void CreateOption(Guid multipleChoiceQuestionId, string optionText, bool isCorrect)
         {

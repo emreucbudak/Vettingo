@@ -14,7 +14,6 @@ namespace Vettingo.ExamService.Domain.Entities
         public int Weight { get; private set; }
         public int DisplayOrder { get; private set; }
         public List<MultipleChoiceOption> Options { get; private set; } = new();
-        public List<ExamAnswer> Answers { get; private set; } = new();
 
         public void CreateQuestion(Guid examId, string questionText, int weight, int displayOrder)
         {
