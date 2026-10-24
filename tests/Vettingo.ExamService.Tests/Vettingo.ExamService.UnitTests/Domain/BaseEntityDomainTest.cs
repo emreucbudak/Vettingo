@@ -20,7 +20,7 @@ namespace Vettingo.ExamService.UnitTests.Domain
             var option = new MultipleChoiceOption();
             option.CreateOption(question.Id, "A", true);
             var trueFalseQuestion = new TrueFalseQuestion();
-            trueFalseQuestion.CreateQuestion(exam.Id, "Is this true?", 1, 2, true);
+            trueFalseQuestion.CreateQuestion(exam.Id, "Is this true?", 1, 2, "True", "False");
             var attempt = new ExamAttempt();
             attempt.StartAttempt(exam.Id, Guid.NewGuid());
             var multipleChoiceAnswer = new ExamAnswer();

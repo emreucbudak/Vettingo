@@ -18,7 +18,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.TrueFalseQuestion.Comma
             }
 
             Domain.Entities.TrueFalseQuestion question = new();
-            question.CreateQuestion(request.ExamId, request.QuestionText, request.Weight, request.DisplayOrder, request.CorrectAnswer);
+            question.CreateQuestion(request.ExamId, request.QuestionText, request.Weight, request.DisplayOrder, request.TrueAnswer, request.FalseAnswer);
 
             await questionRepository.AddTrueFalseQuestionAsync(question);
             await questionRepository.SaveChangesAsync();

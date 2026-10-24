@@ -17,7 +17,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.TrueFalseQuestion.Comma
                 throw new NotFoundException("Doğru yanlış sorusu bulunamadı");
             }
 
-            question.UpdateQuestion(request.QuestionText, request.Weight, request.DisplayOrder, request.CorrectAnswer);
+            question.UpdateQuestion(request.QuestionText, request.Weight, request.DisplayOrder, request.TrueAnswer, request.FalseAnswer);
             questionRepository.UpdateTrueFalseQuestion(question);
             await questionRepository.SaveChangesAsync();
         }

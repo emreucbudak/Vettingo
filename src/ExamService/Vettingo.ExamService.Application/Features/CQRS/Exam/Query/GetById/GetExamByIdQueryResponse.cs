@@ -38,7 +38,8 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
 
     public sealed record GetExamByIdTrueFalseQuestionResponse : GetExamByIdQuestionBaseResponse
     {
-        public bool CorrectAnswer { get; init; }
+        public string TrueAnswer { get; init; } = string.Empty;
+        public string FalseAnswer { get; init; } = string.Empty;
     }
 
 }

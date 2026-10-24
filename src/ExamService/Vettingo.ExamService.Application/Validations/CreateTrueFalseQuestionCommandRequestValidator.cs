@@ -10,6 +10,8 @@ public sealed class CreateTrueFalseQuestionCommandRequestValidator : AbstractVal
         RuleFor(x => x.QuestionText).NotEmpty().MaximumLength(2000);
         RuleFor(x => x.Weight).GreaterThanOrEqualTo(0);
         RuleFor(x => x.DisplayOrder).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.TrueAnswer).NotEmpty().MaximumLength(2000);
+        RuleFor(x => x.FalseAnswer).NotEmpty().MaximumLength(2000);
     }
 }
 

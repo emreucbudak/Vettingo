@@ -18,7 +18,8 @@ namespace Vettingo.ExamService.Application.Features.CQRS.TrueFalseQuestion.Query
                 QuestionText = question.QuestionText,
                 Weight = question.Weight,
                 DisplayOrder = question.DisplayOrder,
-                CorrectAnswer = question.CorrectAnswer
+                TrueAnswer = question.TrueAnswer,
+                FalseAnswer = question.FalseAnswer
             });
         }
     }
