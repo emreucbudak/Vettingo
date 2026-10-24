@@ -8,6 +8,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.TrueFalseQuestion.Comma
         public string QuestionText { get; init; } = string.Empty;
         public int Weight { get; init; }
         public int DisplayOrder { get; init; }
-        public bool CorrectAnswer { get; init; }
+        public string TrueAnswer { get; init; } = string.Empty;
+        public string FalseAnswer { get; init; } = string.Empty;
     }
 }
