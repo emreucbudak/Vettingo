@@ -10,7 +10,6 @@ public sealed class UpdateMultipleChoiceQuestionCommandRequestValidator : Abstra
         RuleFor(x => x.QuestionText).NotEmpty().MaximumLength(2000);
         RuleFor(x => x.Weight).GreaterThanOrEqualTo(0);
         RuleFor(x => x.DisplayOrder).GreaterThanOrEqualTo(0);
-        RuleFor(x => x.Explanation).NotEmpty().MaximumLength(2000);
         RuleFor(x => x.Options).NotNull().NotEmpty();
     }
 }

@@ -18,7 +18,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.
             }
 
             Domain.Entities.MultipleChoiceQuestion question = new();
-            question.CreateQuestion(request.ExamId, request.QuestionText, request.Weight, request.DisplayOrder, request.Explanation);
+            question.CreateQuestion(request.ExamId, request.QuestionText, request.Weight, request.DisplayOrder);
 
             foreach (var optionRequest in request.Options)
             {

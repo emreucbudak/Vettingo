@@ -22,7 +22,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
         public string QuestionText { get; init; } = string.Empty;
         public int Weight { get; init; }
         public int DisplayOrder { get; init; }
-        public string Explanation { get; init; } = string.Empty;
     }
 
     public sealed record GetExamByIdMultipleChoiceQuestionResponse : GetExamByIdQuestionBaseResponse
