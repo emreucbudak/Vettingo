@@ -1,7 +1,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Vettingo.JobService.Application.Messaging;
+using Vettingo.JobService.Application.Services;
 using Vettingo.JobService.Infrastructure.Messaging;
+using Vettingo.JobService.Infrastructure.Services;
 
 namespace Vettingo.JobService.Infrastructure.Register;
 
@@ -29,6 +31,7 @@ public static class CapRegister
         }
 
         services.AddTransient<IJobAnalyticsPublisher, JobAnalyticsPublisher>();
+        services.AddTransient<INotificationSender, NotificationSender>();
         services.AddTransient<PersonalizedJobPostingRequestedConsumer>();
         services
             .AddCap(options =>
