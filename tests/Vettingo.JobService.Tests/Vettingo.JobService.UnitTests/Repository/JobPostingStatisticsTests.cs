@@ -18,19 +18,18 @@ public class JobPostingStatisticsTests
         var active = CreatePosting(companyId, JobPostingStatus.Active);
         context.JobPostings.AddRange(active,
             CreatePosting(companyId, JobPostingStatus.Closed),
-            CreatePosting(companyId, JobPostingStatus.Draft),
-            CreatePosting(companyId, JobPostingStatus.Archived),
+            CreatePosting(companyId, JobPostingStatus.Deleted),
             CreatePosting(Guid.NewGuid(), JobPostingStatus.Active));
         await context.SaveChangesAsync();
 
         var result = await repository.GetStatisticsAsync(companyId);
-        result.TotalJobPostings.Should().Be(4);
+        result.TotalJobPostings.Should().Be(3);
         result.ActiveJobPostings.Should().Be(1);
 
         active.SetStatus(JobPostingStatus.Closed);
         await context.SaveChangesAsync();
         var afterClosing = await repository.GetStatisticsAsync(companyId);
-        afterClosing.TotalJobPostings.Should().Be(4);
+        afterClosing.TotalJobPostings.Should().Be(3);
         afterClosing.ActiveJobPostings.Should().Be(0);
     }
 
@@ -54,6 +53,8 @@ public class JobPostingStatisticsTests
         converter.ConvertFromProvider("Published").Should().Be(JobPostingStatus.Active);
         converter.ConvertToProvider(JobPostingStatus.Active).Should().Be("Published");
         converter.ConvertFromProvider("Closed").Should().Be(JobPostingStatus.Closed);
+        converter.ConvertFromProvider("Deleted").Should().Be(JobPostingStatus.Deleted);
+        converter.ConvertToProvider(JobPostingStatus.Deleted).Should().Be("Deleted");
         ((int)JobPostingStatus.Active).Should().Be(2);
         Enum.GetNames<JobPostingStatus>().Should().NotContain("Published");
     }
