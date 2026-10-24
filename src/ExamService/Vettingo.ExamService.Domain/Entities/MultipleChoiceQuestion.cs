@@ -13,26 +13,24 @@ namespace Vettingo.ExamService.Domain.Entities
         public string QuestionText { get; private set; } = string.Empty;
         public int Weight { get; private set; }
         public int DisplayOrder { get; private set; }
-        public string Explanation { get; private set; } = string.Empty;
         public List<MultipleChoiceOption> Options { get; private set; } = new();
         public List<ExamAnswer> Answers { get; private set; } = new();
 
-        public void CreateQuestion(Guid examId, string questionText, int weight, int displayOrder, string explanation)
+        public void CreateQuestion(Guid examId, string questionText, int weight, int displayOrder)
         {
-            CheckMultipleChoiceQuestionContent(examId, questionText, weight, displayOrder, explanation);
+            CheckMultipleChoiceQuestionContent(examId, questionText, weight, displayOrder);
             SetId();
             SetCreatedAt();
             ExamId = examId;
-            UpdateQuestion(questionText, weight, displayOrder, explanation);
+            UpdateQuestion(questionText, weight, displayOrder);
         }
 
-        public void UpdateQuestion(string questionText, int weight, int displayOrder, string explanation)
+        public void UpdateQuestion(string questionText, int weight, int displayOrder)
         {
-            CheckMultipleChoiceQuestionContent(questionText, weight, displayOrder, explanation);
+            CheckMultipleChoiceQuestionContent(questionText, weight, displayOrder);
             QuestionText = questionText;
             Weight = weight;
             DisplayOrder = displayOrder;
-            Explanation = explanation;
         }
 
         public void AddOption(MultipleChoiceOption option)
@@ -46,16 +44,15 @@ namespace Vettingo.ExamService.Domain.Entities
             Options.Clear();
         }
 
-        public void CheckMultipleChoiceQuestionContent(Guid examId, string questionText, int weight, int displayOrder, string explanation)
+        public void CheckMultipleChoiceQuestionContent(Guid examId, string questionText, int weight, int displayOrder)
         {
             CheckGuid(examId, nameof(examId));
-            CheckMultipleChoiceQuestionContent(questionText, weight, displayOrder, explanation);
+            CheckMultipleChoiceQuestionContent(questionText, weight, displayOrder);
         }
 
-        public void CheckMultipleChoiceQuestionContent(string questionText, int weight, int displayOrder, string explanation)
+        public void CheckMultipleChoiceQuestionContent(string questionText, int weight, int displayOrder)
         {
             ArgumentNullException.ThrowIfNullOrWhiteSpace(questionText, nameof(questionText));
-            ArgumentNullException.ThrowIfNull(explanation, nameof(explanation));
 
             if (weight <= 0)
             {

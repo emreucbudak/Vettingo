@@ -113,7 +113,6 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
                 QuestionText = "Which option is correct?",
                 Weight = 2,
                 DisplayOrder = 1,
-                Explanation = "Explanation",
                 Options =
                 [
                     new MultipleChoiceOptionCommandRequest { OptionText = "A", IsCorrect = true },
@@ -132,7 +131,7 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
         private static MultipleChoiceQuestion CreateMultipleChoiceQuestion(Guid examId)
         {
             MultipleChoiceQuestion question = new();
-            question.CreateQuestion(examId, "Which option is correct?", 2, 1, "Explanation");
+            question.CreateQuestion(examId, "Which option is correct?", 2, 1);
 
             MultipleChoiceOption secondOption = new();
             secondOption.CreateOption(question.Id, "B", false);

@@ -33,7 +33,6 @@ namespace Vettingo.ExamService.API.Controllers
                 QuestionText = request.QuestionText,
                 Weight = request.Weight,
                 DisplayOrder = request.DisplayOrder,
-                Explanation = request.Explanation,
                 Options = request.Options
             });
             return Ok();
@@ -49,7 +48,6 @@ namespace Vettingo.ExamService.API.Controllers
                 QuestionText = request.QuestionText,
                 Weight = request.Weight,
                 DisplayOrder = request.DisplayOrder,
-                Explanation = request.Explanation,
                 Options = request.Options
             });
 
@@ -81,7 +79,6 @@ namespace Vettingo.ExamService.API.Controllers
                 QuestionText = request.QuestionText,
                 Weight = request.Weight,
                 DisplayOrder = request.DisplayOrder,
-                Explanation = request.Explanation,
                 CorrectAnswer = request.CorrectAnswer
             });
             return Ok();
@@ -97,7 +94,6 @@ namespace Vettingo.ExamService.API.Controllers
                 QuestionText = request.QuestionText,
                 Weight = request.Weight,
                 DisplayOrder = request.DisplayOrder,
-                Explanation = request.Explanation,
                 CorrectAnswer = request.CorrectAnswer
             });
             return Ok();

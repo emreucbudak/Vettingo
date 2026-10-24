@@ -37,7 +37,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
                         QuestionText = question.QuestionText,
                         Weight = question.Weight,
                         DisplayOrder = question.DisplayOrder,
-                        Explanation = question.Explanation,
                         Options = question.Options
                             .Select(option => new GetExamByIdMultipleChoiceOptionResponse
                             {
@@ -56,7 +55,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
                         QuestionText = question.QuestionText,
                         Weight = question.Weight,
                         DisplayOrder = question.DisplayOrder,
-                        Explanation = question.Explanation,
                         CorrectAnswer = question.CorrectAnswer
                     })
                     .ToList()

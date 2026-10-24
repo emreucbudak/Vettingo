@@ -9,7 +9,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.
         public string QuestionText { get; init; } = string.Empty;
         public int Weight { get; init; }
         public int DisplayOrder { get; init; }
-        public string Explanation { get; init; } = string.Empty;
         public List<MultipleChoiceOptionCommandRequest> Options { get; init; } = new();
     }
 }

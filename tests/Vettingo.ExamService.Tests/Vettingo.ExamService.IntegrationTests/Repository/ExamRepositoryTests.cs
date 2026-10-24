@@ -66,7 +66,7 @@ namespace Vettingo.ExamService.UnitTests.Repository
         private static MultipleChoiceQuestion CreateMultipleChoiceQuestion(Guid examId, string questionText, int displayOrder)
         {
             MultipleChoiceQuestion question = new();
-            question.CreateQuestion(examId, questionText, 1, displayOrder, "Explanation");
+            question.CreateQuestion(examId, questionText, 1, displayOrder);
 
             MultipleChoiceOption firstOption = new();
             firstOption.CreateOption(question.Id, "A", true);
