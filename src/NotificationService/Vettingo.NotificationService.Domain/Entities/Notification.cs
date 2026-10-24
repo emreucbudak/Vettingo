@@ -1,5 +1,4 @@
 using Vettingo.NotificationService.Domain.Enums;
-
 namespace Vettingo.NotificationService.Domain.Entities
 {
     public class Notification
