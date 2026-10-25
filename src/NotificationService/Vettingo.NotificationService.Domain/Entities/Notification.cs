@@ -1,5 +1,8 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace Vettingo.NotificationService.Domain.Entities
 {
+    [Index(nameof(UserId))]
     public class Notification
     {
         public Notification()
