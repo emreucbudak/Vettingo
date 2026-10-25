@@ -52,7 +52,7 @@ namespace Vettingo.NotificationService.UnitTests.Repository
         }
 
         [Fact]
-        public async Task GetUnreadNotificationsByUserIdAsync_Should_Exclude_Read_Notifications()
+        public async Task GetNotificationsByUserIdAsync_Should_Include_Read_And_Unread_Notifications()
         {
             await using NotificationDbContext context = _fixture.CreateDbContext();
             var repository = new NotificationRepository(context);
@@ -65,11 +65,11 @@ namespace Vettingo.NotificationService.UnitTests.Repository
             await repository.AddNotificationAsync(readNotification);
             await repository.SaveChangesAsync();
 
-            var result = (await repository.GetUnreadNotificationsByUserIdAsync(userId)).ToList();
+            var result = (await repository.GetNotificationsByUserIdAsync(userId)).ToList();
 
-            result.Should().ContainSingle();
-            result[0].Id.Should().Be(unreadNotification.Id);
-            result[0].IsRead.Should().BeFalse();
+            result.Should().HaveCount(2);
+            result.Should().Contain(notification => notification.Id == unreadNotification.Id && !notification.IsRead);
+            result.Should().Contain(notification => notification.Id == readNotification.Id && notification.IsRead);
         }
 
         private static Notification CreateNotification(Guid userId, string title)

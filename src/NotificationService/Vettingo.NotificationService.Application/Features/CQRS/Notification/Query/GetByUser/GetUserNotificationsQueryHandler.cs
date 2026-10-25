@@ -9,9 +9,7 @@ namespace Vettingo.NotificationService.Application.Features.CQRS.Notification.Qu
         public async Task<IEnumerable<GetUserNotificationsQueryResponse>> Handle(GetUserNotificationsQueryRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetUserNotificationsQueryHandler));
-            var notifications = request.UnreadOnly
-                ? await notificationRepository.GetUnreadNotificationsByUserIdAsync(request.UserId)
-                : await notificationRepository.GetNotificationsByUserIdAsync(request.UserId);
+            var notifications = await notificationRepository.GetNotificationsByUserIdAsync(request.UserId);
 
             return notifications.Select(notification => new GetUserNotificationsQueryResponse
             {

@@ -8,7 +8,6 @@ namespace Vettingo.NotificationService.Application.Repository
         void UpdateNotification(Notification notification);
         Task<Notification?> GetNotificationByIdAsync(Guid notificationId);
         Task<IEnumerable<Notification>> GetNotificationsByUserIdAsync(Guid userId);
-        Task<IEnumerable<Notification>> GetUnreadNotificationsByUserIdAsync(Guid userId);
         Task<int> SaveChangesAsync();
     }
 }

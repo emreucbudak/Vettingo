@@ -5,16 +5,14 @@ namespace Vettingo.NotificationService.Application.Features.CQRS.Notification.Qu
 {
     public class GetUserNotificationsQueryRequest : IRequest<IEnumerable<GetUserNotificationsQueryResponse>>, ICacheableQuery
     {
-        public GetUserNotificationsQueryRequest(Guid userId, bool unreadOnly)
+        public GetUserNotificationsQueryRequest(Guid userId)
         {
             UserId = userId;
-            UnreadOnly = unreadOnly;
-            CacheKey = $"{UserId}_{UnreadOnly}";
+            CacheKey = $"notifications:{UserId}:latest:80";
             ExpireTime = TimeSpan.FromMinutes(10);
         }
 
         public Guid UserId { get; init; }
-        public bool UnreadOnly { get; init; }
         public string CacheKey { get; set; }
         public TimeSpan ExpireTime { get; set; }
     }

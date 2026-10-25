@@ -520,10 +520,11 @@ GET  /api/analytics/companies/{companyId}/candidate-source
 
 ```text
 GET  /api/notifications/user/{userId}
-GET  /api/notifications/user/{userId}/unread
 POST /api/notifications
 PUT  /api/notifications/{notificationId}/read
 ```
+
+The notification list returns up to 80 notifications for the requested user, ordered by `CreatedAt` descending. It includes both read and unread notifications, with `Id`, `UserId`, `Title`, `Message`, `IsRead`, and `CreatedAt` in each item.
 
 SignalR clients can connect to:
 
