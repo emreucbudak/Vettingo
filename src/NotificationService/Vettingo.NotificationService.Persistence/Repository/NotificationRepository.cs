@@ -24,15 +24,7 @@ namespace Vettingo.NotificationService.Persistence.Repository
             return await NotificationSet
                 .Where(notification => notification.UserId == userId)
                 .OrderByDescending(notification => notification.CreatedAt)
-                .AsNoTracking()
-                .ToListAsync();
-        }
-
-        public async Task<IEnumerable<Notification>> GetUnreadNotificationsByUserIdAsync(Guid userId)
-        {
-            return await NotificationSet
-                .Where(notification => notification.UserId == userId && !notification.IsRead)
-                .OrderByDescending(notification => notification.CreatedAt)
+                .Take(80)
                 .AsNoTracking()
                 .ToListAsync();
         }

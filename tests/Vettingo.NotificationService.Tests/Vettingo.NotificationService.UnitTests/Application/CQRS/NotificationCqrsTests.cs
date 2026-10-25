@@ -75,20 +75,20 @@ namespace Vettingo.NotificationService.UnitTests.Application.CQRS
         }
 
         [Fact]
-        public async Task GetUserNotificationsQueryHandler_When_UnreadOnly_Should_Use_Unread_Repository_Method()
+        public async Task GetUserNotificationsQueryHandler_Should_Return_All_Notification_Properties()
         {
             var repository = Substitute.For<INotificationRepository>();
             var userId = Guid.NewGuid();
-            var notification = CreateNotification(userId, "Unread");
-            repository.GetUnreadNotificationsByUserIdAsync(userId).Returns(_ => ReturnAsync<IEnumerable<Notification>>([notification]));
+            var notification = CreateNotification(userId, "Read");
+            notification.MarkAsRead();
+            repository.GetNotificationsByUserIdAsync(userId).Returns(_ => ReturnAsync<IEnumerable<Notification>>([notification]));
             var handler = new GetUserNotificationsQueryHandler(repository, Substitute.For<ILogger<GetUserNotificationsQueryHandler>>());
 
-            var response = (await handler.Handle(new GetUserNotificationsQueryRequest(userId, true), CancellationToken.None)).ToList();
+            var response = (await handler.Handle(new GetUserNotificationsQueryRequest(userId), CancellationToken.None)).ToList();
 
             response.Should().ContainSingle();
-            response[0].Id.Should().Be(notification.Id);
-            await repository.Received(1).GetUnreadNotificationsByUserIdAsync(userId);
-            await repository.DidNotReceive().GetNotificationsByUserIdAsync(Arg.Any<Guid>());
+            response[0].Should().BeEquivalentTo(notification);
+            await repository.Received(1).GetNotificationsByUserIdAsync(userId);
         }
 
         private static Notification CreateNotification(Guid userId, string title)

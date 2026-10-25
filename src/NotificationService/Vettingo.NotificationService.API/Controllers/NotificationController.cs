@@ -13,17 +13,9 @@ namespace Vettingo.NotificationService.API.Controllers
     public class NotificationController(IMediator mediator) : ControllerBase
     {
         [HttpGet("user/{userId:guid}")]
-        public async Task<IActionResult> GetUserNotifications(
-            [FromRoute] Guid userId,
-            [FromQuery] bool unreadOnly = false)
+        public async Task<IActionResult> GetUserNotifications([FromRoute] Guid userId)
         {
-            return Ok(await mediator.Send(new GetUserNotificationsQueryRequest(userId, unreadOnly)));
-        }
-
-        [HttpGet("user/{userId:guid}/unread")]
-        public async Task<IActionResult> GetUnreadUserNotifications([FromRoute] Guid userId)
-        {
-            return Ok(await mediator.Send(new GetUserNotificationsQueryRequest(userId, true)));
+            return Ok(await mediator.Send(new GetUserNotificationsQueryRequest(userId)));
         }
 
         [HttpPost]
