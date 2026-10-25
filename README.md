@@ -90,7 +90,6 @@ The exact seeded name of the HR role in the identity system is `Human Resources`
 
 ### Recruitment analytics
 
-- Job posting performance tracking
 - Company hiring volume reports
 - Company candidate source reports
 
@@ -175,7 +174,7 @@ This structure keeps business rules independent from transport and persistence c
 | **Exam Service** | Exams and technical assessment questions | `/api/exams` |
 | **Interview Service** | Interview exams, questions, and answers | `/api/interview-exams`, `/api/interview-questions`, `/api/interview-answers` |
 | **Evaluation Service** | Candidate evaluations | `/api/evaluations` |
-| **Analytics Service** | Hiring volume, candidate sources, posting performance | `/api/analytics` |
+| **Analytics Service** | Hiring volume, candidate sources | `/api/analytics` |
 | **Notification Service** | Persistent and real-time notifications | `/api/notifications`, `/notification-hub` |
 
 ---
@@ -507,9 +506,6 @@ DELETE /api/evaluations/{evaluationId}
 ### Analytics
 
 ```text
-POST /api/analytics/job-postings/performance
-GET  /api/analytics/job-postings/{jobPostingId}/performance
-
 GET  /api/analytics/company/hiring-volume
 GET  /api/analytics/companies/{companyId}/hiring-volume
 GET  /api/analytics/company/candidate-source

@@ -5,7 +5,6 @@ namespace Vettingo.AnalyticsService.Persistence.DbContext
 {
     public class AnalyticsDbContext(DbContextOptions<AnalyticsDbContext> options) : Microsoft.EntityFrameworkCore.DbContext(options)
     {
-        public DbSet<JobPostingPerformanceAnalysis> JobPostingPerformanceAnalyses { get; set; }
         public DbSet<CompanyStatistic> CompanyStatistics { get; set; }
         public DbSet<HiringVolume> HiringVolumes { get; set; }
         public DbSet<CandidateSource> CandidateSources { get; set; }
@@ -21,20 +20,6 @@ namespace Vettingo.AnalyticsService.Persistence.DbContext
                 entity.HasOne(statistic => statistic.CandidateSource)
                     .WithMany()
                     .HasForeignKey(statistic => statistic.CandidateSourceId);
-            });
-
-            builder.Entity<JobPostingPerformanceAnalysis>(entity =>
-            {
-                entity.HasKey(analysis => analysis.Id);
-
-                entity.Property(analysis => analysis.AverageCompatibilityRate).HasPrecision(5, 2);
-                entity.Property(analysis => analysis.RecommendationHireRate).HasPrecision(5, 2);
-                entity.Property(analysis => analysis.ApplicationToHireRate).HasPrecision(5, 2);
-                entity.Property(analysis => analysis.CvViewToMatchRate).HasPrecision(5, 2);
-                entity.Property(analysis => analysis.TopTenPercentMatchRate).HasPrecision(5, 2);
-
-                entity.HasIndex(analysis => analysis.CompanyId);
-                entity.HasIndex(analysis => analysis.JobPostingId).IsUnique();
             });
 
             base.OnModelCreating(builder);
