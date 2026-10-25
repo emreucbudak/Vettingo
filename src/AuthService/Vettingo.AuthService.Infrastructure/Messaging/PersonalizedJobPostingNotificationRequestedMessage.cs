@@ -1,0 +1,8 @@
+namespace Vettingo.AuthService.Infrastructure.Messaging;
+
+public sealed record PersonalizedJobPostingNotificationRequestedMessage
+{
+    public const string TopicName = "vettingo.auth.personalized-job-posting.notification.requested.v1";
+
+    public required Guid UserId { get; init; }
+}
