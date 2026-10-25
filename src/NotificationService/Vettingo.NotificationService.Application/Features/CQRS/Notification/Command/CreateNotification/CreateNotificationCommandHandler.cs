@@ -12,7 +12,7 @@ namespace Vettingo.NotificationService.Application.Features.CQRS.Notification.Co
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(CreateNotificationCommandHandler));
             Domain.Entities.Notification notification = new();
-            notification.CreateNotification(request.UserId, request.Title, request.Message, request.Type);
+            notification.CreateNotification(request.UserId, request.Title, request.Message);
 
             await notificationRepository.AddNotificationAsync(notification);
             await notificationRepository.SaveChangesAsync();
@@ -24,7 +24,6 @@ namespace Vettingo.NotificationService.Application.Features.CQRS.Notification.Co
                 UserId = notification.UserId,
                 Title = notification.Title,
                 Message = notification.Message,
-                Type = notification.Type,
                 IsRead = notification.IsRead,
                 CreatedAt = notification.CreatedAt
             };

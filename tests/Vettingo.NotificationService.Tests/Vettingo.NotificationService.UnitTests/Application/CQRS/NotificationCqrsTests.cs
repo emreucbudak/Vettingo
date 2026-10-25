@@ -8,7 +8,6 @@ using Vettingo.NotificationService.Application.Features.CQRS.Notification.Query.
 using Vettingo.NotificationService.Application.Repository;
 using Vettingo.NotificationService.Application.Services;
 using Vettingo.NotificationService.Domain.Entities;
-using Vettingo.NotificationService.Domain.Enums;
 
 namespace Vettingo.NotificationService.UnitTests.Application.CQRS
 {
@@ -27,8 +26,7 @@ namespace Vettingo.NotificationService.UnitTests.Application.CQRS
             {
                 UserId = Guid.NewGuid(),
                 Title = "Welcome",
-                Message = "Welcome to Vettingo",
-                Type = NotificationType.Success
+                Message = "Welcome to Vettingo"
             };
 
             var response = await handler.Handle(request, CancellationToken.None);
@@ -36,7 +34,6 @@ namespace Vettingo.NotificationService.UnitTests.Application.CQRS
             response.UserId.Should().Be(request.UserId);
             response.Title.Should().Be(request.Title);
             response.Message.Should().Be(request.Message);
-            response.Type.Should().Be(request.Type);
             response.IsRead.Should().BeFalse();
             await repository.Received(1).AddNotificationAsync(Arg.Is<Notification>(notification =>
                 notification.UserId == request.UserId &&
@@ -73,7 +70,6 @@ namespace Vettingo.NotificationService.UnitTests.Application.CQRS
             await handler.Handle(new MarkNotificationAsReadCommandRequest { NotificationId = notification.Id }, CancellationToken.None);
 
             notification.IsRead.Should().BeTrue();
-            notification.ReadAt.Should().NotBeNull();
             repository.Received(1).UpdateNotification(notification);
             await repository.Received(1).SaveChangesAsync();
         }
@@ -98,7 +94,7 @@ namespace Vettingo.NotificationService.UnitTests.Application.CQRS
         private static Notification CreateNotification(Guid userId, string title)
         {
             Notification notification = new();
-            notification.CreateNotification(userId, title, "Notification message", NotificationType.Info);
+            notification.CreateNotification(userId, title, "Notification message");
             return notification;
         }
 

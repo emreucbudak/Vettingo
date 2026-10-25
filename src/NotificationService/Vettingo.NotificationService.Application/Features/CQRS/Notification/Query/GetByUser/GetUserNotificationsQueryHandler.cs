@@ -19,10 +19,8 @@ namespace Vettingo.NotificationService.Application.Features.CQRS.Notification.Qu
                 UserId = notification.UserId,
                 Title = notification.Title,
                 Message = notification.Message,
-                Type = notification.Type,
                 IsRead = notification.IsRead,
-                CreatedAt = notification.CreatedAt,
-                ReadAt = notification.ReadAt
+                CreatedAt = notification.CreatedAt
             });
         }
     }
