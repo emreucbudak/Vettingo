@@ -10,6 +10,11 @@ namespace Vettingo.AnalyticsService.Persistence.Repository
         private DbSet<JobPostingPerformanceAnalysis> JobPostingPerformanceAnalysisSet => context.Set<JobPostingPerformanceAnalysis>();
         private DbSet<CompanyStatistic> CompanyStatisticSet => context.Set<CompanyStatistic>();
 
+        public async Task AddCompanyStatisticAsync(CompanyStatistic statistic, CancellationToken cancellationToken = default)
+        {
+            await CompanyStatisticSet.AddAsync(statistic, cancellationToken);
+        }
+
         public async Task AddJobPostingPerformanceAnalysisAsync(JobPostingPerformanceAnalysis analysis)
         {
             await JobPostingPerformanceAnalysisSet.AddAsync(analysis);
