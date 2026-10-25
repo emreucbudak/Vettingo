@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Compile Update="Entities\Notification.cs" />
-    <Compile Update="Enums\NotificationType.cs" />
   </ItemGroup>
 
 </Project>

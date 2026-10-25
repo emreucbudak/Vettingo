@@ -15,7 +15,6 @@ namespace Vettingo.NotificationService.Infrastructure.Services
                 notification.UserId,
                 notification.Title,
                 notification.Message,
-                notification.Type,
                 notification.IsRead,
                 notification.CreatedAt
             };

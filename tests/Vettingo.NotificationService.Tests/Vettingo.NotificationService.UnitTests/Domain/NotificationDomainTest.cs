@@ -1,6 +1,5 @@
 using FluentAssertions;
 using Vettingo.NotificationService.Domain.Entities;
-using Vettingo.NotificationService.Domain.Enums;
 
 namespace Vettingo.NotificationService.UnitTests.Domain
 {
@@ -15,7 +14,7 @@ namespace Vettingo.NotificationService.UnitTests.Domain
             // Act
             Action action = () =>
             {
-                notification.CreateNotification(Guid.NewGuid(), "Test Title", "Test Message", NotificationType.Info);
+                notification.CreateNotification(Guid.NewGuid(), "Test Title", "Test Message");
             };
 
             // Assert
@@ -31,7 +30,7 @@ namespace Vettingo.NotificationService.UnitTests.Domain
             // Act
             Action action = () =>
             {
-                notification.CreateNotification(Guid.Empty, "Test Title", "Test Message", NotificationType.Info);
+                notification.CreateNotification(Guid.Empty, "Test Title", "Test Message");
             };
 
             // Assert
@@ -47,7 +46,7 @@ namespace Vettingo.NotificationService.UnitTests.Domain
             // Act
             Action action = () =>
             {
-                notification.CreateNotification(Guid.NewGuid(), string.Empty, "Test Message", NotificationType.Info);
+                notification.CreateNotification(Guid.NewGuid(), string.Empty, "Test Message");
             };
 
             // Assert

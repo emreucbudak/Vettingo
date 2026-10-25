@@ -21,9 +21,6 @@ namespace Vettingo.NotificationService.Persistence.DbContext
                     .HasMaxLength(1000)
                     .IsRequired();
 
-                entity.Property(notification => notification.Type)
-                    .HasConversion<string>();
-
                 entity.HasIndex(notification => notification.UserId);
                 entity.HasIndex(notification => new { notification.UserId, notification.IsRead });
             });

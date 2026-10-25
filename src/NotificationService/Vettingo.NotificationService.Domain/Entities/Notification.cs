@@ -1,4 +1,3 @@
-using Vettingo.NotificationService.Domain.Enums;
 namespace Vettingo.NotificationService.Domain.Entities
 {
     public class Notification
@@ -11,10 +10,8 @@ namespace Vettingo.NotificationService.Domain.Entities
         public Guid UserId { get; private set; }
         public string Title { get; private set; } = string.Empty;
         public string Message { get; private set; } = string.Empty;
-        public NotificationType Type { get; private set; }
         public bool IsRead { get; private set; }
         public DateTime CreatedAt { get; private set; }
-        public DateTime? ReadAt { get; private set; }
 
         public void SetId()
         {
@@ -24,19 +21,15 @@ namespace Vettingo.NotificationService.Domain.Entities
         public void CreateNotification(
             Guid userId,
             string title,
-            string message,
-            NotificationType type)
+            string message)
         {
             CheckNotificationContent(userId, title, message);
-            CheckNotificationType(type);
             SetId();
             UserId = userId;
             Title = title;
             Message = message;
-            Type = type;
             IsRead = false;
             CreatedAt = DateTime.UtcNow;
-            ReadAt = null;
         }
 
         public void MarkAsRead()
@@ -47,7 +40,6 @@ namespace Vettingo.NotificationService.Domain.Entities
             }
 
             IsRead = true;
-            ReadAt = DateTime.UtcNow;
         }
         public void CheckNotificationContent(Guid userId, string title, string message)
         {
@@ -57,14 +49,6 @@ namespace Vettingo.NotificationService.Domain.Entities
             }
             ArgumentNullException.ThrowIfNullOrWhiteSpace(title, nameof(title));
             ArgumentNullException.ThrowIfNullOrWhiteSpace(message, nameof(message));
-        }
-
-        private static void CheckNotificationType(NotificationType type)
-        {
-            if (!Enum.IsDefined(typeof(NotificationType), type))
-            {
-                throw new ArgumentOutOfRangeException(nameof(type), type, "Bildirim tipi geçersiz.");
-            }
         }
     }
 }

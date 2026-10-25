@@ -1,6 +1,5 @@
 using FluentAssertions;
 using Vettingo.NotificationService.Domain.Entities;
-using Vettingo.NotificationService.Domain.Enums;
 using Vettingo.NotificationService.IntegrationTests;
 using Vettingo.NotificationService.Persistence.DbContext;
 using Vettingo.NotificationService.Persistence.Repository;
@@ -76,7 +75,7 @@ namespace Vettingo.NotificationService.UnitTests.Repository
         private static Notification CreateNotification(Guid userId, string title)
         {
             Notification notification = new();
-            notification.CreateNotification(userId, title, "Notification message", NotificationType.Info);
+            notification.CreateNotification(userId, title, "Notification message");
             return notification;
         }
     }
