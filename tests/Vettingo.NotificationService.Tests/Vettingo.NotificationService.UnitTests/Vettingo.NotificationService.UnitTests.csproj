@@ -18,9 +18,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\AuthService\Vettingo.AuthService.Infrastructure\Vettingo.AuthService.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\EvaluationService\Vettingo.EvaluationService.Application\Vettingo.EvaluationService.Application.csproj" />
     <ProjectReference Include="..\..\..\src\NotificationService\Vettingo.NotificationService.Application\Vettingo.NotificationService.Application.csproj" />
     <ProjectReference Include="..\..\..\src\NotificationService\Vettingo.NotificationService.Domain\Vettingo.NotificationService.Domain.csproj" />
     <ProjectReference Include="..\..\..\src\NotificationService\Vettingo.NotificationService.Persistence\Vettingo.NotificationService.Persistence.csproj" />
+    <ProjectReference Include="..\..\..\src\NotificationService\Vettingo.NotificationService.Infrastructure\Vettingo.NotificationService.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -31,6 +31,9 @@ public static class CapRegister
         services.AddScoped<
             IPersonalizedJobPostingPublisher,
             PersonalizedJobPostingPublisher>();
+        services.AddScoped<
+            IPersonalizedJobPostingNotificationPublisher,
+            PersonalizedJobPostingNotificationPublisher>();
         services
             .AddCap(options =>
             {

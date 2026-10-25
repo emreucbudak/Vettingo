@@ -53,6 +53,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
 });
 builder.Services.AddSignalR();
 builder.Services.AddNotificationInfrastructure();
+builder.Services.AddNotificationCap(builder.Configuration);
 builder.Services.AddFlashMediator(typeof(CreateNotificationCommandHandler).Assembly);
 builder.Services.AddFlashMediatorHybridCache();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateNotificationCommandRequest>();

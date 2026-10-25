@@ -9,6 +9,7 @@ namespace Vettingo.NotificationService.Infrastructure.Registration
         public static void AddNotificationInfrastructure(this IServiceCollection services)
         {
             services.AddScoped<INotificationSender, SignalRNotificationSender>();
+            services.AddScoped<IEmailSender, EmailSender>();
         }
     }
 }

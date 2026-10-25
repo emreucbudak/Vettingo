@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Vettingo.AuthService.Application.Messaging;
 using Vettingo.AuthService.Infrastructure.Messaging;
 
 namespace Vettingo.AuthService.Infrastructure.Register
@@ -9,6 +10,8 @@ namespace Vettingo.AuthService.Infrastructure.Register
         public static void AddCapServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddTransient<SubscriptionRegistrationRequestedConsumer>();
+            services.AddTransient<PersonalizedJobPostingNotificationRequestedConsumer>();
+            services.AddScoped<IPersonalizedJobPostingNotificationPublisher, PersonalizedJobPostingNotificationPublisher>();
 
             string databaseConnectionString = configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");
