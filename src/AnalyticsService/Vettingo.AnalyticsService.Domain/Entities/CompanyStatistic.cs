@@ -8,6 +8,13 @@ namespace Vettingo.AnalyticsService.Domain.Entities
         {
         }
 
+        public CompanyStatistic(Guid companyId)
+        {
+            CreateCompanyStatistic(companyId);
+            CandidateSource = new CandidateSource();
+            CandidateSourceId = CandidateSource.Id;
+        }
+
         public Guid CompanyId { get; private set; }
         public int AverageFeedback { get; private set; }
         public int TotalJobPostingCount { get; private set; }

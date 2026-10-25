@@ -4,6 +4,7 @@ namespace Vettingo.AnalyticsService.Application.Repository
 {
     public interface IAnalyticsRepository
     {
+        Task AddCompanyStatisticAsync(CompanyStatistic statistic, CancellationToken cancellationToken = default);
         Task AddJobPostingPerformanceAnalysisAsync(JobPostingPerformanceAnalysis analysis);
         void UpdateJobPostingPerformanceAnalysis(JobPostingPerformanceAnalysis analysis);
         Task<JobPostingPerformanceAnalysis?> GetJobPostingPerformanceAnalysisByJobPostingIdAsync(Guid jobPostingId);

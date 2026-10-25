@@ -76,6 +76,7 @@
   </Folder>
   <Folder Name="/tests/" />
   <Folder Name="/tests/Vettingo.AnalyticsService.Tests/">
+    <Project Path="tests/Vettingo.AnalyticsService.Tests/Vettingo.AnalyticsService.IntegrationTests/Vettingo.AnalyticsService.IntegrationTests.csproj" />
     <Project Path="tests/Vettingo.AnalyticsService.Tests/Vettingo.AnalyticsService.UnitTests/Vettingo.AnalyticsService.UnitTests.csproj" />
   </Folder>
   <Folder Name="/tests/Vettingo.AuthService.Tests/">
