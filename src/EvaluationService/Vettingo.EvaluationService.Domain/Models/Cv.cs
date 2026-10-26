@@ -1,7 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using Vettingo.EvaluationService.Domain.Common;
 
 namespace Vettingo.EvaluationService.Domain.Models;
 
+[Index(nameof(UserId))]
 public sealed class Cv : BaseEntity
 {
     public Guid UserId { get; private set; }

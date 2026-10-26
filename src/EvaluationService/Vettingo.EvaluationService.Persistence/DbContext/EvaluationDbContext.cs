@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Vettingo.EvaluationService.Domain.Models;
+using Vettingo.EvaluationService.Persistence.Configuration;
 using EvaluationEntity = Vettingo.EvaluationService.Domain.Models.Evaluation;
 
 namespace Vettingo.EvaluationService.Persistence.DbContext;
@@ -7,9 +9,11 @@ public sealed class EvaluationDbContext(DbContextOptions<EvaluationDbContext> op
     : Microsoft.EntityFrameworkCore.DbContext(options)
 {
     public DbSet<EvaluationEntity> Evaluations => Set<EvaluationEntity>();
+    public DbSet<Cv> Cvs => Set<Cv>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.ApplyConfiguration(new CvConfiguration());
         modelBuilder.Entity<EvaluationEntity>(entity =>
         {
             entity.ToTable("Evaluations");
