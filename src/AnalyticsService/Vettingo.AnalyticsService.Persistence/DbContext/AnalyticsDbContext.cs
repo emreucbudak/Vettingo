@@ -13,7 +13,6 @@ namespace Vettingo.AnalyticsService.Persistence.DbContext
         {
             builder.Entity<CompanyStatistic>(entity =>
             {
-                entity.HasIndex(statistic => statistic.CompanyId);
                 entity.HasMany(statistic => statistic.HiringVolumes)
                     .WithOne()
                     .HasForeignKey(volume => volume.CompanyStatisticId);

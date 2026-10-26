@@ -1,7 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using Vettingo.AnalyticsService.Domain.Common;
 
 namespace Vettingo.AnalyticsService.Domain.Entities
 {
+    [Index(nameof(CompanyId))]
     public class CompanyStatistic : BaseEntity
     {
         public CompanyStatistic()
