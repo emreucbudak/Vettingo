@@ -23,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\EvaluationService\Vettingo.EvaluationService.Application\Vettingo.EvaluationService.Application.csproj" />
     <ProjectReference Include="..\..\..\src\EvaluationService\Vettingo.EvaluationService.Domain\Vettingo.EvaluationService.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\EvaluationService\Vettingo.EvaluationService.API\Vettingo.EvaluationService.API.csproj" />
   </ItemGroup>
 
 </Project>

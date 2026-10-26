@@ -18,6 +18,7 @@ public static class DbContextRegistration
 
         services.AddDbContext<EvaluationDbContext>(options => options.UseNpgsql(connectionString));
         services.AddScoped<IEvaluationRepository, EvaluationRepository>();
+        services.AddScoped<ICvRepository, CvRepository>();
 
         return services;
     }
