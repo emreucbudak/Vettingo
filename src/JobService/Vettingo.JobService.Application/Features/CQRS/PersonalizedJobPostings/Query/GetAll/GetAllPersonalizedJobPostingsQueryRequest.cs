@@ -4,5 +4,5 @@ namespace Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.
 
 public record GetAllPersonalizedJobPostingsQueryRequest : IRequest<IEnumerable<GetAllPersonalizedJobPostingsQueryResponse>>
 {
-    public Guid? UserId { get; init; }
+    public Guid UserId { get; init; }
 }

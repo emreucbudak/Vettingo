@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -49,9 +50,8 @@ public class PersonalizedJobPostingsCqrsTests
 
         var results = (await handler.Handle(new() { UserId = userId }, CancellationToken.None)).ToList();
         results.Should().HaveCount(count);
-        results.Should().OnlyContain(posting => posting.UserId == userId && posting.JobPosting.CityId == 34);
-        results.Should().OnlyContain(posting => posting.JobPostingId == posting.JobPosting.Id);
-        results.Select(posting => posting.JobPosting.Title).Should().Equal(
+        results.Should().OnlyContain(posting => posting.CityName == "İstanbul");
+        results.Select(posting => posting.Title).Should().Equal(
             Enumerable.Range(0, count).Reverse().Select(index => $"Posting {index}"));
     }
 
@@ -87,27 +87,39 @@ public class PersonalizedJobPostingsCqrsTests
 
         var results = (await list.Handle(new() { UserId = userId }, CancellationToken.None)).ToList();
         results.Should().HaveCount(2);
-        results.Select(item => item.JobPosting.Title).Should().BeEquivalentTo("Developer", "Engineer");
+        results.Select(item => item.Title).Should().BeEquivalentTo("Developer", "Engineer");
         var developerResult = results.Single(item => item.JobPostingId == developer.Id);
-        developerResult.JobPosting.CityId.Should().Be(34);
-        developerResult.JobPosting.MinSalary.Should().Be(developer.MinSalary);
-        developerResult.JobPosting.RequirementSkills.Should().BeEquivalentTo(developer.RequirementSkills);
-        results[0].CreatedAt.Should().NotBe(default);
-        (await list.Handle(new(), CancellationToken.None)).Should().HaveCount(3);
+        developerResult.CityName.Should().Be("İstanbul");
+        developerResult.CompanyId.Should().Be(developer.CompanyId);
+        developerResult.MinSalary.Should().Be(developer.MinSalary);
+        developerResult.MaxSalary.Should().Be(developer.MaxSalary);
+        developerResult.EmploymentType.Should().Be(developer.EmploymentType);
+        developerResult.WorkingModel.Should().Be(developer.WorkingModel);
+        developerResult.MinimumExperienceYear.Should().Be(developer.MinimumExperienceYear);
+        developerResult.MaximumExperienceYear.Should().Be(developer.MaximumExperienceYear);
+        developerResult.RequirementSkills.Should().BeEquivalentTo(developer.RequirementSkills);
+        using var json = JsonDocument.Parse(JsonSerializer.Serialize(developerResult, JsonSerializerOptions.Web));
+        json.RootElement.EnumerateObject().Select(property => property.Name).Should().BeEquivalentTo(
+            "jobPostingId", "companyId", "title", "cityName", "employmentType", "workingModel",
+            "minimumExperienceYear", "maximumExperienceYear", "minSalary", "maxSalary", "requirementSkills");
+        (await list.Handle(new(), CancellationToken.None)).Should().BeEmpty();
         (await list.Handle(new() { UserId = Guid.NewGuid() }, CancellationToken.None)).Should().BeEmpty();
 
-        var deleteRequest = new DeletePersonalizedJobPostingCommandRequest { PersonalizedJobPostingId = developerResult.Id };
+        var associationId = await context.PersonalizedJobPostings
+            .Where(posting => posting.UserId == userId && posting.JobPostingId == developer.Id)
+            .Select(posting => posting.Id).SingleAsync();
+        var deleteRequest = new DeletePersonalizedJobPostingCommandRequest { PersonalizedJobPostingId = associationId };
         await delete.Handle(deleteRequest, CancellationToken.None);
         (await list.Handle(new() { UserId = userId }, CancellationToken.None))
             .Should().ContainSingle().Which.JobPostingId.Should().Be(engineer.Id);
         (await context.JobPostings.FindAsync(developer.Id)).Should().NotBeNull();
         Func<Task> deleteAgain = () => delete.Handle(deleteRequest, CancellationToken.None);
         await deleteAgain.Should().ThrowAsync<NotFoundException>();
-        (await list.Handle(new(), CancellationToken.None)).Should().HaveCount(2);
+        (await context.PersonalizedJobPostings.CountAsync()).Should().Be(2);
     }
 
     [Fact]
-    public void Validators_Should_Reject_Missing_Fields_And_Allow_Optional_User_Filter()
+    public void Validators_Should_Reject_Missing_Fields_And_Require_UserId()
     {
         var create = new CreatePersonalizedJobPostingCommandRequestValidator();
         create.Validate(new CreatePersonalizedJobPostingCommandRequest()).Errors.Select(error => error.PropertyName)
@@ -124,7 +136,8 @@ public class PersonalizedJobPostingsCqrsTests
         new DeletePersonalizedJobPostingCommandRequestValidator()
             .Validate(new DeletePersonalizedJobPostingCommandRequest { PersonalizedJobPostingId = Guid.NewGuid() }).IsValid.Should().BeTrue();
         var list = new GetAllPersonalizedJobPostingsQueryRequestValidator();
-        list.Validate(new GetAllPersonalizedJobPostingsQueryRequest()).IsValid.Should().BeTrue();
+        list.Validate(new GetAllPersonalizedJobPostingsQueryRequest()).Errors.Select(error => error.PropertyName)
+            .Should().BeEquivalentTo("UserId");
         list.Validate(new GetAllPersonalizedJobPostingsQueryRequest { UserId = Guid.Empty }).IsValid.Should().BeFalse();
         list.Validate(new GetAllPersonalizedJobPostingsQueryRequest { UserId = Guid.NewGuid() }).IsValid.Should().BeTrue();
     }

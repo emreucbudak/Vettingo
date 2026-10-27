@@ -7,6 +7,6 @@ public sealed class GetAllPersonalizedJobPostingsQueryRequestValidator : Abstrac
 {
     public GetAllPersonalizedJobPostingsQueryRequestValidator()
     {
-        RuleFor(x => x.UserId).NotEqual(Guid.Empty).When(x => x.UserId.HasValue);
+        RuleFor(x => x.UserId).NotEmpty();
     }
 }
