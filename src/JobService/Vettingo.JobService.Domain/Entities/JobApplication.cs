@@ -4,7 +4,7 @@ using Vettingo.JobService.Domain.Enums;
 
 namespace Vettingo.JobService.Domain.Entities
 {
-    [Index(nameof(CandidateId))]
+    [Index(nameof(CandidateId),IsUnique = true)]
     public class JobApplication : BaseEntity
     {
         public Guid CandidateId { get; private set; }

@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Vettingo.NotificationService.Domain.Entities
 {
-    [Index(nameof(UserId))]
+    [Index(nameof(UserId), IsUnique = true)]
     public class Notification
     {
         public Notification()
