@@ -1,6 +1,4 @@
 using System.Security.Claims;
-using Microsoft.EntityFrameworkCore;
-using Vettingo.JobService.Persistence.DbContext;
 using System.Threading.RateLimiting;
 using Serilog;
 using FlashMediator;
@@ -86,27 +84,6 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter<Vettingo.JobService.Domain.Enums.ApplicationStatus>()));
 
 var app = builder.Build();
-
-await using (var scope = app.Services.CreateAsyncScope())
-{
-    var database = scope.ServiceProvider.GetRequiredService<JobDbContext>();
-    await database.Database.EnsureCreatedAsync();
-    await database.Database.ExecuteSqlRawAsync("""
-        ALTER TABLE "JobPostings" ADD COLUMN IF NOT EXISTS "CompanyName" text NOT NULL DEFAULT '';
-        CREATE TABLE IF NOT EXISTS "JobApplications" (
-            "Id" uuid PRIMARY KEY,
-            "CandidateId" uuid NOT NULL,
-            "JobPostingId" uuid NOT NULL REFERENCES "JobPostings" ("Id") ON DELETE RESTRICT,
-            "AppliedAt" timestamp with time zone NOT NULL,
-            "Status" text NOT NULL,
-            "CreatedAt" timestamp with time zone NOT NULL,
-            "UpdatedAt" timestamp with time zone NULL
-        );
-        CREATE INDEX IF NOT EXISTS "IX_JobApplications_CandidateId" ON "JobApplications" ("CandidateId");
-        CREATE INDEX IF NOT EXISTS "IX_JobApplications_JobPostingId" ON "JobApplications" ("JobPostingId");
-        CREATE INDEX IF NOT EXISTS "IX_JobApplications_AppliedAt" ON "JobApplications" ("AppliedAt");
-        """);
-}
 
 app.UseSerilogRequestLogging(options =>
 {

@@ -5,11 +5,11 @@ using Vettingo.JobService.Domain.Enums;
 namespace Vettingo.JobService.Domain.Entities
 {
     [Index(nameof(CandidateId))]
-    [Index(nameof(JobPostingId))]
     public class JobApplication : BaseEntity
     {
         public Guid CandidateId { get; private set; }
         public Guid JobPostingId { get; private set; }
+        public JobPosting JobPosting { get; private set; } = null!;
         public DateTime AppliedAt { get; private set; }
         public ApplicationStatus Status { get; private set; }
 
