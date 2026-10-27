@@ -15,13 +15,11 @@ public class PersonalizedJobPostingsRepository(JobDbContext context) : IPersonal
     public Task<PersonalizedJobPostings?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
         context.PersonalizedJobPostings.FirstOrDefaultAsync(posting => posting.Id == id, cancellationToken);
 
-    public async Task<IEnumerable<PersonalizedJobPostings>> GetAllAsync(Guid? userId = null, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<PersonalizedJobPostings>> GetAllAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        var query = context.PersonalizedJobPostings.AsNoTracking().Include(posting => posting.JobPosting).AsQueryable();
-        if (userId.HasValue)
-        {
-            query = query.Where(posting => posting.UserId == userId.Value);
-        }
+        var query = context.PersonalizedJobPostings.AsNoTracking()
+            .Include(posting => posting.JobPosting).ThenInclude(jobPosting => jobPosting.City)
+            .Where(posting => posting.UserId == userId);
 
         return await query.OrderByDescending(posting => posting.CreatedAt)
             .ThenByDescending(posting => posting.Id).ToListAsync(cancellationToken);

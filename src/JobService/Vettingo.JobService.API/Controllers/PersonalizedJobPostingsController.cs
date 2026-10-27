@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Command.DeletePersonalizedJobPosting;
+using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Query.GetAll;
 
 namespace Vettingo.JobService.API.Controllers;
 
@@ -13,13 +14,17 @@ public class PersonalizedJobPostingsController(IMediator mediator) : ControllerB
 {
     [HttpGet("user")]
     [Authorize(Roles = "Candidate")]
-    public IActionResult GetByUser()
+    public async Task<IActionResult> GetByUser(CancellationToken cancellationToken)
     {
         var subject = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
         if (!Guid.TryParse(subject, out var userId) || userId == Guid.Empty)
             return Unauthorized();
 
-        return Ok();
+        var response = await mediator.Send(new GetAllPersonalizedJobPostingsQueryRequest
+        {
+            UserId = userId
+        }, cancellationToken);
+        return Ok(response);
     }
 
     [HttpDelete("{personalizedJobPostingId:guid}")]

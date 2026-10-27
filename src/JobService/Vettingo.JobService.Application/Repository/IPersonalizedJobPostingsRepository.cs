@@ -7,6 +7,6 @@ public interface IPersonalizedJobPostingsRepository
     Task AddAsync(PersonalizedJobPostings posting, CancellationToken cancellationToken = default);
     void Delete(PersonalizedJobPostings posting);
     Task<PersonalizedJobPostings?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<IEnumerable<PersonalizedJobPostings>> GetAllAsync(Guid? userId = null, CancellationToken cancellationToken = default);
+    Task<IEnumerable<PersonalizedJobPostings>> GetAllAsync(Guid userId, CancellationToken cancellationToken = default);
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

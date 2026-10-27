@@ -24,9 +24,15 @@ FlashMediator. The handler stores the user-to-job-posting association rather tha
 copying job details. The entity declares `UserId`, `JobPostingId`, and the
 `JobPosting` navigation; identity and timestamps remain inherited from `BaseEntity`.
 
-Both personalized listing queries load the referenced job posting and return its
-current details in the nested `JobPosting` response, alongside `JobPostingId`.
-The latest query returns at most three associations for the requested user, ordered
-by `CreatedAt` descending, then `Id` descending. CAP retries failed processing;
+`GET /api/personalized-job-postings/user` requires a Candidate token and uses its
+nonempty user GUID to list only that user's personalized postings, ordered by
+association `CreatedAt` descending, then `Id` descending. The response is a flat
+array of mobile card data: `jobPostingId`, `companyId`, `title`, `cityName`,
+`employmentType`, `workingModel`, `minimumExperienceYear`, `maximumExperienceYear`,
+`minSalary`, `maxSalary`, and `requirementSkills`. Employment type and working model
+use their numeric enum values. Association IDs, user IDs, timestamps and a nested
+job object are not included. The job and city are loaded with the listing query.
+
+CAP retries failed processing;
 delivery is at least once, so a replay after a committed insert can produce another
 association.

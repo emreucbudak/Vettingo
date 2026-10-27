@@ -74,13 +74,11 @@ public sealed class PersonalizedJobPostingMessagingTests
             NullLogger<GetAllPersonalizedJobPostingsQueryHandler>.Instance);
         var persisted = (await all.Handle(new() { UserId = dto.UserId }, cancellation.Token))
             .Should().ContainSingle().Subject;
-        persisted.UserId.Should().Be(dto.UserId);
         persisted.JobPostingId.Should().Be(dto.JobPostingId);
-        persisted.JobPosting.Id.Should().Be(jobPosting.Id);
-        persisted.JobPosting.Title.Should().Be(jobPosting.Title);
-        persisted.JobPosting.CityId.Should().Be(jobPosting.CityId);
-        persisted.JobPosting.MinSalary.Should().Be(jobPosting.MinSalary);
-        persisted.JobPosting.MaxSalary.Should().Be(jobPosting.MaxSalary);
+        persisted.Title.Should().Be(jobPosting.Title);
+        persisted.CityName.Should().Be("İstanbul");
+        persisted.MinSalary.Should().Be(jobPosting.MinSalary);
+        persisted.MaxSalary.Should().Be(jobPosting.MaxSalary);
     }
 
     [Fact]
