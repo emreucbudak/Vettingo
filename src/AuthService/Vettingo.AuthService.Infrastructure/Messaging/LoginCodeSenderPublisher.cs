@@ -8,7 +8,7 @@ public sealed class LoginCodeSenderPublisher(ICapPublisher capPublisher) : ILogi
 {
     public const string TopicName = "vettingo.notification.login-code.requested.v1";
 
-    public Task CodeSend(LoginCodeMessage message, CancellationToken cancellationToken = default)
+    public Task CodeSend(CodeMessage message, CancellationToken cancellationToken = default)
     {
         return capPublisher.PublishAsync(TopicName, message, cancellationToken: cancellationToken);
     }

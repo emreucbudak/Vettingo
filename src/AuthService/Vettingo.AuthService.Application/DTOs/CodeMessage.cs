@@ -1,8 +1,7 @@
-namespace Vettingo.AuthService.Application.DTOs
+namespace Vettingo.AuthService.Application.DTOs;
+
+public sealed record CodeMessage
 {
-    public class CodeMessage
-    {
-        public string To { get; set; } = string.Empty;
-        public string Body { get; set; } = string.Empty;
-    }
+    public string Email { get; init; } = string.Empty;
+    public string Code { get; init; } = string.Empty;
 }
