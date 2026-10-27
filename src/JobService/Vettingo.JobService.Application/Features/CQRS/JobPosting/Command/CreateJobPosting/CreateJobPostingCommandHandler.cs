@@ -18,6 +18,7 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.Creat
             Domain.Entities.JobPosting jobPosting = new();
             jobPosting.CreateJobPosting(
                 request.CompanyId,
+                request.CompanyName,
                 request.Title,
                 request.RequirementSkills,
                 request.CityId,

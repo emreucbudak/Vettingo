@@ -6,6 +6,7 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetAll
     {
         public Guid Id { get; init; }
         public Guid CompanyId { get; init; }
+        public string CompanyName { get; init; } = string.Empty;
         public string Title { get; init; } = string.Empty;
         public Dictionary<string, int> RequirementSkills { get; init; } = new();
         public int CityId { get; init; }

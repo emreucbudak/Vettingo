@@ -10,9 +10,7 @@ Kullanıcı "ne eksiğimiz kaldı?" diye sorduğunda bu listedeki açık maddele
   - `pg_cron` seçilirse Docker imajı, başlangıç ayarları, ilk kurulum SQL'i ve bildirim tablosunun oluşturulma sırası birlikte ele alınmalı.
   - Bu maddeyi kaydetmek, kurulumu başlatma onayı değildir; kullanıcı yeniden istediğinde ele alınacak.
 
-- [ ] Kişiselleştirilmiş ilan kartlarına şirket adının nasıl getirileceğini yeniden değerlendir.
-  - Durum: Kullanıcının isteğiyle ertelendi; kullanıcı tekrar haber verdiğinde ele alınacak. Henüz bir çözüm kararlaştırılmadı.
-  - İhtiyaç: Mobil aday ekranındaki ilan kartında şirket adı da gösterilmeli; mevcut ilan response'unda şirket adı bulunmuyor.
-  - Konuşulan seçenek: Kişiselleştirilmiş ilan oluşturulunca JobService, `CompanyId` ve `JobPostingId` ile CAP/RabbitMQ üzerinden şirket adı talebi yayınlar; AuthService şirket adını cevap mesajıyla gönderir; JobService adı ilgili `JobPosting` kaydına ekleyip ilan response'unda döner.
-  - Kullanıcıya göre şirket adı sonradan değişmeyecek. Aynı ilan için tekrar isim talebi, mesaj gelmeden yapılan sorgular ve ismin hangi aşamada kaydedileceği yeniden değerlendirilmeli.
-  - Bu not uygulama onayı değildir; şirket adı entegrasyonunu kullanıcı yeniden istediğinde ele al.
+- [x] Kişiselleştirilmiş ilan kartlarına şirket adının nasıl getirileceğini yeniden değerlendir.
+  - Seçilen çözüm: AuthService, Company ve HR tokenlarına `companyName` claim'i ekler. JobService ilan oluştururken şirket kimliğini ve adını token'dan alıp `JobPosting` üzerinde saklar; GetAll response'ları ve mobil kart bu adı kullanır.
+  - Kullanıcıya göre şirket adı sonradan değişmeyecek; ayrıca şirket adı mesajlaşması gerekmiyor.
+  - Mevcut ilanların boş şirket adları ayrıca doldurulmalı; yeni ilanlar şirket adıyla kaydedilir.

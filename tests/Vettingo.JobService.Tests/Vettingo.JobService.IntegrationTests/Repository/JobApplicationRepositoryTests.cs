@@ -28,7 +28,7 @@ namespace Vettingo.JobService.UnitTests.Repository
             foreach (var application in new[] { older, newer, other })
             {
                 var posting = new JobPosting();
-                posting.CreateJobPosting(Guid.NewGuid(), Guid.NewGuid().ToString(), new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34,
+                posting.CreateJobPosting(Guid.NewGuid(), "Vettingo Teknoloji", Guid.NewGuid().ToString(), new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34,
                     EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 0, 0, null, JobPostingStatus.Active);
                 application.CreateApplication(application.CandidateId, posting.Id, application.AppliedAt, application.Status);
                 context.JobPostings.Add(posting);
@@ -69,7 +69,7 @@ namespace Vettingo.JobService.UnitTests.Repository
         private static JobPosting NewPosting(Guid companyId)
         {
             var posting = new JobPosting();
-            posting.CreateJobPosting(companyId, Guid.NewGuid().ToString(), new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34,
+            posting.CreateJobPosting(companyId, "Vettingo Teknoloji", Guid.NewGuid().ToString(), new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34,
                 EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 0, 0, null, JobPostingStatus.Active);
             return posting;
         }
