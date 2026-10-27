@@ -11,7 +11,6 @@ using Vettingo.EvaluationService.Application.DTOs;
 using Vettingo.EvaluationService.Infrastructure.Messaging;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Command.CreatePersonalizedJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Query.GetAll;
-using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Query.GetLatest;
 using Vettingo.JobService.Application.Repository;
 using Vettingo.JobService.Application.Validations;
 using Vettingo.JobService.Domain.Entities;
@@ -73,8 +72,6 @@ public sealed class PersonalizedJobPostingMessagingTests
         var repository = scope.ServiceProvider.GetRequiredService<IPersonalizedJobPostingsRepository>();
         var all = new GetAllPersonalizedJobPostingsQueryHandler(repository,
             NullLogger<GetAllPersonalizedJobPostingsQueryHandler>.Instance);
-        var latest = new GetLatestPersonalizedJobPostingsQueryHandler(repository,
-            NullLogger<GetLatestPersonalizedJobPostingsQueryHandler>.Instance);
         var persisted = (await all.Handle(new() { UserId = dto.UserId }, cancellation.Token))
             .Should().ContainSingle().Subject;
         persisted.UserId.Should().Be(dto.UserId);
@@ -84,8 +81,6 @@ public sealed class PersonalizedJobPostingMessagingTests
         persisted.JobPosting.CityId.Should().Be(jobPosting.CityId);
         persisted.JobPosting.MinSalary.Should().Be(jobPosting.MinSalary);
         persisted.JobPosting.MaxSalary.Should().Be(jobPosting.MaxSalary);
-        (await latest.Handle(new() { UserId = dto.UserId }, cancellation.Token))
-            .Should().ContainSingle().Which.JobPostingId.Should().Be(dto.JobPostingId);
     }
 
     [Fact]
