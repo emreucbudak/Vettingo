@@ -12,16 +12,6 @@ namespace Vettingo.NotificationService.Persistence.DbContext
             builder.Entity<Notification>(entity =>
             {
                 entity.HasKey(notification => notification.Id);
-
-                entity.Property(notification => notification.Title)
-                    .HasMaxLength(200)
-                    .IsRequired();
-
-                entity.Property(notification => notification.Message)
-                    .HasMaxLength(1000)
-                    .IsRequired();
-
-                entity.HasIndex(notification => new { notification.UserId, notification.IsRead });
             });
 
             base.OnModelCreating(builder);
