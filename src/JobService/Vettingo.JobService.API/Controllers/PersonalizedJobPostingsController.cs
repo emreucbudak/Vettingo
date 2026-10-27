@@ -1,7 +1,6 @@
 using FlashMediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Command.CreatePersonalizedJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Command.DeletePersonalizedJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Query.GetAll;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Query.GetLatest;
@@ -13,15 +12,6 @@ namespace Vettingo.JobService.API.Controllers;
 [Authorize]
 public class PersonalizedJobPostingsController(IMediator mediator) : ControllerBase
 {
-    [HttpPost]
-    public async Task<IActionResult> Create(
-        [FromBody] CreatePersonalizedJobPostingCommandRequest request,
-        CancellationToken cancellationToken)
-    {
-        await mediator.Send(request, cancellationToken);
-        return Ok();
-    }
-
     [HttpDelete("{personalizedJobPostingId:guid}")]
     public async Task<IActionResult> Delete(
         [FromRoute] Guid personalizedJobPostingId,
