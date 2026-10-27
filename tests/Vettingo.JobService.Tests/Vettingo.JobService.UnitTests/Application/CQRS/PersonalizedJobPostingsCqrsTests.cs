@@ -5,7 +5,6 @@ using Vettingo.JobService.Application.Exceptions;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Command.CreatePersonalizedJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Command.DeletePersonalizedJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Query.GetAll;
-using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Query.GetLatest;
 using Vettingo.JobService.Application.Validations;
 using Vettingo.JobService.Domain.Entities;
 using Vettingo.JobService.Domain.Enums;
@@ -20,7 +19,7 @@ public class PersonalizedJobPostingsCqrsTests
     [InlineData(0)]
     [InlineData(2)]
     [InlineData(5)]
-    public async Task Latest_Should_Return_At_Most_Three_Postings_For_Requested_User(int count)
+    public async Task List_Should_Return_All_Postings_For_Requested_User(int count)
     {
         await using var context = new JobDbContext(new DbContextOptionsBuilder<JobDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
@@ -44,25 +43,16 @@ public class PersonalizedJobPostingsCqrsTests
         });
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
-        var handler = new GetLatestPersonalizedJobPostingsQueryHandler(
+        var handler = new GetAllPersonalizedJobPostingsQueryHandler(
             new PersonalizedJobPostingsRepository(context),
-            NullLogger<GetLatestPersonalizedJobPostingsQueryHandler>.Instance);
+            NullLogger<GetAllPersonalizedJobPostingsQueryHandler>.Instance);
 
         var results = (await handler.Handle(new() { UserId = userId }, CancellationToken.None)).ToList();
-        results.Should().HaveCount(Math.Min(count, 3));
+        results.Should().HaveCount(count);
         results.Should().OnlyContain(posting => posting.UserId == userId && posting.JobPosting.CityId == 34);
         results.Should().OnlyContain(posting => posting.JobPostingId == posting.JobPosting.Id);
         results.Select(posting => posting.JobPosting.Title).Should().Equal(
-            Enumerable.Range(0, count).Reverse().Take(3).Select(index => $"Posting {index}"));
-    }
-
-    [Fact]
-    public void Latest_Should_Require_UserId()
-    {
-        var validator = new GetLatestPersonalizedJobPostingsQueryRequestValidator();
-        validator.Validate(new GetLatestPersonalizedJobPostingsQueryRequest()).IsValid.Should().BeFalse();
-        validator.Validate(new GetLatestPersonalizedJobPostingsQueryRequest { UserId = Guid.NewGuid() })
-            .IsValid.Should().BeTrue();
+            Enumerable.Range(0, count).Reverse().Select(index => $"Posting {index}"));
     }
 
     [Fact]
