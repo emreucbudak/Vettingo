@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using Vettingo.AuthService.Application.Exceptions;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Login;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.RefreshToken;
 using Vettingo.AuthService.Application.Repository;
@@ -18,14 +19,17 @@ public sealed class HrCompanyTokenTests
     [Theory]
     [InlineData("Human Resources", true)]
     [InlineData("Human Resources", false)]
+    [InlineData("Company", true)]
+    [InlineData("Company", false)]
     [InlineData("Candidate", true)]
-    public async Task Login_Should_Include_Assigned_Company_Only_For_Hr(string role, bool assigned)
+    public async Task Login_Should_Include_Company_Id_And_Name_Only_For_Company_And_Assigned_Hr(string role, bool assigned)
     {
         var user = CreateUser(assigned);
         using var manager = CreateManager(user, role);
         var tokenService = Substitute.For<ITokenService>();
         tokenService.CreateRefreshToken().Returns("new-refresh");
         var companyRepository = Substitute.For<ICompanyRepository>();
+        var company = ConfigureCompany(companyRepository, user, role);
         using var roleManager = new RoleManager<Role>(Substitute.For<IRoleStore<Role>>(), [],
             new UpperInvariantLookupNormalizer(), new IdentityErrorDescriber(), NullLogger<RoleManager<Role>>.Instance);
         var handler = new LoginCommandHandler(manager, new AuthBusinessRules(manager, roleManager),
@@ -34,15 +38,17 @@ public sealed class HrCompanyTokenTests
         await handler.Handle(new() { Email = user.Email!, Password = "Strong1!" }, CancellationToken.None);
 
         tokenService.Received(1).CreateAccessToken(user.Id, user.Email!, user.Name, user.Surname,
-            Arg.Any<IList<string>>(), role == "Human Resources" ? user.CompanyId : null);
-        companyRepository.ReceivedCalls().Should().BeEmpty();
+            Arg.Any<IList<string>>(), company?.Id, company?.CompanyName);
+        if (company is null) companyRepository.ReceivedCalls().Should().BeEmpty();
     }
 
     [Theory]
     [InlineData("Human Resources", true)]
     [InlineData("Human Resources", false)]
+    [InlineData("Company", true)]
+    [InlineData("Company", false)]
     [InlineData("Candidate", true)]
-    public async Task Refresh_Should_Include_Current_Assigned_Company_Only_For_Hr(string role, bool assigned)
+    public async Task Refresh_Should_Include_Company_Id_And_Name_Only_For_Company_And_Assigned_Hr(string role, bool assigned)
     {
         var user = CreateUser(assigned);
         using var manager = CreateManager(user, role);
@@ -50,13 +56,70 @@ public sealed class HrCompanyTokenTests
         tokenService.GetPrincipalFromExpiredToken("expired").Returns(new ClaimsPrincipal(
             new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())])));
         tokenService.CreateRefreshToken().Returns("new-refresh");
+        var companyRepository = Substitute.For<ICompanyRepository>();
+        var company = ConfigureCompany(companyRepository, user, role);
         var handler = new RefreshTokenCommandHandler(tokenService, manager,
-            NullLogger<RefreshTokenCommandHandler>.Instance, Substitute.For<ICompanyRepository>());
+            NullLogger<RefreshTokenCommandHandler>.Instance, companyRepository);
 
         await handler.Handle(new() { AccessToken = "expired", RefreshToken = "old-refresh" }, CancellationToken.None);
 
         tokenService.Received(1).CreateAccessToken(user.Id, user.Email!, user.Name, user.Surname,
-            Arg.Any<IList<string>>(), role == "Human Resources" ? user.CompanyId : null);
+            Arg.Any<IList<string>>(), company?.Id, company?.CompanyName);
+        if (company is null) companyRepository.ReceivedCalls().Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData("Company", false)]
+    [InlineData("Company", true)]
+    [InlineData("Human Resources", false)]
+    [InlineData("Human Resources", true)]
+    public async Task Missing_Company_Should_Not_Issue_Tokens(string role, bool refresh)
+    {
+        var user = CreateUser(true);
+        using var manager = CreateManager(user, role);
+        var tokenService = Substitute.For<ITokenService>();
+        var companyRepository = Substitute.For<ICompanyRepository>();
+        Func<Task> issueToken;
+        if (refresh)
+        {
+            tokenService.GetPrincipalFromExpiredToken("expired").Returns(new ClaimsPrincipal(
+                new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())])));
+            var handler = new RefreshTokenCommandHandler(tokenService, manager,
+                NullLogger<RefreshTokenCommandHandler>.Instance, companyRepository);
+            issueToken = () => handler.Handle(new() { AccessToken = "expired", RefreshToken = "old-refresh" }, CancellationToken.None);
+        }
+        else
+        {
+            using var roleManager = new RoleManager<Role>(Substitute.For<IRoleStore<Role>>(), [],
+                new UpperInvariantLookupNormalizer(), new IdentityErrorDescriber(), NullLogger<RoleManager<Role>>.Instance);
+            var handler = new LoginCommandHandler(manager, new AuthBusinessRules(manager, roleManager),
+                tokenService, NullLogger<LoginCommandHandler>.Instance, companyRepository);
+            issueToken = () => handler.Handle(new() { Email = user.Email!, Password = "Strong1!" }, CancellationToken.None);
+        }
+
+        await issueToken.Should().ThrowAsync<UnauthorizedException>().WithMessage("Şirket hesabı bulunamadı.");
+        tokenService.DidNotReceiveWithAnyArgs().CreateAccessToken(default, default!, default!, default!, default!, default, default);
+        tokenService.DidNotReceive().CreateRefreshToken();
+    }
+
+    private static Company? ConfigureCompany(ICompanyRepository repository, User user, string role)
+    {
+        var company = new Company();
+        if (role == "Company")
+        {
+            company.RegisterCompany(Guid.NewGuid(), "Vettingo Teknoloji");
+            repository.GetCompanyByEmailAsync(user.Email!).Returns(company);
+        }
+        else if (role == "Human Resources" && user.CompanyId.HasValue)
+        {
+            company.RegisterCompany(user.CompanyId.Value, "Vettingo Teknoloji");
+            repository.GetCompanyByIdAsync(user.CompanyId.Value).Returns(company);
+        }
+        else
+        {
+            return null;
+        }
+        return company;
     }
 
     private static User CreateUser(bool assigned)

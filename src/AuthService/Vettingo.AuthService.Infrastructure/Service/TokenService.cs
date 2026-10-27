@@ -15,7 +15,8 @@ namespace Vettingo.AuthService.Infrastructure.Service
             string name,
             string surname,
             IList<string> roles,
-            Guid? companyId = null)
+            Guid? companyId = null,
+            string? companyName = null)
         {
             List<Claim> claims = new()
             {
@@ -28,6 +29,10 @@ namespace Vettingo.AuthService.Infrastructure.Service
             if (companyId.HasValue)
             {
                 claims.Add(new Claim("companyId", companyId.Value.ToString()));
+                if (!string.IsNullOrWhiteSpace(companyName))
+                {
+                    claims.Add(new Claim("companyName", companyName));
+                }
             }
 
             foreach (var role in roles)

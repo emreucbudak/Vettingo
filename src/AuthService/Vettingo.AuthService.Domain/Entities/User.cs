@@ -6,6 +6,7 @@ namespace Vettingo.AuthService.Domain.Entities
     {
         public string Name { get; set; }
         public string Surname { get; set; }
+        public bool IsTwoFactorAuthenticated { get; set; }
         public Guid RefreshTokenId { get; set; }
         public RefreshToken RefreshToken { get; set; }
         public string? Biography { get; set; }
