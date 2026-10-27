@@ -11,15 +11,15 @@ namespace Vettingo.NotificationService.Infrastructure.Services
         {
             using var mailMessage = new MailMessage
             {
-                From = new MailAddress("noreply@example.com"),
+                From = new MailAddress("vettingodestek@gmail.com"),
                 Body = message.Body
             };
             mailMessage.To.Add(message.To);
 
-            using var smtpClient = new SmtpClient("smtp.example.com", 587)
+            using var smtpClient = new SmtpClient("smtp.gmail.com", 587)
             {
                 EnableSsl = true,
-                Credentials = new NetworkCredential("noreply@example.com", "placeholder-password")
+                Credentials = new NetworkCredential("vettingodestek@gmail.com", "placeholder-password")
             };
 
             smtpClient.Send(mailMessage);
