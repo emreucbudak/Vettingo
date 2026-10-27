@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.ChangePassword;
-using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.CandidateTempRegister;
-using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.EmployerTempRegister;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Login;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.RefreshToken;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Revoke;
@@ -17,19 +15,6 @@ namespace Vettingo.AuthService.API.Controllers
     [ApiController]
     public class AuthController(IMediator mediator) : ControllerBase
     {
-        [HttpPost("candidate/temp-register")]
-        public async Task<IActionResult> CandidateTempRegister(
-            [FromBody] CandidateTempRegisterCommandRequest request)
-        {
-            return Ok(await mediator.Send(request));
-        }
-
-        [HttpPost("employer/temp-register")]
-        public async Task<IActionResult> EmployerTempRegister([FromBody] EmployerTempRegisterCommandRequest request)
-        {
-            return Ok(await mediator.Send(request));
-        }
-
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginCommandRequest request)
         {

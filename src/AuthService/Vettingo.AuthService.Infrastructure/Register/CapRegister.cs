@@ -9,7 +9,6 @@ namespace Vettingo.AuthService.Infrastructure.Register
     {
         public static void AddCapServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddTransient<SubscriptionRegistrationRequestedConsumer>();
             services.AddTransient<PersonalizedJobPostingNotificationRequestedConsumer>();
             services.AddScoped<IPersonalizedJobPostingNotificationPublisher, PersonalizedJobPostingNotificationPublisher>();
 
@@ -50,7 +49,7 @@ namespace Vettingo.AuthService.Infrastructure.Register
                 options.FailedRetryCount = 5;
             })
                 .AddSubscriberAssembly(
-                    typeof(SubscriptionRegistrationRequestedConsumer));
+                    typeof(PersonalizedJobPostingNotificationRequestedConsumer));
         }
     }
 }
