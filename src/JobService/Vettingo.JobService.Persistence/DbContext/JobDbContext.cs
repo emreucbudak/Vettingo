@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Vettingo.JobService.Domain.Entities;
 using Vettingo.JobService.Domain.Enums;
+using Vettingo.JobService.Persistence.SeedData;
 
 namespace Vettingo.JobService.Persistence.DbContext
 {

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Vettingo.AuthService.Domain.Entities;
 
-namespace Vettingo.AuthService.Persistence.DbContext
+namespace Vettingo.AuthService.Persistence.SeedData
 {
     public class RoleDataSeedConfiguration : IEntityTypeConfiguration<Role>
     {
