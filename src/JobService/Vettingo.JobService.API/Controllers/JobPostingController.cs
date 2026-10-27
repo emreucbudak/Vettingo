@@ -72,9 +72,14 @@ namespace Vettingo.JobService.API.Controllers
 
         [Authorize(Roles = "Company")]
         [HttpPost]
-        public async Task<IActionResult> CreateJobPosting([FromBody] CreateJobPostingCommandRequest request)
+        public async Task<IActionResult> CreateJobPosting([FromBody] CreateJobPostingCommandRequest request, CancellationToken cancellationToken)
         {
-            await mediator.Send(request);
+            var companyName = User.FindFirstValue("companyName");
+            if (!Guid.TryParse(User.FindFirstValue("companyId"), out var companyId) || companyId == Guid.Empty ||
+                string.IsNullOrWhiteSpace(companyName))
+                return Unauthorized();
+
+            await mediator.Send(request with { CompanyId = companyId, CompanyName = companyName }, cancellationToken);
             return Ok();
         }
 

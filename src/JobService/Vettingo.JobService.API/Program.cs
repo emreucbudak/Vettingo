@@ -92,6 +92,7 @@ await using (var scope = app.Services.CreateAsyncScope())
     var database = scope.ServiceProvider.GetRequiredService<JobDbContext>();
     await database.Database.EnsureCreatedAsync();
     await database.Database.ExecuteSqlRawAsync("""
+        ALTER TABLE "JobPostings" ADD COLUMN IF NOT EXISTS "CompanyName" text NOT NULL DEFAULT '';
         CREATE TABLE IF NOT EXISTS "JobApplications" (
             "Id" uuid PRIMARY KEY,
             "CandidateId" uuid NOT NULL,

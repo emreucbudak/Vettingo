@@ -63,7 +63,7 @@ public sealed class CityModelTests
         await context.Database.EnsureCreatedAsync();
         var userId = Guid.NewGuid();
         var jobPosting = new JobPosting();
-        jobPosting.CreateJobPosting(Guid.NewGuid(), "Software Developer", new Dictionary<string, int> { ["C#"] = 3 },
+        jobPosting.CreateJobPosting(Guid.NewGuid(), "Vettingo Teknoloji", "Software Developer", new Dictionary<string, int> { ["C#"] = 3 },
             34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 50000, 75000, null, JobPostingStatus.Active);
         var posting = new PersonalizedJobPostings
         {
@@ -91,7 +91,7 @@ public sealed class CityModelTests
     public void Posting_Should_Reject_Nonpositive_CityId(int cityId)
     {
         var posting = new JobPosting();
-        Action create = () => posting.CreateJobPosting(Guid.NewGuid(), "Title", new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, cityId, EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5,
+        Action create = () => posting.CreateJobPosting(Guid.NewGuid(), "Vettingo Teknoloji", "Title", new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, cityId, EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5,
             0, 0, null, JobPostingStatus.Active);
         create.Should().Throw<ArgumentOutOfRangeException>().WithParameterName("cityId");
         new SearchJobPostingsQueryRequestValidator().Validate(new SearchJobPostingsQueryRequest { CityId = cityId })
@@ -105,7 +105,7 @@ public sealed class CityModelTests
         foreach (var cityId in new[] { 6, 34 })
         {
             var posting = new JobPosting();
-            posting.CreateJobPosting(Guid.NewGuid(), $"Developer {cityId}", new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, cityId, EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5,
+            posting.CreateJobPosting(Guid.NewGuid(), "Vettingo Teknoloji", $"Developer {cityId}", new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, cityId, EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5,
                 0, 0, null, JobPostingStatus.Active);
             context.JobPostings.Add(posting);
         }
@@ -122,7 +122,7 @@ public sealed class CityModelTests
     public void Remote_Posting_Should_Keep_Its_Required_City()
     {
         var posting = new JobPosting();
-        posting.CreateJobPosting(Guid.NewGuid(), "Remote developer", new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5,
+        posting.CreateJobPosting(Guid.NewGuid(), "Vettingo Teknoloji", "Remote developer", new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5,
             0, 0, null, JobPostingStatus.Active);
         posting.CityId.Should().Be(34);
         posting.WorkingModel.Should().Be(WorkingModel.Remote);

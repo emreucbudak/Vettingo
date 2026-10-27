@@ -5,6 +5,7 @@ using Vettingo.JobService.Application.Exceptions;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CreateJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.UpdateJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetById;
+using Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetAll;
 using Vettingo.JobService.Application.Messaging;
 using Vettingo.JobService.Application.Repository;
 using Vettingo.JobService.Domain.Entities;
@@ -14,6 +15,36 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
 {
     public class JobPostingCqrsTests
     {
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task GetAll_Should_Return_Stored_Company_Name(bool filterByCompany)
+        {
+            var posting = CreateJobPosting(Guid.NewGuid(), "Backend Developer");
+            var repository = Substitute.For<IJobPostingRepository>();
+            repository.GetAllJobPostingsAsync().Returns(_ => ReturnAsync<IEnumerable<JobPosting>>([posting]));
+            repository.GetJobPostingsByCompanyIdAsync(posting.CompanyId)
+                .Returns(_ => ReturnAsync<IEnumerable<JobPosting>>([posting]));
+            var handler = new GetAllJobPostingsQueryHandler(repository, Substitute.For<ILogger<GetAllJobPostingsQueryHandler>>());
+
+            var result = (await handler.Handle(new(filterByCompany ? posting.CompanyId : null), CancellationToken.None))
+                .Should().ContainSingle().Subject;
+
+            result.CompanyId.Should().Be(posting.CompanyId);
+            result.CompanyName.Should().Be("Vettingo Teknoloji");
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void Create_Validator_Should_Reject_Missing_Company_Name(string? companyName)
+        {
+            var request = CreateJobPostingRequest() with { CompanyName = companyName! };
+            new CreateJobPostingCommandRequestValidator().Validate(request).Errors
+                .Select(error => error.PropertyName).Should().BeEquivalentTo("CompanyName");
+        }
+
         [Fact]
         public void Command_Validators_Should_Reject_Missing_Skills_And_Blank_Keys()
         {
@@ -80,6 +111,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
 
             await repository.Received(1).AddJobPostingAsync(Arg.Is<JobPosting>(jobPosting =>
                 jobPosting.CompanyId == request.CompanyId &&
+                jobPosting.CompanyName == request.CompanyName &&
                 jobPosting.Title == request.Title &&
                 jobPosting.RequirementSkills.Count == request.RequirementSkills.Count &&
                 jobPosting.RequirementSkills["C#"] == request.RequirementSkills["C#"] &&
@@ -129,6 +161,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             return new CreateJobPostingCommandRequest
             {
                 CompanyId = Guid.NewGuid(),
+                CompanyName = "Vettingo Teknoloji",
                 Title = "Backend Developer",
                 RequirementSkills = new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                 CityId = 34,
@@ -167,6 +200,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             JobPosting jobPosting = new();
             jobPosting.CreateJobPosting(
                 companyId,
+                "Vettingo Teknoloji",
                 title,
                 new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                 34,

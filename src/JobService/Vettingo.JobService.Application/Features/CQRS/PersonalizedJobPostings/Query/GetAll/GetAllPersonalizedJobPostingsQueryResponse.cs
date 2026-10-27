@@ -6,6 +6,7 @@ public sealed record GetAllPersonalizedJobPostingsQueryResponse
 {
     public Guid JobPostingId { get; init; }
     public Guid CompanyId { get; init; }
+    public string CompanyName { get; init; } = string.Empty;
     public string Title { get; init; } = string.Empty;
     public string CityName { get; init; } = string.Empty;
     public EmploymentType EmploymentType { get; init; }

@@ -12,6 +12,7 @@ namespace Vettingo.JobService.Domain.Entities
         }
 
         public Guid CompanyId { get; private set; }
+        public string CompanyName { get; private set; } = string.Empty;
         public string Title { get; private set; } = string.Empty;
         public Dictionary<string, int> RequirementSkills { get; private set; } = new();
         public int CityId { get; private set; }
@@ -27,6 +28,7 @@ namespace Vettingo.JobService.Domain.Entities
 
         public void CreateJobPosting(
             Guid companyId,
+            string companyName,
             string title,
             Dictionary<string, int> requirementSkills,
             int cityId,
@@ -40,8 +42,10 @@ namespace Vettingo.JobService.Domain.Entities
             JobPostingStatus status)
         {
             CheckJobPostingContent(companyId, title, cityId, employmentType, workingModel, applicationDeadline, status);
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(companyName, nameof(companyName));
             SetId();
             CompanyId = companyId;
+            CompanyName = companyName;
             UpdateJobPosting(title, requirementSkills, cityId, employmentType, workingModel, minimumExperienceYear, maximumExperienceYear, minSalary, maxSalary, applicationDeadline);
             Status = status;
             SetCreatedAt();

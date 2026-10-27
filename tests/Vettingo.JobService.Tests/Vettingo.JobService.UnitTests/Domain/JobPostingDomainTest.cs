@@ -17,6 +17,7 @@ namespace Vettingo.JobService.UnitTests.Domain
             {
                 jobPosting.CreateJobPosting(
                     Guid.NewGuid(),
+                    "Vettingo Teknoloji",
                     "Test Title",
                     new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                     34,
@@ -30,6 +31,20 @@ namespace Vettingo.JobService.UnitTests.Domain
 
             // Assert
             action.Should().NotThrow();
+            jobPosting.CompanyName.Should().Be("Vettingo Teknoloji");
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void Create_JobPosting_With_Blank_CompanyName_Should_Throw(string? companyName)
+        {
+            var posting = new JobPosting();
+            Action create = () => posting.CreateJobPosting(Guid.NewGuid(), companyName!, "Developer",
+                new Dictionary<string, int> { ["C#"] = 3 }, 34, EmploymentType.FullTime, WorkingModel.Remote,
+                2, 5, 50000, 75000, null, JobPostingStatus.Active);
+            create.Should().Throw<ArgumentException>().WithParameterName("companyName");
         }
 
         [Fact]
@@ -43,6 +58,7 @@ namespace Vettingo.JobService.UnitTests.Domain
             {
                 jobPosting.CreateJobPosting(
                     Guid.Empty,
+                    "Vettingo Teknoloji",
                     "Test Title",
                     new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                     34,

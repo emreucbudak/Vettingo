@@ -38,7 +38,7 @@ public sealed class JobPostingSalarySearchTests
     private static JobPosting CreatePosting(int minSalary, int maxSalary, JobPostingStatus status)
     {
         var posting = new JobPosting();
-        posting.CreateJobPosting(Guid.NewGuid(), Guid.NewGuid().ToString(), new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5,
+        posting.CreateJobPosting(Guid.NewGuid(), "Vettingo Teknoloji", Guid.NewGuid().ToString(), new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5,
             minSalary, maxSalary, null, status);
         return posting;
     }
