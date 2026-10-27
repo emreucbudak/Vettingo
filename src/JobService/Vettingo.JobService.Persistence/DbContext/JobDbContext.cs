@@ -40,13 +40,11 @@ namespace Vettingo.JobService.Persistence.DbContext
 
             builder.Entity<JobPosting>()
                 .Property(jobPosting => jobPosting.Status)
-                // Preserve the existing database representation when renaming Published to Active.
                 .HasConversion(
                     status => status == JobPostingStatus.Active ? "Published" : status.ToString(),
                     value => value == "Published" ? JobPostingStatus.Active : Enum.Parse<JobPostingStatus>(value, false));
 
             builder.Entity<JobApplication>().Property(application => application.Status).HasConversion<string>();
-            builder.Entity<JobApplication>().HasIndex(application => application.AppliedAt);
             builder.Entity<JobApplication>().HasOne<JobPosting>().WithMany()
                 .HasForeignKey(application => application.JobPostingId).OnDelete(DeleteBehavior.Restrict);
 
