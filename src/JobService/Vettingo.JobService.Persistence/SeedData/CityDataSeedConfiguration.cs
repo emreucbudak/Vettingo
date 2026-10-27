@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Vettingo.JobService.Domain.Entities;
 
-namespace Vettingo.JobService.Persistence.DbContext;
+namespace Vettingo.JobService.Persistence.SeedData;
 
 public sealed class CityDataSeedConfiguration : IEntityTypeConfiguration<City>
 {
