@@ -32,6 +32,7 @@ builder.Services
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
+            RoleClaimType = "Role",
             ValidateIssuer = true,
             ValidIssuer = jwtIssuer,
             ValidateAudience = true,
