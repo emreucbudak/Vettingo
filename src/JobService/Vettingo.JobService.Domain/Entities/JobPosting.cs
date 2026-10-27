@@ -4,7 +4,7 @@ using Vettingo.JobService.Domain.Enums;
 
 namespace Vettingo.JobService.Domain.Entities
 {
-    [Index(nameof(Title))]
+    [Index(nameof(Title), IsUnique = true)]
     public class JobPosting : BaseEntity
     {
         public JobPosting()

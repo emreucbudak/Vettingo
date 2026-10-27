@@ -3,7 +3,7 @@ using Vettingo.JobService.Domain.Common;
 
 namespace Vettingo.JobService.Domain.Entities;
 
-[Index(nameof(UserId),IsUnique = true)]
+[Index(nameof(UserId))]
 public class PersonalizedJobPostings : BaseEntity
 {
     public PersonalizedJobPostings()
