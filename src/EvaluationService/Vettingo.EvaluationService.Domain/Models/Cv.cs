@@ -3,7 +3,7 @@ using Vettingo.EvaluationService.Domain.Common;
 
 namespace Vettingo.EvaluationService.Domain.Models;
 
-[Index(nameof(UserId))]
+[Index(nameof(UserId),IsUnique =true)]
 public sealed class Cv : BaseEntity
 {
     public Guid UserId { get; private set; }

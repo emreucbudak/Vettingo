@@ -1,8 +1,10 @@
+using Microsoft.EntityFrameworkCore;
 using Vettingo.ExamService.Domain.Common;
 using Vettingo.ExamService.Domain.Enums;
 
 namespace Vettingo.ExamService.Domain.Entities
 {
+    [Index(nameof(Title))]
     public class Exam : BaseEntity
     {
         public Exam()
