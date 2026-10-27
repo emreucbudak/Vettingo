@@ -25,15 +25,20 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Login
 
             IList<string> userRoles = await userManager.GetRolesAsync(user);
             Guid? companyId = null;
+            string? companyName = null;
             if (userRoles.Contains("Company"))
             {
                 var company = await companyRepository.GetCompanyByEmailAsync(user.Email)
                     ?? throw new UnauthorizedException("Şirket hesabı bulunamadı.");
                 companyId = company.Id;
+                companyName = company.CompanyName;
             }
-            else if (userRoles.Contains("Human Resources"))
+            else if (userRoles.Contains("Human Resources") && user.CompanyId.HasValue)
             {
-                companyId = user.CompanyId;
+                var company = await companyRepository.GetCompanyByIdAsync(user.CompanyId.Value)
+                    ?? throw new UnauthorizedException("Şirket hesabı bulunamadı.");
+                companyId = company.Id;
+                companyName = company.CompanyName;
             }
 
             string token = tokenService.CreateAccessToken(
@@ -42,7 +47,8 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Login
                 user.Name,
                 user.Surname,
                 userRoles,
-                companyId);
+                companyId,
+                companyName);
             string refreshToken = tokenService.CreateRefreshToken();
             Domain.Entities.RefreshToken refreshTokenEntity = new(refreshToken, user.Id);
 

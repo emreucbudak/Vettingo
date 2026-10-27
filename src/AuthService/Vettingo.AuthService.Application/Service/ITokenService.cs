@@ -10,7 +10,8 @@ namespace Vettingo.AuthService.Application.Service
             string name,
             string surname,
             IList<string> roles,
-            Guid? companyId = null);
+            Guid? companyId = null,
+            string? companyName = null);
         string CreateRefreshToken();
         ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
     }
