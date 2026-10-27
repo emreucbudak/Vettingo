@@ -1,4 +1,5 @@
 using FlashMediator;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vettingo.EvaluationService.Application.Features.CQRS.Cv.Query.HasCv;
@@ -15,9 +16,13 @@ namespace Vettingo.EvaluationService.API.Controllers;
 [Authorize(Roles = "Candidate")]
 public sealed class EvaluationsController(IMediator mediator) : ControllerBase
 {
-    [HttpGet("cv/user/{userId:guid}/exists")]
-    public async Task<ActionResult<bool>> HasCv([FromRoute] Guid userId, CancellationToken cancellationToken)
+    [HttpGet("cv/exists")]
+    public async Task<ActionResult<bool>> HasCv(CancellationToken cancellationToken)
     {
+        var subject = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+        if (!Guid.TryParse(subject, out var userId) || userId == Guid.Empty)
+            return Unauthorized();
+
         return Ok(await mediator.Send(new HasCvQueryRequest(userId), cancellationToken));
     }
 
