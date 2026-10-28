@@ -71,11 +71,29 @@ public sealed class PersonalizedJobPostingNotificationConsumerTests
     }
 
     [Fact]
+    public async Task Handler_Should_Wait_For_Email_Delivery_To_Complete()
+    {
+        var emailSender = Substitute.For<IEmailSender>();
+        var emailCompletion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        emailSender.Send(Arg.Any<EmailMessage>()).Returns(emailCompletion.Task);
+        var mediator = Substitute.For<IMediator>();
+        mediator.Send(Arg.Any<CreateNotificationCommandRequest>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(new CreateNotificationCommandResponse()));
+        var consumer = CreateConsumer(emailSender, mediator);
+
+        var handling = consumer.HandleAsync(Message(), CancellationToken.None);
+
+        handling.IsCompleted.Should().BeFalse();
+        emailCompletion.SetResult();
+        await handling;
+    }
+
+    [Fact]
     public async Task Email_Failure_Should_Propagate_To_CAP_For_Retry()
     {
         var emailSender = Substitute.For<IEmailSender>();
-        emailSender.When(sender => sender.Send(Arg.Any<EmailMessage>()))
-            .Do(_ => throw new InvalidOperationException("SMTP unavailable"));
+        emailSender.Send(Arg.Any<EmailMessage>())
+            .Returns(Task.FromException(new InvalidOperationException("SMTP unavailable")));
         var mediator = Substitute.For<IMediator>();
         mediator.Send(Arg.Any<CreateNotificationCommandRequest>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(new CreateNotificationCommandResponse()));

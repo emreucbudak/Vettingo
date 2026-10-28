@@ -1,12 +1,13 @@
 using DotNetCore.CAP;
 using Vettingo.NotificationService.Application.DTOs;
+using Vettingo.NotificationService.Application.Services;
 
 namespace Vettingo.NotificationService.Infrastructure.Messaging;
 
-public sealed class ResetPasswordCodeSubscriber : ICapSubscribe
+public sealed class ResetPasswordCodeSubscriber(IEmailSender emailSender) : ICapSubscribe
 {
     [CapSubscribe("vettingo.notification.reset-password-code.requested.v1")]
-    public Task HandleAsync(CodeMessage message, CancellationToken cancellationToken)
+    public async Task HandleAsync(CodeMessage message, CancellationToken cancellationToken)
     {
         string emailBody = $"""
             <!DOCTYPE html>
@@ -88,6 +89,11 @@ public sealed class ResetPasswordCodeSubscriber : ICapSubscribe
             </html>
             """;
 
-        return Task.CompletedTask;
+        await emailSender.Send(new EmailMessage
+        {
+            To = message.Email,
+            Body = emailBody,
+            IsBodyHtml = true
+        });
     }
 }

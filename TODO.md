@@ -2,6 +2,8 @@
 
 Kullanıcı "ne eksiğimiz kaldı?" diye sorduğunda bu listedeki açık maddeleri de belirt.
 
+- [ ] Testleri birlikte gözden geçir.
+
 - [ ] Eski bildirimlerin günlük olarak veritabanından silinmesini değerlendir ve planla.
   - Durum: Kullanıcının isteğiyle ertelendi; son tarih ve zamanlanmış hatırlatma yok.
   - Amaç: Bildirimlerin süresiz birikmesini önlemek; temizliği `CreatedAt` üzerinden yapmak.
