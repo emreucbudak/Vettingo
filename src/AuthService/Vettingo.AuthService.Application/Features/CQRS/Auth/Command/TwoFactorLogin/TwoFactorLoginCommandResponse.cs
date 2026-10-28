@@ -3,5 +3,5 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.TwoFactorL
 public class TwoFactorLoginCommandResponse
 {
     public string? AccessToken { get; set; }
-    public string? TempToken { get; set; }
+    public string? RefreshToken { get; set; }
 }

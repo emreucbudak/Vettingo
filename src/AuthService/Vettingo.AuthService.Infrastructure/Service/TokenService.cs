@@ -53,6 +53,27 @@ namespace Vettingo.AuthService.Infrastructure.Service
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+        public string CreateTempToken(string email)
+        {
+            List<Claim> claims =
+            [
+                new Claim(JwtRegisteredClaimNames.Email, email),
+                new Claim("Role", "TempToken"),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            ];
+
+            JwtSecurityToken token = new(
+                issuer: options.Value.Issuer,
+                audience: options.Value.Audience,
+                claims: claims,
+                expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(5)),
+                signingCredentials: new SigningCredentials(
+                    new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(options.Value.SecretKey)),
+                    SecurityAlgorithms.HmacSha256));
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
         public string CreateRefreshToken()
         {
             using RandomNumberGenerator randomNumberGenerator = RandomNumberGenerator.Create();

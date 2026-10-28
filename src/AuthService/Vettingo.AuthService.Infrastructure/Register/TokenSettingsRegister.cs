@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Vettingo.AuthService.Application.Service;
 using Vettingo.AuthService.Infrastructure.Service;
 
 namespace Vettingo.AuthService.Infrastructure.Register
@@ -9,6 +10,7 @@ namespace Vettingo.AuthService.Infrastructure.Register
         public static void AddTokenSettings(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<TokenOptions>(configuration.GetSection("JwtSettings"));
+            services.AddScoped<ITokenService, TokenService>();
         }
     }
 }
