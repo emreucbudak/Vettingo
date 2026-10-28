@@ -20,7 +20,8 @@ namespace Vettingo.NotificationService.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateNotification([FromBody] CreateNotificationCommandRequest request)
         {
-            return Ok(await mediator.Send(request));
+            await mediator.Send(request);
+            return Ok();
         }
     }
 }
