@@ -2,7 +2,7 @@ using FlashMediator;
 
 namespace Vettingo.NotificationService.Application.Features.CQRS.Notification.Command.CreateNotification
 {
-    public record CreateNotificationCommandRequest : IRequest<CreateNotificationCommandResponse>
+    public record CreateNotificationCommandRequest : IRequest
     {
         public Guid Id { get; init; }
         public Guid UserId { get; init; }

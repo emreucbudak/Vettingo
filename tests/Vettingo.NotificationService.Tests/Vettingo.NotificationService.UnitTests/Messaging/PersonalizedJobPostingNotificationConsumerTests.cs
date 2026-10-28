@@ -62,7 +62,7 @@ public sealed class PersonalizedJobPostingNotificationConsumerTests
         var emailSender = Substitute.For<IEmailSender>();
         var mediator = Substitute.For<IMediator>();
         mediator.Send(Arg.Any<CreateNotificationCommandRequest>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromException<CreateNotificationCommandResponse>(new InvalidOperationException("Database unavailable")));
+            .Returns(Task.FromException(new InvalidOperationException("Database unavailable")));
         var consumer = CreateConsumer(emailSender, mediator);
 
         Func<Task> handle = () => consumer.HandleAsync(Message(), CancellationToken.None);
@@ -79,7 +79,7 @@ public sealed class PersonalizedJobPostingNotificationConsumerTests
         emailSender.Send(Arg.Any<EmailMessage>()).Returns(emailCompletion.Task);
         var mediator = Substitute.For<IMediator>();
         mediator.Send(Arg.Any<CreateNotificationCommandRequest>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(new CreateNotificationCommandResponse()));
+            .Returns(Task.CompletedTask);
         var consumer = CreateConsumer(emailSender, mediator);
 
         var handling = consumer.HandleAsync(Message(), CancellationToken.None);
@@ -97,7 +97,7 @@ public sealed class PersonalizedJobPostingNotificationConsumerTests
             .Returns(Task.FromException(new InvalidOperationException("SMTP unavailable")));
         var mediator = Substitute.For<IMediator>();
         mediator.Send(Arg.Any<CreateNotificationCommandRequest>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(new CreateNotificationCommandResponse()));
+            .Returns(Task.CompletedTask);
         var consumer = CreateConsumer(emailSender, mediator);
 
         Func<Task> handle = () => consumer.HandleAsync(Message(), CancellationToken.None);

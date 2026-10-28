@@ -12,7 +12,7 @@ namespace Vettingo.NotificationService.UnitTests.Application.CQRS
     public class NotificationCqrsTests
     {
         [Fact]
-        public async Task CreateNotificationCommandHandler_Should_Save_Send_And_Return_Response()
+        public async Task CreateNotificationCommandHandler_Should_Save_And_Send()
         {
             var repository = Substitute.For<INotificationRepository>();
             var sender = Substitute.For<INotificationSender>();
@@ -28,13 +28,8 @@ namespace Vettingo.NotificationService.UnitTests.Application.CQRS
                 Message = "Welcome to Vettingo"
             };
 
-            var response = await handler.Handle(request, CancellationToken.None);
+            await handler.Handle(request, CancellationToken.None);
 
-            response.Id.Should().Be(request.Id);
-            response.UserId.Should().Be(request.UserId);
-            response.Title.Should().Be(request.Title);
-            response.Message.Should().Be(request.Message);
-            response.IsRead.Should().BeFalse();
             await repository.Received(1).AddNotificationAsync(Arg.Is<Notification>(notification =>
                 notification.Id == request.Id &&
                 notification.UserId == request.UserId &&
