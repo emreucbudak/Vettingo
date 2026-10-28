@@ -29,6 +29,14 @@ namespace Vettingo.NotificationService.Persistence.Repository
                 .ToListAsync();
         }
 
+        public async Task MarkNotificationsAsReadAsync(Guid userId, IReadOnlyCollection<Guid> notificationIds, CancellationToken cancellationToken = default)
+        {
+            await NotificationSet
+                .Where(notification => notification.UserId == userId &&
+                    !notification.IsRead && notificationIds.Contains(notification.Id))
+                .ExecuteUpdateAsync(setters => setters.SetProperty(notification => notification.IsRead, true), cancellationToken);
+        }
+
         public Task<int> SaveChangesAsync()
         {
             return context.SaveChangesAsync();

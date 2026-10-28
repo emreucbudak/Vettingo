@@ -54,6 +54,67 @@ namespace Vettingo.NotificationService.UnitTests.Application.CQRS
             response.Should().ContainSingle();
             response[0].Should().BeEquivalentTo(notification);
             await repository.Received(1).GetNotificationsByUserIdAsync(userId);
+            await repository.DidNotReceiveWithAnyArgs().MarkNotificationsAsReadAsync(default, default!, default);
+        }
+
+        [Fact]
+        public async Task GetUserNotificationsQueryHandler_Should_Update_Only_Fetched_Unread_Notifications_Before_Returning_Snapshot()
+        {
+            var repository = Substitute.For<INotificationRepository>();
+            var userId = Guid.NewGuid();
+            var unread = CreateNotification(userId, "Unread");
+            var read = CreateNotification(userId, "Read");
+            read.MarkAsRead();
+            repository.GetNotificationsByUserIdAsync(userId).Returns(Task.FromResult<IEnumerable<Notification>>([unread, read]));
+            var update = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            repository.MarkNotificationsAsReadAsync(userId, Arg.Any<IReadOnlyCollection<Guid>>(), Arg.Any<CancellationToken>())
+                .Returns(update.Task);
+            var handler = new GetUserNotificationsQueryHandler(repository, Substitute.For<ILogger<GetUserNotificationsQueryHandler>>());
+            using var cancellation = new CancellationTokenSource();
+
+            var responseTask = handler.Handle(new GetUserNotificationsQueryRequest(userId), cancellation.Token);
+
+            responseTask.IsCompleted.Should().BeFalse();
+            update.SetResult();
+            var response = (await responseTask).ToList();
+
+            await repository.Received(1).MarkNotificationsAsReadAsync(userId,
+                Arg.Is<IReadOnlyCollection<Guid>>(ids => ids.Count == 1 && ids.Contains(unread.Id)), cancellation.Token);
+            response.Should().HaveCount(2);
+            response[0].Should().BeEquivalentTo(unread);
+            response[0].IsRead.Should().BeFalse();
+            response[1].Should().BeEquivalentTo(read);
+            await repository.DidNotReceive().SaveChangesAsync();
+        }
+
+        [Fact]
+        public async Task GetUserNotificationsQueryHandler_Should_Not_Update_An_Empty_List()
+        {
+            var repository = Substitute.For<INotificationRepository>();
+            var userId = Guid.NewGuid();
+            repository.GetNotificationsByUserIdAsync(userId).Returns(Task.FromResult<IEnumerable<Notification>>([]));
+            var handler = new GetUserNotificationsQueryHandler(repository, Substitute.For<ILogger<GetUserNotificationsQueryHandler>>());
+
+            var response = await handler.Handle(new GetUserNotificationsQueryRequest(userId), CancellationToken.None);
+
+            response.Should().BeEmpty();
+            await repository.DidNotReceiveWithAnyArgs().MarkNotificationsAsReadAsync(default, default!, default);
+        }
+
+        [Fact]
+        public async Task GetUserNotificationsQueryHandler_Should_Propagate_Update_Failure()
+        {
+            var repository = Substitute.For<INotificationRepository>();
+            var userId = Guid.NewGuid();
+            repository.GetNotificationsByUserIdAsync(userId)
+                .Returns(Task.FromResult<IEnumerable<Notification>>([CreateNotification(userId, "Unread")]));
+            repository.MarkNotificationsAsReadAsync(userId, Arg.Any<IReadOnlyCollection<Guid>>(), Arg.Any<CancellationToken>())
+                .Returns(Task.FromException(new InvalidOperationException("Update failed")));
+            var handler = new GetUserNotificationsQueryHandler(repository, Substitute.For<ILogger<GetUserNotificationsQueryHandler>>());
+
+            Func<Task> handle = () => handler.Handle(new GetUserNotificationsQueryRequest(userId), CancellationToken.None);
+
+            await handle.Should().ThrowAsync<InvalidOperationException>().WithMessage("Update failed");
         }
 
         private static Notification CreateNotification(Guid userId, string title)
