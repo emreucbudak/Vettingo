@@ -30,6 +30,7 @@ namespace Vettingo.AnalyticsService.Persistence.Repository
                 .Where(statistic => statistic.CompanyId == companyId)
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(statistic => statistic.TotalJobPostingCount, statistic => statistic.TotalJobPostingCount + 1)
+                    .SetProperty(statistic => statistic.ActiveJobPostingCount, statistic => statistic.ActiveJobPostingCount + 1)
                     .SetProperty(statistic => statistic.UpdatedAt, updatedAt),
                     cancellationToken);
         }
