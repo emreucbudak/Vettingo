@@ -42,6 +42,7 @@ public sealed class PersonalizedJobPostingNotificationConsumerTests
 
         context.ChangeTracker.Clear();
         var notification = await context.Notifications.SingleAsync();
+        notification.Id.Should().Be(message.Id);
         notification.UserId.Should().Be(message.UserId);
         notification.Title.Should().Be("Yeni bir kişiselleştirilmiş ilanın var!");
         notification.Message.Should().Contain("profilindeki Kişiselleştirilmiş İlanlar sayfasına");
@@ -106,6 +107,7 @@ public sealed class PersonalizedJobPostingNotificationConsumerTests
 
     private static PersonalizedJobPostingNotificationDto Message() => new()
     {
+        Id = Guid.CreateVersion7(),
         UserId = Guid.NewGuid(),
         Email = "candidate@example.com"
     };
