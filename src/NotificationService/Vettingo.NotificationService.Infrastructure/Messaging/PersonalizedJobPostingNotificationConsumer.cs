@@ -27,6 +27,7 @@ public sealed class PersonalizedJobPostingNotificationConsumer(
 
         await mediator.Send(new CreateNotificationCommandRequest
         {
+            Id = message.Id,
             UserId = userId,
             Title = "Yeni bir kişiselleştirilmiş ilanın var!",
             Message = "Yeni bir kişiselleştirilmiş ilanın var! Göz atmak için profilindeki Kişiselleştirilmiş İlanlar sayfasına gidebilirsin."

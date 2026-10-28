@@ -4,6 +4,12 @@ Kullanıcı "ne eksiğimiz kaldı?" diye sorduğunda bu listedeki açık maddele
 
 - [ ] Testleri birlikte gözden geçir.
 
+- [ ] Mobil uygulamadaki state yönetimini düzelt.
+
+- [ ] Mobilde gerçek API kayıt akışlarına geç.
+
+- [ ] Asenkron mesajlarda idempotency kaydı ve kontrolünü ayarla; aynı mesaj tekrar işlendiğinde aynı işlemin yeniden uygulanmasını önle.
+
 - [ ] Eski bildirimlerin günlük olarak veritabanından silinmesini değerlendir ve planla.
   - Durum: Kullanıcının isteğiyle ertelendi; son tarih ve zamanlanmış hatırlatma yok.
   - Amaç: Bildirimlerin süresiz birikmesini önlemek; temizliği `CreatedAt` üzerinden yapmak.
@@ -15,4 +21,4 @@ Kullanıcı "ne eksiğimiz kaldı?" diye sorduğunda bu listedeki açık maddele
 - [x] Kişiselleştirilmiş ilan kartlarına şirket adının nasıl getirileceğini yeniden değerlendir.
   - Seçilen çözüm: AuthService, Company ve HR tokenlarına `companyName` claim'i ekler. JobService ilan oluştururken şirket kimliğini ve adını token'dan alıp `JobPosting` üzerinde saklar; GetAll response'ları ve mobil kart bu adı kullanır.
   - Kullanıcıya göre şirket adı sonradan değişmeyecek; ayrıca şirket adı mesajlaşması gerekmiyor.
-  - Mevcut ilanların boş şirket adları ayrıca doldurulmalı; yeni ilanlar şirket adıyla kaydedilir.
+  - Veritabanında eski ilan kaydı bulunmadığından şirket adı doldurma işlemi gerekmiyor; yeni ilanlar şirket adıyla kaydedilir.

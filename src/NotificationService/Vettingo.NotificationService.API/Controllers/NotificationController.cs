@@ -2,7 +2,6 @@ using FlashMediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vettingo.NotificationService.Application.Features.CQRS.Notification.Command.CreateNotification;
-using Vettingo.NotificationService.Application.Features.CQRS.Notification.Command.MarkNotificationAsRead;
 using Vettingo.NotificationService.Application.Features.CQRS.Notification.Query.GetByUser;
 
 namespace Vettingo.NotificationService.API.Controllers
@@ -22,13 +21,6 @@ namespace Vettingo.NotificationService.API.Controllers
         public async Task<IActionResult> CreateNotification([FromBody] CreateNotificationCommandRequest request)
         {
             return Ok(await mediator.Send(request));
-        }
-
-        [HttpPut("{notificationId:guid}/read")]
-        public async Task<IActionResult> MarkNotificationAsRead([FromRoute] Guid notificationId)
-        {
-            await mediator.Send(new MarkNotificationAsReadCommandRequest { NotificationId = notificationId });
-            return Ok();
         }
     }
 }

@@ -16,18 +16,19 @@ namespace Vettingo.NotificationService.Domain.Entities
         public bool IsRead { get; private set; }
         public DateTime CreatedAt { get; private set; }
 
-        public void SetId()
+        public void SetId(Guid? id = null)
         {
-            Id = Guid.CreateVersion7();
+            Id = id ?? Guid.CreateVersion7();
         }
 
         public void CreateNotification(
             Guid userId,
             string title,
-            string message)
+            string message,
+            Guid? id = null)
         {
             CheckNotificationContent(userId, title, message);
-            SetId();
+            SetId(id);
             UserId = userId;
             Title = title;
             Message = message;
