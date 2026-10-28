@@ -7,7 +7,7 @@ namespace Vettingo.JobService.Infrastructure.Messaging;
 public sealed class PersonalizedJobPostingNotificationPublisher(ICapPublisher capPublisher)
     : IPersonalizedJobPostingNotificationPublisher
 {
-    public const string TopicName = "vettingo.notification.personalized-job-posting.requested.v1";
+    public const string TopicName = "vettingo.auth.personalized-job-posting.notification.requested.v1";
 
     public Task PublishAsync(
         PersonalizedJobPostingNotificationDto notification,

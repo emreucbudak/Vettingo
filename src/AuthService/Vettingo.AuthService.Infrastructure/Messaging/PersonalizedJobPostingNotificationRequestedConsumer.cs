@@ -29,6 +29,7 @@ public sealed class PersonalizedJobPostingNotificationRequestedConsumer(
 
         await publisher.PublishAsync(new PersonalizedJobPostingNotificationDto
         {
+            Id = message.Id,
             UserId = user.Id,
             Email = user.Email
         }, cancellationToken);
