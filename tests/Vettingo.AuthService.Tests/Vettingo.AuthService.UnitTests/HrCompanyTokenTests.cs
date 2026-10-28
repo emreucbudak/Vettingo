@@ -2,9 +2,11 @@ using System.Security.Claims;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using Vettingo.AuthService.Application.Exceptions;
+using Vettingo.AuthService.Application.Messaging;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Login;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.RefreshToken;
 using Vettingo.AuthService.Application.Repository;
@@ -33,7 +35,8 @@ public sealed class HrCompanyTokenTests
         using var roleManager = new RoleManager<Role>(Substitute.For<IRoleStore<Role>>(), [],
             new UpperInvariantLookupNormalizer(), new IdentityErrorDescriber(), NullLogger<RoleManager<Role>>.Instance);
         var handler = new LoginCommandHandler(manager, new AuthBusinessRules(manager, roleManager),
-            tokenService, NullLogger<LoginCommandHandler>.Instance, companyRepository);
+            tokenService, NullLogger<LoginCommandHandler>.Instance, companyRepository,
+            Substitute.For<IDistributedCache>(), Substitute.For<ILoginCodeSenderPublisher>());
 
         await handler.Handle(new() { Email = user.Email!, Password = "Strong1!" }, CancellationToken.None);
 
@@ -93,7 +96,8 @@ public sealed class HrCompanyTokenTests
             using var roleManager = new RoleManager<Role>(Substitute.For<IRoleStore<Role>>(), [],
                 new UpperInvariantLookupNormalizer(), new IdentityErrorDescriber(), NullLogger<RoleManager<Role>>.Instance);
             var handler = new LoginCommandHandler(manager, new AuthBusinessRules(manager, roleManager),
-                tokenService, NullLogger<LoginCommandHandler>.Instance, companyRepository);
+                tokenService, NullLogger<LoginCommandHandler>.Instance, companyRepository,
+                Substitute.For<IDistributedCache>(), Substitute.For<ILoginCodeSenderPublisher>());
             issueToken = () => handler.Handle(new() { Email = user.Email!, Password = "Strong1!" }, CancellationToken.None);
         }
 

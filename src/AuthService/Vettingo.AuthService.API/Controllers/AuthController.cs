@@ -7,6 +7,7 @@ using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.ChangePassword
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Login;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.RefreshToken;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Revoke;
+using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.TwoFactorLogin;
 using Vettingo.AuthService.Application.Features.CQRS.Users.Query.GetByEmail;
 
 namespace Vettingo.AuthService.API.Controllers
@@ -19,6 +20,19 @@ namespace Vettingo.AuthService.API.Controllers
         public async Task<IActionResult> Login([FromBody] LoginCommandRequest request)
         {
             return Ok(await mediator.Send(request));
+        }
+
+        [Authorize(Roles = "TempToken")]
+        [HttpPost("two-factor-login")]
+        public async Task<IActionResult> TwoFactorLogin(
+            [FromBody] TwoFactorLoginCommandRequest request,
+            CancellationToken cancellationToken)
+        {
+            string? email = User.FindFirstValue(ClaimTypes.Email)
+                ?? User.FindFirstValue(JwtRegisteredClaimNames.Email);
+            if (string.IsNullOrWhiteSpace(email)) return Unauthorized();
+
+            return Ok(await mediator.Send(request with { Email = email }, cancellationToken));
         }
 
         [Authorize(Roles = "Candidate,Company,Human Resources")]

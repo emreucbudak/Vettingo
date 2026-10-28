@@ -2,12 +2,50 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Vettingo.AuthService.Infrastructure.Service;
 
 namespace Vettingo.AuthService.UnitTests
 {
     public class TokenServiceTests
     {
+        [Fact]
+        public void TempToken_Should_Be_Unique_Short_Lived_And_Contain_Only_TempToken_Role()
+        {
+            var options = new TokenOptions
+            {
+                Audience = "vettingo-tests", Issuer = "vettingo-tests",
+                SecretKey = "test-only-secret-key-with-at-least-thirty-two-characters"
+            };
+            var service = new TokenService(Options.Create(options));
+            var before = DateTime.UtcNow;
+            string token = service.CreateTempToken("user@example.com");
+            var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+
+            jwt.Claims.Single(claim => claim.Type == JwtRegisteredClaimNames.Email).Value.Should().Be("user@example.com");
+            jwt.Claims.Single(claim => claim.Type == "Role").Value.Should().Be("TempToken");
+            jwt.Claims.Should().NotContain(claim => claim.Type == JwtRegisteredClaimNames.Sub || claim.Type == "companyId");
+            jwt.Audiences.Should().ContainSingle().Which.Should().Be(options.Audience);
+            jwt.ValidTo.Should().BeCloseTo(before.AddMinutes(5), TimeSpan.FromSeconds(2));
+            service.CreateTempToken("user@example.com").Should().NotBe(token);
+
+            var principal = new JwtSecurityTokenHandler().ValidateToken(token, new TokenValidationParameters
+            {
+                ValidIssuer = options.Issuer,
+                ValidAudience = options.Audience,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(options.SecretKey)),
+                ClockSkew = TimeSpan.Zero,
+                RoleClaimType = "Role"
+            }, out _);
+            principal.IsInRole("TempToken").Should().BeTrue();
+            principal.IsInRole("Candidate").Should().BeFalse();
+            principal.IsInRole("Company").Should().BeFalse();
+            principal.IsInRole("Human Resources").Should().BeFalse();
+            principal.IsInRole("Admin").Should().BeFalse();
+            principal.FindFirstValue(ClaimTypes.Email).Should().Be("user@example.com");
+        }
+
         [Theory]
         [InlineData("Company")]
         [InlineData("Human Resources")]
