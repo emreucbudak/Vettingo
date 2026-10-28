@@ -35,13 +35,19 @@ public sealed class PersonalizedJobPostingNotificationRequestedConsumerTests : I
     [Fact]
     public async Task Handle_Should_Look_Up_User_And_Publish_Email_With_Cancellation()
     {
+        var message = new PersonalizedJobPostingNotificationRequestedMessage
+        {
+            Id = Guid.CreateVersion7(),
+            UserId = _user.Id
+        };
         using var cancellation = new CancellationTokenSource();
 
-        await _consumer.HandleAsync(new() { UserId = _user.Id }, cancellation.Token);
+        await _consumer.HandleAsync(message, cancellation.Token);
 
         await _store.Received(1).FindByIdAsync(_user.Id.ToString("D"), Arg.Any<CancellationToken>());
         await _publisher.Received(1).PublishAsync(
-            Arg.Is<PersonalizedJobPostingNotificationDto>(dto => dto.UserId == _user.Id && dto.Email == _user.Email),
+            Arg.Is<PersonalizedJobPostingNotificationDto>(dto =>
+                dto.Id == message.Id && dto.UserId == _user.Id && dto.Email == _user.Email),
             cancellation.Token);
     }
 

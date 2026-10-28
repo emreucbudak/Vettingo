@@ -52,7 +52,12 @@ public sealed class PersonalizedJobPostingNotificationTests
         cap.PublishAsync(Arg.Any<string>(), Arg.Any<PublishedDto>(),
             Arg.Any<string?>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
         var publisher = new AuthPublisher(cap);
-        var dto = new PublishedDto { UserId = Guid.NewGuid(), Email = "candidate@example.com" };
+        var dto = new PublishedDto
+        {
+            Id = Guid.CreateVersion7(),
+            UserId = Guid.NewGuid(),
+            Email = "candidate@example.com"
+        };
         using var cancellation = new CancellationTokenSource();
 
         await publisher.PublishAsync(dto, cancellation.Token);
@@ -69,8 +74,9 @@ public sealed class PersonalizedJobPostingNotificationTests
         var json = JsonSerializer.Serialize(arguments[1], JsonSerializerOptions.Web);
         using var document = JsonDocument.Parse(json);
         document.RootElement.EnumerateObject().Select(property => property.Name)
-            .Should().BeEquivalentTo("userId", "email");
+            .Should().BeEquivalentTo("id", "userId", "email");
         var received = JsonSerializer.Deserialize<ReceivedDto>(json, JsonSerializerOptions.Web)!;
+        received.Id.Should().Be(dto.Id);
         received.UserId.Should().Be(dto.UserId);
         received.Email.Should().Be(dto.Email);
     }
