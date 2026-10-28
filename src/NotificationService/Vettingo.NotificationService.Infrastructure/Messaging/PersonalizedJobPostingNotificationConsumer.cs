@@ -32,7 +32,7 @@ public sealed class PersonalizedJobPostingNotificationConsumer(
             Message = "Yeni bir kişiselleştirilmiş ilanın var! Göz atmak için profilindeki Kişiselleştirilmiş İlanlar sayfasına gidebilirsin."
         }, cancellationToken);
 
-        _emailSender.Send(new EmailMessage
+        await _emailSender.Send(new EmailMessage
         {
             To = message.Email,
             Body = """

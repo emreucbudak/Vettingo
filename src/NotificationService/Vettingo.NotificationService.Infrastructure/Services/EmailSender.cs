@@ -7,12 +7,13 @@ namespace Vettingo.NotificationService.Infrastructure.Services
 {
     public class EmailSender : IEmailSender
     {
-        public void Send(EmailMessage message)
+        public async Task Send(EmailMessage message)
         {
             using var mailMessage = new MailMessage
             {
                 From = new MailAddress("vettingodestek@gmail.com"),
-                Body = message.Body
+                Body = message.Body,
+                IsBodyHtml = message.IsBodyHtml
             };
             mailMessage.To.Add(message.To);
 
@@ -22,7 +23,7 @@ namespace Vettingo.NotificationService.Infrastructure.Services
                 Credentials = new NetworkCredential("vettingodestek@gmail.com", "placeholder-password")
             };
 
-            smtpClient.Send(mailMessage);
+            await smtpClient.SendMailAsync(mailMessage);
         }
     }
 }
