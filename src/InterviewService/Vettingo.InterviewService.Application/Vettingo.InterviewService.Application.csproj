@@ -13,4 +13,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Vettingo.InterviewService.Domain\Vettingo.InterviewService.Domain.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Features\CQRS\InterviewResult\Command\" />
+    <Folder Include="Features\CQRS\InterviewResult\Queries\" />
+  </ItemGroup>
 </Project>
