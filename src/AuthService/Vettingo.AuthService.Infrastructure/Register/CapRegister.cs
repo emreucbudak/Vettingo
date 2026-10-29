@@ -11,6 +11,7 @@ namespace Vettingo.AuthService.Infrastructure.Register
         {
             services.AddScoped<ILoginCodeSenderPublisher, LoginCodeSenderPublisher>();
             services.AddScoped<IRegisterConfirmCodeSenderPublisher, RegisterConfirmCodeSenderPublisher>();
+            services.AddScoped<IResetPasswordCodeSenderPublisher, ResetPasswordCodeSenderPublisher>();
             services.AddTransient<PersonalizedJobPostingNotificationRequestedConsumer>();
             services.AddScoped<IPersonalizedJobPostingNotificationPublisher, PersonalizedJobPostingNotificationPublisher>();
 
