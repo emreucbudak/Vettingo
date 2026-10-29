@@ -2,4 +2,5 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.ResetPassw
 
 public class ResetPasswordCodeValidatorCommandResponse
 {
+    public string Token { get; set; } = string.Empty;
 }

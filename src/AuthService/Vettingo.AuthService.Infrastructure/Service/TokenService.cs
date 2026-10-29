@@ -64,6 +64,10 @@ namespace Vettingo.AuthService.Infrastructure.Service
             {
                 tempRole = "TempRegister";
             }
+            else if (string.Equals(role, "ResetPassword", StringComparison.OrdinalIgnoreCase))
+            {
+                tempRole = "ResetPassword";
+            }
             List<Claim> claims =
             [
                 new Claim(JwtRegisteredClaimNames.Email, email),
