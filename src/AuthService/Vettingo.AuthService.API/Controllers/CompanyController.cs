@@ -1,7 +1,6 @@
 using FlashMediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Vettingo.AuthService.Application.Features.CQRS.Company.Command.CreateCompany;
 using Vettingo.AuthService.Application.Features.CQRS.Company.Command.DeleteCompany;
 using Vettingo.AuthService.Application.Features.CQRS.Company.Command.UpdateCompany;
 using Vettingo.AuthService.Application.Features.CQRS.Company.Query.GetAll;
@@ -25,14 +24,6 @@ namespace Vettingo.AuthService.API.Controllers
         public async Task<IActionResult> GetCompanyById([FromRoute] Guid companyId)
         {
             return Ok(await mediator.Send(new GetCompanyByIdQueriesRequest { CompanyId = companyId }));
-        }
-
-        [Authorize(Roles = "Company")]
-        [HttpPost]
-        public async Task<IActionResult> CreateCompany([FromBody] CreateCompanyCommandRequest request)
-        {
-            await mediator.Send(request);
-            return Ok();
         }
 
         [Authorize(Roles = "Admin,Company")]

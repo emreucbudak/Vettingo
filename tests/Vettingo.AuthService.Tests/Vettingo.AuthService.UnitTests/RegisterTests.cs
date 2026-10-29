@@ -13,6 +13,8 @@ using Vettingo.AuthService.Application.Exceptions;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Register;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.TempRegister;
 using Vettingo.AuthService.Application.Messaging;
+using Vettingo.AuthService.Application.Repository;
+using Vettingo.AuthService.Application.UnitOfWork;
 using Vettingo.AuthService.Application.Rules;
 using Vettingo.AuthService.Application.Service;
 using Vettingo.AuthService.Application.Validations;
@@ -27,6 +29,8 @@ public sealed class RegisterTests : IDisposable
     private readonly MemoryDistributedCache cache = new(Options.Create(new MemoryDistributedCacheOptions()));
     private readonly ITokenService tokens = Substitute.For<ITokenService>();
     private readonly IRegisterConfirmCodeSenderPublisher publisher = Substitute.For<IRegisterConfirmCodeSenderPublisher>();
+    private readonly ICompanyRepository companies = Substitute.For<ICompanyRepository>();
+    private readonly IUnitOfWork unitOfWork = Substitute.For<IUnitOfWork>();
     private readonly UserManager<User> manager;
     private readonly RoleManager<Role> roles;
     private readonly AuthBusinessRules auth;
@@ -34,6 +38,7 @@ public sealed class RegisterTests : IDisposable
 
     public RegisterTests()
     {
+        unitOfWork.CompanyRepository.Returns(companies);
         manager = new UserManager<User>(store, Options.Create(new IdentityOptions()), new PasswordHasher<User>(),
             [], [new PasswordValidator<User>()], new UpperInvariantLookupNormalizer(),
             new IdentityErrorDescriber(), null!, NullLogger<UserManager<User>>.Instance);
@@ -56,7 +61,7 @@ public sealed class RegisterTests : IDisposable
     [InlineData("Human Resources")]
     public async Task Registration_Should_Persist_Identity_Hash_And_Cached_Role_Only_After_Email_Verification(string role)
     {
-        var response = await Temp().Handle(Request() with { Role = role }, CancellationToken.None);
+        var response = await Temp().Handle(Request() with { Role = role, CompanyName = "Vettingo" }, CancellationToken.None);
         response.TempToken.Should().Be("register-token");
         await store.DidNotReceive().CreateAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
 
@@ -65,10 +70,30 @@ public sealed class RegisterTests : IDisposable
         var data = JsonSerializer.Deserialize<TempRegisterData>((await cache.GetStringAsync(TempRegisterDefaults.CacheKey(code)))!)!;
         data.Email.Should().Be("user@example.com");
         data.Role.Should().Be(role);
+        data.CompanyName.Should().Be("Vettingo");
         data.PasswordHash.Should().NotBe(Request().Password);
         manager.PasswordHasher.VerifyHashedPassword(new User(), data.PasswordHash, Request().Password)
             .Should().Be(PasswordVerificationResult.Success);
 
+        store.CreateAsync(Arg.Any<User>(), Arg.Any<CancellationToken>()).Returns(call =>
+        {
+            _ = unitOfWork.Received(1).BeginTransactionAsync(CancellationToken.None);
+            companies.ReceivedCalls().Should().BeEmpty();
+            var newUser = call.Arg<User>();
+            newUser.Company.Should().BeNull();
+            newUser.CompanyId.Should().BeNull();
+            return IdentityResult.Success;
+        });
+        companies.AddCompanyAsync(Arg.Any<Company>()).Returns(call =>
+        {
+            _ = store.Received(1).CreateAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
+            _ = store.Received(1).UpdateAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
+            return Task.CompletedTask;
+        });
+        unitOfWork.CommitTransactionAsync(CancellationToken.None).Returns(async call =>
+        {
+            (await cache.GetStringAsync(TempRegisterDefaults.CacheKey(code))).Should().NotBeNull();
+        });
         await Register().Handle(new() { Code = code, Email = "USER@EXAMPLE.COM" }, CancellationToken.None);
 
         var user = (User)store.ReceivedCalls().Single(call => call.GetMethodInfo().Name == "CreateAsync").GetArguments()[0]!;
@@ -76,7 +101,24 @@ public sealed class RegisterTests : IDisposable
         user.EmailConfirmed.Should().BeTrue();
         user.PasswordHash.Should().Be(data.PasswordHash);
         user.Id.Should().NotBeEmpty();
+        if (role == "Company")
+        {
+            user.Company!.CompanyName.Should().Be("Vettingo");
+            user.Company.Id.Version.Should().Be(7);
+            user.CompanyId.Should().Be(user.Company.Id);
+            await companies.Received(1).AddCompanyAsync(user.Company);
+            await unitOfWork.Received(1).SaveChangesAsync(CancellationToken.None);
+            await store.Received(2).UpdateAsync(user, Arg.Any<CancellationToken>());
+        }
+        else
+        {
+            user.CompanyId.Should().BeNull();
+            user.Company.Should().BeNull();
+            companies.ReceivedCalls().Should().BeEmpty();
+        }
         await ((IUserRoleStore<User>)store).Received(1).AddToRoleAsync(user, role.ToUpperInvariant(), Arg.Any<CancellationToken>());
+        await unitOfWork.Received(1).CommitTransactionAsync(CancellationToken.None);
+        await unitOfWork.DidNotReceiveWithAnyArgs().RollbackTransactionAsync(default);
         (await cache.GetStringAsync(TempRegisterDefaults.CacheKey(code))).Should().BeNull();
 
         Func<Task> replay = () => Register().Handle(new() { Code = code, Email = data.Email }, CancellationToken.None);
@@ -144,6 +186,7 @@ public sealed class RegisterTests : IDisposable
 
         await action.Should().ThrowAsync<UnauthorizedException>();
         await store.DidNotReceive().CreateAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
+        await unitOfWork.DidNotReceiveWithAnyArgs().BeginTransactionAsync(default);
     }
 
     [Fact]
@@ -170,37 +213,159 @@ public sealed class RegisterTests : IDisposable
         await store.DidNotReceive().CreateAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
     }
 
-    [Fact]
-    public async Task User_Creation_Failure_Should_Not_Consume_Challenge_Or_Assign_Role()
+    [Theory]
+    [InlineData("Candidate")]
+    [InlineData("Company")]
+    public async Task User_Creation_Failure_Should_Not_Consume_Challenge_Or_Assign_Role(string role)
     {
-        await Temp().Handle(Request(), CancellationToken.None);
+        await Temp().Handle(Request() with { Role = role, CompanyName = "Vettingo" }, CancellationToken.None);
         store.CreateAsync(Arg.Any<User>(), Arg.Any<CancellationToken>())
             .Returns(IdentityResult.Failed(new IdentityError { Description = "Kayıt oluşturulamadı." }));
         Func<Task> action = () => Register().Handle(new() { Code = SentCode(), Email = Request().Email }, CancellationToken.None);
 
         await action.Should().ThrowAsync<BadRequestException>();
         await ((IUserRoleStore<User>)store).DidNotReceiveWithAnyArgs().AddToRoleAsync(default!, default!, default);
+        await unitOfWork.Received(1).RollbackTransactionAsync(CancellationToken.None);
+        await unitOfWork.DidNotReceiveWithAnyArgs().CommitTransactionAsync(default);
         (await cache.GetStringAsync(TempRegisterDefaults.CacheKey(SentCode()))).Should().NotBeNull();
+        companies.ReceivedCalls().Should().BeEmpty();
     }
 
-    [Fact]
-    public async Task Role_Assignment_Failure_Should_Remove_Incomplete_User()
+    [Theory]
+    [InlineData("Candidate")]
+    [InlineData("Company")]
+    public async Task Role_Assignment_Failure_Should_Roll_Back_Registration(string role)
     {
-        await Temp().Handle(Request(), CancellationToken.None);
+        await Temp().Handle(Request() with { Role = role, CompanyName = "Vettingo" }, CancellationToken.None);
         store.UpdateAsync(Arg.Any<User>(), Arg.Any<CancellationToken>())
             .Returns(IdentityResult.Failed(new IdentityError { Description = "Rol atanamadı." }));
         Func<Task> action = () => Register().Handle(new() { Code = SentCode(), Email = Request().Email }, CancellationToken.None);
 
         await action.Should().ThrowAsync<BadRequestException>();
-        await store.Received(1).DeleteAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
+        await store.DidNotReceive().DeleteAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
+        await unitOfWork.Received(1).RollbackTransactionAsync(CancellationToken.None);
+        await unitOfWork.DidNotReceiveWithAnyArgs().CommitTransactionAsync(default);
         (await cache.GetStringAsync(TempRegisterDefaults.CacheKey(SentCode()))).Should().NotBeNull();
+        companies.ReceivedCalls().Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    public async Task Company_Registration_Should_Reject_Missing_Company_Name_Before_Caching(string? name)
+    {
+        var distributedCache = Substitute.For<IDistributedCache>();
+        Func<Task> action = () => Temp(distributedCache).Handle(
+            Request() with { Role = "Company", CompanyName = name }, CancellationToken.None);
+
+        await action.Should().ThrowAsync<ValidationException>();
+        distributedCache.ReceivedCalls().Should().BeEmpty();
+        companies.ReceivedCalls().Should().BeEmpty();
+        publisher.ReceivedCalls().Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Cached_Company_Registration_Without_Name_Should_Not_Create_Company_Or_User()
+    {
+        await cache.SetStringAsync(TempRegisterDefaults.CacheKey(123456), JsonSerializer.Serialize(new TempRegisterData
+        {
+            Email = Request().Email, Role = "Company", PasswordHash = "cached-password-hash"
+        }));
+        Func<Task> action = () => Register().Handle(new() { Email = Request().Email, Code = 123456 }, CancellationToken.None);
+
+        await action.Should().ThrowAsync<BadRequestException>();
+        companies.ReceivedCalls().Should().BeEmpty();
+        await store.DidNotReceive().CreateAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Company_Save_Failure_Should_Not_Link_Company_Or_Consume_Code()
+    {
+        await Temp().Handle(Request() with { Role = "Company", CompanyName = "Vettingo" }, CancellationToken.None);
+        unitOfWork.SaveChangesAsync(CancellationToken.None).Returns(Task.FromException<int>(new InvalidOperationException("Save failed")));
+        Func<Task> action = () => Register().Handle(new() { Email = Request().Email, Code = SentCode() }, CancellationToken.None);
+
+        await action.Should().ThrowAsync<InvalidOperationException>();
+        var user = (User)store.ReceivedCalls().Single(call => call.GetMethodInfo().Name == "CreateAsync").GetArguments()[0]!;
+        user.CompanyId.Should().BeNull();
+        user.Company.Should().BeNull();
+        await store.Received(1).UpdateAsync(user, Arg.Any<CancellationToken>());
+        await unitOfWork.Received(1).RollbackTransactionAsync(CancellationToken.None);
+        await unitOfWork.DidNotReceiveWithAnyArgs().CommitTransactionAsync(default);
+        (await cache.GetStringAsync(TempRegisterDefaults.CacheKey(SentCode()))).Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task Company_Link_Failure_Should_Return_Error_And_Keep_Code()
+    {
+        await Temp().Handle(Request() with { Role = "Company", CompanyName = "Vettingo" }, CancellationToken.None);
+        store.UpdateAsync(Arg.Any<User>(), Arg.Any<CancellationToken>()).Returns(IdentityResult.Success,
+            IdentityResult.Failed(new IdentityError { Description = "Şirket kullanıcıya bağlanamadı." }));
+        Func<Task> action = () => Register().Handle(new() { Email = Request().Email, Code = SentCode() }, CancellationToken.None);
+
+        await action.Should().ThrowAsync<BadRequestException>();
+        await unitOfWork.Received(1).SaveChangesAsync(CancellationToken.None);
+        await unitOfWork.Received(1).RollbackTransactionAsync(CancellationToken.None);
+        await unitOfWork.DidNotReceiveWithAnyArgs().CommitTransactionAsync(default);
+        (await cache.GetStringAsync(TempRegisterDefaults.CacheKey(SentCode()))).Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task Commit_Failure_Should_Roll_Back_And_Keep_Code()
+    {
+        await Temp().Handle(Request() with { Role = "Company", CompanyName = "Vettingo" }, CancellationToken.None);
+        unitOfWork.CommitTransactionAsync(CancellationToken.None)
+            .Returns(Task.FromException(new InvalidOperationException("Commit failed")));
+        Func<Task> action = () => Register().Handle(new() { Email = Request().Email, Code = SentCode() }, CancellationToken.None);
+
+        await action.Should().ThrowAsync<InvalidOperationException>();
+        await unitOfWork.Received(1).RollbackTransactionAsync(CancellationToken.None);
+        (await cache.GetStringAsync(TempRegisterDefaults.CacheKey(SentCode()))).Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task Cancellation_During_User_Creation_Should_Roll_Back_Without_Cancelled_Token()
+    {
+        await Temp().Handle(Request(), CancellationToken.None);
+        using var cancellation = new CancellationTokenSource();
+        store.CreateAsync(Arg.Any<User>(), Arg.Any<CancellationToken>()).Returns(call =>
+        {
+            cancellation.Cancel();
+            return Task.FromCanceled<IdentityResult>(cancellation.Token);
+        });
+        Func<Task> action = () => Register().Handle(new() { Email = Request().Email, Code = SentCode() }, cancellation.Token);
+
+        await action.Should().ThrowAsync<OperationCanceledException>();
+        await unitOfWork.Received(1).BeginTransactionAsync(cancellation.Token);
+        await unitOfWork.Received(1).RollbackTransactionAsync(CancellationToken.None);
+        await unitOfWork.DidNotReceiveWithAnyArgs().CommitTransactionAsync(default);
+        (await cache.GetStringAsync(TempRegisterDefaults.CacheKey(SentCode()))).Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task Redis_Removal_Failure_After_Commit_Should_Not_Roll_Back_Committed_Registration()
+    {
+        await Temp().Handle(Request(), CancellationToken.None);
+        int code = SentCode();
+        var distributedCache = Substitute.For<IDistributedCache>();
+        distributedCache.GetAsync(TempRegisterDefaults.CacheKey(code), CancellationToken.None)
+            .Returns(Encoding.UTF8.GetBytes((await cache.GetStringAsync(TempRegisterDefaults.CacheKey(code)))!));
+        distributedCache.RemoveAsync(TempRegisterDefaults.CacheKey(code), CancellationToken.None)
+            .Returns(Task.FromException(new InvalidOperationException("Redis unavailable")));
+        Func<Task> action = () => Register(distributedCache).Handle(new() { Email = Request().Email, Code = code }, CancellationToken.None);
+
+        await action.Should().ThrowAsync<InvalidOperationException>();
+        await unitOfWork.Received(1).CommitTransactionAsync(CancellationToken.None);
+        await unitOfWork.DidNotReceiveWithAnyArgs().RollbackTransactionAsync(default);
     }
 
     private static TempRegisterCommandRequest Request() => new() { Email = "user@example.com", Password = "Strong1!", Role = "Candidate" };
     private int SentCode() => int.Parse(((CodeMessage)publisher.ReceivedCalls().Single().GetArguments()[0]!).Code);
     private TempRegisterCommandHandler Temp(IDistributedCache? distributedCache = null) => new(manager, auth, tokens,
         distributedCache ?? cache, publisher, validator);
-    private RegisterCommandHandler Register() => new(manager, auth, tokens, cache, new RegisterCommandRequestValidator());
+    private RegisterCommandHandler Register(IDistributedCache? distributedCache = null)
+        => new(manager, auth, tokens, distributedCache ?? cache, new RegisterCommandRequestValidator(), unitOfWork);
 
     public void Dispose()
     {

@@ -1,16 +1,16 @@
 ﻿using FlashMediator;
 using Vettingo.AuthService.Application.Exceptions;
 using Microsoft.Extensions.Logging;
-using Vettingo.AuthService.Application.Repository;
+using Vettingo.AuthService.Application.UnitOfWork;
 
 namespace Vettingo.AuthService.Application.Features.CQRS.Company.Command.UpdateCompany
 {
-    public class UpdateCompanyCommandHandler(ICompanyRepository companyRepository, ILogger<UpdateCompanyCommandHandler> logger) : IRequestHandler<UpdateCompanyCommandRequest>
+    public class UpdateCompanyCommandHandler(IUnitOfWork unitOfWork, ILogger<UpdateCompanyCommandHandler> logger) : IRequestHandler<UpdateCompanyCommandRequest>
     {
         public async Task Handle(UpdateCompanyCommandRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(UpdateCompanyCommandHandler));
-            var company = await companyRepository.GetCompanyByIdAsync(request.CompanyId);
+            var company = await unitOfWork.CompanyRepository.GetCompanyByIdAsync(request.CompanyId);
 
             if (company is null)
             {
@@ -24,8 +24,8 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Company.Command.UpdateC
             company.setCompanySize(request.CompanySize);
             company.setCompanyAddress(request.CompanyAddress);
 
-            companyRepository.UpdateCompany(company);
-            await companyRepository.SaveChangesAsync();
+            unitOfWork.CompanyRepository.UpdateCompany(company);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
         }
     }
 }

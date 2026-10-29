@@ -10,6 +10,5 @@ namespace Vettingo.AuthService.Application.Repository
         Task<Company?> GetCompanyByIdAsync(Guid companyId);
         Task<Company?> GetCompanyByEmailAsync(string email);
         Task<IEnumerable<Company>> GetAllCompaniesAsync();
-        Task<int> SaveChangesAsync();
     }
 }

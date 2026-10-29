@@ -35,7 +35,8 @@ public class TempRegisterCommandHandler(
         {
             Email = request.Email,
             PasswordHash = userManager.PasswordHasher.HashPassword(user, request.Password),
-            Role = request.Role
+            Role = request.Role,
+            CompanyName = request.CompanyName
         };
         int code = RandomNumberGenerator.GetInt32(100000, 1000000);
         string cacheKey = TempRegisterDefaults.CacheKey(code);

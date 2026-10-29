@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Vettingo.AuthService.Persistence.DbContext;
 using Microsoft.EntityFrameworkCore;
 using Vettingo.AuthService.Application.Repository;
 using Vettingo.AuthService.Domain.Entities;
@@ -34,11 +34,6 @@ namespace Vettingo.AuthService.Persistence.Repository
             var normalizedEmail = email.Trim().ToLowerInvariant();
             return CompanySet.SingleOrDefaultAsync(company => identity.Set<User>().Any(
                 user => user.CompanyId == company.Id && user.Email != null && user.Email.ToLower() == normalizedEmail));
-        }
-
-        public Task<int> SaveChangesAsync()
-        {
-            return identity.SaveChangesAsync();
         }
 
         public void UpdateCompany(Company company)

@@ -12,6 +12,7 @@ namespace Vettingo.AuthService.Domain.Entities
         public string? Biography { get; set; }
         public string? TargetRole { get; set; }
         public Guid? CompanyId { get; set; }
+        public Company? Company { get; set; }
 
 
     }

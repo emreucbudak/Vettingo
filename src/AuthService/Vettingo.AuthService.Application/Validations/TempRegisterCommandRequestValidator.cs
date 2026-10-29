@@ -11,6 +11,8 @@ public sealed class TempRegisterCommandRequestValidator : AbstractValidator<Temp
     {
         PasswordOptions password = options.Value.Password;
         RuleFor(x => x.Email).NotEmpty().EmailAddress();
+        RuleFor(x => x.CompanyName).NotEmpty().WithMessage("Şirket adı zorunludur.")
+            .MaximumLength(2000).When(x => x.Role == "Company");
         RuleFor(x => x.Role).NotEmpty()
             .Must(role => role is "Candidate" or "Company" or "Human Resources")
             .WithMessage("Geçersiz kullanıcı rolü.");

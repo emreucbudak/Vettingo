@@ -8,11 +8,11 @@ namespace Vettingo.AuthService.Domain.Entities
 
         public Guid Id { get; private set; }
         public string CompanyName { get; private set; } = string.Empty;
-        public string CompanySector { get; private set; } = string.Empty;
-        public string CompanyWebsite { get; private set; } = string.Empty;
-        public string CompanySize { get; private set; } = string.Empty;
-        public string CompanyDescription { get; private set; } = string.Empty;
-        public string CompanyAddress { get; private set; } = string.Empty;
+        public string? CompanySector { get; private set; }
+        public string? CompanyWebsite { get; private set; }
+        public string? CompanySize { get; private set; }
+        public string? CompanyDescription { get; private set; }
+        public string? CompanyAddress { get; private set; }
 
         public void setCompanyName(string companyName)
         {
