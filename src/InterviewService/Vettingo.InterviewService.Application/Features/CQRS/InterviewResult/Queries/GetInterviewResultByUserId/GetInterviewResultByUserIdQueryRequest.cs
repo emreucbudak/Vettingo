@@ -1,0 +1,5 @@
+using FlashMediator;
+
+namespace Vettingo.InterviewService.Application.Features.CQRS.InterviewResult.Queries.GetInterviewResultByUserId;
+
+public record GetInterviewResultByUserIdQueryRequest : IRequest<GetInterviewResultByUserIdQueryResponse>;
