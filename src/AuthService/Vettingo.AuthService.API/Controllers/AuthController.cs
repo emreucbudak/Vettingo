@@ -7,6 +7,7 @@ using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.ChangePassword
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Login;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.RefreshToken;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Register;
+using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.ResetPassword;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Revoke;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.TempRegister;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.TwoFactorLogin;
@@ -63,6 +64,20 @@ namespace Vettingo.AuthService.API.Controllers
         [HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword(
             [FromBody] ChangePasswordCommandRequest request,
+            CancellationToken cancellationToken)
+        {
+            string? email = User.FindFirstValue(ClaimTypes.Email)
+                ?? User.FindFirstValue(JwtRegisteredClaimNames.Email);
+            if (string.IsNullOrWhiteSpace(email)) return Unauthorized();
+
+            await mediator.Send(request with { Email = email }, cancellationToken);
+            return NoContent();
+        }
+
+        [Authorize(Roles = "ResetPassword")]
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword(
+            [FromBody] ResetPasswordCommandRequest request,
             CancellationToken cancellationToken)
         {
             string? email = User.FindFirstValue(ClaimTypes.Email)
