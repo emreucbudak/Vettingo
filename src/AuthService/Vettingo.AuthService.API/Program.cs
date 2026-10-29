@@ -3,6 +3,8 @@ using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Login;
 using Vettingo.AuthService.Application.Rules;
 using Serilog;
 using FluentValidation;
+using Microsoft.AspNetCore.Identity;
+using Vettingo.AuthService.Domain.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Vettingo.AuthService.API.ExceptionHandlers;
@@ -46,6 +48,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddProblemDetails();
 
 builder.Services.SaveDb(builder.Configuration);
+builder.Services.AddDataProtection();
+builder.Services.AddIdentityCore<User>().AddDefaultTokenProviders();
 builder.Services.AddCapServices(builder.Configuration);
 builder.Services.AddFlashMediator(typeof(LoginCommandHandler).Assembly);
 builder.Services.AddScoped<AuthBusinessRules>();
