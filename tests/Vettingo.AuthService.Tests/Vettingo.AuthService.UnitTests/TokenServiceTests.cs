@@ -9,8 +9,10 @@ namespace Vettingo.AuthService.UnitTests
 {
     public class TokenServiceTests
     {
-        [Fact]
-        public void TempToken_Should_Be_Unique_Short_Lived_And_Contain_Only_TempToken_Role()
+        [Theory]
+        [InlineData("Login", "TempLogin")]
+        [InlineData("Register", "TempRegister")]
+        public void TempToken_Should_Be_Unique_Short_Lived_And_Contain_Only_Requested_Role(string role, string expectedRole)
         {
             var options = new TokenOptions
             {
@@ -19,15 +21,15 @@ namespace Vettingo.AuthService.UnitTests
             };
             var service = new TokenService(Options.Create(options));
             var before = DateTime.UtcNow;
-            string token = service.CreateTempToken("user@example.com");
+            string token = service.CreateTempToken("user@example.com", role);
             var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
 
             jwt.Claims.Single(claim => claim.Type == JwtRegisteredClaimNames.Email).Value.Should().Be("user@example.com");
-            jwt.Claims.Single(claim => claim.Type == "Role").Value.Should().Be("TempToken");
+            jwt.Claims.Single(claim => claim.Type == "Role").Value.Should().Be(expectedRole);
             jwt.Claims.Should().NotContain(claim => claim.Type == JwtRegisteredClaimNames.Sub || claim.Type == "companyId");
             jwt.Audiences.Should().ContainSingle().Which.Should().Be(options.Audience);
             jwt.ValidTo.Should().BeCloseTo(before.AddMinutes(5), TimeSpan.FromSeconds(2));
-            service.CreateTempToken("user@example.com").Should().NotBe(token);
+            service.CreateTempToken("user@example.com", role).Should().NotBe(token);
 
             var principal = new JwtSecurityTokenHandler().ValidateToken(token, new TokenValidationParameters
             {
@@ -38,7 +40,7 @@ namespace Vettingo.AuthService.UnitTests
                 ClockSkew = TimeSpan.Zero,
                 RoleClaimType = "Role"
             }, out _);
-            principal.IsInRole("TempToken").Should().BeTrue();
+            principal.IsInRole(expectedRole).Should().BeTrue();
             principal.IsInRole("Candidate").Should().BeFalse();
             principal.IsInRole("Company").Should().BeFalse();
             principal.IsInRole("Human Resources").Should().BeFalse();

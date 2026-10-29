@@ -1,4 +1,5 @@
 using FlashMediator;
+using FluentValidation;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Distributed;
@@ -13,14 +14,12 @@ public class TwoFactorLoginCommandHandler(
     UserManager<User> userManager,
     ITokenService tokenService,
     ICompanyRepository companyRepository,
-    IDistributedCache cache) : IRequestHandler<TwoFactorLoginCommandRequest, TwoFactorLoginCommandResponse>
+    IDistributedCache cache,
+    IValidator<TwoFactorLoginCommandRequest> validator) : IRequestHandler<TwoFactorLoginCommandRequest, TwoFactorLoginCommandResponse>
 {
     public async Task<TwoFactorLoginCommandResponse> Handle(TwoFactorLoginCommandRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Email) || request.Code is < 100000 or > 999999)
-        {
-            throw new UnauthorizedException("Doğrulama kodu geçersiz veya süresi dolmuş.");
-        }
+        await validator.ValidateAndThrowAsync(request, cancellationToken);
 
         string cacheKey = TwoFactorLoginDefaults.CacheKey(request.Code);
         string? email = await cache.GetStringAsync(cacheKey, cancellationToken);

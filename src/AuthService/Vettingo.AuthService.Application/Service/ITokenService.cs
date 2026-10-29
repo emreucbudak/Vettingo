@@ -12,7 +12,7 @@ namespace Vettingo.AuthService.Application.Service
             IList<string> roles,
             Guid? companyId = null,
             string? companyName = null);
-        string CreateTempToken(string email);
+        string CreateTempToken(string email, string role);
         string CreateRefreshToken();
         ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
     }
