@@ -16,6 +16,7 @@ using Vettingo.JobService.Application.Validations;
 using Vettingo.JobService.Domain.Entities;
 using Vettingo.JobService.Domain.Enums;
 using Vettingo.JobService.Infrastructure.Messaging;
+using Vettingo.JobService.Infrastructure.Messages;
 using Vettingo.JobService.Persistence.DbContext;
 using Vettingo.JobService.Persistence.Repository;
 

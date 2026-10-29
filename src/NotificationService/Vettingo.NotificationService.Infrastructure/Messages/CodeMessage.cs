@@ -1,4 +1,4 @@
-namespace Vettingo.NotificationService.Application.DTOs;
+namespace Vettingo.NotificationService.Infrastructure.Messages;
 
 public sealed record CodeMessage
 {

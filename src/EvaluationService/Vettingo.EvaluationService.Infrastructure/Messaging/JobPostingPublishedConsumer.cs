@@ -1,8 +1,9 @@
 using DotNetCore.CAP;
+using Vettingo.EvaluationService.Infrastructure.Messages;
 
 namespace Vettingo.EvaluationService.Infrastructure.Messaging;
 
-public sealed class JobPostingPublishedSubscriber : ICapSubscribe
+public sealed class JobPostingPublishedConsumer : ICapSubscribe
 {
     [CapSubscribe("vettingo.evaluation.job-posting.published.v1", Group = "vettingo.evaluation-service")]
     public Task HandleAsync(

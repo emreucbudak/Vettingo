@@ -1,4 +1,4 @@
-namespace Vettingo.JobService.Infrastructure.Messaging;
+namespace Vettingo.JobService.Infrastructure.Messages;
 
 public sealed record PersonalizedJobPostingMessage
 {

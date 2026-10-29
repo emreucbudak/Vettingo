@@ -1,6 +1,7 @@
 using DotNetCore.CAP;
 using FlashMediator;
 using Vettingo.AnalyticsService.Application.Features.CQRS.CompanyStatics.Command.CreateCompanyStatics;
+using Vettingo.AnalyticsService.Infrastructure.Messages;
 
 namespace Vettingo.AnalyticsService.Infrastructure.Messaging;
 
