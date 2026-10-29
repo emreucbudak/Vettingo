@@ -3,6 +3,7 @@ using FlashMediator;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Command.CreatePersonalizedJobPosting;
+using Vettingo.JobService.Infrastructure.Messages;
 
 namespace Vettingo.JobService.Infrastructure.Messaging;
 

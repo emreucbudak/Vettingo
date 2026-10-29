@@ -1,6 +1,7 @@
 using DotNetCore.CAP;
 using FlashMediator;
 using Vettingo.AnalyticsService.Application.Features.CQRS.Analytics.Command.UpdateCompanyJobPostingCount;
+using Vettingo.AnalyticsService.Infrastructure.Messages;
 
 namespace Vettingo.AnalyticsService.Infrastructure.Messaging;
 

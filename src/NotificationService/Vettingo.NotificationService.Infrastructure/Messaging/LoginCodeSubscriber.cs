@@ -1,6 +1,7 @@
 using DotNetCore.CAP;
 using Vettingo.NotificationService.Application.DTOs;
 using Vettingo.NotificationService.Application.Services;
+using Vettingo.NotificationService.Infrastructure.Messages;
 
 namespace Vettingo.NotificationService.Infrastructure.Messaging;
 

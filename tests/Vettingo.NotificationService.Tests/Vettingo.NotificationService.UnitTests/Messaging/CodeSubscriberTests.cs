@@ -2,6 +2,7 @@ using FluentAssertions;
 using NSubstitute;
 using Vettingo.NotificationService.Application.DTOs;
 using Vettingo.NotificationService.Application.Services;
+using Vettingo.NotificationService.Infrastructure.Messages;
 using Vettingo.NotificationService.Infrastructure.Messaging;
 
 namespace Vettingo.NotificationService.UnitTests.Messaging;

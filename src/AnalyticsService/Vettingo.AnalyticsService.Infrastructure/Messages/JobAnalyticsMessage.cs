@@ -1,4 +1,4 @@
-namespace Vettingo.AnalyticsService.Infrastructure.Messaging;
+namespace Vettingo.AnalyticsService.Infrastructure.Messages;
 
 public sealed class JobAnalyticsMessage
 {

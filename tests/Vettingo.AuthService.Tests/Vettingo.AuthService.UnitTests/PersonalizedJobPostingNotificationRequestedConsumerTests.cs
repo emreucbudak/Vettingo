@@ -8,6 +8,7 @@ using Vettingo.AuthService.Application.Exceptions;
 using Vettingo.AuthService.Application.Messaging;
 using Vettingo.AuthService.Domain.Entities;
 using Vettingo.AuthService.Infrastructure.Messaging;
+using Vettingo.AuthService.Infrastructure.Messages;
 
 namespace Vettingo.AuthService.UnitTests;
 

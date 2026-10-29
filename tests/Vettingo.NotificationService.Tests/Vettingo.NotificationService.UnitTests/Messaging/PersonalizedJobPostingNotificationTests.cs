@@ -5,7 +5,7 @@ using FluentAssertions;
 using NSubstitute;
 using Vettingo.NotificationService.Infrastructure.Messaging;
 using AuthConsumer = Vettingo.AuthService.Infrastructure.Messaging.PersonalizedJobPostingNotificationRequestedConsumer;
-using AuthRequest = Vettingo.AuthService.Infrastructure.Messaging.PersonalizedJobPostingNotificationRequestedMessage;
+using AuthRequest = Vettingo.AuthService.Infrastructure.Messages.PersonalizedJobPostingNotificationRequestedMessage;
 using AuthPublisher = Vettingo.AuthService.Infrastructure.Messaging.PersonalizedJobPostingNotificationPublisher;
 using EvaluationPublisher = Vettingo.EvaluationService.Application.Messaging.PersonalizedJobPostingNotificationPublisher;
 using EvaluationDto = Vettingo.EvaluationService.Application.DTOs.PersonalizedJobPostingNotificationDto;
