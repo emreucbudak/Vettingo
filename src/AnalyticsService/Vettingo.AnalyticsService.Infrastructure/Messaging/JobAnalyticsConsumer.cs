@@ -13,7 +13,8 @@ public sealed class JobAnalyticsConsumer(IMediator mediator) : ICapSubscribe
         return mediator.Send(
             new UpdateCompanyJobPostingCountCommandRequest
             {
-                CompanyId = message.CompanyId
+                CompanyId = message.CompanyId,
+                EventId = message.EventId
             },
             cancellationToken);
     }

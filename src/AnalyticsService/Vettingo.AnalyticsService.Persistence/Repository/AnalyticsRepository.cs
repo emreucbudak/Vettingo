@@ -22,7 +22,7 @@ namespace Vettingo.AnalyticsService.Persistence.Repository
                 .FirstOrDefaultAsync(statistic => statistic.CompanyId == companyId, cancellationToken);
         }
 
-        public Task IncrementCompanyJobPostingCountAsync(Guid companyId, CancellationToken cancellationToken = default)
+        public Task<int> IncrementCompanyJobPostingCountAsync(Guid companyId, CancellationToken cancellationToken = default)
         {
             var updatedAt = DateTime.UtcNow;
 
