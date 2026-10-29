@@ -1,0 +1,5 @@
+namespace Vettingo.InterviewService.Application.Features.CQRS.InterviewResult.Queries.GetAllInterviewResultByCompanyId;
+
+public class GetAllInterviewResultByCompanyIdQueryResponse
+{
+}
