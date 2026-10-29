@@ -16,9 +16,15 @@ public sealed class JobAnalyticsPublisher : IJobAnalyticsPublisher
         JobAnalyticsDto message,
         CancellationToken cancellationToken = default)
     {
+        var eventMessage = new JobAnalyticsDto
+        {
+            CompanyId = message.CompanyId,
+            EventId = message.EventId == Guid.Empty ? Guid.CreateVersion7() : message.EventId
+        };
+
         return _capPublisher.PublishAsync(
             JobAnalyticsDto.TopicName,
-            message,
+            eventMessage,
             cancellationToken: cancellationToken);
     }
 }

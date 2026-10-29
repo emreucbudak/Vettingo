@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Vettingo.AnalyticsService.Application.Repository;
+using Vettingo.AnalyticsService.Application.UnitOfWork;
 using Vettingo.AnalyticsService.Persistence.Repository;
 using AnalyticsPersistenceDbContext = Vettingo.AnalyticsService.Persistence.DbContext.AnalyticsDbContext;
 
@@ -17,6 +18,7 @@ namespace Vettingo.AnalyticsService.Persistence.Registration
             });
 
             collect.AddScoped<IAnalyticsRepository, AnalyticsRepository>();
+            collect.AddScoped<IUnitOfWork, UnitOfWork.UnitOfWork>();
         }
     }
 }

@@ -4,5 +4,6 @@ namespace Vettingo.AnalyticsService.Application.Features.CQRS.Analytics.Command.
 
 public sealed record UpdateCompanyJobPostingCountCommandRequest : IRequest
 {
+    public Guid EventId { get; init; }
     public Guid CompanyId { get; init; }
 }
