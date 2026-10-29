@@ -15,13 +15,13 @@ namespace Vettingo.AuthService.UnitTests;
 public sealed class TwoFactorLoginControllerTests
 {
     [Fact]
-    public void Endpoint_Should_Require_Only_TempToken_Role_And_Default_Scheme()
+    public void Endpoint_Should_Require_Only_TempLogin_Role_And_Default_Scheme()
     {
         var attribute = typeof(AuthController).GetMethod(nameof(AuthController.TwoFactorLogin))!
             .GetCustomAttribute<AuthorizeAttribute>()!;
 
         attribute.AuthenticationSchemes.Should().BeNull();
-        attribute.Roles.Should().Be("TempToken");
+        attribute.Roles.Should().Be("TempLogin");
     }
 
     [Theory]

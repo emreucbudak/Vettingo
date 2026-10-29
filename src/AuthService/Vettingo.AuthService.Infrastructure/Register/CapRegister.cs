@@ -10,6 +10,7 @@ namespace Vettingo.AuthService.Infrastructure.Register
         public static void AddCapServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<ILoginCodeSenderPublisher, LoginCodeSenderPublisher>();
+            services.AddScoped<IRegisterConfirmCodeSenderPublisher, RegisterConfirmCodeSenderPublisher>();
             services.AddTransient<PersonalizedJobPostingNotificationRequestedConsumer>();
             services.AddScoped<IPersonalizedJobPostingNotificationPublisher, PersonalizedJobPostingNotificationPublisher>();
 

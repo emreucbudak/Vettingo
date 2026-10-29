@@ -29,7 +29,7 @@ namespace Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Login
 
             if (user.IsTwoFactorAuthenticated)
             {
-                string tempToken = tokenService.CreateTempToken(user.Email);
+                string tempToken = tokenService.CreateTempToken(user.Email, "Login");
                 int code = RandomNumberGenerator.GetInt32(100000, 1000000);
                 string cacheKey = TwoFactorLoginDefaults.CacheKey(code);
 

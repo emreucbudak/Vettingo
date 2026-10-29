@@ -1,5 +1,7 @@
 using System.Text;
 using FluentAssertions;
+using FluentValidation;
+using Vettingo.AuthService.Application.Validations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
@@ -45,7 +47,7 @@ public sealed class TwoFactorLoginTests : IDisposable
             new UpperInvariantLookupNormalizer(), new IdentityErrorDescriber(), null!, NullLogger<UserManager<User>>.Instance);
         _roleManager = new RoleManager<Role>(Substitute.For<IRoleStore<Role>>(), [],
             new UpperInvariantLookupNormalizer(), new IdentityErrorDescriber(), NullLogger<RoleManager<Role>>.Instance);
-        _tokens.CreateTempToken(_user.Email!).Returns("temp-token");
+        _tokens.CreateTempToken(_user.Email!, "Login").Returns("temp-token");
         _tokens.CreateAccessToken(_user.Id, _user.Email!, _user.Name, _user.Surname,
             Arg.Any<IList<string>>(), Arg.Any<Guid?>(), Arg.Any<string?>()).Returns("access-token");
         _tokens.CreateRefreshToken().Returns("refresh-token");
@@ -62,7 +64,7 @@ public sealed class TwoFactorLoginTests : IDisposable
         response.AccessToken.Should().Be("access-token");
         response.RefreshToken.Should().Be("refresh-token");
         response.TempToken.Should().BeNull();
-        _tokens.DidNotReceiveWithAnyArgs().CreateTempToken(default!);
+        _tokens.DidNotReceiveWithAnyArgs().CreateTempToken(default!, default!);
         _publisher.ReceivedCalls().Should().BeEmpty();
         cache.ReceivedCalls().Should().BeEmpty();
     }
@@ -81,7 +83,7 @@ public sealed class TwoFactorLoginTests : IDisposable
         int code = int.Parse(message.Code);
         code.Should().BeInRange(100000, 999999);
         (await _cache.GetStringAsync(TwoFactorLoginDefaults.CacheKey(code))).Should().Be(_user.Email);
-        _tokens.Received(1).CreateTempToken(_user.Email!);
+        _tokens.Received(1).CreateTempToken(_user.Email!, "Login");
         await _publisher.Received(1).CodeSend(message, cancellation.Token);
         AssertNoAccessTokens();
     }
@@ -166,7 +168,10 @@ public sealed class TwoFactorLoginTests : IDisposable
         await _cache.SetStringAsync(TwoFactorLoginDefaults.CacheKey(123456), _user.Email!);
         Func<Task> verify = () => Verify().Handle(new() { Code = code, Email = _user.Email! }, CancellationToken.None);
 
-        await verify.Should().ThrowAsync<UnauthorizedException>();
+        if (code is < 100000 or > 999999)
+            await verify.Should().ThrowAsync<ValidationException>();
+        else
+            await verify.Should().ThrowAsync<UnauthorizedException>();
 
         AssertNoAccessTokens();
     }
@@ -230,7 +235,10 @@ public sealed class TwoFactorLoginTests : IDisposable
         _store.ClearReceivedCalls();
         Func<Task> verify = () => Verify().Handle(new() { Code = 123456, Email = email! }, CancellationToken.None);
 
-        await verify.Should().ThrowAsync<UnauthorizedException>();
+        if (string.IsNullOrWhiteSpace(email))
+            await verify.Should().ThrowAsync<ValidationException>();
+        else
+            await verify.Should().ThrowAsync<UnauthorizedException>();
 
         AssertNoAccessTokens();
         await ((IUserEmailStore<User>)_store).DidNotReceiveWithAnyArgs().FindByEmailAsync(default!, default);
@@ -241,7 +249,7 @@ public sealed class TwoFactorLoginTests : IDisposable
         new AuthBusinessRules(_manager, _roleManager), _tokens, NullLogger<LoginCommandHandler>.Instance,
         _companies, cache ?? _cache, _publisher);
 
-    private TwoFactorLoginCommandHandler Verify() => new(_manager, _tokens, _companies, _cache);
+    private TwoFactorLoginCommandHandler Verify() => new(_manager, _tokens, _companies, _cache, new TwoFactorLoginCommandRequestValidator());
 
     private CodeMessage SentCode() => (CodeMessage)_publisher.ReceivedCalls().Single().GetArguments()[0]!;
 

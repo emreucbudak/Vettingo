@@ -53,12 +53,21 @@ namespace Vettingo.AuthService.Infrastructure.Service
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public string CreateTempToken(string email)
+        public string CreateTempToken(string email, string role)
         {
+            string tempRole = string.Empty;
+            if (string.Equals(role, "Login", StringComparison.OrdinalIgnoreCase))
+            {
+                tempRole = "TempLogin";
+            }
+            else if (string.Equals(role, "Register", StringComparison.OrdinalIgnoreCase))
+            {
+                tempRole = "TempRegister";
+            }
             List<Claim> claims =
             [
                 new Claim(JwtRegisteredClaimNames.Email, email),
-                new Claim("Role", "TempToken"),
+                new Claim("Role", tempRole),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             ];
 

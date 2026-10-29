@@ -6,7 +6,9 @@ using System.Security.Claims;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.ChangePassword;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Login;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.RefreshToken;
+using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Register;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.Revoke;
+using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.TempRegister;
 using Vettingo.AuthService.Application.Features.CQRS.Auth.Command.TwoFactorLogin;
 using Vettingo.AuthService.Application.Features.CQRS.Users.Query.GetByEmail;
 
@@ -22,7 +24,29 @@ namespace Vettingo.AuthService.API.Controllers
             return Ok(await mediator.Send(request));
         }
 
-        [Authorize(Roles = "TempToken")]
+        [HttpPost("temp-register")]
+        public async Task<IActionResult> TempRegister(
+            [FromBody] TempRegisterCommandRequest request,
+            CancellationToken cancellationToken)
+        {
+            return Ok(await mediator.Send(request, cancellationToken));
+        }
+
+        [Authorize(Roles = "TempRegister")]
+        [HttpPost("register")]
+        public async Task<IActionResult> Register(
+            [FromBody] RegisterCommandRequest request,
+            CancellationToken cancellationToken)
+        {
+            string? email = User.FindFirstValue(ClaimTypes.Email)
+                ?? User.FindFirstValue(JwtRegisteredClaimNames.Email);
+            if (string.IsNullOrWhiteSpace(email)) return Unauthorized();
+
+            await mediator.Send(request with { Email = email }, cancellationToken);
+            return NoContent();
+        }
+
+        [Authorize(Roles = "TempLogin")]
         [HttpPost("two-factor-login")]
         public async Task<IActionResult> TwoFactorLogin(
             [FromBody] TwoFactorLoginCommandRequest request,
