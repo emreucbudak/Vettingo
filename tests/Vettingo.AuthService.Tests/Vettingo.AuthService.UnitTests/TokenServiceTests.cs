@@ -12,6 +12,7 @@ namespace Vettingo.AuthService.UnitTests
         [Theory]
         [InlineData("Login", "TempLogin")]
         [InlineData("Register", "TempRegister")]
+        [InlineData("ResetPassword", "ResetPassword")]
         public void TempToken_Should_Be_Unique_Short_Lived_And_Contain_Only_Requested_Role(string role, string expectedRole)
         {
             var options = new TokenOptions
