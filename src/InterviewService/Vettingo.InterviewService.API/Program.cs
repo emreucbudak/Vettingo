@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Vettingo.InterviewService.API.ExceptionHandlers;
-using Vettingo.InterviewService.Application.Features.CQRS.InterviewQuestion.Command.CreateInterviewQuestion;
+using Vettingo.InterviewService.Application.Features.CQRS.Interview.Query.GetByDate;
 using Vettingo.InterviewService.Persistence.Registration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -65,9 +65,9 @@ builder.Services.AddRateLimiter(options =>
 
 builder.Services.SaveDb(builder.Configuration);
 builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
-builder.Services.AddFlashMediator(typeof(CreateInterviewQuestionCommandHandler).Assembly);
+builder.Services.AddFlashMediator(typeof(GetInterviewsByDateQueryHandler).Assembly);
 builder.Services.AddFlashMediatorHybridCache();
-builder.Services.AddValidatorsFromAssemblyContaining<CreateInterviewQuestionCommandRequest>();
+builder.Services.AddValidatorsFromAssemblyContaining<GetInterviewsByDateQueryRequest>();
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = builder.Configuration.GetConnectionString("Redis")
