@@ -38,6 +38,14 @@ public sealed class InterviewResultRepository(InterviewDbContext context) : IInt
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IEnumerable<InterviewResult>> GetAllByInterviewIdAsync(
+        Guid interviewId, CancellationToken cancellationToken = default)
+    {
+        return await context.InterviewResults.AsNoTracking()
+            .Where(interviewResult => interviewResult.InterviewId == interviewId)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<IEnumerable<InterviewResult>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return await context.InterviewResults.AsNoTracking()

@@ -9,6 +9,7 @@ public interface IInterviewResultRepository
     void Delete(InterviewResult interviewResult);
     Task<InterviewResult?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<IEnumerable<InterviewResult>> GetAllByCompanyIdAsync(Guid companyId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<InterviewResult>> GetAllByInterviewIdAsync(Guid interviewId, CancellationToken cancellationToken = default);
     Task<IEnumerable<InterviewResult>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
