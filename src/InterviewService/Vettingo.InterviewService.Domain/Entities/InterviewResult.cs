@@ -18,5 +18,25 @@ namespace Vettingo.InterviewService.Domain.Entities
             InterviewScore = interviewScore;
             Passed = passed;
         }
+
+        public void Update(int? interviewScore, bool? passed)
+        {
+            if (interviewScore is null && passed is null)
+            {
+                return;
+            }
+
+            if (interviewScore.HasValue)
+            {
+                InterviewScore = interviewScore.Value;
+            }
+
+            if (passed.HasValue)
+            {
+                Passed = passed.Value;
+            }
+
+            SetUpdatedAt();
+        }
     }
 }
