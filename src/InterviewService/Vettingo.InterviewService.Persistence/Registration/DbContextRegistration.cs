@@ -16,8 +16,8 @@ namespace Vettingo.InterviewService.Persistence.Registration
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
             });
 
-            collect.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             collect.AddScoped<IInterviewRepository, InterviewRepository>();
+            collect.AddScoped<IInterviewResultRepository, InterviewResultRepository>();
         }
     }
 }

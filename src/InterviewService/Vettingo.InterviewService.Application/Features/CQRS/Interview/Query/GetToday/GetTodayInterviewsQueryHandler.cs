@@ -1,10 +1,9 @@
 using FlashMediator;
 using Vettingo.InterviewService.Application.Repository;
-using InterviewEntity = Vettingo.InterviewService.Domain.Entities.Interview;
 
 namespace Vettingo.InterviewService.Application.Features.CQRS.Interview.Query.GetToday
 {
-    public class GetTodayInterviewsQueryHandler(IRepository<InterviewEntity> repository, TimeProvider timeProvider)
+    public class GetTodayInterviewsQueryHandler(IInterviewRepository repository, TimeProvider timeProvider)
         : IRequestHandler<GetTodayInterviewsQueryRequest, IEnumerable<GetTodayInterviewsQueryResponse>>
     {
         private static readonly TimeZoneInfo InterviewTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul");
@@ -15,9 +14,7 @@ namespace Vettingo.InterviewService.Application.Features.CQRS.Interview.Query.Ge
             DateOnly today = DateOnly.FromDateTime(
                 TimeZoneInfo.ConvertTime(timeProvider.GetUtcNow(), InterviewTimeZone).DateTime);
 
-            var interviews = await repository.GetAllAsync(
-                interview => interview.CompanyId == request.CompanyId && interview.InterviewDate == today,
-                query => query.OrderBy(interview => interview.StartedTime).ThenBy(interview => interview.Id));
+            var interviews = await repository.GetByCompanyAndDateAsync(request.CompanyId, today, cancellationToken);
 
             return interviews.Select(interview => new GetTodayInterviewsQueryResponse
             {

@@ -1,19 +1,16 @@
 using FlashMediator;
 using Vettingo.InterviewService.Application.Repository;
-using InterviewEntity = Vettingo.InterviewService.Domain.Entities.Interview;
 
 namespace Vettingo.InterviewService.Application.Features.CQRS.Interview.Query.GetByDate;
 
-public sealed class GetInterviewsByDateQueryHandler(IRepository<InterviewEntity> repository)
+public sealed class GetInterviewsByDateQueryHandler(IInterviewRepository repository)
     : IRequestHandler<GetInterviewsByDateQueryRequest, IEnumerable<GetInterviewsByDateQueryResponse>>
 {
     public async Task<IEnumerable<GetInterviewsByDateQueryResponse>> Handle(
         GetInterviewsByDateQueryRequest request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var interviews = await repository.GetAllAsync(
-            interview => interview.CompanyId == request.CompanyId && interview.InterviewDate == request.Date,
-            query => query.OrderBy(interview => interview.StartedTime).ThenBy(interview => interview.Id));
+        var interviews = await repository.GetByCompanyAndDateAsync(request.CompanyId, request.Date, cancellationToken);
 
         return interviews.Select(interview => new GetInterviewsByDateQueryResponse
         {

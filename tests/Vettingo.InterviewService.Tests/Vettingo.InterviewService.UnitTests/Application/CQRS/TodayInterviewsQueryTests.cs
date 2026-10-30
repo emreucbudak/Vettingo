@@ -21,7 +21,7 @@ namespace Vettingo.InterviewService.UnitTests.Application.CQRS
             AddInterview(context, companyId, today.AddDays(1), new TimeOnly(8, 0), "Yarın", "Aday");
             AddInterview(context, Guid.NewGuid(), today, new TimeOnly(8, 0), "Diğer", "Şirket");
             await context.SaveChangesAsync();
-            var handler = new GetTodayInterviewsQueryHandler(new Repository<Interview>(context),
+            var handler = new GetTodayInterviewsQueryHandler(new InterviewRepository(context),
                 new FixedTimeProvider(DateTimeOffset.Parse("2026-10-08T09:00:00Z")));
 
             var result = (await handler.Handle(new(companyId), CancellationToken.None)).ToArray();
@@ -43,7 +43,7 @@ namespace Vettingo.InterviewService.UnitTests.Application.CQRS
             AddInterview(context, companyId, new DateOnly(2026, 10, 7), new TimeOnly(9, 0), "7", "Ekim");
             AddInterview(context, companyId, new DateOnly(2026, 10, 8), new TimeOnly(9, 0), "8", "Ekim");
             await context.SaveChangesAsync();
-            var handler = new GetTodayInterviewsQueryHandler(new Repository<Interview>(context),
+            var handler = new GetTodayInterviewsQueryHandler(new InterviewRepository(context),
                 new FixedTimeProvider(DateTimeOffset.Parse(utcNow)));
 
             var result = await handler.Handle(new(companyId), CancellationToken.None);
@@ -55,7 +55,7 @@ namespace Vettingo.InterviewService.UnitTests.Application.CQRS
         public async Task Should_Return_Empty_When_No_Interview_Is_Scheduled_Today()
         {
             await using var context = CreateContext();
-            var handler = new GetTodayInterviewsQueryHandler(new Repository<Interview>(context),
+            var handler = new GetTodayInterviewsQueryHandler(new InterviewRepository(context),
                 new FixedTimeProvider(DateTimeOffset.Parse("2026-10-08T09:00:00Z")));
 
             var result = await handler.Handle(new(Guid.NewGuid()), CancellationToken.None);
