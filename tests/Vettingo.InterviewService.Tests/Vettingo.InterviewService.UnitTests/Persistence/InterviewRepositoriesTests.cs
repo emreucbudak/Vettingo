@@ -66,8 +66,8 @@ public sealed class InterviewRepositoriesTests
 
         var results = await repository.GetAllByCompanyIdAsync(companyId);
         results.Select(entity => entity.InterviewScore).Should().BeEquivalentTo(new[] { 90, 60 });
-        (await repository.GetByUserIdAsync(userId))!.Id.Should().Be(result.Id);
-        (await repository.GetByUserIdAsync(Guid.NewGuid())).Should().BeNull();
+        (await repository.GetByUserIdAsync(userId)).Should().ContainSingle().Which.Id.Should().Be(result.Id);
+        (await repository.GetByUserIdAsync(Guid.NewGuid())).Should().BeEmpty();
         (await repository.GetAllByCompanyIdAsync(Guid.NewGuid())).Should().BeEmpty();
 
         context.ChangeTracker.Clear();
@@ -75,7 +75,7 @@ public sealed class InterviewRepositoriesTests
         await repository.SaveChangesAsync();
         context.ChangeTracker.Clear();
         (await repository.GetByIdAsync(result.Id)).Should().BeNull();
-        (await repository.GetByUserIdAsync(userId)).Should().BeNull();
+        (await repository.GetByUserIdAsync(userId)).Should().BeEmpty();
         (await repository.GetAllByCompanyIdAsync(companyId)).Should().ContainSingle()
             .Which.InterviewScore.Should().Be(90);
     }

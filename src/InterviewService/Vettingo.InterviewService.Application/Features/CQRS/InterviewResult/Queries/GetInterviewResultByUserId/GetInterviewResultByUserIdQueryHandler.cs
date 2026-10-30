@@ -1,13 +1,21 @@
 using FlashMediator;
+using Vettingo.InterviewService.Application.Repository;
 
 namespace Vettingo.InterviewService.Application.Features.CQRS.InterviewResult.Queries.GetInterviewResultByUserId;
 
-public class GetInterviewResultByUserIdQueryHandler
-    : IRequestHandler<GetInterviewResultByUserIdQueryRequest, GetInterviewResultByUserIdQueryResponse>
+public class GetInterviewResultByUserIdQueryHandler(IInterviewResultRepository repository)
+    : IRequestHandler<GetInterviewResultByUserIdQueryRequest, IEnumerable<GetInterviewResultByUserIdQueryResponse>>
 {
-    public Task<GetInterviewResultByUserIdQueryResponse> Handle(
+    public async Task<IEnumerable<GetInterviewResultByUserIdQueryResponse>> Handle(
         GetInterviewResultByUserIdQueryRequest request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var results = await repository.GetByUserIdAsync(request.UserId, cancellationToken);
+
+        return results.Select(result => new GetInterviewResultByUserIdQueryResponse
+        {
+            InterviewId = result.InterviewId,
+            InterviewScore = result.InterviewScore,
+            Passed = result.Passed
+        }).ToList();
     }
 }
