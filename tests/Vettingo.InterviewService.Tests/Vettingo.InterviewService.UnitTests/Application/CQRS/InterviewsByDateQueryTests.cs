@@ -22,7 +22,7 @@ public sealed class InterviewsByDateQueryTests
         AddInterview(context, companyId, date.AddDays(1), new TimeOnly(8, 0), "Yarın");
         AddInterview(context, Guid.NewGuid(), date, new TimeOnly(8, 0), "Diğer şirket");
         await context.SaveChangesAsync();
-        var handler = new GetInterviewsByDateQueryHandler(new Repository<Interview>(context));
+        var handler = new GetInterviewsByDateQueryHandler(new InterviewRepository(context));
 
         var result = (await handler.Handle(new(companyId, date), CancellationToken.None)).ToArray();
 
@@ -46,7 +46,7 @@ public sealed class InterviewsByDateQueryTests
         var date = new DateOnly(2026, 10, 11);
         AddInterview(context, companyId, date.AddDays(1), new TimeOnly(9, 0), "Başka gün");
         await context.SaveChangesAsync();
-        var handler = new GetInterviewsByDateQueryHandler(new Repository<Interview>(context));
+        var handler = new GetInterviewsByDateQueryHandler(new InterviewRepository(context));
 
         var result = await handler.Handle(new(companyId, date), CancellationToken.None);
 
