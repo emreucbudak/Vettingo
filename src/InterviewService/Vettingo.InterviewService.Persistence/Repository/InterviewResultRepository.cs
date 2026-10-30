@@ -38,10 +38,11 @@ public sealed class InterviewResultRepository(InterviewDbContext context) : IInt
             .ToListAsync(cancellationToken);
     }
 
-    public Task<InterviewResult?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<InterviewResult>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        return context.InterviewResults.AsNoTracking()
-            .FirstOrDefaultAsync(interviewResult => interviewResult.UserId == userId, cancellationToken);
+        return await context.InterviewResults.AsNoTracking()
+            .Where(interviewResult => interviewResult.UserId == userId)
+            .ToListAsync(cancellationToken);
     }
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
