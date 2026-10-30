@@ -2,7 +2,7 @@
 
 Kullanıcı "ne eksiğimiz kaldı?" diye sorduğunda bu listedeki açık maddeleri de belirt.
 
-- [ ] Testleri birlikte gözden geçir.
+- [ ] Testleri birlikte gözden geçir ve iyileştir.
 
 - [ ] Mobil uygulamadaki state yönetimini düzelt.
 
