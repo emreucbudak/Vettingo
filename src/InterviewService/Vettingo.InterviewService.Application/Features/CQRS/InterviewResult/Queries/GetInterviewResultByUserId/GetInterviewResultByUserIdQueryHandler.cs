@@ -1,9 +1,11 @@
 using FlashMediator;
+using Vettingo.InterviewService.Application.Exceptions;
 using Vettingo.InterviewService.Application.Repository;
 
 namespace Vettingo.InterviewService.Application.Features.CQRS.InterviewResult.Queries.GetInterviewResultByUserId;
 
-public class GetInterviewResultByUserIdQueryHandler(IInterviewResultRepository repository)
+public class GetInterviewResultByUserIdQueryHandler(
+    IInterviewResultRepository repository, IInterviewRepository interviewRepository)
     : IRequestHandler<GetInterviewResultByUserIdQueryRequest, IEnumerable<GetInterviewResultByUserIdQueryResponse>>
 {
     public async Task<IEnumerable<GetInterviewResultByUserIdQueryResponse>> Handle(
@@ -11,11 +13,22 @@ public class GetInterviewResultByUserIdQueryHandler(IInterviewResultRepository r
     {
         var results = await repository.GetByUserIdAsync(request.UserId, cancellationToken);
 
-        return results.Select(result => new GetInterviewResultByUserIdQueryResponse
+        var response = new List<GetInterviewResultByUserIdQueryResponse>();
+        foreach (var result in results)
         {
-            InterviewId = result.InterviewId,
-            InterviewScore = result.InterviewScore,
-            Passed = result.Passed
-        }).ToList();
+            var interview = await interviewRepository.GetByIdAsync(result.InterviewId, cancellationToken)
+                ?? throw new NotFoundException("Mülakat bulunamadı.");
+
+            response.Add(new GetInterviewResultByUserIdQueryResponse
+            {
+                Chapter = interview.Chapter,
+                Role = interview.Role,
+                InterviewDate = interview.InterviewDate,
+                InterviewScore = result.InterviewScore,
+                Passed = result.Passed
+            });
+        }
+
+        return response;
     }
 }
