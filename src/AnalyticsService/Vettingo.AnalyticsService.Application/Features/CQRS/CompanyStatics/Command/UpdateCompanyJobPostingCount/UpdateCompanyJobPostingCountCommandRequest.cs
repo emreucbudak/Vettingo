@@ -1,6 +1,6 @@
 using FlashMediator;
 
-namespace Vettingo.AnalyticsService.Application.Features.CQRS.Analytics.Command.UpdateCompanyJobPostingCount;
+namespace Vettingo.AnalyticsService.Application.Features.CQRS.CompanyStatics.Command.UpdateCompanyJobPostingCount;
 
 public sealed record UpdateCompanyJobPostingCountCommandRequest : IRequest
 {

@@ -6,7 +6,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Vettingo.AnalyticsService.API.ExceptionHandlers;
-using Vettingo.AnalyticsService.Application.Features.CQRS.Analytics.Query.GetCompanyHiringVolume;
+using Vettingo.AnalyticsService.Application.Features.CQRS.CompanyStatics.Query.GetCompanyHiringVolume;
 using Vettingo.AnalyticsService.Persistence.Registration;
 
 var builder = WebApplication.CreateBuilder(args);

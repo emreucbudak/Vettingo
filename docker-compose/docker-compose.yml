@@ -355,7 +355,7 @@ services:
       - -c
       - shared_preload_libraries=pg_cron
       - -c
-      - cron.database_name=postgres
+      - cron.database_name=NotificationServiceDb
     environment:
       POSTGRES_DB: postgres
       POSTGRES_PASSWORD: ${VETTINGO_POSTGRES_PASSWORD:-VettingoPostgres_2026!}

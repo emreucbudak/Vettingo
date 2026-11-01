@@ -2,7 +2,7 @@ using FlashMediator;
 using Microsoft.Extensions.Logging;
 using Vettingo.AnalyticsService.Application.Repository;
 
-namespace Vettingo.AnalyticsService.Application.Features.CQRS.Analytics.Query.GetCompanyHiringVolume;
+namespace Vettingo.AnalyticsService.Application.Features.CQRS.CompanyStatics.Query.GetCompanyHiringVolume;
 
 public sealed class GetCompanyHiringVolumeQueryHandler(
     IAnalyticsRepository analyticsRepository,

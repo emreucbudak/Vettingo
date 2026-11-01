@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Vettingo.AnalyticsService.API.Controllers;
-using Vettingo.AnalyticsService.Application.Features.CQRS.Analytics.Query.GetCompanyHiringVolume;
+using Vettingo.AnalyticsService.Application.Features.CQRS.CompanyStatics.Query.GetCompanyHiringVolume;
 using Vettingo.AnalyticsService.Application.Validations;
 using Vettingo.AnalyticsService.Application.Repository;
 using Vettingo.AnalyticsService.Domain.Entities;
