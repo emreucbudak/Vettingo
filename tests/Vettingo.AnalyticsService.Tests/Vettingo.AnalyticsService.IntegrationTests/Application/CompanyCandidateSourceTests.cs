@@ -36,10 +36,8 @@ public sealed class CompanyCandidateSourceTests(PostgreSqlContainerFixture fixtu
         context.ChangeTracker.Entries().Should().BeEmpty();
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task Endpoint_Uses_Claim_Company_And_Forwards_Cancellation(bool supplyId)
+    [Fact]
+    public async Task Endpoint_Uses_Claim_Company_And_Forwards_Cancellation()
     {
         var companyId = Guid.NewGuid();
         var response = new GetCompanyCandidateSourceQueryResponse { Scout = 30, Application = 70, CandidateCount = 428 };
@@ -49,12 +47,23 @@ public sealed class CompanyCandidateSourceTests(PostgreSqlContainerFixture fixtu
         using var cancellation = new CancellationTokenSource();
 
         var result = await Controller(mediator, companyId.ToString())
-            .GetCompanyCandidateSource(supplyId ? companyId : Guid.Empty, cancellation.Token);
+            .GetCompanyCandidateSource(companyId, cancellation.Token);
 
         result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeSameAs(response);
         var arguments = mediator.ReceivedCalls().Single().GetArguments();
         ((GetCompanyCandidateSourceQueryRequest)arguments[0]!).CompanyId.Should().Be(companyId);
         arguments[1].Should().Be(cancellation.Token);
+    }
+
+    [Fact]
+    public async Task Endpoint_Rejects_Empty_CompanyId()
+    {
+        var mediator = Substitute.For<IMediator>();
+        var result = await Controller(mediator, Guid.NewGuid().ToString())
+            .GetCompanyCandidateSource(Guid.Empty, CancellationToken.None);
+
+        result.Should().BeOfType<ForbidResult>();
+        mediator.ReceivedCalls().Should().BeEmpty();
     }
 
     [Fact]
