@@ -33,7 +33,7 @@ namespace Vettingo.AnalyticsService.API.Controllers
         {
             if (!Guid.TryParse(User.FindFirstValue("companyId"), out var currentCompanyId) || currentCompanyId == Guid.Empty)
                 return Unauthorized();
-            if (companyId != Guid.Empty && companyId != currentCompanyId)
+            if (companyId == Guid.Empty || companyId != currentCompanyId)
                 return Forbid();
 
             return Ok(await mediator.Send(new GetCompanyCandidateSourceQueryRequest(currentCompanyId), cancellationToken));
