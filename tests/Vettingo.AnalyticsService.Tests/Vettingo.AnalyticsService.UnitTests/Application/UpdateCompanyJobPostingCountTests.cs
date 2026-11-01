@@ -3,7 +3,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using Vettingo.AnalyticsService.Application.Exceptions;
-using Vettingo.AnalyticsService.Application.Features.CQRS.Analytics.Command.UpdateCompanyJobPostingCount;
+using Vettingo.AnalyticsService.Application.Features.CQRS.CompanyStatics.Command.UpdateCompanyJobPostingCount;
 using Vettingo.AnalyticsService.Application.Repository;
 using Vettingo.AnalyticsService.Application.UnitOfWork;
 using Vettingo.AnalyticsService.Domain.Entities;

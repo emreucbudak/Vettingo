@@ -2,7 +2,7 @@ using FlashMediator;
 using Microsoft.Extensions.Logging;
 using Vettingo.AnalyticsService.Application.Repository;
 
-namespace Vettingo.AnalyticsService.Application.Features.CQRS.Analytics.Query.GetCompanyCandidateSource;
+namespace Vettingo.AnalyticsService.Application.Features.CQRS.CompanyStatics.Query.GetCompanyCandidateSource;
 
 public sealed class GetCompanyCandidateSourceQueryHandler(
     IAnalyticsRepository analyticsRepository,

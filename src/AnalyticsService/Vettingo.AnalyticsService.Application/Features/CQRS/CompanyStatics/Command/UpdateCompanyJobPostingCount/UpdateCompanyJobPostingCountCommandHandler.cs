@@ -3,7 +3,7 @@ using Vettingo.AnalyticsService.Application.Exceptions;
 using Vettingo.AnalyticsService.Application.UnitOfWork;
 using Vettingo.AnalyticsService.Domain.Entities;
 
-namespace Vettingo.AnalyticsService.Application.Features.CQRS.Analytics.Command.UpdateCompanyJobPostingCount;
+namespace Vettingo.AnalyticsService.Application.Features.CQRS.CompanyStatics.Command.UpdateCompanyJobPostingCount;
 
 public sealed class UpdateCompanyJobPostingCountCommandHandler(IUnitOfWork unitOfWork)
     : IRequestHandler<UpdateCompanyJobPostingCountCommandRequest>

@@ -1,5 +1,5 @@
 using FluentValidation;
-using Vettingo.AnalyticsService.Application.Features.CQRS.Analytics.Query.GetCompanyHiringVolume;
+using Vettingo.AnalyticsService.Application.Features.CQRS.CompanyStatics.Query.GetCompanyHiringVolume;
 
 namespace Vettingo.AnalyticsService.Application.Validations;
 

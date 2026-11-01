@@ -1,6 +1,6 @@
 using FlashMediator;
 
-namespace Vettingo.AnalyticsService.Application.Features.CQRS.Analytics.Query.GetCompanyHiringVolume;
+namespace Vettingo.AnalyticsService.Application.Features.CQRS.CompanyStatics.Query.GetCompanyHiringVolume;
 
 public sealed record GetCompanyHiringVolumeQueryRequest(Guid CompanyId)
     : IRequest<IEnumerable<GetCompanyHiringVolumeQueryResponse>>, ICacheableQuery
