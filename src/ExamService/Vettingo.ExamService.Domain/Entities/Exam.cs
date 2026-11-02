@@ -7,6 +7,10 @@ namespace Vettingo.ExamService.Domain.Entities
     [Index(nameof(Title))]
     public class Exam : BaseEntity
     {
+        private readonly List<MultipleChoiceQuestion> _multipleChoiceQuestions = new();
+        private readonly List<TrueFalseQuestion> _trueFalseQuestions = new();
+        private readonly List<ExamAttempt> _attempts = new();
+
         public Exam()
         {
         }
@@ -19,9 +23,27 @@ namespace Vettingo.ExamService.Domain.Entities
         public int DurationMinutes { get; private set; }
         public int PassingScore { get; private set; }
         public DateTime? UpdatedAt { get; private set; }
-        public List<MultipleChoiceQuestion> MultipleChoiceQuestions { get; private set; } = new();
-        public List<TrueFalseQuestion> TrueFalseQuestions { get; private set; } = new();
-        public List<ExamAttempt> Attempts { get; private set; } = new();
+        public IReadOnlyCollection<MultipleChoiceQuestion> MultipleChoiceQuestions => _multipleChoiceQuestions.AsReadOnly();
+        public IReadOnlyCollection<TrueFalseQuestion> TrueFalseQuestions => _trueFalseQuestions.AsReadOnly();
+        public IReadOnlyCollection<ExamAttempt> Attempts => _attempts.AsReadOnly();
+
+        public void AddMultipleChoiceQuestion(MultipleChoiceQuestion question)
+        {
+            ArgumentNullException.ThrowIfNull(question, nameof(question));
+            _multipleChoiceQuestions.Add(question);
+        }
+
+        public void AddTrueFalseQuestion(TrueFalseQuestion question)
+        {
+            ArgumentNullException.ThrowIfNull(question, nameof(question));
+            _trueFalseQuestions.Add(question);
+        }
+
+        public void AddAttempt(ExamAttempt attempt)
+        {
+            ArgumentNullException.ThrowIfNull(attempt, nameof(attempt));
+            _attempts.Add(attempt);
+        }
 
         public void setCompanyId(Guid? companyId)
         {
