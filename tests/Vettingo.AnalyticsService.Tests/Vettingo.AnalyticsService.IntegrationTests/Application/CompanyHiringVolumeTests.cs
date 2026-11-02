@@ -89,7 +89,7 @@ public sealed class CompanyHiringVolumeTests(PostgreSqlContainerFixture fixture)
             context.Entry(statistic).Property(x => x.CandidateSourceId).CurrentValue = source.Id;
             context.AddRange(source, statistic);
         }
-        statistic.HiringVolumes.Add(volume);
+        statistic.AddHiringVolume(volume);
         context.Add(volume);
     }
 }

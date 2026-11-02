@@ -6,6 +6,8 @@ namespace Vettingo.AnalyticsService.Domain.Entities
     [Index(nameof(CompanyId))]
     public class CompanyStatistic : BaseEntity
     {
+        private readonly List<HiringVolume> _hiringVolumes = [];
+
         public CompanyStatistic()
         {
         }
@@ -25,7 +27,7 @@ namespace Vettingo.AnalyticsService.Domain.Entities
         public DateTime? UpdatedAt { get; private set; }
         public Guid CandidateSourceId { get; private set; }
         public CandidateSource CandidateSource { get; private set; } = null!;
-        public ICollection<HiringVolume> HiringVolumes { get; private set; } = new List<HiringVolume>();
+        public IReadOnlyCollection<HiringVolume> HiringVolumes => _hiringVolumes.AsReadOnly();
 
         public void CreateCompanyStatistic(Guid companyId)
         {
@@ -44,9 +46,14 @@ namespace Vettingo.AnalyticsService.Domain.Entities
             }
         }
 
+        public void AddHiringVolume(HiringVolume volume)
+        {
+            _hiringVolumes.Add(volume);
+        }
+
         public IReadOnlyCollection<HiringVolume> GetLatestHiringVolumes()
         {
-            return HiringVolumes
+            return _hiringVolumes
                 .OrderBy(volume => volume.CreatedAt)
                 .TakeLast(6)
                 .ToList();
