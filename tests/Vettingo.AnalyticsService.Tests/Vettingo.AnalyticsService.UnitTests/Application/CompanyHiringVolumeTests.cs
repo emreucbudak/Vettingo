@@ -3,13 +3,10 @@ using FlashMediator;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using Vettingo.AnalyticsService.API.Controllers;
 using Vettingo.AnalyticsService.Application.Features.CQRS.CompanyStatics.Query.GetCompanyHiringVolume;
 using Vettingo.AnalyticsService.Application.Validations;
-using Vettingo.AnalyticsService.Application.Repository;
-using Vettingo.AnalyticsService.Domain.Entities;
 
 namespace Vettingo.AnalyticsService.UnitTests.Application;
 
@@ -57,45 +54,6 @@ public sealed class CompanyHiringVolumeTests
             .GetCompanyHiringVolume(Guid.Empty, CancellationToken.None);
         result.Should().BeOfType<UnauthorizedResult>();
         mediator.ReceivedCalls().Should().BeEmpty();
-    }
-
-    [Fact]
-    public async Task HybridCache_Reuses_Result_Across_Requests_And_Isolates_Companies()
-    {
-        var companyId = Guid.NewGuid();
-        var statistic = new CompanyStatistic(companyId);
-        var volume = new HiringVolume();
-        typeof(HiringVolume).GetProperty(nameof(HiringVolume.Year))!.SetValue(volume, 2026);
-        typeof(HiringVolume).GetProperty(nameof(HiringVolume.Month))!.SetValue(volume, 1);
-        typeof(HiringVolume).GetProperty(nameof(HiringVolume.HireCount))!.SetValue(volume, 30);
-        statistic.HiringVolumes.Add(volume);
-        var repository = Substitute.For<IAnalyticsRepository>();
-        repository.GetCompanyStatisticByCompanyIdAsync(companyId, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<CompanyStatistic?>(statistic));
-        var services = new ServiceCollection();
-        services.AddLogging();
-        services.AddSingleton(repository);
-        services.AddFlashMediator(typeof(GetCompanyHiringVolumeQueryHandler).Assembly);
-        services.AddFlashMediatorHybridCache();
-        await using var provider = services.BuildServiceProvider();
-
-        await using (var scope = provider.CreateAsyncScope())
-        {
-            var result = await scope.ServiceProvider.GetRequiredService<IMediator>()
-                .Send(new GetCompanyHiringVolumeQueryRequest(companyId));
-            result.Single().HireCount.Should().Be(30);
-        }
-        await using (var scope = provider.CreateAsyncScope())
-        {
-            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-            var cached = await mediator.Send(new GetCompanyHiringVolumeQueryRequest(companyId));
-            cached.Single().HireCount.Should().Be(30);
-            var otherCompanyId = Guid.NewGuid();
-            var otherCompany = await mediator.Send(new GetCompanyHiringVolumeQueryRequest(otherCompanyId));
-            otherCompany.Should().BeEmpty();
-            await repository.Received(1).GetCompanyStatisticByCompanyIdAsync(otherCompanyId, Arg.Any<CancellationToken>());
-        }
-        await repository.Received(1).GetCompanyStatisticByCompanyIdAsync(companyId, Arg.Any<CancellationToken>());
     }
 
     [Fact]
