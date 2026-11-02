@@ -15,11 +15,8 @@ public sealed class GetCvByUserIdQueriesTests
         var userId = Guid.NewGuid();
         using var cancellation = new CancellationTokenSource();
         var cv = new Cv();
-        typeof(Cv).GetProperty(nameof(Cv.UserId))!.SetValue(cv, userId);
-        typeof(Cv).GetProperty(nameof(Cv.TargetRole))!.SetValue(cv, "Backend Developer");
-        typeof(Cv).GetProperty(nameof(Cv.TargetSalary))!.SetValue(cv, 75000);
-        cv.Skills.Add("C#", 4);
-        cv.Languages.Add("English", "B2");
+        cv.Create(userId, "Backend Developer", 75000,
+            new() { ["C#"] = 4 }, new() { ["English"] = "B2" });
         cv.AddEducation(new Education());
         cv.AddProject(new Project());
         cv.AddExperience(new Experience());
@@ -37,6 +34,25 @@ public sealed class GetCvByUserIdQueriesTests
         response.Projects.Should().ContainSingle().Which.Should().BeSameAs(cv.Projects.Single());
         response.Experiences.Should().ContainSingle().Which.Should().BeSameAs(cv.Experiences.Single());
         await repository.Received(1).GetByUserIdAsync(userId, cancellation.Token);
+    }
+
+    [Fact]
+    public async Task Handler_Should_Return_Empty_Response_Collections_When_No_Optional_Data_Is_Provided()
+    {
+        var userId = Guid.NewGuid();
+        var cv = new Cv();
+        cv.Create(userId, "Backend Developer", 75000, null, null);
+        var repository = Substitute.For<ICvRepository>();
+        repository.GetByUserIdAsync(userId, CancellationToken.None).Returns(cv);
+
+        var response = await new GetCvByUserIdQueriesHandler(repository).Handle(
+            new GetCvByUserIdQueriesRequest { UserId = userId }, CancellationToken.None);
+
+        response.Skills.Should().BeEmpty();
+        response.Languages.Should().BeEmpty();
+        response.Educations.Should().BeEmpty();
+        response.Projects.Should().BeEmpty();
+        response.Experiences.Should().BeEmpty();
     }
 
     [Fact]
