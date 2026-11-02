@@ -13,6 +13,18 @@ namespace Vettingo.ExamService.Persistence.DbContext
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.Entity<MultipleChoiceQuestion>()
+                .Property(question => question.Id)
+                .ValueGeneratedNever();
+
+            builder.Entity<TrueFalseQuestion>()
+                .Property(question => question.Id)
+                .ValueGeneratedNever();
+
+            builder.Entity<MultipleChoiceOption>()
+                .Property(option => option.Id)
+                .ValueGeneratedNever();
+
             builder.Entity<Exam>()
                 .Property(exam => exam.OwnerType)
                 .HasConversion<string>();

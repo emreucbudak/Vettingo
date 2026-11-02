@@ -5,7 +5,7 @@ using Vettingo.ExamService.Application.Repository;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.TrueFalseQuestion.Command.CreateTrueFalseQuestion
 {
-    public class CreateTrueFalseQuestionCommandHandler(IExamRepository examRepository, IQuestionRepository questionRepository, ILogger<CreateTrueFalseQuestionCommandHandler> logger) : IRequestHandler<CreateTrueFalseQuestionCommandRequest>
+    public class CreateTrueFalseQuestionCommandHandler(IExamRepository examRepository, ILogger<CreateTrueFalseQuestionCommandHandler> logger) : IRequestHandler<CreateTrueFalseQuestionCommandRequest>
     {
         public async Task Handle(CreateTrueFalseQuestionCommandRequest request, CancellationToken cancellationToken)
         {
@@ -18,10 +18,10 @@ namespace Vettingo.ExamService.Application.Features.CQRS.TrueFalseQuestion.Comma
             }
 
             Domain.Entities.TrueFalseQuestion question = new();
-            question.CreateQuestion(request.ExamId, request.QuestionText, request.Weight, request.DisplayOrder, request.TrueAnswer, request.FalseAnswer);
+            question.CreateQuestion(exam.Id, request.QuestionText, request.Weight, request.DisplayOrder, request.TrueAnswer, request.FalseAnswer);
 
-            await questionRepository.AddTrueFalseQuestionAsync(question);
-            await questionRepository.SaveChangesAsync();
+            exam.AddTrueFalseQuestion(question);
+            await examRepository.SaveChangesAsync();
         }
     }
 }

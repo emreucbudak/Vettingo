@@ -5,20 +5,20 @@ using Vettingo.ExamService.Application.Repository;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.Command.DeleteMultipleChoiceQuestion
 {
-    public class DeleteMultipleChoiceQuestionCommandHandler(IQuestionRepository questionRepository, ILogger<DeleteMultipleChoiceQuestionCommandHandler> logger) : IRequestHandler<DeleteMultipleChoiceQuestionCommandRequest>
+    public class DeleteMultipleChoiceQuestionCommandHandler(IExamRepository examRepository, ILogger<DeleteMultipleChoiceQuestionCommandHandler> logger) : IRequestHandler<DeleteMultipleChoiceQuestionCommandRequest>
     {
         public async Task Handle(DeleteMultipleChoiceQuestionCommandRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(DeleteMultipleChoiceQuestionCommandHandler));
-            var question = await questionRepository.GetMultipleChoiceQuestionByIdAsync(request.QuestionId);
+            var exam = await examRepository.GetExamByIdAsync(request.ExamId)
+                ?? throw new NotFoundException("Sınav bulunamadı");
 
-            if (question is null)
+            if (!exam.RemoveMultipleChoiceQuestion(request.QuestionId))
             {
                 throw new NotFoundException("Çoktan seçmeli soru bulunamadı");
             }
 
-            questionRepository.DeleteMultipleChoiceQuestion(question);
-            await questionRepository.SaveChangesAsync();
+            await examRepository.SaveChangesAsync();
         }
     }
 }

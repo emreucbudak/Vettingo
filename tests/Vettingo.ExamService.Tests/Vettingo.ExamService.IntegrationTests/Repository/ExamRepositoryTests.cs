@@ -34,26 +34,30 @@ namespace Vettingo.ExamService.UnitTests.Repository
         }
 
         [Fact]
-        public async Task QuestionRepository_Should_Return_MultipleChoiceQuestions_With_Options_By_ExamId()
+        public async Task ExamRepository_Should_Return_Exam_With_Questions_And_Options()
         {
             await using ExamDbContext context = _fixture.CreateDbContext();
-            var repository = new QuestionRepository(context);
-            var examId = Guid.NewGuid();
-            var firstQuestion = CreateMultipleChoiceQuestion(examId, "First question", 2);
-            var secondQuestion = CreateMultipleChoiceQuestion(examId, "Second question", 1);
-            var otherExamQuestion = CreateMultipleChoiceQuestion(Guid.NewGuid(), "Other exam question", 3);
+            var repository = new ExamRepository(context);
+            var exam = CreateExam("Question exam");
+            var otherExam = CreateExam("Other exam");
+            var firstQuestion = CreateMultipleChoiceQuestion(exam.Id, "First question", 2);
+            var secondQuestion = CreateMultipleChoiceQuestion(exam.Id, "Second question", 1);
+            var otherExamQuestion = CreateMultipleChoiceQuestion(otherExam.Id, "Other exam question", 3);
 
-            await repository.AddMultipleChoiceQuestionAsync(firstQuestion);
-            await repository.AddMultipleChoiceQuestionAsync(secondQuestion);
-            await repository.AddMultipleChoiceQuestionAsync(otherExamQuestion);
+            exam.AddMultipleChoiceQuestion(firstQuestion);
+            exam.AddMultipleChoiceQuestion(secondQuestion);
+            otherExam.AddMultipleChoiceQuestion(otherExamQuestion);
+            await repository.AddExamAsync(exam);
+            await repository.AddExamAsync(otherExam);
             await repository.SaveChangesAsync();
+            context.ChangeTracker.Clear();
 
-            var result = (await repository.GetMultipleChoiceQuestionsByExamIdAsync(examId)).ToList();
+            var result = await repository.GetExamByIdAsync(exam.Id);
 
-            result.Should().HaveCount(2);
-            result.Select(question => question.DisplayOrder).Should().Equal(1, 2);
-            result.Should().OnlyContain(question => question.ExamId == examId);
-            result[0].Options.Should().HaveCount(2);
+            result.Should().NotBeNull();
+            result!.MultipleChoiceQuestions.Should().HaveCount(2);
+            result.MultipleChoiceQuestions.Should().OnlyContain(question => question.ExamId == exam.Id);
+            result.MultipleChoiceQuestions.Should().OnlyContain(question => question.Options.Count == 2);
         }
 
         private static Exam CreateExam(string title)

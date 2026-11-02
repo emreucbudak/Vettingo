@@ -4,6 +4,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.
 {
     public record DeleteMultipleChoiceQuestionCommandRequest : IRequest
     {
+        public Guid ExamId { get; init; }
         public Guid QuestionId { get; init; }
     }
 }

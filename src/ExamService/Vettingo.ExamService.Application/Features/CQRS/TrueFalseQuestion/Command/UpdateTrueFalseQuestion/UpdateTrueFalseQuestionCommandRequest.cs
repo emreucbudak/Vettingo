@@ -4,6 +4,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.TrueFalseQuestion.Comma
 {
     public record UpdateTrueFalseQuestionCommandRequest : IRequest
     {
+        public Guid ExamId { get; init; }
         public Guid QuestionId { get; init; }
         public string QuestionText { get; init; } = string.Empty;
         public int Weight { get; init; }

@@ -6,6 +6,7 @@ public sealed class UpdateMultipleChoiceQuestionCommandRequestValidator : Abstra
 {
     public UpdateMultipleChoiceQuestionCommandRequestValidator()
     {
+        RuleFor(x => x.ExamId).NotEmpty();
         RuleFor(x => x.QuestionId).NotEmpty();
         RuleFor(x => x.QuestionText).NotEmpty().MaximumLength(2000);
         RuleFor(x => x.Weight).GreaterThanOrEqualTo(0);

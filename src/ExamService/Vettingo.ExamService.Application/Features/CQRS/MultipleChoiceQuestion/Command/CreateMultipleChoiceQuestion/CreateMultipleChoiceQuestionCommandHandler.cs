@@ -5,7 +5,7 @@ using Vettingo.ExamService.Application.Repository;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.Command.CreateMultipleChoiceQuestion
 {
-    public class CreateMultipleChoiceQuestionCommandHandler(IExamRepository examRepository, IQuestionRepository questionRepository, ILogger<CreateMultipleChoiceQuestionCommandHandler> logger) : IRequestHandler<CreateMultipleChoiceQuestionCommandRequest>
+    public class CreateMultipleChoiceQuestionCommandHandler(IExamRepository examRepository, ILogger<CreateMultipleChoiceQuestionCommandHandler> logger) : IRequestHandler<CreateMultipleChoiceQuestionCommandRequest>
     {
         public async Task Handle(CreateMultipleChoiceQuestionCommandRequest request, CancellationToken cancellationToken)
         {
@@ -18,7 +18,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.
             }
 
             Domain.Entities.MultipleChoiceQuestion question = new();
-            question.CreateQuestion(request.ExamId, request.QuestionText, request.Weight, request.DisplayOrder);
+            question.CreateQuestion(exam.Id, request.QuestionText, request.Weight, request.DisplayOrder);
 
             foreach (var optionRequest in request.Options)
             {
@@ -27,8 +27,8 @@ namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.
                 question.AddOption(option);
             }
 
-            await questionRepository.AddMultipleChoiceQuestionAsync(question);
-            await questionRepository.SaveChangesAsync();
+            exam.AddMultipleChoiceQuestion(question);
+            await examRepository.SaveChangesAsync();
         }
     }
 }

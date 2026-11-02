@@ -4,6 +4,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.TrueFalseQuestion.Comma
 {
     public record DeleteTrueFalseQuestionCommandRequest : IRequest
     {
+        public Guid ExamId { get; init; }
         public Guid QuestionId { get; init; }
     }
 }

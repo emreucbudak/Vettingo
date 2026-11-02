@@ -17,7 +17,6 @@ namespace Vettingo.ExamService.Persistence.Registration
             });
 
             collect.AddScoped<IExamRepository, ExamRepository>();
-            collect.AddScoped<IQuestionRepository, QuestionRepository>();
         }
     }
 }
