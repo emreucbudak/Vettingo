@@ -19,6 +19,23 @@ public sealed class Cv : BaseEntity
     public IReadOnlyCollection<Project> Projects => _projects.AsReadOnly();
     public IReadOnlyCollection<Experience> Experiences => _experiences.AsReadOnly();
 
+    public void Create(Guid userId, string targetRole, int targetSalary,
+        Dictionary<string, int>? skills, Dictionary<string, string>? languages)
+    {
+        Initialize();
+        UserId = userId;
+        TargetRole = targetRole;
+        TargetSalary = targetSalary;
+        if (skills is not null)
+        {
+            Skills = new Dictionary<string, int>(skills);
+        }
+        if (languages is not null)
+        {
+            Languages = new Dictionary<string, string>(languages);
+        }
+    }
+
     public void AddEducation(Education education)
     {
         ArgumentNullException.ThrowIfNull(education);

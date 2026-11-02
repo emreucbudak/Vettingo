@@ -23,8 +23,8 @@ public sealed class EvaluationsController(IMediator mediator) : ControllerBase
         [FromBody] CreateCvCommandRequest request,
         CancellationToken cancellationToken)
     {
-        Guid cvId = await mediator.Send(request, cancellationToken);
-        return StatusCode(StatusCodes.Status201Created, new { id = cvId });
+        await mediator.Send(request, cancellationToken);
+        return StatusCode(StatusCodes.Status201Created);
     }
 
     [HttpPut("cv")]

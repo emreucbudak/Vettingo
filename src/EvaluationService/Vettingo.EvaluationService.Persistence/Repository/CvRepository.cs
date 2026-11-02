@@ -7,6 +7,16 @@ namespace Vettingo.EvaluationService.Persistence.Repository;
 
 public sealed class CvRepository(EvaluationDbContext context) : ICvRepository
 {
+    public async Task AddAsync(Cv cv, CancellationToken cancellationToken = default)
+    {
+        await context.Cvs.AddAsync(cv, cancellationToken);
+    }
+
+    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        return context.SaveChangesAsync(cancellationToken);
+    }
+
     public Task<bool> ExistsByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return context.Cvs.AsNoTracking().AnyAsync(cv => cv.UserId == userId, cancellationToken);
