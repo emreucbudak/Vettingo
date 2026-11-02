@@ -2,6 +2,8 @@ using FlashMediator;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Vettingo.EvaluationService.Application.Features.CQRS.Cv.Command.Create;
+using Vettingo.EvaluationService.Application.Features.CQRS.Cv.Command.Update;
 using Vettingo.EvaluationService.Application.Features.CQRS.Cv.Query.HasCv;
 using Vettingo.EvaluationService.Application.Features.CQRS.Evaluation.Command.CreateEvaluation;
 using Vettingo.EvaluationService.Application.Features.CQRS.Evaluation.Command.DeleteEvaluation;
@@ -16,6 +18,24 @@ namespace Vettingo.EvaluationService.API.Controllers;
 [Authorize(Roles = "Candidate")]
 public sealed class EvaluationsController(IMediator mediator) : ControllerBase
 {
+    [HttpPost("cv")]
+    public async Task<IActionResult> CreateCv(
+        [FromBody] CreateCvCommandRequest request,
+        CancellationToken cancellationToken)
+    {
+        Guid cvId = await mediator.Send(request, cancellationToken);
+        return StatusCode(StatusCodes.Status201Created, new { id = cvId });
+    }
+
+    [HttpPut("cv")]
+    public async Task<IActionResult> UpdateCv(
+        [FromBody] UpdateCvCommandRequest request,
+        CancellationToken cancellationToken)
+    {
+        await mediator.Send(request, cancellationToken);
+        return NoContent();
+    }
+
     [HttpGet("cv/exists")]
     public async Task<ActionResult<bool>> HasCv(CancellationToken cancellationToken)
     {
