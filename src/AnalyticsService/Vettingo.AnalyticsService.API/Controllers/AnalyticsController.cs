@@ -13,13 +13,12 @@ namespace Vettingo.AnalyticsService.API.Controllers
     {
         [Authorize(Roles = "Company,Human Resources")]
         [HttpGet("companies/{companyId:guid}/hiring-volume")]
-        [HttpGet("company/hiring-volume")]
         public async Task<IActionResult> GetCompanyHiringVolume(
             [FromRoute] Guid companyId, CancellationToken cancellationToken)
         {
             if (!Guid.TryParse(User.FindFirstValue("companyId"), out var currentCompanyId) || currentCompanyId == Guid.Empty)
                 return Unauthorized();
-            if (companyId != Guid.Empty && companyId != currentCompanyId)
+            if (companyId == Guid.Empty || companyId != currentCompanyId)
                 return Forbid();
 
             return Ok(await mediator.Send(new GetCompanyHiringVolumeQueryRequest(currentCompanyId), cancellationToken));
