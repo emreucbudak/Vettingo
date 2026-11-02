@@ -4,14 +4,15 @@ using Vettingo.ExamService.Application.Repository;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.Query.GetByExam
 {
-    public class GetMultipleChoiceQuestionsByExamQueryHandler(IQuestionRepository questionRepository, ILogger<GetMultipleChoiceQuestionsByExamQueryHandler> logger) : IRequestHandler<GetMultipleChoiceQuestionsByExamQueryRequest, IEnumerable<GetMultipleChoiceQuestionsByExamQueryResponse>>
+    public class GetMultipleChoiceQuestionsByExamQueryHandler(IExamRepository examRepository, ILogger<GetMultipleChoiceQuestionsByExamQueryHandler> logger) : IRequestHandler<GetMultipleChoiceQuestionsByExamQueryRequest, IEnumerable<GetMultipleChoiceQuestionsByExamQueryResponse>>
     {
         public async Task<IEnumerable<GetMultipleChoiceQuestionsByExamQueryResponse>> Handle(GetMultipleChoiceQuestionsByExamQueryRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetMultipleChoiceQuestionsByExamQueryHandler));
-            var questions = await questionRepository.GetMultipleChoiceQuestionsByExamIdAsync(request.ExamId);
+            var exam = await examRepository.GetExamByIdAsync(request.ExamId);
+            var questions = exam?.MultipleChoiceQuestions ?? [];
 
-            return questions.Select(question => new GetMultipleChoiceQuestionsByExamQueryResponse
+            return questions.OrderBy(question => question.DisplayOrder).Select(question => new GetMultipleChoiceQuestionsByExamQueryResponse
             {
                 Id = question.Id,
                 ExamId = question.ExamId,

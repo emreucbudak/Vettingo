@@ -39,6 +39,18 @@ namespace Vettingo.ExamService.Domain.Entities
             _trueFalseQuestions.Add(question);
         }
 
+        public bool RemoveMultipleChoiceQuestion(Guid questionId)
+        {
+            var question = _multipleChoiceQuestions.FirstOrDefault(question => question.Id == questionId);
+            return question is not null && _multipleChoiceQuestions.Remove(question);
+        }
+
+        public bool RemoveTrueFalseQuestion(Guid questionId)
+        {
+            var question = _trueFalseQuestions.FirstOrDefault(question => question.Id == questionId);
+            return question is not null && _trueFalseQuestions.Remove(question);
+        }
+
         public void AddAttempt(ExamAttempt attempt)
         {
             ArgumentNullException.ThrowIfNull(attempt, nameof(attempt));

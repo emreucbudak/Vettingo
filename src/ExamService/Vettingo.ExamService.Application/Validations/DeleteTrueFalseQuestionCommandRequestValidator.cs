@@ -6,6 +6,7 @@ public sealed class DeleteTrueFalseQuestionCommandRequestValidator : AbstractVal
 {
     public DeleteTrueFalseQuestionCommandRequestValidator()
     {
+        RuleFor(x => x.ExamId).NotEmpty();
         RuleFor(x => x.QuestionId).NotEmpty();
     }
 }

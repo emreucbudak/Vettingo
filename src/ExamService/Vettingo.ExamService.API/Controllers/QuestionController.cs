@@ -40,10 +40,11 @@ namespace Vettingo.ExamService.API.Controllers
 
         [Authorize(Roles = "Company")]
         [HttpPut("multiple-choice/{questionId:guid}")]
-        public async Task<IActionResult> UpdateMultipleChoiceQuestion([FromRoute] Guid questionId, [FromBody] UpdateMultipleChoiceQuestionCommandRequest request)
+        public async Task<IActionResult> UpdateMultipleChoiceQuestion([FromRoute] Guid examId, [FromRoute] Guid questionId, [FromBody] UpdateMultipleChoiceQuestionCommandRequest request)
         {
             await mediator.Send(new UpdateMultipleChoiceQuestionCommandRequest
             {
+                ExamId = examId,
                 QuestionId = questionId,
                 QuestionText = request.QuestionText,
                 Weight = request.Weight,
@@ -56,9 +57,9 @@ namespace Vettingo.ExamService.API.Controllers
 
         [Authorize(Roles = "Company")]
         [HttpDelete("multiple-choice/{questionId:guid}")]
-        public async Task<IActionResult> DeleteMultipleChoiceQuestion([FromRoute] Guid questionId)
+        public async Task<IActionResult> DeleteMultipleChoiceQuestion([FromRoute] Guid examId, [FromRoute] Guid questionId)
         {
-            await mediator.Send(new DeleteMultipleChoiceQuestionCommandRequest { QuestionId = questionId });
+            await mediator.Send(new DeleteMultipleChoiceQuestionCommandRequest { ExamId = examId, QuestionId = questionId });
             return Ok();
         }
 
@@ -87,10 +88,11 @@ namespace Vettingo.ExamService.API.Controllers
 
         [Authorize(Roles = "Company")]
         [HttpPut("true-false/{questionId:guid}")]
-        public async Task<IActionResult> UpdateTrueFalseQuestion([FromRoute] Guid questionId, [FromBody] UpdateTrueFalseQuestionCommandRequest request)
+        public async Task<IActionResult> UpdateTrueFalseQuestion([FromRoute] Guid examId, [FromRoute] Guid questionId, [FromBody] UpdateTrueFalseQuestionCommandRequest request)
         {
             await mediator.Send(new UpdateTrueFalseQuestionCommandRequest
             {
+                ExamId = examId,
                 QuestionId = questionId,
                 QuestionText = request.QuestionText,
                 Weight = request.Weight,
@@ -103,9 +105,9 @@ namespace Vettingo.ExamService.API.Controllers
 
         [Authorize(Roles = "Company")]
         [HttpDelete("true-false/{questionId:guid}")]
-        public async Task<IActionResult> DeleteTrueFalseQuestion([FromRoute] Guid questionId)
+        public async Task<IActionResult> DeleteTrueFalseQuestion([FromRoute] Guid examId, [FromRoute] Guid questionId)
         {
-            await mediator.Send(new DeleteTrueFalseQuestionCommandRequest { QuestionId = questionId });
+            await mediator.Send(new DeleteTrueFalseQuestionCommandRequest { ExamId = examId, QuestionId = questionId });
             return Ok();
         }
 

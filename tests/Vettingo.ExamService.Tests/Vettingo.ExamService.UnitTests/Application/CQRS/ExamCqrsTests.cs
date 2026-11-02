@@ -5,6 +5,7 @@ using Vettingo.ExamService.Application.Exceptions;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam;
 using Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.Command.CreateMultipleChoiceQuestion;
 using Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.Query.GetByExam;
+using Vettingo.ExamService.Application.Features.CQRS.TrueFalseQuestion.Command.CreateTrueFalseQuestion;
 using Vettingo.ExamService.Application.Repository;
 using Vettingo.ExamService.Domain.Entities;
 using Vettingo.ExamService.Domain.Enums;
@@ -41,44 +42,93 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
         public async Task CreateMultipleChoiceQuestionCommandHandler_When_Exam_Not_Found_Should_Throw_NotFoundException()
         {
             var examRepository = Substitute.For<IExamRepository>();
-            var questionRepository = Substitute.For<IQuestionRepository>();
             var examId = Guid.NewGuid();
             examRepository.GetExamByIdAsync(examId).Returns(_ => ReturnAsync<Exam?>(null));
             var handler = new CreateMultipleChoiceQuestionCommandHandler(
                 examRepository,
-                questionRepository,
                 Substitute.For<ILogger<CreateMultipleChoiceQuestionCommandHandler>>());
 
             Func<Task> action = () => handler.Handle(CreateMultipleChoiceQuestionRequest(examId), CancellationToken.None);
 
             await action.Should().ThrowAsync<NotFoundException>();
-            await questionRepository.DidNotReceive().AddMultipleChoiceQuestionAsync(Arg.Any<MultipleChoiceQuestion>());
-            await questionRepository.DidNotReceive().SaveChangesAsync();
+            await examRepository.DidNotReceive().SaveChangesAsync();
         }
 
         [Fact]
         public async Task CreateMultipleChoiceQuestionCommandHandler_Should_Create_Question_With_Weight_And_Options()
         {
             var examRepository = Substitute.For<IExamRepository>();
-            var questionRepository = Substitute.For<IQuestionRepository>();
             var exam = CreateExam();
             var request = CreateMultipleChoiceQuestionRequest(exam.Id);
             examRepository.GetExamByIdAsync(exam.Id).Returns(_ => ReturnAsync<Exam?>(exam));
-            questionRepository.AddMultipleChoiceQuestionAsync(Arg.Any<MultipleChoiceQuestion>()).Returns(_ => CompleteAsync());
-            questionRepository.SaveChangesAsync().Returns(_ => ReturnAsync(1));
+            examRepository.SaveChangesAsync().Returns(_ => ReturnAsync(1));
             var handler = new CreateMultipleChoiceQuestionCommandHandler(
                 examRepository,
-                questionRepository,
                 Substitute.For<ILogger<CreateMultipleChoiceQuestionCommandHandler>>());
 
             await handler.Handle(request, CancellationToken.None);
 
-            await questionRepository.Received(1).AddMultipleChoiceQuestionAsync(Arg.Is<MultipleChoiceQuestion>(question =>
-                question.ExamId == request.ExamId &&
-                question.QuestionText == request.QuestionText &&
-                question.Weight == request.Weight &&
-                question.Options.Count == 2));
-            await questionRepository.Received(1).SaveChangesAsync();
+            var question = exam.MultipleChoiceQuestions.Should().ContainSingle().Subject;
+            question.ExamId.Should().Be(exam.Id);
+            question.QuestionText.Should().Be(request.QuestionText);
+            question.Weight.Should().Be(request.Weight);
+            question.DisplayOrder.Should().Be(request.DisplayOrder);
+            question.Options.Should().BeEquivalentTo(request.Options.Select(option => new
+            {
+                MultipleChoiceQuestionId = question.Id,
+                option.OptionText,
+                option.IsCorrect
+            }));
+            await examRepository.Received(1).SaveChangesAsync();
+        }
+
+        [Fact]
+        public async Task CreateTrueFalseQuestionCommandHandler_When_Exam_Not_Found_Should_Throw_Without_Saving()
+        {
+            var examRepository = Substitute.For<IExamRepository>();
+            var examId = Guid.NewGuid();
+            examRepository.GetExamByIdAsync(examId).Returns(_ => ReturnAsync<Exam?>(null));
+            var handler = new CreateTrueFalseQuestionCommandHandler(
+                examRepository,
+                Substitute.For<ILogger<CreateTrueFalseQuestionCommandHandler>>());
+
+            Func<Task> action = () => handler.Handle(
+                new CreateTrueFalseQuestionCommandRequest { ExamId = examId }, CancellationToken.None);
+
+            await action.Should().ThrowAsync<NotFoundException>();
+            await examRepository.DidNotReceive().SaveChangesAsync();
+        }
+
+        [Fact]
+        public async Task CreateTrueFalseQuestionCommandHandler_Should_Add_Question_To_Exam_And_Save()
+        {
+            var examRepository = Substitute.For<IExamRepository>();
+            var exam = CreateExam();
+            var request = new CreateTrueFalseQuestionCommandRequest
+            {
+                ExamId = exam.Id,
+                QuestionText = "Is this true?",
+                Weight = 2,
+                DisplayOrder = 1,
+                TrueAnswer = "True",
+                FalseAnswer = "False"
+            };
+            examRepository.GetExamByIdAsync(exam.Id).Returns(_ => ReturnAsync<Exam?>(exam));
+            examRepository.SaveChangesAsync().Returns(_ => ReturnAsync(1));
+            var handler = new CreateTrueFalseQuestionCommandHandler(
+                examRepository,
+                Substitute.For<ILogger<CreateTrueFalseQuestionCommandHandler>>());
+
+            await handler.Handle(request, CancellationToken.None);
+
+            var question = exam.TrueFalseQuestions.Should().ContainSingle().Subject;
+            question.ExamId.Should().Be(exam.Id);
+            question.QuestionText.Should().Be(request.QuestionText);
+            question.Weight.Should().Be(request.Weight);
+            question.DisplayOrder.Should().Be(request.DisplayOrder);
+            question.TrueAnswer.Should().Be(request.TrueAnswer);
+            question.FalseAnswer.Should().Be(request.FalseAnswer);
+            await examRepository.Received(1).SaveChangesAsync();
         }
 
         [Fact]
@@ -86,15 +136,19 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
         {
             typeof(GetMultipleChoiceQuestionsByExamQueryResponse).GetProperty("Topic").Should().BeNull();
             typeof(GetMultipleChoiceQuestionsByExamQueryResponse).GetProperty("Point").Should().BeNull();
-            var repository = Substitute.For<IQuestionRepository>();
-            var examId = Guid.NewGuid();
-            var question = CreateMultipleChoiceQuestion(examId);
-            repository.GetMultipleChoiceQuestionsByExamIdAsync(examId).Returns(_ => ReturnAsync<IEnumerable<MultipleChoiceQuestion>>([question]));
+            var repository = Substitute.For<IExamRepository>();
+            var exam = CreateExam();
+            var question = CreateMultipleChoiceQuestion(exam.Id);
+            var laterQuestion = new MultipleChoiceQuestion();
+            laterQuestion.CreateQuestion(exam.Id, "Later question", 1, 2);
+            exam.AddMultipleChoiceQuestion(laterQuestion);
+            exam.AddMultipleChoiceQuestion(question);
+            repository.GetExamByIdAsync(exam.Id).Returns(_ => ReturnAsync<Exam?>(exam));
             var handler = new GetMultipleChoiceQuestionsByExamQueryHandler(repository, Substitute.For<ILogger<GetMultipleChoiceQuestionsByExamQueryHandler>>());
 
-            var response = (await handler.Handle(new GetMultipleChoiceQuestionsByExamQueryRequest(examId), CancellationToken.None)).ToList();
+            var response = (await handler.Handle(new GetMultipleChoiceQuestionsByExamQueryRequest(exam.Id), CancellationToken.None)).ToList();
 
-            response.Should().ContainSingle();
+            response.Select(item => item.DisplayOrder).Should().Equal(1, 2);
             response[0].QuestionText.Should().Be(question.QuestionText);
             response[0].Weight.Should().Be(question.Weight);
             response[0].Options.Should().BeEquivalentTo(question.Options.Select(option => new

@@ -4,14 +4,15 @@ using Vettingo.ExamService.Application.Repository;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.TrueFalseQuestion.Query.GetByExam
 {
-    public class GetTrueFalseQuestionsByExamQueryHandler(IQuestionRepository questionRepository, ILogger<GetTrueFalseQuestionsByExamQueryHandler> logger) : IRequestHandler<GetTrueFalseQuestionsByExamQueryRequest, IEnumerable<GetTrueFalseQuestionsByExamQueryResponse>>
+    public class GetTrueFalseQuestionsByExamQueryHandler(IExamRepository examRepository, ILogger<GetTrueFalseQuestionsByExamQueryHandler> logger) : IRequestHandler<GetTrueFalseQuestionsByExamQueryRequest, IEnumerable<GetTrueFalseQuestionsByExamQueryResponse>>
     {
         public async Task<IEnumerable<GetTrueFalseQuestionsByExamQueryResponse>> Handle(GetTrueFalseQuestionsByExamQueryRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetTrueFalseQuestionsByExamQueryHandler));
-            var questions = await questionRepository.GetTrueFalseQuestionsByExamIdAsync(request.ExamId);
+            var exam = await examRepository.GetExamByIdAsync(request.ExamId);
+            var questions = exam?.TrueFalseQuestions ?? [];
 
-            return questions.Select(question => new GetTrueFalseQuestionsByExamQueryResponse
+            return questions.OrderBy(question => question.DisplayOrder).Select(question => new GetTrueFalseQuestionsByExamQueryResponse
             {
                 Id = question.Id,
                 ExamId = question.ExamId,

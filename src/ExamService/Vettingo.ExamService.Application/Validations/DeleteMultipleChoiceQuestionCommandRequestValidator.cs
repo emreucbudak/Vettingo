@@ -6,6 +6,7 @@ public sealed class DeleteMultipleChoiceQuestionCommandRequestValidator : Abstra
 {
     public DeleteMultipleChoiceQuestionCommandRequestValidator()
     {
+        RuleFor(x => x.ExamId).NotEmpty();
         RuleFor(x => x.QuestionId).NotEmpty();
     }
 }

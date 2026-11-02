@@ -6,6 +6,7 @@ public sealed class UpdateTrueFalseQuestionCommandRequestValidator : AbstractVal
 {
     public UpdateTrueFalseQuestionCommandRequestValidator()
     {
+        RuleFor(x => x.ExamId).NotEmpty();
         RuleFor(x => x.QuestionId).NotEmpty();
         RuleFor(x => x.QuestionText).NotEmpty().MaximumLength(2000);
         RuleFor(x => x.Weight).GreaterThanOrEqualTo(0);

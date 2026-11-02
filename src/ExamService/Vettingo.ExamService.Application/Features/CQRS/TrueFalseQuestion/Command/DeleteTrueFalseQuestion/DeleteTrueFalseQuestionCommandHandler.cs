@@ -5,20 +5,20 @@ using Vettingo.ExamService.Application.Repository;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.TrueFalseQuestion.Command.DeleteTrueFalseQuestion
 {
-    public class DeleteTrueFalseQuestionCommandHandler(IQuestionRepository questionRepository, ILogger<DeleteTrueFalseQuestionCommandHandler> logger) : IRequestHandler<DeleteTrueFalseQuestionCommandRequest>
+    public class DeleteTrueFalseQuestionCommandHandler(IExamRepository examRepository, ILogger<DeleteTrueFalseQuestionCommandHandler> logger) : IRequestHandler<DeleteTrueFalseQuestionCommandRequest>
     {
         public async Task Handle(DeleteTrueFalseQuestionCommandRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(DeleteTrueFalseQuestionCommandHandler));
-            var question = await questionRepository.GetTrueFalseQuestionByIdAsync(request.QuestionId);
+            var exam = await examRepository.GetExamByIdAsync(request.ExamId)
+                ?? throw new NotFoundException("Sınav bulunamadı");
 
-            if (question is null)
+            if (!exam.RemoveTrueFalseQuestion(request.QuestionId))
             {
                 throw new NotFoundException("Doğru yanlış sorusu bulunamadı");
             }
 
-            questionRepository.DeleteTrueFalseQuestion(question);
-            await questionRepository.SaveChangesAsync();
+            await examRepository.SaveChangesAsync();
         }
     }
 }
