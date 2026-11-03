@@ -2,7 +2,8 @@ namespace Vettingo.ExamService.Domain.Enums
 {
     public enum ExamAttemptStatus
     {
-        Started = 1,
-        Completed = 2
+        NotAttempted = 1,
+        Passed = 2,
+        Failed = 3
     }
 }
