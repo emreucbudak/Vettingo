@@ -50,7 +50,7 @@ public class ApplicationStatisticsTests
         var companyId = Guid.NewGuid();
         var job = new JobPosting();
         job.CreateJobPosting(companyId, "Vettingo Teknoloji", "Stats role", new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34,
-            EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 0, 0, null, JobPostingStatus.Active);
+            EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 0, 0, null, JobPostingStatus.AcceptingApplications);
         db.JobPostings.Add(job);
         var jobId = job.Id;
         foreach (var status in Enum.GetValues<ApplicationStatus>())

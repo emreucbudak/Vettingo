@@ -46,7 +46,7 @@ namespace Vettingo.JobService.Persistence.Repository
         {
             IQueryable<JobPosting> query = JobPostingSet
                 .AsNoTracking()
-                .Where(jobPosting => jobPosting.Status == JobPostingStatus.Active);
+                .Where(jobPosting => jobPosting.Status == JobPostingStatus.AcceptingApplications);
 
             if (!string.IsNullOrWhiteSpace(criteria.Title))
             {
@@ -109,7 +109,7 @@ namespace Vettingo.JobService.Persistence.Repository
                 .GroupBy(jobPosting => jobPosting.CompanyId)
                 .Select(group => new JobPostingStatistics(
                     group.Count(),
-                    group.Count(jobPosting => jobPosting.Status == JobPostingStatus.Active)))
+                    group.Count(jobPosting => jobPosting.Status == JobPostingStatus.AcceptingApplications)))
                 .SingleOrDefaultAsync(cancellationToken);
 
             return statistics ?? new JobPostingStatistics(0, 0);

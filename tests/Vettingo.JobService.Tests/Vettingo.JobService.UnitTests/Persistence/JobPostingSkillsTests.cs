@@ -39,7 +39,7 @@ public sealed class JobPostingSkillsTests
         var posting = new JobPosting();
         posting.CreateJobPosting(Guid.NewGuid(), "Vettingo Teknoloji", "Developer", new Dictionary<string, int> { ["C#"] = 3, ["SQL"] = 2 },
             34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 50000, 75000,
-            null, JobPostingStatus.Active);
+            null, JobPostingStatus.AcceptingApplications);
         context.JobPostings.Add(posting);
         await context.SaveChangesAsync();
 

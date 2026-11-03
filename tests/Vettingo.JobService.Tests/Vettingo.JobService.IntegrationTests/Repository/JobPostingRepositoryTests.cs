@@ -63,9 +63,9 @@ namespace Vettingo.JobService.UnitTests.Repository
             var companyId = Guid.NewGuid();
             var active = CreateJobPosting(companyId, Guid.NewGuid().ToString());
             var closed = CreateJobPosting(companyId, Guid.NewGuid().ToString());
-            closed.SetStatus(JobPostingStatus.Closed);
+            closed.SetStatus(JobPostingStatus.Exam);
             var deleted = CreateJobPosting(companyId, Guid.NewGuid().ToString());
-            deleted.SetStatus(JobPostingStatus.Deleted);
+            deleted.SetStatus(JobPostingStatus.Interview);
             context.JobPostings.AddRange(active, closed, deleted,
                 CreateJobPosting(Guid.NewGuid(), Guid.NewGuid().ToString()));
             await context.SaveChangesAsync();
@@ -77,7 +77,7 @@ namespace Vettingo.JobService.UnitTests.Repository
             empty.TotalJobPostings.Should().Be(0);
             empty.ActiveJobPostings.Should().Be(0);
 
-            active.SetStatus(JobPostingStatus.Closed);
+            active.SetStatus(JobPostingStatus.Exam);
             await context.SaveChangesAsync();
             (await repository.GetStatisticsAsync(companyId)).ActiveJobPostings.Should().Be(0);
         }
@@ -96,7 +96,7 @@ namespace Vettingo.JobService.UnitTests.Repository
                 2, 5,
                 50000, 50000,
                 DateTime.UtcNow.AddDays(30),
-                JobPostingStatus.Active);
+                JobPostingStatus.AcceptingApplications);
 
             return jobPosting;
         }

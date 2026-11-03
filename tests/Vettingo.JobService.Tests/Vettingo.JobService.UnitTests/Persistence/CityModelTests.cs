@@ -64,7 +64,7 @@ public sealed class CityModelTests
         var userId = Guid.NewGuid();
         var jobPosting = new JobPosting();
         jobPosting.CreateJobPosting(Guid.NewGuid(), "Vettingo Teknoloji", "Software Developer", new Dictionary<string, int> { ["C#"] = 3 },
-            34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 50000, 75000, null, JobPostingStatus.Active);
+            34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 50000, 75000, null, JobPostingStatus.AcceptingApplications);
         var posting = new PersonalizedJobPostings
         {
             UserId = userId,
@@ -92,7 +92,7 @@ public sealed class CityModelTests
     {
         var posting = new JobPosting();
         Action create = () => posting.CreateJobPosting(Guid.NewGuid(), "Vettingo Teknoloji", "Title", new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, cityId, EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5,
-            0, 0, null, JobPostingStatus.Active);
+            0, 0, null, JobPostingStatus.AcceptingApplications);
         create.Should().Throw<ArgumentOutOfRangeException>().WithParameterName("cityId");
         new SearchJobPostingsQueryRequestValidator().Validate(new SearchJobPostingsQueryRequest { CityId = cityId })
             .IsValid.Should().BeFalse();
@@ -106,7 +106,7 @@ public sealed class CityModelTests
         {
             var posting = new JobPosting();
             posting.CreateJobPosting(Guid.NewGuid(), "Vettingo Teknoloji", $"Developer {cityId}", new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, cityId, EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5,
-                0, 0, null, JobPostingStatus.Active);
+                0, 0, null, JobPostingStatus.AcceptingApplications);
             context.JobPostings.Add(posting);
         }
         await context.SaveChangesAsync();
@@ -123,7 +123,7 @@ public sealed class CityModelTests
     {
         var posting = new JobPosting();
         posting.CreateJobPosting(Guid.NewGuid(), "Vettingo Teknoloji", "Remote developer", new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5,
-            0, 0, null, JobPostingStatus.Active);
+            0, 0, null, JobPostingStatus.AcceptingApplications);
         posting.CityId.Should().Be(34);
         posting.WorkingModel.Should().Be(WorkingModel.Remote);
     }

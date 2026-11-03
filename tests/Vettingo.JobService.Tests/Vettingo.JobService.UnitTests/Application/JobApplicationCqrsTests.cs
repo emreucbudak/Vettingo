@@ -17,7 +17,7 @@ public class JobApplicationCqrsTests
         var applications = Substitute.For<IJobApplicationRepository>();
         var jobs = Substitute.For<IJobPostingRepository>();
         var job = new JobPosting();
-        job.SetStatus(JobPostingStatus.Active);
+        job.SetStatus(JobPostingStatus.AcceptingApplications);
         var id = Guid.NewGuid();
         jobs.GetJobPostingByIdAsync(id).Returns(job);
         var handler = new CreateJobApplicationCommandHandler(applications, jobs, Substitute.For<ILogger<CreateJobApplicationCommandHandler>>());
@@ -49,12 +49,12 @@ public class JobApplicationCqrsTests
     }
 
     [Fact]
-    public async Task Create_ShouldRejectClosedPosting()
+    public async Task Create_ShouldRejectPostingInExamStage()
     {
         var applications = Substitute.For<IJobApplicationRepository>();
         var jobs = Substitute.For<IJobPostingRepository>();
         var job = new JobPosting();
-        job.SetStatus(JobPostingStatus.Closed);
+        job.SetStatus(JobPostingStatus.Exam);
         jobs.GetJobPostingByIdAsync(Arg.Any<Guid>()).Returns(job);
         var handler = new CreateJobApplicationCommandHandler(applications, jobs, Substitute.For<ILogger<CreateJobApplicationCommandHandler>>());
         Func<Task> act = () => handler.Handle(new CreateJobApplicationCommandRequest { CandidateId = Guid.NewGuid(), JobPostingId = Guid.NewGuid() }, CancellationToken.None);

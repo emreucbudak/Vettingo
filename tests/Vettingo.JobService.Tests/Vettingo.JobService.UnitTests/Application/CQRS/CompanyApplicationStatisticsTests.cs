@@ -17,9 +17,9 @@ public sealed class CompanyApplicationStatisticsTests
         await using var context = CreateContext();
         await context.Database.EnsureCreatedAsync();
         var companyId = Guid.NewGuid();
-        var activePosting = CreatePosting(companyId, JobPostingStatus.Active);
-        var closedPosting = CreatePosting(companyId, JobPostingStatus.Closed);
-        var otherPosting = CreatePosting(Guid.NewGuid(), JobPostingStatus.Active);
+        var activePosting = CreatePosting(companyId, JobPostingStatus.AcceptingApplications);
+        var closedPosting = CreatePosting(companyId, JobPostingStatus.Exam);
+        var otherPosting = CreatePosting(Guid.NewGuid(), JobPostingStatus.AcceptingApplications);
         context.JobPostings.AddRange(activePosting, closedPosting, otherPosting);
         var candidateId = Guid.NewGuid();
         var statuses = new[]
@@ -65,7 +65,7 @@ public sealed class CompanyApplicationStatisticsTests
     {
         await using var context = CreateContext();
         var companyId = Guid.NewGuid();
-        context.JobPostings.Add(CreatePosting(companyId, JobPostingStatus.Active));
+        context.JobPostings.Add(CreatePosting(companyId, JobPostingStatus.AcceptingApplications));
         await context.SaveChangesAsync();
         var handler = new GetCompanyApplicationStatisticsQueryHandler(new JobApplicationRepository(context));
 

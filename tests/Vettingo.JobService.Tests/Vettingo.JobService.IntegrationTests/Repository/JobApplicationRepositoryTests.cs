@@ -29,7 +29,7 @@ namespace Vettingo.JobService.UnitTests.Repository
             {
                 var posting = new JobPosting();
                 posting.CreateJobPosting(Guid.NewGuid(), "Vettingo Teknoloji", Guid.NewGuid().ToString(), new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34,
-                    EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 0, 0, null, JobPostingStatus.Active);
+                    EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 0, 0, null, JobPostingStatus.AcceptingApplications);
                 application.CreateApplication(application.CandidateId, posting.Id, application.AppliedAt, application.Status);
                 context.JobPostings.Add(posting);
             }
@@ -70,7 +70,7 @@ namespace Vettingo.JobService.UnitTests.Repository
         {
             var posting = new JobPosting();
             posting.CreateJobPosting(companyId, "Vettingo Teknoloji", Guid.NewGuid().ToString(), new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34,
-                EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 0, 0, null, JobPostingStatus.Active);
+                EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 0, 0, null, JobPostingStatus.AcceptingApplications);
             return posting;
         }
 
