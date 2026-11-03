@@ -25,6 +25,8 @@ namespace Vettingo.JobService.Domain.Entities
         public int MaxSalary { get; private set; }
         public DateTime? ApplicationDeadline { get; private set; }
         public JobPostingStatus Status { get; private set; }
+        public ICollection<Exam> Exams { get; set; } = new List<Exam>();
+        public ICollection<Interview> Interviews { get; set; } = new List<Interview>();
 
         public void CreateJobPosting(
             Guid companyId,

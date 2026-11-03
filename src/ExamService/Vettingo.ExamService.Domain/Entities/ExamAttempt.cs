@@ -10,12 +10,12 @@ namespace Vettingo.ExamService.Domain.Entities
         }
 
         public Guid ExamId { get; private set; }
-        public Exam? Exam { get; private set; }
+        public Exam Exam { get; private set; } = null!;
         public Guid CandidateId { get; private set; }
         public DateTime StartedAt { get; private set; }
         public DateTime? CompletedAt { get; private set; }
         public int Score { get; private set; }
-        public ExamAttemptStatus Status { get; private set; }
+        public ExamAttemptStatus Status { get; private set; } = ExamAttemptStatus.NotAttempted;
 
         public void StartAttempt(Guid examId, Guid candidateId)
         {
@@ -25,15 +25,16 @@ namespace Vettingo.ExamService.Domain.Entities
             ExamId = examId;
             CandidateId = candidateId;
             StartedAt = DateTime.UtcNow;
-            Status = ExamAttemptStatus.Started;
+            Status = ExamAttemptStatus.NotAttempted;
         }
 
         public void CompleteAttempt(int score)
         {
             CheckScore(score);
+            var status = score >= Exam.PassingScore ? ExamAttemptStatus.Passed : ExamAttemptStatus.Failed;
             Score = score;
             CompletedAt = DateTime.UtcNow;
-            Status = ExamAttemptStatus.Completed;
+            Status = status;
         }
 
         public void CheckStartAttemptContent(Guid examId, Guid candidateId)
