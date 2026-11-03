@@ -2,8 +2,8 @@ namespace Vettingo.JobService.Domain.Enums
 {
     public enum JobPostingStatus
     {
-        Active = 2,
-        Closed = 3,
-        Deleted = 5
+        AcceptingApplications = 2,
+        Exam = 3,
+        Interview = 5
     }
 }

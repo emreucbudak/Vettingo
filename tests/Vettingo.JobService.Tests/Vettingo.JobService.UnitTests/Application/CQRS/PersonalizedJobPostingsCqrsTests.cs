@@ -147,7 +147,7 @@ public class PersonalizedJobPostingsCqrsTests
     {
         var posting = new JobPosting();
         posting.CreateJobPosting(Guid.NewGuid(), "Vettingo Teknoloji", title, new Dictionary<string, int> { ["C#"] = 3 },
-            cityId, EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 50000, 75000, null, JobPostingStatus.Active);
+            cityId, EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 50000, 75000, null, JobPostingStatus.AcceptingApplications);
         return posting;
     }
 }

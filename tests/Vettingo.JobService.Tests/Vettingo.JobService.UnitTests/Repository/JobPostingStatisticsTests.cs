@@ -15,18 +15,18 @@ public class JobPostingStatisticsTests
         await using var context = CreateContext();
         var repository = new JobPostingRepository(context);
         var companyId = Guid.NewGuid();
-        var active = CreatePosting(companyId, JobPostingStatus.Active);
+        var active = CreatePosting(companyId, JobPostingStatus.AcceptingApplications);
         context.JobPostings.AddRange(active,
-            CreatePosting(companyId, JobPostingStatus.Closed),
-            CreatePosting(companyId, JobPostingStatus.Deleted),
-            CreatePosting(Guid.NewGuid(), JobPostingStatus.Active));
+            CreatePosting(companyId, JobPostingStatus.Exam),
+            CreatePosting(companyId, JobPostingStatus.Interview),
+            CreatePosting(Guid.NewGuid(), JobPostingStatus.AcceptingApplications));
         await context.SaveChangesAsync();
 
         var result = await repository.GetStatisticsAsync(companyId);
         result.TotalJobPostings.Should().Be(3);
         result.ActiveJobPostings.Should().Be(1);
 
-        active.SetStatus(JobPostingStatus.Closed);
+        active.SetStatus(JobPostingStatus.Exam);
         await context.SaveChangesAsync();
         var afterClosing = await repository.GetStatisticsAsync(companyId);
         afterClosing.TotalJobPostings.Should().Be(3);
@@ -37,7 +37,7 @@ public class JobPostingStatisticsTests
     public async Task Statistics_Return_Zero_For_Company_Without_Postings()
     {
         await using var context = CreateContext();
-        context.JobPostings.Add(CreatePosting(Guid.NewGuid(), JobPostingStatus.Active));
+        context.JobPostings.Add(CreatePosting(Guid.NewGuid(), JobPostingStatus.AcceptingApplications));
         await context.SaveChangesAsync();
         var result = await new JobPostingRepository(context).GetStatisticsAsync(Guid.NewGuid());
         result.TotalJobPostings.Should().Be(0);
@@ -45,17 +45,17 @@ public class JobPostingStatisticsTests
     }
 
     [Fact]
-    public void Active_Status_Remains_Compatible_With_Existing_Persisted_Postings()
+    public void AcceptingApplications_Status_Remains_Compatible_With_Existing_Published_Postings()
     {
         using var context = CreateContext();
         var converter = context.Model.FindEntityType(typeof(JobPosting))!
             .FindProperty(nameof(JobPosting.Status))!.GetValueConverter()!;
-        converter.ConvertFromProvider("Published").Should().Be(JobPostingStatus.Active);
-        converter.ConvertToProvider(JobPostingStatus.Active).Should().Be("Published");
-        converter.ConvertFromProvider("Closed").Should().Be(JobPostingStatus.Closed);
-        converter.ConvertFromProvider("Deleted").Should().Be(JobPostingStatus.Deleted);
-        converter.ConvertToProvider(JobPostingStatus.Deleted).Should().Be("Deleted");
-        ((int)JobPostingStatus.Active).Should().Be(2);
+        converter.ConvertFromProvider("Published").Should().Be(JobPostingStatus.AcceptingApplications);
+        converter.ConvertToProvider(JobPostingStatus.AcceptingApplications).Should().Be("Published");
+        converter.ConvertFromProvider("Exam").Should().Be(JobPostingStatus.Exam);
+        converter.ConvertFromProvider("Interview").Should().Be(JobPostingStatus.Interview);
+        converter.ConvertToProvider(JobPostingStatus.Interview).Should().Be("Interview");
+        ((int)JobPostingStatus.AcceptingApplications).Should().Be(2);
         Enum.GetNames<JobPostingStatus>().Should().NotContain("Published");
     }
 

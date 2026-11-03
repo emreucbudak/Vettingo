@@ -16,9 +16,9 @@ public sealed class JobPostingSalarySearchTests
         await using var context = new JobDbContext(new DbContextOptionsBuilder<JobDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         foreach (var (minSalary, maxSalary) in new[] { (0, 25000), (50000, 75000), (75000, 100000), (100000, 125000) })
-            context.JobPostings.Add(CreatePosting(minSalary, maxSalary, JobPostingStatus.Active));
-        context.JobPostings.Add(CreatePosting(50000, 75000, JobPostingStatus.Closed));
-        context.JobPostings.Add(CreatePosting(50000, 75000, JobPostingStatus.Deleted));
+            context.JobPostings.Add(CreatePosting(minSalary, maxSalary, JobPostingStatus.AcceptingApplications));
+        context.JobPostings.Add(CreatePosting(50000, 75000, JobPostingStatus.Exam));
+        context.JobPostings.Add(CreatePosting(50000, 75000, JobPostingStatus.Interview));
         await context.SaveChangesAsync();
         var repository = new JobPostingRepository(context);
 

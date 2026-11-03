@@ -25,7 +25,7 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobApplication.Command.C
 
             var posting = await jobPostings.GetJobPostingByIdAsync(request.JobPostingId)
                 ?? throw new NotFoundException("İş ilanı bulunamadı.");
-            if (posting.Status != Domain.Enums.JobPostingStatus.Active)
+            if (posting.Status != Domain.Enums.JobPostingStatus.AcceptingApplications)
                 throw new BadRequestException("Bu ilan başvuruya açık değil.");
 
             JobApplicationEntity application = new();

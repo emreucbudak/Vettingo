@@ -41,8 +41,8 @@ namespace Vettingo.JobService.Persistence.DbContext
             builder.Entity<JobPosting>()
                 .Property(jobPosting => jobPosting.Status)
                 .HasConversion(
-                    status => status == JobPostingStatus.Active ? "Published" : status.ToString(),
-                    value => value == "Published" ? JobPostingStatus.Active : Enum.Parse<JobPostingStatus>(value, false));
+                    status => status == JobPostingStatus.AcceptingApplications ? "Published" : status.ToString(),
+                    value => value == "Published" ? JobPostingStatus.AcceptingApplications : Enum.Parse<JobPostingStatus>(value, false));
 
             builder.Entity<JobApplication>().Property(application => application.Status).HasConversion<string>();
             builder.Entity<JobApplication>().HasOne<JobPosting>().WithMany()

@@ -26,7 +26,7 @@ namespace Vettingo.JobService.UnitTests.Domain
                     2, 5,
                     50000, 50000,
                     DateTime.UtcNow.AddDays(30),
-                    JobPostingStatus.Active);
+                    JobPostingStatus.AcceptingApplications);
             };
 
             // Assert
@@ -43,7 +43,7 @@ namespace Vettingo.JobService.UnitTests.Domain
             var posting = new JobPosting();
             Action create = () => posting.CreateJobPosting(Guid.NewGuid(), companyName!, "Developer",
                 new Dictionary<string, int> { ["C#"] = 3 }, 34, EmploymentType.FullTime, WorkingModel.Remote,
-                2, 5, 50000, 75000, null, JobPostingStatus.Active);
+                2, 5, 50000, 75000, null, JobPostingStatus.AcceptingApplications);
             create.Should().Throw<ArgumentException>().WithParameterName("companyName");
         }
 
@@ -67,7 +67,7 @@ namespace Vettingo.JobService.UnitTests.Domain
                     2, 5,
                     50000, 50000,
                     DateTime.UtcNow.AddDays(30),
-                    JobPostingStatus.Active);
+                    JobPostingStatus.AcceptingApplications);
             };
 
             // Assert

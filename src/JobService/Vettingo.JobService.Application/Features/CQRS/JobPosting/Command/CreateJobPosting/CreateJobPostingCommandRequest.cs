@@ -17,6 +17,6 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.Creat
         public int MinSalary { get; init; }
         public int MaxSalary { get; init; }
         public DateTime? ApplicationDeadline { get; init; }
-        public JobPostingStatus Status { get; init; } = JobPostingStatus.Active;
+        public JobPostingStatus Status { get; init; } = JobPostingStatus.AcceptingApplications;
     }
 }

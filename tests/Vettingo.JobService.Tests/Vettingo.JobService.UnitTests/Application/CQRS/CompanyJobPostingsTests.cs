@@ -18,9 +18,9 @@ public class CompanyJobPostingsTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         await context.Database.EnsureCreatedAsync();
         var companyId = Guid.NewGuid();
-        var active = CreatePosting(companyId, "Active posting", JobPostingStatus.Active);
-        var closed = CreatePosting(companyId, "Closed posting", JobPostingStatus.Closed);
-        var other = CreatePosting(Guid.NewGuid(), "Other company", JobPostingStatus.Active);
+        var active = CreatePosting(companyId, "Active posting", JobPostingStatus.AcceptingApplications);
+        var closed = CreatePosting(companyId, "Closed posting", JobPostingStatus.Exam);
+        var other = CreatePosting(Guid.NewGuid(), "Other company", JobPostingStatus.AcceptingApplications);
         context.JobPostings.AddRange(active, closed, other);
         foreach (var posting in new[] { active, active, other })
         {
@@ -37,11 +37,11 @@ public class CompanyJobPostingsTests
         var savedActive = result.Single(posting => posting.Id == active.Id);
         savedActive.CityName.Should().Be("İstanbul");
         savedActive.Applicants.Should().Be(2);
-        savedActive.Status.Should().Be("Active");
+        savedActive.Status.Should().Be("AcceptingApplications");
         savedActive.PublishedAt.Should().Be(active.CreatedAt);
         var savedClosed = result.Single(posting => posting.Id == closed.Id);
         savedClosed.Applicants.Should().Be(0);
-        savedClosed.Status.Should().Be("Closed");
+        savedClosed.Status.Should().Be("Exam");
         savedClosed.PublishedAt.Should().Be(closed.CreatedAt);
         (await handler.Handle(new() { CompanyId = Guid.NewGuid() }, CancellationToken.None)).Should().BeEmpty();
     }
@@ -58,13 +58,13 @@ public class CompanyJobPostingsTests
         await context.Database.EnsureCreatedAsync();
         var companyId = Guid.NewGuid();
         var postings = Enumerable.Range(1, 5)
-            .Select(index => CreatePosting(companyId, $"Position {index}", JobPostingStatus.Active)).ToArray();
+            .Select(index => CreatePosting(companyId, $"Position {index}", JobPostingStatus.AcceptingApplications)).ToArray();
         context.JobPostings.AddRange(postings);
         for (var index = 0; index < postings.Length; index++)
             context.Entry(postings[index]).Property(posting => posting.CreatedAt).CurrentValue =
                 new DateTime(2026, 1, index + 1, 0, 0, 0, DateTimeKind.Utc);
 
-        context.JobPostings.Add(CreatePosting(Guid.NewGuid(), "Newest other company", JobPostingStatus.Active));
+        context.JobPostings.Add(CreatePosting(Guid.NewGuid(), "Newest other company", JobPostingStatus.AcceptingApplications));
         var application = new JobApplication();
         application.CreateApplication(Guid.NewGuid(), postings[4].Id, DateTime.UtcNow, ApplicationStatus.Submitted);
         context.JobApplications.Add(application);
