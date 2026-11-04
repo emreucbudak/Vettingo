@@ -15,6 +15,20 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.Creat
         public async Task Handle(CreateJobPostingCommandRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(CreateJobPostingCommandHandler));
+            ArgumentNullException.ThrowIfNull(request.JobSteps, nameof(request.JobSteps));
+            if (request.JobSteps.Any(step => step is null))
+            {
+                throw new ArgumentException("İş ilanı adımları boş olamaz.", nameof(request.JobSteps));
+            }
+
+            List<Domain.Entities.JobSteps> jobSteps = request.JobSteps.Select(step => new Domain.Entities.JobSteps
+            {
+                Order = step.Order,
+                StepType = step.StepType,
+                StartedDate = step.StartedDate,
+                EndDate = step.EndDate
+            }).ToList();
+
             Domain.Entities.JobPosting jobPosting = new();
             jobPosting.CreateJobPosting(
                 request.CompanyId,
@@ -29,7 +43,8 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.Creat
                 request.MinSalary,
                 request.MaxSalary,
                 request.ApplicationDeadline,
-                request.Status);
+                request.Status,
+                jobSteps);
 
             await jobPostingRepository.AddJobPostingAsync(jobPosting);
             await jobPostingRepository.SaveChangesAsync();

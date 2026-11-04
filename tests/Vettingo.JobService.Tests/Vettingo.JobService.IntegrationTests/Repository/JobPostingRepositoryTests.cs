@@ -96,7 +96,7 @@ namespace Vettingo.JobService.UnitTests.Repository
                 2, 5,
                 50000, 50000,
                 DateTime.UtcNow.AddDays(30),
-                JobPostingStatus.AcceptingApplications);
+                JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddHours(1) }]);
 
             return jobPosting;
         }

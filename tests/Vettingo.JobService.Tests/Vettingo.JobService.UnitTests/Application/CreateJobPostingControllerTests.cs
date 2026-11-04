@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using Vettingo.JobService.API.Controllers;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CreateJobPosting;
+using Vettingo.JobService.Domain.Enums;
 
 namespace Vettingo.JobService.UnitTests.Application;
 
@@ -18,7 +19,8 @@ public sealed class CreateJobPostingControllerTests
         var companyId = Guid.NewGuid();
         var request = new CreateJobPostingCommandRequest
         {
-            CompanyId = Guid.NewGuid(), CompanyName = "Body company", Title = "Developer"
+            CompanyId = Guid.NewGuid(), CompanyName = "Body company", Title = "Developer",
+            JobSteps = [new() { Order = 1, StepType = StepType.Exam, StartedDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddHours(1) }]
         };
         using var cancellation = new CancellationTokenSource();
 
@@ -31,6 +33,7 @@ public sealed class CreateJobPostingControllerTests
         sent.CompanyId.Should().Be(companyId);
         sent.CompanyName.Should().Be("Vettingo Teknoloji");
         sent.Title.Should().Be(request.Title);
+        sent.JobSteps.Should().BeEquivalentTo(request.JobSteps);
         arguments[1].Should().Be(cancellation.Token);
     }
 
