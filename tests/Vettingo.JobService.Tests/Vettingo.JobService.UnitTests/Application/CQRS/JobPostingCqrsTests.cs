@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CloseJobPosting;
 using Vettingo.JobService.Application.Exceptions;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CreateJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.UpdateJobPosting;
@@ -154,6 +155,42 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             response.MinSalary.Should().Be(jobPosting.MinSalary);
             response.MaxSalary.Should().Be(jobPosting.MaxSalary);
             response.Status.Should().Be(jobPosting.Status);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task CloseJobPostingCommandHandler_Should_Close_And_Save_JobPosting(bool alreadyClosed)
+        {
+            var repository = Substitute.For<IJobPostingRepository>();
+            var posting = CreateJobPosting(Guid.NewGuid(), "Backend Developer");
+            if (alreadyClosed) posting.CloseJobPosting();
+            repository.GetJobPostingByIdAsync(posting.Id).Returns(_ => ReturnAsync<JobPosting?>(posting));
+            repository.SaveChangesAsync().Returns(_ => ReturnAsync(1));
+            var handler = new CloseJobPostingCommandHandler(repository, Substitute.For<ILogger<CloseJobPostingCommandHandler>>());
+
+            await handler.Handle(new CloseJobPostingCommandRequest { JobPostingId = posting.Id }, CancellationToken.None);
+
+            posting.IsClosed.Should().BeTrue();
+            posting.Status.Should().Be(JobPostingStatus.AcceptingApplications);
+            posting.UpdatedAt.Should().NotBeNull();
+            repository.Received(1).UpdateJobPosting(posting);
+            await repository.Received(1).SaveChangesAsync();
+        }
+
+        [Fact]
+        public async Task CloseJobPostingCommandHandler_When_JobPosting_Not_Found_Should_Throw_NotFoundException()
+        {
+            var repository = Substitute.For<IJobPostingRepository>();
+            var jobPostingId = Guid.NewGuid();
+            repository.GetJobPostingByIdAsync(jobPostingId).Returns(_ => ReturnAsync<JobPosting?>(null));
+            var handler = new CloseJobPostingCommandHandler(repository, Substitute.For<ILogger<CloseJobPostingCommandHandler>>());
+
+            Func<Task> action = () => handler.Handle(new CloseJobPostingCommandRequest { JobPostingId = jobPostingId }, CancellationToken.None);
+
+            await action.Should().ThrowAsync<NotFoundException>();
+            repository.DidNotReceive().UpdateJobPosting(Arg.Any<JobPosting>());
+            await repository.DidNotReceive().SaveChangesAsync();
         }
 
         private static CreateJobPostingCommandRequest CreateJobPostingRequest()
