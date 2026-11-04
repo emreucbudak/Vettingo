@@ -6,7 +6,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetAll
     {
         public Guid Id { get; init; }
         public Guid? CompanyId { get; init; }
-        public Guid? JobId { get; init; }
         public ExamOwnerType OwnerType { get; init; }
         public string Title { get; init; } = string.Empty;
         public string Description { get; init; } = string.Empty;

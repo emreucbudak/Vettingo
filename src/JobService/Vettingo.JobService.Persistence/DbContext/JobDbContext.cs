@@ -11,6 +11,7 @@ namespace Vettingo.JobService.Persistence.DbContext
     {
         public DbSet<City> Cities { get; set; }
         public DbSet<JobPosting> JobPostings { get; set; }
+        public DbSet<JobSteps> JobSteps { get; set; }
         public DbSet<PersonalizedJobPostings> PersonalizedJobPostings { get; set; }
         public DbSet<JobApplication> JobApplications { get; set; }
 
@@ -47,6 +48,15 @@ namespace Vettingo.JobService.Persistence.DbContext
             builder.Entity<JobApplication>().Property(application => application.Status).HasConversion<string>();
             builder.Entity<JobApplication>().HasOne<JobPosting>().WithMany()
                 .HasForeignKey(application => application.JobPostingId).OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<JobSteps>()
+                .Property(step => step.StepType)
+                .HasConversion<string>();
+
+            builder.Entity<JobSteps>()
+                .HasOne(step => step.JobPosting)
+                .WithMany(jobPosting => jobPosting.JobSteps)
+                .HasForeignKey(step => step.JobPostingId);
 
             builder.ApplyConfiguration(new CityDataSeedConfiguration());
             builder.Entity<JobPosting>().HasOne(jobPosting => jobPosting.City).WithMany()

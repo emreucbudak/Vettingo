@@ -26,7 +26,7 @@ namespace Vettingo.ExamService.UnitTests.Domain
             using var context = new ExamDbContext(new DbContextOptionsBuilder<ExamDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
             var exam = new Exam();
-            exam.CreateExam("Backend", "Backend exam", 60, 70, ExamOwnerType.System, null, null);
+            exam.CreateExam("Backend", "Backend exam", 60, 70, ExamOwnerType.System, null);
             var attempt = new ExamAttempt();
             attempt.StartAttempt(exam.Id, Guid.NewGuid());
             context.Exams.Add(exam);

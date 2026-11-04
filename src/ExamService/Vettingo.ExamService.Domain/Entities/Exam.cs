@@ -16,7 +16,6 @@ namespace Vettingo.ExamService.Domain.Entities
         }
 
         public Guid? CompanyId { get; private set; }
-        public Guid? JobId { get; private set; }
         public ExamOwnerType OwnerType { get; private set; }
         public string Title { get; private set; } = string.Empty;
         public string Description { get; private set; } = string.Empty;
@@ -63,12 +62,6 @@ namespace Vettingo.ExamService.Domain.Entities
             CompanyId = companyId;
         }
 
-        public void setJobId(Guid? jobId)
-        {
-            CheckNullableGuid(jobId, nameof(jobId));
-            JobId = jobId;
-        }
-
         public void setOwnerType(ExamOwnerType ownerType)
         {
             CheckOwnerType(ownerType);
@@ -107,9 +100,9 @@ namespace Vettingo.ExamService.Domain.Entities
             PassingScore = passingScore;
         }
 
-        public void CreateExam(string title, string description, int durationMinutes, int passingScore, ExamOwnerType ownerType, Guid? companyId, Guid? jobId)
+        public void CreateExam(string title, string description, int durationMinutes, int passingScore, ExamOwnerType ownerType, Guid? companyId)
         {
-            CheckExamContent(title, description, durationMinutes, passingScore, ownerType, companyId, jobId);
+            CheckExamContent(title, description, durationMinutes, passingScore, ownerType, companyId);
             SetId();
             setTitle(title);
             setDescription(description);
@@ -117,30 +110,27 @@ namespace Vettingo.ExamService.Domain.Entities
             setPassingScore(passingScore);
             setOwnerType(ownerType);
             setCompanyId(companyId);
-            setJobId(jobId);
             SetCreatedAt();
         }
 
-        public void UpdateExam(string title, string description, int durationMinutes, int passingScore, ExamOwnerType ownerType, Guid? companyId, Guid? jobId)
+        public void UpdateExam(string title, string description, int durationMinutes, int passingScore, ExamOwnerType ownerType, Guid? companyId)
         {
-            CheckExamContent(title, description, durationMinutes, passingScore, ownerType, companyId, jobId);
+            CheckExamContent(title, description, durationMinutes, passingScore, ownerType, companyId);
             setTitle(title);
             setDescription(description);
             setDurationMinutes(durationMinutes);
             setPassingScore(passingScore);
             setOwnerType(ownerType);
             setCompanyId(companyId);
-            setJobId(jobId);
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void CheckExamContent(string title, string description, int durationMinutes, int passingScore, ExamOwnerType ownerType, Guid? companyId, Guid? jobId)
+        public void CheckExamContent(string title, string description, int durationMinutes, int passingScore, ExamOwnerType ownerType, Guid? companyId)
         {
             ArgumentNullException.ThrowIfNullOrWhiteSpace(title, nameof(title));
             ArgumentNullException.ThrowIfNullOrWhiteSpace(description, nameof(description));
             CheckOwnerType(ownerType);
             CheckNullableGuid(companyId, nameof(companyId));
-            CheckNullableGuid(jobId, nameof(jobId));
 
             if (ownerType == ExamOwnerType.Company && companyId is null)
             {

@@ -7,7 +7,6 @@ public sealed class CreateExamCommandRequestValidator : AbstractValidator<Create
     public CreateExamCommandRequestValidator()
     {
         RuleFor(x => x.CompanyId).NotEmpty().When(x => x.CompanyId.HasValue);
-        RuleFor(x => x.JobId).NotEmpty().When(x => x.JobId.HasValue);
         RuleFor(x => x.OwnerType).IsInEnum();
         RuleFor(x => x.Title).NotEmpty().MaximumLength(2000);
         RuleFor(x => x.Description).NotEmpty().MaximumLength(2000);

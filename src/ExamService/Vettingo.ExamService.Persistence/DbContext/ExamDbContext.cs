@@ -6,6 +6,7 @@ namespace Vettingo.ExamService.Persistence.DbContext
     public class ExamDbContext(DbContextOptions<ExamDbContext> options) : Microsoft.EntityFrameworkCore.DbContext(options)
     {
         public DbSet<Exam> Exams { get; set; }
+        public DbSet<JobExam> JobExams { get; set; }
         public DbSet<MultipleChoiceQuestion> MultipleChoiceQuestions { get; set; }
         public DbSet<MultipleChoiceOption> MultipleChoiceOptions { get; set; }
         public DbSet<TrueFalseQuestion> TrueFalseQuestions { get; set; }

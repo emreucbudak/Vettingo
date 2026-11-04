@@ -63,7 +63,7 @@ namespace Vettingo.ExamService.UnitTests.Repository
         private static Exam CreateExam(string title)
         {
             Exam exam = new();
-            exam.CreateExam(title, "Backend exam description", 60, 70, ExamOwnerType.System, null, null);
+            exam.CreateExam(title, "Backend exam description", 60, 70, ExamOwnerType.System, null);
             return exam;
         }
 
