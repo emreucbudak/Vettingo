@@ -97,7 +97,7 @@ public sealed class JobPostingSearchRepositoryTests : IClassFixture<PostgreSqlCo
             2, 5,
             125000, 135000,
             DateTime.UtcNow.AddDays(30),
-            status);
+            status, [new() { Order = 1, StepType = StepType.Exam, StartedDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddHours(1) }]);
         return jobPosting;
     }
 }

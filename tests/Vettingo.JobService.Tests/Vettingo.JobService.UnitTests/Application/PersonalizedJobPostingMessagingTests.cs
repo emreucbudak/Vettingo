@@ -39,7 +39,7 @@ public sealed class PersonalizedJobPostingMessagingTests
         await context.Database.EnsureCreatedAsync();
         var jobPosting = new JobPosting();
         jobPosting.CreateJobPosting(Guid.NewGuid(), "Vettingo Teknoloji", "Backend Developer", new Dictionary<string, int> { ["C#"] = 3 },
-            34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 65000, 85000, null, JobPostingStatus.AcceptingApplications);
+            34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 65000, 85000, null, JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddHours(1) }]);
         context.JobPostings.Add(jobPosting);
         await context.SaveChangesAsync();
 

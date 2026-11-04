@@ -7,7 +7,7 @@ namespace Vettingo.JobService.Domain.Entities
     [Index(nameof(Title), IsUnique = true)]
     public class JobPosting : BaseEntity
     {
-        private readonly List<JobSteps> _jobSteps = new();
+        private List<JobSteps> _jobSteps = new();
 
         public JobPosting()
         {
@@ -43,16 +43,24 @@ namespace Vettingo.JobService.Domain.Entities
             int minSalary,
             int maxSalary,
             DateTime? applicationDeadline,
-            JobPostingStatus status)
+            JobPostingStatus status,
+            List<JobSteps> jobSteps)
         {
             CheckJobPostingContent(companyId, title, cityId, employmentType, workingModel, applicationDeadline, status);
             ArgumentNullException.ThrowIfNullOrWhiteSpace(companyName, nameof(companyName));
+            ArgumentNullException.ThrowIfNull(jobSteps, nameof(jobSteps));
+            if (jobSteps.Count == 0 || jobSteps.Any(step => step is null))
+            {
+                throw new ArgumentException("İş ilanı için en az bir adım gereklidir.", nameof(jobSteps));
+            }
+
             SetId();
             CompanyId = companyId;
             CompanyName = companyName;
             UpdateJobPosting(title, requirementSkills, cityId, employmentType, workingModel, minimumExperienceYear, maximumExperienceYear, minSalary, maxSalary, applicationDeadline);
             Status = status;
             IsClosed = false;
+            _jobSteps = jobSteps;
             SetCreatedAt();
             UpdatedAt = null;
         }

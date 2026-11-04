@@ -26,7 +26,7 @@ namespace Vettingo.JobService.UnitTests.Domain
                     2, 5,
                     50000, 50000,
                     DateTime.UtcNow.AddDays(30),
-                    JobPostingStatus.AcceptingApplications);
+                    JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddHours(1) }]);
             };
 
             // Assert
@@ -43,7 +43,7 @@ namespace Vettingo.JobService.UnitTests.Domain
             var posting = new JobPosting();
             Action create = () => posting.CreateJobPosting(Guid.NewGuid(), companyName!, "Developer",
                 new Dictionary<string, int> { ["C#"] = 3 }, 34, EmploymentType.FullTime, WorkingModel.Remote,
-                2, 5, 50000, 75000, null, JobPostingStatus.AcceptingApplications);
+                2, 5, 50000, 75000, null, JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddHours(1) }]);
             create.Should().Throw<ArgumentException>().WithParameterName("companyName");
         }
 
@@ -67,12 +67,51 @@ namespace Vettingo.JobService.UnitTests.Domain
                     2, 5,
                     50000, 50000,
                     DateTime.UtcNow.AddDays(30),
-                    JobPostingStatus.AcceptingApplications);
+                    JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddHours(1) }]);
             };
 
             // Assert
             action.Should().Throw<ArgumentException>();
         }
 
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        public void Create_JobPosting_Without_JobSteps_Should_Throw(int invalidCase)
+        {
+            var posting = new JobPosting();
+            List<JobSteps> steps = invalidCase switch { 0 => null!, 1 => [], _ => [null!] };
+
+            Action create = () => posting.CreateJobPosting(Guid.NewGuid(), "Vettingo Teknoloji", "Developer",
+                new Dictionary<string, int> { ["C#"] = 3 }, 34, EmploymentType.FullTime, WorkingModel.Remote,
+                2, 5, 50000, 75000, null, JobPostingStatus.AcceptingApplications, steps);
+
+            create.Should().Throw<ArgumentException>().WithParameterName("jobSteps");
+            posting.Id.Should().BeEmpty();
+            posting.JobSteps.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void Create_JobPosting_Should_Use_Provided_JobSteps_List()
+        {
+            var posting = new JobPosting();
+            var step = new JobSteps
+            {
+                Order = 1, StepType = StepType.Exam,
+                StartedDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddHours(1)
+            };
+            var steps = new List<JobSteps> { step };
+
+            posting.CreateJobPosting(Guid.NewGuid(), "Vettingo Teknoloji", "Developer",
+                new Dictionary<string, int> { ["C#"] = 3 }, 34, EmploymentType.FullTime, WorkingModel.Remote,
+                2, 5, 50000, 75000, null, JobPostingStatus.AcceptingApplications, steps);
+            posting.JobSteps.Should().ContainSingle().Which.Should().BeSameAs(step);
+            posting.IsClosed.Should().BeFalse();
+            ((ICollection<JobSteps>)posting.JobSteps).IsReadOnly.Should().BeTrue();
+
+            steps.Clear();
+            posting.JobSteps.Should().BeEmpty();
+        }
     }
 }

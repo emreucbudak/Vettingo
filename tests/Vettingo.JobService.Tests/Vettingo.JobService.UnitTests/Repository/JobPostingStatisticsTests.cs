@@ -67,7 +67,7 @@ public class JobPostingStatisticsTests
     {
         var posting = new JobPosting();
         posting.CreateJobPosting(companyId, "Vettingo Teknoloji", Guid.NewGuid().ToString(), new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34, EmploymentType.FullTime, WorkingModel.Remote,
-            2, 5, 0, 0, null, status);
+            2, 5, 0, 0, null, status, [new() { Order = 1, StepType = StepType.Exam, StartedDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddHours(1) }]);
         return posting;
     }
 }

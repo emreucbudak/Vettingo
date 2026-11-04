@@ -120,7 +120,35 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 jobPosting.MinSalary == request.MinSalary &&
                 jobPosting.MaxSalary == request.MaxSalary &&
                 jobPosting.Status == request.Status));
+            var created = (JobPosting)repository.ReceivedCalls()
+                .Single(call => call.GetMethodInfo().Name == nameof(IJobPostingRepository.AddJobPostingAsync))
+                .GetArguments()[0]!;
+            created.JobSteps.Select(step => new { step.Order, step.StepType, step.StartedDate, step.EndDate })
+                .Should().BeEquivalentTo(request.JobSteps);
             await repository.Received(1).SaveChangesAsync();
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        public async Task Create_Should_Reject_Missing_Empty_Or_Null_JobSteps(int invalidCase)
+        {
+            var request = CreateJobPostingRequest() with
+            {
+                JobSteps = invalidCase switch { 0 => null!, 1 => [], _ => [null!] }
+            };
+            new CreateJobPostingCommandRequestValidator().Validate(request).Errors
+                .Should().Contain(error => error.PropertyName.StartsWith("JobSteps"));
+            var repository = Substitute.For<IJobPostingRepository>();
+            var handler = new CreateJobPostingCommandHandler(repository,
+                Substitute.For<ILogger<CreateJobPostingCommandHandler>>(), Substitute.For<IJobAnalyticsPublisher>());
+
+            Func<Task> action = () => handler.Handle(request, CancellationToken.None);
+
+            await action.Should().ThrowAsync<ArgumentException>();
+            await repository.DidNotReceive().AddJobPostingAsync(Arg.Any<JobPosting>());
+            await repository.DidNotReceive().SaveChangesAsync();
         }
 
         [Fact]
@@ -209,7 +237,12 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 MinSalary = 50000,
                 MaxSalary = 75000,
                 ApplicationDeadline = DateTime.UtcNow.AddDays(30),
-                Status = JobPostingStatus.AcceptingApplications
+                Status = JobPostingStatus.AcceptingApplications,
+                JobSteps =
+                [
+                    new() { Order = 1, StepType = StepType.Exam, StartedDate = DateTime.UtcNow.AddDays(1), EndDate = DateTime.UtcNow.AddDays(2) },
+                    new() { Order = 2, StepType = StepType.Interview, StartedDate = DateTime.UtcNow.AddDays(3), EndDate = DateTime.UtcNow.AddDays(4) }
+                ]
             };
         }
 
@@ -246,7 +279,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 2, 5,
                 50000, 75000,
                 DateTime.UtcNow.AddDays(30),
-                JobPostingStatus.AcceptingApplications);
+                JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddHours(1) }]);
 
             return jobPosting;
         }
