@@ -25,8 +25,7 @@ namespace Vettingo.JobService.Domain.Entities
         public int MaxSalary { get; private set; }
         public DateTime? ApplicationDeadline { get; private set; }
         public JobPostingStatus Status { get; private set; }
-        public ICollection<Exam> Exams { get; set; } = new List<Exam>();
-        public ICollection<Interview> Interviews { get; set; } = new List<Interview>();
+        public bool IsClosed { get; private set; }
 
         public void CreateJobPosting(
             Guid companyId,
@@ -77,6 +76,12 @@ namespace Vettingo.JobService.Domain.Entities
             MinSalary = minSalary;
             MaxSalary = maxSalary;
             ApplicationDeadline = applicationDeadline;
+            SetUpdatedAt();
+        }
+
+        public void CloseJobPosting()
+        {
+            IsClosed = true;
             SetUpdatedAt();
         }
 
