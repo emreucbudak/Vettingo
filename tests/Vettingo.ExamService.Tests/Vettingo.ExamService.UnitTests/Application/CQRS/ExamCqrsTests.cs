@@ -178,7 +178,7 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
         private static Exam CreateExam()
         {
             Exam exam = new();
-            exam.CreateExam("Backend Exam", "Backend exam description", 60, 70, ExamOwnerType.System, null, null);
+            exam.CreateExam("Backend Exam", "Backend exam description", 60, 70, ExamOwnerType.System, null);
             return exam;
         }
 

@@ -14,7 +14,7 @@ namespace Vettingo.ExamService.UnitTests.Domain
         {
             var before = DateOnly.FromDateTime(DateTime.UtcNow);
             var exam = new Exam();
-            exam.CreateExam("Backend", "Backend exam", 60, 70, ExamOwnerType.System, null, null);
+            exam.CreateExam("Backend", "Backend exam", 60, 70, ExamOwnerType.System, null);
             var question = new MultipleChoiceQuestion();
             question.CreateQuestion(exam.Id, "Which option?", 1, 1);
             var option = new MultipleChoiceOption();

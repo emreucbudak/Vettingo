@@ -43,7 +43,6 @@ namespace Vettingo.ExamService.API.Controllers
             {
                 ExamId = examId,
                 CompanyId = request.CompanyId,
-                JobId = request.JobId,
                 OwnerType = request.OwnerType,
                 Title = request.Title,
                 Description = request.Description,

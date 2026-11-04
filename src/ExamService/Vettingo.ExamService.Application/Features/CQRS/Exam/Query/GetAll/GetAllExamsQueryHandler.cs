@@ -15,7 +15,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetAll
             {
                 Id = exam.Id,
                 CompanyId = exam.CompanyId,
-                JobId = exam.JobId,
                 OwnerType = exam.OwnerType,
                 Title = exam.Title,
                 Description = exam.Description,
