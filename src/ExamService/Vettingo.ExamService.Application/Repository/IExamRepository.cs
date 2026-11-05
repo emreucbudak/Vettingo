@@ -7,8 +7,8 @@ namespace Vettingo.ExamService.Application.Repository
         Task AddAsync(T entity);
         void Update(T entity);
         void Delete(T entity);
-        Task<T?> GetByIdAsync(Guid id, params string[] includes);
-        Task<IEnumerable<T>> GetAllAsync(params string[] includes);
+        Task<T?> GetByIdAsync(Guid id);
+        Task<IEnumerable<T>> GetAllAsync();
         Task<int> SaveChangesAsync();
     }
 }

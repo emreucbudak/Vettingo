@@ -10,7 +10,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
         public async Task<GetExamByIdQueryResponse> Handle(GetExamByIdQueryRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetExamByIdQueryHandler));
-            var exam = await examRepository.GetByIdAsync(request.ExamId, "MultipleChoiceQuestions.Options", "TrueFalseQuestions");
+            var exam = await examRepository.GetByIdAsync(request.ExamId);
 
             if (exam is null)
             {

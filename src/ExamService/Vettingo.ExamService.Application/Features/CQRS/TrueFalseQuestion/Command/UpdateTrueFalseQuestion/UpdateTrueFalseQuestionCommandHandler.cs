@@ -10,7 +10,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.TrueFalseQuestion.Comma
         public async Task Handle(UpdateTrueFalseQuestionCommandRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(UpdateTrueFalseQuestionCommandHandler));
-            var exam = await examRepository.GetByIdAsync(request.ExamId, "MultipleChoiceQuestions.Options", "TrueFalseQuestions")
+            var exam = await examRepository.GetByIdAsync(request.ExamId)
                 ?? throw new NotFoundException("Sınav bulunamadı");
             var question = exam.TrueFalseQuestions.FirstOrDefault(question => question.Id == request.QuestionId);
 

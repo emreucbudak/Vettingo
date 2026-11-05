@@ -19,16 +19,16 @@ namespace Vettingo.ExamService.Persistence.Repository
             EntitySet.Remove(entity);
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(params string[] includes)
+        public async Task<IEnumerable<T>> GetAllAsync()
         {
-            return await IncludeRelations(includes)
+            return await EntitySet
                 .OrderByDescending(entity => entity.CreatedAt)
                 .ToListAsync();
         }
 
-        public async Task<T?> GetByIdAsync(Guid id, params string[] includes)
+        public async Task<T?> GetByIdAsync(Guid id)
         {
-            return await IncludeRelations(includes)
+            return await EntitySet
                 .FirstOrDefaultAsync(entity => entity.Id == id);
         }
 
@@ -40,17 +40,6 @@ namespace Vettingo.ExamService.Persistence.Repository
         public void Update(T entity)
         {
             EntitySet.Update(entity);
-        }
-
-        private IQueryable<T> IncludeRelations(string[] includes)
-        {
-            IQueryable<T> query = EntitySet;
-            foreach (var include in includes)
-            {
-                query = query.Include(include);
-            }
-
-            return query;
         }
     }
 }

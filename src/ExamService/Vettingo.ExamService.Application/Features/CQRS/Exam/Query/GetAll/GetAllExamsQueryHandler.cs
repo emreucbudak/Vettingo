@@ -9,7 +9,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetAll
         public async Task<IEnumerable<GetAllExamsQueryResponse>> Handle(GetAllExamsQueryRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetAllExamsQueryHandler));
-            var exams = await examRepository.GetAllAsync("MultipleChoiceQuestions", "TrueFalseQuestions");
+            var exams = await examRepository.GetAllAsync();
 
             return exams.Select(exam => new GetAllExamsQueryResponse
             {
