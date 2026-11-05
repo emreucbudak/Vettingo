@@ -4,7 +4,7 @@ using Vettingo.ExamService.Application.Repository;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam
 {
-    public class CreateExamCommandHandler(IExamRepository examRepository, ILogger<CreateExamCommandHandler> logger) : IRequestHandler<CreateExamCommandRequest>
+    public class CreateExamCommandHandler(IExamRepository<Domain.Entities.Exam> examRepository, ILogger<CreateExamCommandHandler> logger) : IRequestHandler<CreateExamCommandRequest>
     {
         public async Task Handle(CreateExamCommandRequest request, CancellationToken cancellationToken)
         {
@@ -12,7 +12,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam
             Domain.Entities.Exam exam = new();
             exam.CreateExam(request.Title, request.Description, request.DurationMinutes, request.PassingScore, request.OwnerType, request.CompanyId);
 
-            await examRepository.AddExamAsync(exam);
+            await examRepository.AddAsync(exam);
             await examRepository.SaveChangesAsync();
         }
     }

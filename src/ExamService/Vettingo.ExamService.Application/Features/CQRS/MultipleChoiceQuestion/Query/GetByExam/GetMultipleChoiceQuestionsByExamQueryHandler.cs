@@ -4,12 +4,12 @@ using Vettingo.ExamService.Application.Repository;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.Query.GetByExam
 {
-    public class GetMultipleChoiceQuestionsByExamQueryHandler(IExamRepository examRepository, ILogger<GetMultipleChoiceQuestionsByExamQueryHandler> logger) : IRequestHandler<GetMultipleChoiceQuestionsByExamQueryRequest, IEnumerable<GetMultipleChoiceQuestionsByExamQueryResponse>>
+    public class GetMultipleChoiceQuestionsByExamQueryHandler(IExamRepository<Domain.Entities.Exam> examRepository, ILogger<GetMultipleChoiceQuestionsByExamQueryHandler> logger) : IRequestHandler<GetMultipleChoiceQuestionsByExamQueryRequest, IEnumerable<GetMultipleChoiceQuestionsByExamQueryResponse>>
     {
         public async Task<IEnumerable<GetMultipleChoiceQuestionsByExamQueryResponse>> Handle(GetMultipleChoiceQuestionsByExamQueryRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetMultipleChoiceQuestionsByExamQueryHandler));
-            var exam = await examRepository.GetExamByIdAsync(request.ExamId);
+            var exam = await examRepository.GetByIdAsync(request.ExamId, "MultipleChoiceQuestions.Options", "TrueFalseQuestions");
             var questions = exam?.MultipleChoiceQuestions ?? [];
 
             return questions.OrderBy(question => question.DisplayOrder).Select(question => new GetMultipleChoiceQuestionsByExamQueryResponse

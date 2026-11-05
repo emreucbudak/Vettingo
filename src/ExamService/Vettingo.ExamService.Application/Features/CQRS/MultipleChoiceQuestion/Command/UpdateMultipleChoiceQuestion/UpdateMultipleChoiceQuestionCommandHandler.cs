@@ -5,12 +5,12 @@ using Vettingo.ExamService.Application.Repository;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.Command.UpdateMultipleChoiceQuestion
 {
-    public class UpdateMultipleChoiceQuestionCommandHandler(IExamRepository examRepository, ILogger<UpdateMultipleChoiceQuestionCommandHandler> logger) : IRequestHandler<UpdateMultipleChoiceQuestionCommandRequest>
+    public class UpdateMultipleChoiceQuestionCommandHandler(IExamRepository<Domain.Entities.Exam> examRepository, ILogger<UpdateMultipleChoiceQuestionCommandHandler> logger) : IRequestHandler<UpdateMultipleChoiceQuestionCommandRequest>
     {
         public async Task Handle(UpdateMultipleChoiceQuestionCommandRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(UpdateMultipleChoiceQuestionCommandHandler));
-            var exam = await examRepository.GetExamByIdAsync(request.ExamId)
+            var exam = await examRepository.GetByIdAsync(request.ExamId, "MultipleChoiceQuestions.Options", "TrueFalseQuestions")
                 ?? throw new NotFoundException("Sınav bulunamadı");
             var question = exam.MultipleChoiceQuestions.FirstOrDefault(question => question.Id == request.QuestionId);
 

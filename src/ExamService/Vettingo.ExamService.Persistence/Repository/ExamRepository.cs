@@ -1,40 +1,35 @@
 using Microsoft.EntityFrameworkCore;
 using Vettingo.ExamService.Application.Repository;
-using Vettingo.ExamService.Domain.Entities;
+using Vettingo.ExamService.Domain.Common;
 using Vettingo.ExamService.Persistence.DbContext;
 
 namespace Vettingo.ExamService.Persistence.Repository
 {
-    public class ExamRepository(ExamDbContext context) : IExamRepository
+    public class ExamRepository<T>(ExamDbContext context) : IExamRepository<T> where T : BaseEntity
     {
-        private DbSet<Exam> ExamSet => context.Set<Exam>();
+        private DbSet<T> EntitySet => context.Set<T>();
 
-        public async Task AddExamAsync(Exam exam)
+        public async Task AddAsync(T entity)
         {
-            await ExamSet.AddAsync(exam);
+            await EntitySet.AddAsync(entity);
         }
 
-        public void DeleteExam(Exam exam)
+        public void Delete(T entity)
         {
-            ExamSet.Remove(exam);
+            EntitySet.Remove(entity);
         }
 
-        public async Task<IEnumerable<Exam>> GetAllExamsAsync()
+        public async Task<IEnumerable<T>> GetAllAsync(params string[] includes)
         {
-            return await ExamSet
-                .Include(exam => exam.MultipleChoiceQuestions)
-                .Include(exam => exam.TrueFalseQuestions)
-                .OrderByDescending(exam => exam.CreatedAt)
+            return await IncludeRelations(includes)
+                .OrderByDescending(entity => entity.CreatedAt)
                 .ToListAsync();
         }
 
-        public async Task<Exam?> GetExamByIdAsync(Guid examId)
+        public async Task<T?> GetByIdAsync(Guid id, params string[] includes)
         {
-            return await ExamSet
-                .Include(exam => exam.MultipleChoiceQuestions)
-                .ThenInclude(question => question.Options)
-                .Include(exam => exam.TrueFalseQuestions)
-                .FirstOrDefaultAsync(exam => exam.Id == examId);
+            return await IncludeRelations(includes)
+                .FirstOrDefaultAsync(entity => entity.Id == id);
         }
 
         public Task<int> SaveChangesAsync()
@@ -42,9 +37,20 @@ namespace Vettingo.ExamService.Persistence.Repository
             return context.SaveChangesAsync();
         }
 
-        public void UpdateExam(Exam exam)
+        public void Update(T entity)
         {
-            ExamSet.Update(exam);
+            EntitySet.Update(entity);
+        }
+
+        private IQueryable<T> IncludeRelations(string[] includes)
+        {
+            IQueryable<T> query = EntitySet;
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            return query;
         }
     }
 }

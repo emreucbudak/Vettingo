@@ -5,12 +5,12 @@ using Vettingo.ExamService.Application.Repository;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.Command.CreateMultipleChoiceQuestion
 {
-    public class CreateMultipleChoiceQuestionCommandHandler(IExamRepository examRepository, ILogger<CreateMultipleChoiceQuestionCommandHandler> logger) : IRequestHandler<CreateMultipleChoiceQuestionCommandRequest>
+    public class CreateMultipleChoiceQuestionCommandHandler(IExamRepository<Domain.Entities.Exam> examRepository, ILogger<CreateMultipleChoiceQuestionCommandHandler> logger) : IRequestHandler<CreateMultipleChoiceQuestionCommandRequest>
     {
         public async Task Handle(CreateMultipleChoiceQuestionCommandRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(CreateMultipleChoiceQuestionCommandHandler));
-            var exam = await examRepository.GetExamByIdAsync(request.ExamId);
+            var exam = await examRepository.GetByIdAsync(request.ExamId, "MultipleChoiceQuestions.Options", "TrueFalseQuestions");
 
             if (exam is null)
             {
