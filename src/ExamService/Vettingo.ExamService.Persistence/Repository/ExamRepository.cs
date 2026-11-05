@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Vettingo.ExamService.Application.Repository;
 using Vettingo.ExamService.Domain.Common;
+using Vettingo.ExamService.Domain.Entities;
 using Vettingo.ExamService.Persistence.DbContext;
 
 namespace Vettingo.ExamService.Persistence.Repository
@@ -28,6 +29,17 @@ namespace Vettingo.ExamService.Persistence.Repository
 
         public async Task<T?> GetByIdAsync(Guid id)
         {
+            if (typeof(T) == typeof(Exam))
+            {
+                var exam = await context.Exams
+                    .Include(entity => entity.MultipleChoiceQuestions)
+                        .ThenInclude(question => question.Options)
+                    .Include(entity => entity.TrueFalseQuestions)
+                    .FirstOrDefaultAsync(entity => entity.Id == id);
+
+                return exam as T;
+            }
+
             return await EntitySet
                 .FirstOrDefaultAsync(entity => entity.Id == id);
         }

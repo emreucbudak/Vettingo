@@ -34,7 +34,7 @@ namespace Vettingo.ExamService.UnitTests.Repository
         }
 
         [Fact]
-        public async Task GetByIdAsync_Should_Return_Exam_Without_Loading_Questions()
+        public async Task GetByIdAsync_Should_Return_Exam_With_Questions_And_Options()
         {
             await using ExamDbContext context = _fixture.CreateDbContext();
             var repository = new ExamRepository<Exam>(context);
@@ -56,7 +56,9 @@ namespace Vettingo.ExamService.UnitTests.Repository
 
             result.Should().NotBeNull();
             result!.Id.Should().Be(exam.Id);
-            result.MultipleChoiceQuestions.Should().BeEmpty();
+            result.MultipleChoiceQuestions.Should().HaveCount(2);
+            result.MultipleChoiceQuestions.Should().OnlyContain(question => question.ExamId == exam.Id);
+            result.MultipleChoiceQuestions.Should().OnlyContain(question => question.Options.Count == 2);
         }
 
         private static Exam CreateExam(string title)
