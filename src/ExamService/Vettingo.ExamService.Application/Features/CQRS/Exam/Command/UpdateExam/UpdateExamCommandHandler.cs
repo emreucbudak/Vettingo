@@ -5,12 +5,12 @@ using Vettingo.ExamService.Application.Repository;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam
 {
-    public class UpdateExamCommandHandler(IExamRepository examRepository, ILogger<UpdateExamCommandHandler> logger) : IRequestHandler<UpdateExamCommandRequest>
+    public class UpdateExamCommandHandler(IExamRepository<Domain.Entities.Exam> examRepository, ILogger<UpdateExamCommandHandler> logger) : IRequestHandler<UpdateExamCommandRequest>
     {
         public async Task Handle(UpdateExamCommandRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(UpdateExamCommandHandler));
-            var exam = await examRepository.GetExamByIdAsync(request.ExamId);
+            var exam = await examRepository.GetByIdAsync(request.ExamId, "MultipleChoiceQuestions.Options", "TrueFalseQuestions");
 
             if (exam is null)
             {
@@ -18,7 +18,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam
             }
 
             exam.UpdateExam(request.Title, request.Description, request.DurationMinutes, request.PassingScore, request.OwnerType, request.CompanyId);
-            examRepository.UpdateExam(exam);
+            examRepository.Update(exam);
             await examRepository.SaveChangesAsync();
         }
     }

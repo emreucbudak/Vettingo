@@ -5,12 +5,12 @@ using Vettingo.ExamService.Application.Repository;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.TrueFalseQuestion.Command.CreateTrueFalseQuestion
 {
-    public class CreateTrueFalseQuestionCommandHandler(IExamRepository examRepository, ILogger<CreateTrueFalseQuestionCommandHandler> logger) : IRequestHandler<CreateTrueFalseQuestionCommandRequest>
+    public class CreateTrueFalseQuestionCommandHandler(IExamRepository<Domain.Entities.Exam> examRepository, ILogger<CreateTrueFalseQuestionCommandHandler> logger) : IRequestHandler<CreateTrueFalseQuestionCommandRequest>
     {
         public async Task Handle(CreateTrueFalseQuestionCommandRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(CreateTrueFalseQuestionCommandHandler));
-            var exam = await examRepository.GetExamByIdAsync(request.ExamId);
+            var exam = await examRepository.GetByIdAsync(request.ExamId, "MultipleChoiceQuestions.Options", "TrueFalseQuestions");
 
             if (exam is null)
             {

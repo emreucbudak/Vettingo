@@ -4,12 +4,12 @@ using Vettingo.ExamService.Application.Repository;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetAll
 {
-    public class GetAllExamsQueryHandler(IExamRepository examRepository, ILogger<GetAllExamsQueryHandler> logger) : IRequestHandler<GetAllExamsQueryRequest, IEnumerable<GetAllExamsQueryResponse>>
+    public class GetAllExamsQueryHandler(IExamRepository<Domain.Entities.Exam> examRepository, ILogger<GetAllExamsQueryHandler> logger) : IRequestHandler<GetAllExamsQueryRequest, IEnumerable<GetAllExamsQueryResponse>>
     {
         public async Task<IEnumerable<GetAllExamsQueryResponse>> Handle(GetAllExamsQueryRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetAllExamsQueryHandler));
-            var exams = await examRepository.GetAllExamsAsync();
+            var exams = await examRepository.GetAllAsync("MultipleChoiceQuestions", "TrueFalseQuestions");
 
             return exams.Select(exam => new GetAllExamsQueryResponse
             {

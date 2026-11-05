@@ -16,7 +16,7 @@ namespace Vettingo.ExamService.Persistence.Registration
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
             });
 
-            collect.AddScoped<IExamRepository, ExamRepository>();
+            collect.AddScoped(typeof(IExamRepository<>), typeof(ExamRepository<>));
         }
     }
 }

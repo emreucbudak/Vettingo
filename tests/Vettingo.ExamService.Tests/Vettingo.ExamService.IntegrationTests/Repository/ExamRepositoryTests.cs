@@ -17,16 +17,16 @@ namespace Vettingo.ExamService.UnitTests.Repository
         }
 
         [Fact]
-        public async Task AddExamAsync_Then_GetExamByIdAsync_Should_Return_Exam()
+        public async Task AddAsync_Then_GetExamByIdAsync_Should_Return_Exam()
         {
             await using ExamDbContext context = _fixture.CreateDbContext();
-            var repository = new ExamRepository(context);
+            var repository = new ExamRepository<Exam>(context);
             var exam = CreateExam("Backend Exam");
 
-            await repository.AddExamAsync(exam);
+            await repository.AddAsync(exam);
             await repository.SaveChangesAsync();
 
-            var result = await repository.GetExamByIdAsync(exam.Id);
+            var result = await repository.GetByIdAsync(exam.Id, "MultipleChoiceQuestions.Options", "TrueFalseQuestions");
 
             result.Should().NotBeNull();
             result!.Id.Should().Be(exam.Id);
@@ -37,7 +37,7 @@ namespace Vettingo.ExamService.UnitTests.Repository
         public async Task ExamRepository_Should_Return_Exam_With_Questions_And_Options()
         {
             await using ExamDbContext context = _fixture.CreateDbContext();
-            var repository = new ExamRepository(context);
+            var repository = new ExamRepository<Exam>(context);
             var exam = CreateExam("Question exam");
             var otherExam = CreateExam("Other exam");
             var firstQuestion = CreateMultipleChoiceQuestion(exam.Id, "First question", 2);
@@ -47,12 +47,12 @@ namespace Vettingo.ExamService.UnitTests.Repository
             exam.AddMultipleChoiceQuestion(firstQuestion);
             exam.AddMultipleChoiceQuestion(secondQuestion);
             otherExam.AddMultipleChoiceQuestion(otherExamQuestion);
-            await repository.AddExamAsync(exam);
-            await repository.AddExamAsync(otherExam);
+            await repository.AddAsync(exam);
+            await repository.AddAsync(otherExam);
             await repository.SaveChangesAsync();
             context.ChangeTracker.Clear();
 
-            var result = await repository.GetExamByIdAsync(exam.Id);
+            var result = await repository.GetByIdAsync(exam.Id, "MultipleChoiceQuestions.Options", "TrueFalseQuestions");
 
             result.Should().NotBeNull();
             result!.MultipleChoiceQuestions.Should().HaveCount(2);

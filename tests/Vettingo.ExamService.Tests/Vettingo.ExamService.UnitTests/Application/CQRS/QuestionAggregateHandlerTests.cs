@@ -23,8 +23,8 @@ public sealed class QuestionAggregateHandlerTests
     public async Task Update_Should_Modify_Question_In_Exam_And_Save(bool multipleChoice)
     {
         var exam = CreateExam();
-        var repository = Substitute.For<IExamRepository>();
-        repository.GetExamByIdAsync(exam.Id).Returns(exam);
+        var repository = Substitute.For<IExamRepository<Exam>>();
+        repository.GetByIdAsync(exam.Id, Arg.Any<string[]>()).Returns(exam);
 
         if (multipleChoice)
         {
@@ -83,8 +83,8 @@ public sealed class QuestionAggregateHandlerTests
     public async Task Delete_Should_Remove_Only_Selected_Question_And_Save(bool multipleChoice)
     {
         var exam = CreateExam();
-        var repository = Substitute.For<IExamRepository>();
-        repository.GetExamByIdAsync(exam.Id).Returns(exam);
+        var repository = Substitute.For<IExamRepository<Exam>>();
+        repository.GetByIdAsync(exam.Id, Arg.Any<string[]>()).Returns(exam);
 
         if (multipleChoice)
         {
@@ -129,8 +129,8 @@ public sealed class QuestionAggregateHandlerTests
         var otherExam = CreateExam();
         var multipleChoiceId = otherExam.MultipleChoiceQuestions.Single().Id;
         var trueFalseId = otherExam.TrueFalseQuestions.Single().Id;
-        var repository = Substitute.For<IExamRepository>();
-        repository.GetExamByIdAsync(exam.Id).Returns(examExists ? exam : null);
+        var repository = Substitute.For<IExamRepository<Exam>>();
+        repository.GetByIdAsync(exam.Id, Arg.Any<string[]>()).Returns(examExists ? exam : null);
 
         Func<Task> action = operation switch
         {
@@ -158,9 +158,9 @@ public sealed class QuestionAggregateHandlerTests
     [InlineData(false)]
     public async Task Question_Query_When_Exam_Is_Missing_Should_Return_Empty_Collection(bool multipleChoice)
     {
-        var repository = Substitute.For<IExamRepository>();
+        var repository = Substitute.For<IExamRepository<Exam>>();
         var examId = Guid.NewGuid();
-        repository.GetExamByIdAsync(examId).Returns((Exam?)null);
+        repository.GetByIdAsync(examId, Arg.Any<string[]>()).Returns((Exam?)null);
 
         if (multipleChoice)
         {
@@ -183,8 +183,8 @@ public sealed class QuestionAggregateHandlerTests
         var firstQuestion = new TrueFalseQuestion();
         firstQuestion.CreateQuestion(exam.Id, "First question", 2, 1, "Yes", "No");
         exam.AddTrueFalseQuestion(firstQuestion);
-        var repository = Substitute.For<IExamRepository>();
-        repository.GetExamByIdAsync(exam.Id).Returns(exam);
+        var repository = Substitute.For<IExamRepository<Exam>>();
+        repository.GetByIdAsync(exam.Id, Arg.Any<string[]>()).Returns(exam);
 
         var result = (await new GetTrueFalseQuestionsByExamQueryHandler(repository, Logger<GetTrueFalseQuestionsByExamQueryHandler>())
             .Handle(new GetTrueFalseQuestionsByExamQueryRequest(exam.Id), CancellationToken.None)).ToList();
