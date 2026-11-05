@@ -26,7 +26,7 @@ namespace Vettingo.ExamService.UnitTests.Repository
             await repository.AddAsync(exam);
             await repository.SaveChangesAsync();
 
-            var result = await repository.GetByIdAsync(exam.Id, "MultipleChoiceQuestions.Options", "TrueFalseQuestions");
+            var result = await repository.GetByIdAsync(exam.Id);
 
             result.Should().NotBeNull();
             result!.Id.Should().Be(exam.Id);
@@ -34,7 +34,7 @@ namespace Vettingo.ExamService.UnitTests.Repository
         }
 
         [Fact]
-        public async Task ExamRepository_Should_Return_Exam_With_Questions_And_Options()
+        public async Task GetByIdAsync_Should_Return_Exam_Without_Loading_Questions()
         {
             await using ExamDbContext context = _fixture.CreateDbContext();
             var repository = new ExamRepository<Exam>(context);
@@ -52,12 +52,11 @@ namespace Vettingo.ExamService.UnitTests.Repository
             await repository.SaveChangesAsync();
             context.ChangeTracker.Clear();
 
-            var result = await repository.GetByIdAsync(exam.Id, "MultipleChoiceQuestions.Options", "TrueFalseQuestions");
+            var result = await repository.GetByIdAsync(exam.Id);
 
             result.Should().NotBeNull();
-            result!.MultipleChoiceQuestions.Should().HaveCount(2);
-            result.MultipleChoiceQuestions.Should().OnlyContain(question => question.ExamId == exam.Id);
-            result.MultipleChoiceQuestions.Should().OnlyContain(question => question.Options.Count == 2);
+            result!.Id.Should().Be(exam.Id);
+            result.MultipleChoiceQuestions.Should().BeEmpty();
         }
 
         private static Exam CreateExam(string title)

@@ -10,7 +10,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.
         public async Task Handle(DeleteMultipleChoiceQuestionCommandRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(DeleteMultipleChoiceQuestionCommandHandler));
-            var exam = await examRepository.GetByIdAsync(request.ExamId, "MultipleChoiceQuestions.Options", "TrueFalseQuestions")
+            var exam = await examRepository.GetByIdAsync(request.ExamId)
                 ?? throw new NotFoundException("Sınav bulunamadı");
 
             if (!exam.RemoveMultipleChoiceQuestion(request.QuestionId))

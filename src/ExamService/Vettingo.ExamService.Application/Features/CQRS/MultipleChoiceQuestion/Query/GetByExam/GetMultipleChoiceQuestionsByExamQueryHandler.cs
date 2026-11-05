@@ -9,7 +9,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.
         public async Task<IEnumerable<GetMultipleChoiceQuestionsByExamQueryResponse>> Handle(GetMultipleChoiceQuestionsByExamQueryRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetMultipleChoiceQuestionsByExamQueryHandler));
-            var exam = await examRepository.GetByIdAsync(request.ExamId, "MultipleChoiceQuestions.Options", "TrueFalseQuestions");
+            var exam = await examRepository.GetByIdAsync(request.ExamId);
             var questions = exam?.MultipleChoiceQuestions ?? [];
 
             return questions.OrderBy(question => question.DisplayOrder).Select(question => new GetMultipleChoiceQuestionsByExamQueryResponse

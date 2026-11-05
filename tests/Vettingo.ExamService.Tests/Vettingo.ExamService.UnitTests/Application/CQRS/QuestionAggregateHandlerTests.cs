@@ -24,7 +24,7 @@ public sealed class QuestionAggregateHandlerTests
     {
         var exam = CreateExam();
         var repository = Substitute.For<IExamRepository<Exam>>();
-        repository.GetByIdAsync(exam.Id, Arg.Any<string[]>()).Returns(exam);
+        repository.GetByIdAsync(exam.Id).Returns(exam);
 
         if (multipleChoice)
         {
@@ -84,7 +84,7 @@ public sealed class QuestionAggregateHandlerTests
     {
         var exam = CreateExam();
         var repository = Substitute.For<IExamRepository<Exam>>();
-        repository.GetByIdAsync(exam.Id, Arg.Any<string[]>()).Returns(exam);
+        repository.GetByIdAsync(exam.Id).Returns(exam);
 
         if (multipleChoice)
         {
@@ -130,7 +130,7 @@ public sealed class QuestionAggregateHandlerTests
         var multipleChoiceId = otherExam.MultipleChoiceQuestions.Single().Id;
         var trueFalseId = otherExam.TrueFalseQuestions.Single().Id;
         var repository = Substitute.For<IExamRepository<Exam>>();
-        repository.GetByIdAsync(exam.Id, Arg.Any<string[]>()).Returns(examExists ? exam : null);
+        repository.GetByIdAsync(exam.Id).Returns(examExists ? exam : null);
 
         Func<Task> action = operation switch
         {
@@ -160,7 +160,7 @@ public sealed class QuestionAggregateHandlerTests
     {
         var repository = Substitute.For<IExamRepository<Exam>>();
         var examId = Guid.NewGuid();
-        repository.GetByIdAsync(examId, Arg.Any<string[]>()).Returns((Exam?)null);
+        repository.GetByIdAsync(examId).Returns((Exam?)null);
 
         if (multipleChoice)
         {
@@ -184,7 +184,7 @@ public sealed class QuestionAggregateHandlerTests
         firstQuestion.CreateQuestion(exam.Id, "First question", 2, 1, "Yes", "No");
         exam.AddTrueFalseQuestion(firstQuestion);
         var repository = Substitute.For<IExamRepository<Exam>>();
-        repository.GetByIdAsync(exam.Id, Arg.Any<string[]>()).Returns(exam);
+        repository.GetByIdAsync(exam.Id).Returns(exam);
 
         var result = (await new GetTrueFalseQuestionsByExamQueryHandler(repository, Logger<GetTrueFalseQuestionsByExamQueryHandler>())
             .Handle(new GetTrueFalseQuestionsByExamQueryRequest(exam.Id), CancellationToken.None)).ToList();

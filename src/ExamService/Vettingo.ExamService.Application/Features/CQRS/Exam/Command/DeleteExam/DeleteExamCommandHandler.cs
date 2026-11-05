@@ -10,7 +10,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.DeleteExam
         public async Task Handle(DeleteExamCommandRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(DeleteExamCommandHandler));
-            var exam = await examRepository.GetByIdAsync(request.ExamId, "MultipleChoiceQuestions.Options", "TrueFalseQuestions");
+            var exam = await examRepository.GetByIdAsync(request.ExamId);
 
             if (exam is null)
             {
