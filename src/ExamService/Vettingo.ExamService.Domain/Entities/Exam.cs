@@ -26,6 +26,16 @@ namespace Vettingo.ExamService.Domain.Entities
         public IReadOnlyCollection<TrueFalseQuestion> TrueFalseQuestions => _trueFalseQuestions.AsReadOnly();
         public IReadOnlyCollection<ExamAttempt> Attempts => _attempts.AsReadOnly();
 
+        public IReadOnlyCollection<MultipleChoiceQuestion> GetMultipleChoiceQuestions()
+        {
+            return _multipleChoiceQuestions.AsReadOnly();
+        }
+
+        public IReadOnlyCollection<TrueFalseQuestion> GetTrueFalseQuestions()
+        {
+            return _trueFalseQuestions.AsReadOnly();
+        }
+
         public void AddMultipleChoiceQuestion(MultipleChoiceQuestion question)
         {
             ArgumentNullException.ThrowIfNull(question, nameof(question));
