@@ -5,6 +5,7 @@ namespace Vettingo.JobService.Domain.Entities;
 
 public class JobSteps : BaseEntity
 {
+    public Guid StepId { get; set; }
     public Guid JobPostingId { get; set; }
     public JobPosting JobPosting { get; set; } = null!;
     public int Order { get; set; }
