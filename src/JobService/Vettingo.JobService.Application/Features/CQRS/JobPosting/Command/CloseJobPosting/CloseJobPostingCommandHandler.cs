@@ -18,7 +18,6 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.Close
             }
 
             jobPosting.CloseJobPosting();
-            jobPostingRepository.UpdateJobPosting(jobPosting);
             await jobPostingRepository.SaveChangesAsync();
         }
     }

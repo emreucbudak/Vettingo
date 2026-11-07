@@ -27,7 +27,8 @@ namespace Vettingo.JobService.Domain.Entities
         public int MaxSalary { get; private set; }
         public DateTime? ApplicationDeadline { get; private set; }
         public JobPostingStatus Status { get; private set; }
-        public bool IsClosed { get; private set; }
+        public bool IsApplicationClosed { get; private set; }
+        public bool IsPostingClosed { get; private set; }
         public IReadOnlyCollection<JobSteps> JobSteps => _jobSteps.AsReadOnly();
 
         public void CreateJobPosting(
@@ -59,7 +60,8 @@ namespace Vettingo.JobService.Domain.Entities
             CompanyName = companyName;
             UpdateJobPosting(title, requirementSkills, cityId, employmentType, workingModel, minimumExperienceYear, maximumExperienceYear, minSalary, maxSalary, applicationDeadline);
             Status = status;
-            IsClosed = false;
+            IsApplicationClosed = false;
+            IsPostingClosed = false;
             _jobSteps = jobSteps;
             SetCreatedAt();
             UpdatedAt = null;
@@ -93,7 +95,13 @@ namespace Vettingo.JobService.Domain.Entities
 
         public void CloseJobPosting()
         {
-            IsClosed = true;
+            IsPostingClosed = true;
+            SetUpdatedAt();
+        }
+
+        public void CloseJobPostingApplications()
+        {
+            IsApplicationClosed = true;
             SetUpdatedAt();
         }
 

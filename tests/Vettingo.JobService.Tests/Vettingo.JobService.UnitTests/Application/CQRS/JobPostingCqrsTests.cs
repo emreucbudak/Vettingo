@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CloseJobPosting;
+using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CloseJobPostingApplications;
 using Vettingo.JobService.Application.Exceptions;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CreateJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.UpdateJobPosting;
@@ -205,10 +206,26 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
 
             await handler.Handle(new CloseJobPostingCommandRequest { JobPostingId = posting.Id }, CancellationToken.None);
 
-            posting.IsClosed.Should().BeTrue();
+            posting.IsPostingClosed.Should().BeTrue();
+            posting.IsApplicationClosed.Should().BeFalse();
             posting.Status.Should().Be(JobPostingStatus.AcceptingApplications);
             posting.UpdatedAt.Should().NotBeNull();
-            repository.Received(1).UpdateJobPosting(posting);
+            await repository.Received(1).SaveChangesAsync();
+        }
+
+        [Fact]
+        public async Task CloseJobPostingApplicationsCommandHandler_Should_Only_Close_Applications()
+        {
+            var repository = Substitute.For<IJobPostingRepository>();
+            var posting = CreateJobPosting(Guid.NewGuid(), "Backend Developer");
+            repository.GetJobPostingByIdAsync(posting.Id).Returns(_ => ReturnAsync<JobPosting?>(posting));
+            var handler = new CloseJobPostingApplicationsCommandHandler(
+                repository, Substitute.For<ILogger<CloseJobPostingApplicationsCommandHandler>>());
+
+            await handler.Handle(new CloseJobPostingApplicationsCommandRequest { JobPostingId = posting.Id }, CancellationToken.None);
+
+            posting.IsApplicationClosed.Should().BeTrue();
+            posting.IsPostingClosed.Should().BeFalse();
             await repository.Received(1).SaveChangesAsync();
         }
 
