@@ -107,7 +107,8 @@ namespace Vettingo.JobService.UnitTests.Domain
                 new Dictionary<string, int> { ["C#"] = 3 }, 34, EmploymentType.FullTime, WorkingModel.Remote,
                 2, 5, 50000, 75000, null, JobPostingStatus.AcceptingApplications, steps);
             posting.JobSteps.Should().ContainSingle().Which.Should().BeSameAs(step);
-            posting.IsClosed.Should().BeFalse();
+            posting.IsApplicationClosed.Should().BeFalse();
+            posting.IsPostingClosed.Should().BeFalse();
             ((ICollection<JobSteps>)posting.JobSteps).IsReadOnly.Should().BeTrue();
 
             steps.Clear();
