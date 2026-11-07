@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vettingo.JobService.Domain.Entities;
 using Vettingo.JobService.Domain.Enums;
 using Vettingo.JobService.Persistence.SeedData;
@@ -52,6 +53,12 @@ namespace Vettingo.JobService.Persistence.DbContext
             builder.Entity<JobSteps>()
                 .Property(step => step.StepType)
                 .HasConversion<string>();
+
+            var stepDateConverter = new ValueConverter<DateOnly, DateTime>(
+                date => date.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
+                timestamp => DateOnly.FromDateTime(timestamp));
+            builder.Entity<JobSteps>().Property(step => step.StartedDate).HasConversion(stepDateConverter);
+            builder.Entity<JobSteps>().Property(step => step.EndDate).HasConversion(stepDateConverter);
 
             builder.Entity<JobSteps>()
                 .HasOne(step => step.JobPosting)

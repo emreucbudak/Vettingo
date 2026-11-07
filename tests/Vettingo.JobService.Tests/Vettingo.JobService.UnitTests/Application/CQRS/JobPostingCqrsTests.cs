@@ -124,7 +124,13 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 .Single(call => call.GetMethodInfo().Name == nameof(IJobPostingRepository.AddJobPostingAsync))
                 .GetArguments()[0]!;
             created.JobSteps.Select(step => new { step.Order, step.StepType, step.StartedDate, step.EndDate })
-                .Should().BeEquivalentTo(request.JobSteps);
+                .Should().BeEquivalentTo(request.JobSteps.Select(step => new
+                {
+                    step.Order,
+                    step.StepType,
+                    StartedDate = DateOnly.FromDateTime(step.StartedDate),
+                    EndDate = DateOnly.FromDateTime(step.EndDate)
+                }));
             await repository.Received(1).SaveChangesAsync();
         }
 
@@ -279,7 +285,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 2, 5,
                 50000, 75000,
                 DateTime.UtcNow.AddDays(30),
-                JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddHours(1) }]);
+                JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
 
             return jobPosting;
         }
