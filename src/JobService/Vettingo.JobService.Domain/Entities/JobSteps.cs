@@ -10,6 +10,6 @@ public class JobSteps : BaseEntity
     public JobPosting JobPosting { get; set; } = null!;
     public int Order { get; set; }
     public StepType StepType { get; set; }
-    public DateTime StartedDate { get; set; }
-    public DateTime EndDate { get; set; }
+    public DateOnly StartedDate { get; set; }
+    public DateOnly EndDate { get; set; }
 }

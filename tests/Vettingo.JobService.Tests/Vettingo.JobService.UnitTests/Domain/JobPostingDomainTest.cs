@@ -26,7 +26,7 @@ namespace Vettingo.JobService.UnitTests.Domain
                     2, 5,
                     50000, 50000,
                     DateTime.UtcNow.AddDays(30),
-                    JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddHours(1) }]);
+                    JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
             };
 
             // Assert
@@ -43,7 +43,7 @@ namespace Vettingo.JobService.UnitTests.Domain
             var posting = new JobPosting();
             Action create = () => posting.CreateJobPosting(Guid.NewGuid(), companyName!, "Developer",
                 new Dictionary<string, int> { ["C#"] = 3 }, 34, EmploymentType.FullTime, WorkingModel.Remote,
-                2, 5, 50000, 75000, null, JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddHours(1) }]);
+                2, 5, 50000, 75000, null, JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
             create.Should().Throw<ArgumentException>().WithParameterName("companyName");
         }
 
@@ -67,7 +67,7 @@ namespace Vettingo.JobService.UnitTests.Domain
                     2, 5,
                     50000, 50000,
                     DateTime.UtcNow.AddDays(30),
-                    JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddHours(1) }]);
+                    JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
             };
 
             // Assert
@@ -99,7 +99,7 @@ namespace Vettingo.JobService.UnitTests.Domain
             var step = new JobSteps
             {
                 Order = 1, StepType = StepType.Exam,
-                StartedDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddHours(1)
+                StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2)
             };
             var steps = new List<JobSteps> { step };
 
