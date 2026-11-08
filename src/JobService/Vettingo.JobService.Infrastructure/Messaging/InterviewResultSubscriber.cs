@@ -16,6 +16,6 @@ public sealed class InterviewResultSubscriber : ICapSubscribe
     [CapSubscribe("vettingo.job.interview-result.published.v1", Group = "vettingo.job-service")]
     public Task HandleAsync(InterviewResultMessage message, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return Task.CompletedTask;
     }
 }
