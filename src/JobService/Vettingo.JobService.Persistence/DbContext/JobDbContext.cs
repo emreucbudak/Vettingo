@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vettingo.JobService.Domain.Entities;
-using Vettingo.JobService.Domain.Enums;
 using Vettingo.JobService.Persistence.SeedData;
 
 namespace Vettingo.JobService.Persistence.DbContext
@@ -42,13 +41,11 @@ namespace Vettingo.JobService.Persistence.DbContext
 
             builder.Entity<JobPosting>()
                 .Property(jobPosting => jobPosting.Status)
-                .HasConversion(
-                    status => status == JobPostingStatus.AcceptingApplications ? "Published" : status.ToString(),
-                    value => value == "Published" ? JobPostingStatus.AcceptingApplications : Enum.Parse<JobPostingStatus>(value, false));
+                .HasConversion<string>();
 
             builder.Entity<JobApplication>()
                 .Property(application => application.Status)
-                .HasConversion(status => ToStoredApplicationStatus(status), value => FromStoredApplicationStatus(value));
+                .HasConversion<string>();
             builder.Entity<JobApplication>().HasOne<JobPosting>().WithMany()
                 .HasForeignKey(application => application.JobPostingId).OnDelete(DeleteBehavior.Restrict);
 
@@ -75,27 +72,5 @@ namespace Vettingo.JobService.Persistence.DbContext
 
             base.OnModelCreating(builder);
         }
-
-        private static string ToStoredApplicationStatus(ApplicationStatus status) => status switch
-        {
-            ApplicationStatus.Başvuruldu => "Submitted",
-            ApplicationStatus.Sınav => "UnderReview",
-            ApplicationStatus.Mülakat => "Interview",
-            ApplicationStatus.Teklif => "Offer",
-            ApplicationStatus.Elendi => "Rejected",
-            ApplicationStatus.İşeAlındı => "Hired",
-            _ => throw new ArgumentOutOfRangeException(nameof(status), status, "Başvuru durumu geçersiz.")
-        };
-
-        private static ApplicationStatus FromStoredApplicationStatus(string value) => value.ToUpperInvariant() switch
-        {
-            "SUBMITTED" => ApplicationStatus.Başvuruldu,
-            "UNDERREVIEW" => ApplicationStatus.Sınav,
-            "INTERVIEW" => ApplicationStatus.Mülakat,
-            "OFFER" => ApplicationStatus.Teklif,
-            "REJECTED" => ApplicationStatus.Elendi,
-            "HIRED" => ApplicationStatus.İşeAlındı,
-            _ => Enum.Parse<ApplicationStatus>(value, ignoreCase: true)
-        };
     }
 }
