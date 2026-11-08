@@ -17,6 +17,6 @@ public sealed class ExamResultPublisher : IExamResultPublisher
 
     public Task PublishAsync(ExamResultMessage message, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return _capPublisher.PublishAsync(TopicName, message, cancellationToken: cancellationToken);
     }
 }
