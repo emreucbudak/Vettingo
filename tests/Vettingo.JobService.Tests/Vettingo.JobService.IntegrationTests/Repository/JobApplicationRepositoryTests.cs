@@ -52,6 +52,8 @@ namespace Vettingo.JobService.UnitTests.Repository
             var ownPosting = NewPosting(companyId);
             var otherPosting = NewPosting(Guid.NewGuid());
             context.JobPostings.AddRange(ownPosting, otherPosting);
+            await context.SaveChangesAsync();
+
             var active = new JobApplication();
             active.CreateApplication(Guid.NewGuid(), ownPosting.Id, DateTime.UtcNow, ApplicationStatus.Başvuruldu);
             var rejected = new JobApplication();
