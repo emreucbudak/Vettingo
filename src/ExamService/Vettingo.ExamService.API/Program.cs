@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Vettingo.ExamService.API.ExceptionHandlers;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam;
+using Vettingo.ExamService.Infrastructure.Registration;
 using Vettingo.ExamService.Persistence.Registration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -60,6 +61,7 @@ builder.Services.AddRateLimiter(options =>
 });
 
 builder.Services.SaveDb(builder.Configuration);
+builder.Services.AddExamCap(builder.Configuration);
 builder.Services.AddFlashMediator(typeof(CreateExamCommandHandler).Assembly);
 builder.Services.AddFlashMediatorHybridCache();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateExamCommandRequest>();

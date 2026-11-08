@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Vettingo.InterviewService.API.ExceptionHandlers;
 using Vettingo.InterviewService.Application.Features.CQRS.Interview.Query.GetByDate;
+using Vettingo.InterviewService.Infrastructure.Registration;
 using Vettingo.InterviewService.Persistence.Registration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -64,6 +65,7 @@ builder.Services.AddRateLimiter(options =>
 });
 
 builder.Services.SaveDb(builder.Configuration);
+builder.Services.AddInterviewCap(builder.Configuration);
 builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
 builder.Services.AddFlashMediator(typeof(GetInterviewsByDateQueryHandler).Assembly);
 builder.Services.AddFlashMediatorHybridCache();

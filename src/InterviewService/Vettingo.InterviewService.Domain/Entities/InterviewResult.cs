@@ -6,6 +6,7 @@ namespace Vettingo.InterviewService.Domain.Entities
     {
         public Guid UserId { get; private set; }
         public Guid InterviewId { get; private set; }
+        public Interview Interview { get; private set; } = null!;
         public int InterviewScore { get; private set; }
         public bool Passed { get; private set; }
 
