@@ -9,7 +9,6 @@ namespace Vettingo.JobService.Domain.Entities
     {
         public Guid CandidateId { get; private set; }
         public Guid JobPostingId { get; private set; }
-        public JobPosting JobPosting { get; private set; } = null!;
         public DateTime AppliedAt { get; private set; }
         public ApplicationStatus Status { get; private set; }
 

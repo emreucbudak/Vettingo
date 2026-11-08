@@ -22,17 +22,15 @@ namespace Vettingo.JobService.UnitTests.Repository
             await using JobDbContext context = _fixture.CreateDbContext();
             var repository = new JobApplicationRepository(context);
             var candidateId = Guid.NewGuid();
-            var older = CreateApplication(candidateId, DateTime.UtcNow.AddDays(-2));
-            var newer = CreateApplication(candidateId, DateTime.UtcNow.AddDays(-1));
-            var other = CreateApplication(Guid.NewGuid(), DateTime.UtcNow);
-            foreach (var application in new[] { older, newer, other })
-            {
-                var posting = new JobPosting();
-                posting.CreateJobPosting(Guid.NewGuid(), "Vettingo Teknoloji", Guid.NewGuid().ToString(), new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34,
-                    EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 0, 0, null, JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
-                application.CreateApplication(application.CandidateId, posting.Id, application.AppliedAt, application.Status);
-                context.JobPostings.Add(posting);
-            }
+            var olderPosting = NewPosting(Guid.NewGuid());
+            var newerPosting = NewPosting(Guid.NewGuid());
+            var otherPosting = NewPosting(Guid.NewGuid());
+            context.JobPostings.AddRange(olderPosting, newerPosting, otherPosting);
+            await context.SaveChangesAsync();
+
+            var older = CreateApplication(candidateId, olderPosting.Id, DateTime.UtcNow.AddDays(-2));
+            var newer = CreateApplication(candidateId, newerPosting.Id, DateTime.UtcNow.AddDays(-1));
+            var other = CreateApplication(Guid.NewGuid(), otherPosting.Id, DateTime.UtcNow);
             await repository.AddAsync(older);
             await repository.AddAsync(newer);
             await repository.AddAsync(other);
@@ -76,10 +74,10 @@ namespace Vettingo.JobService.UnitTests.Repository
             return posting;
         }
 
-        private static JobApplication CreateApplication(Guid candidateId, DateTime appliedAt)
+        private static JobApplication CreateApplication(Guid candidateId, Guid jobPostingId, DateTime appliedAt)
         {
             JobApplication application = new();
-            application.CreateApplication(candidateId, Guid.NewGuid(), appliedAt, ApplicationStatus.Başvuruldu);
+            application.CreateApplication(candidateId, jobPostingId, appliedAt, ApplicationStatus.Başvuruldu);
             return application;
         }
     }
