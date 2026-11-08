@@ -29,7 +29,7 @@ public class JobExamQueryTests
         trueFalseQuestion.CreateQuestion(exam.Id, "Is this true?", 1, 2, "True", "False");
         exam.AddTrueFalseQuestion(trueFalseQuestion);
         var attempt = new ExamAttempt();
-        attempt.StartAttempt(exam.Id, Guid.NewGuid());
+        attempt.CreateAttempt(exam, Guid.NewGuid(), 80, DateTime.UtcNow, DateTime.UtcNow);
         exam.AddAttempt(attempt);
         var jobExam = new JobExam { Exam = exam };
         jobExam.CreateJobExam(Guid.NewGuid(), exam.Id);
