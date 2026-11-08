@@ -24,10 +24,10 @@ public sealed class CompanyApplicationStatisticsTests
         var candidateId = Guid.NewGuid();
         var statuses = new[]
         {
-            ApplicationStatus.Submitted, ApplicationStatus.Submitted,
-            ApplicationStatus.UnderReview, ApplicationStatus.UnderReview,
-            ApplicationStatus.Interview, ApplicationStatus.Interview,
-            ApplicationStatus.Offer, ApplicationStatus.Rejected
+            ApplicationStatus.Başvuruldu, ApplicationStatus.Başvuruldu,
+            ApplicationStatus.Sınav, ApplicationStatus.Sınav,
+            ApplicationStatus.Mülakat, ApplicationStatus.Mülakat,
+            ApplicationStatus.Teklif, ApplicationStatus.Elendi
         };
         for (var index = 0; index < statuses.Length; index++)
         {
@@ -52,8 +52,8 @@ public sealed class CompanyApplicationStatisticsTests
         context.ChangeTracker.Entries().Should().BeEmpty();
 
         var reviewedApplication = await context.JobApplications.FirstAsync(application =>
-            application.JobPostingId == activePosting.Id && application.Status == ApplicationStatus.UnderReview);
-        reviewedApplication.UpdateStatus(ApplicationStatus.Rejected);
+            application.JobPostingId == activePosting.Id && application.Status == ApplicationStatus.Sınav);
+        reviewedApplication.UpdateStatus(ApplicationStatus.Elendi);
         await context.SaveChangesAsync();
 
         var updatedResult = await handler.Handle(new() { CompanyId = companyId }, CancellationToken.None);

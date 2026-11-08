@@ -18,15 +18,15 @@ public class CandidateApplicationStatisticsTests
         await using var context = new JobDbContext(new DbContextOptionsBuilder<JobDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         var userId = Guid.NewGuid();
-        foreach (var status in new[] { ApplicationStatus.Submitted, ApplicationStatus.UnderReview,
-            ApplicationStatus.Interview, ApplicationStatus.Offer, ApplicationStatus.Offer, ApplicationStatus.Rejected })
+        foreach (var status in new[] { ApplicationStatus.Başvuruldu, ApplicationStatus.Sınav,
+            ApplicationStatus.Mülakat, ApplicationStatus.Teklif, ApplicationStatus.Teklif, ApplicationStatus.Elendi })
         {
             var application = new JobApplication();
             application.CreateApplication(userId, Guid.NewGuid(), DateTime.UtcNow, status);
             context.JobApplications.Add(application);
         }
         var other = new JobApplication();
-        other.CreateApplication(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, ApplicationStatus.Rejected);
+        other.CreateApplication(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, ApplicationStatus.Elendi);
         context.JobApplications.Add(other);
         await context.SaveChangesAsync();
         var handler = new GetCandidateApplicationStatisticsQueryHandler(

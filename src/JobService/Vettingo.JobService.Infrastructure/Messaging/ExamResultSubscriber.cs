@@ -1,5 +1,6 @@
 using DotNetCore.CAP;
 using FlashMediator;
+using Vettingo.JobService.Application.Features.CQRS.JobApplication.Command.RejectFailedExamApplication;
 using Vettingo.JobService.Infrastructure.Messages;
 
 namespace Vettingo.JobService.Infrastructure.Messaging;
@@ -14,8 +15,12 @@ public sealed class ExamResultSubscriber : ICapSubscribe
     }
 
     [CapSubscribe("vettingo.job.exam-result.published.v1", Group = "vettingo.job-service")]
-    public Task HandleAsync(ExamResultMessage message, CancellationToken cancellationToken)
+    public async Task HandleAsync(ExamResultMessage message, CancellationToken cancellationToken)
     {
-        return Task.CompletedTask;
+        await _mediator.Send(new RejectFailedExamApplicationCommandRequest
+        {
+            UserId = message.UserId,
+            JobId = message.JobId
+        }, cancellationToken);
     }
 }

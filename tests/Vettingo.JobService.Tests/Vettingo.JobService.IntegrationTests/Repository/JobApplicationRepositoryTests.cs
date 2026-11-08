@@ -53,11 +53,11 @@ namespace Vettingo.JobService.UnitTests.Repository
             var otherPosting = NewPosting(Guid.NewGuid());
             context.JobPostings.AddRange(ownPosting, otherPosting);
             var active = new JobApplication();
-            active.CreateApplication(Guid.NewGuid(), ownPosting.Id, DateTime.UtcNow, ApplicationStatus.Submitted);
+            active.CreateApplication(Guid.NewGuid(), ownPosting.Id, DateTime.UtcNow, ApplicationStatus.Başvuruldu);
             var rejected = new JobApplication();
-            rejected.CreateApplication(Guid.NewGuid(), ownPosting.Id, DateTime.UtcNow, ApplicationStatus.Rejected);
+            rejected.CreateApplication(Guid.NewGuid(), ownPosting.Id, DateTime.UtcNow, ApplicationStatus.Elendi);
             var other = new JobApplication();
-            other.CreateApplication(Guid.NewGuid(), otherPosting.Id, DateTime.UtcNow, ApplicationStatus.Submitted);
+            other.CreateApplication(Guid.NewGuid(), otherPosting.Id, DateTime.UtcNow, ApplicationStatus.Başvuruldu);
             context.JobApplications.AddRange(active, rejected, other);
             await context.SaveChangesAsync();
 
@@ -77,7 +77,7 @@ namespace Vettingo.JobService.UnitTests.Repository
         private static JobApplication CreateApplication(Guid candidateId, DateTime appliedAt)
         {
             JobApplication application = new();
-            application.CreateApplication(candidateId, Guid.NewGuid(), appliedAt, ApplicationStatus.Submitted);
+            application.CreateApplication(candidateId, Guid.NewGuid(), appliedAt, ApplicationStatus.Başvuruldu);
             return application;
         }
     }

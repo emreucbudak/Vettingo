@@ -22,28 +22,28 @@ public class ApplicationStatisticsTests
             db.JobApplications.Add(application);
         }
         var other = new JobApplication();
-        other.CreateApplication(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, ApplicationStatus.Interview);
+        other.CreateApplication(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, ApplicationStatus.Mülakat);
         db.JobApplications.Add(other);
         await db.SaveChangesAsync();
         var repository = new JobApplicationRepository(db);
         var result = await repository.GetCandidateStatisticsAsync(candidateId);
-        result.TotalApplications.Should().Be(5);
+        result.TotalApplications.Should().Be(6);
         result.InProgress.Should().Be(3);
         result.Interviews.Should().Be(1);
-        result.Completed.Should().Be(2);
+        result.Completed.Should().Be(3);
         (await repository.GetCandidateStatisticsAsync(Guid.NewGuid()))
             .Should().Be(new Vettingo.JobService.Application.Repository.CandidateApplicationStatistics(0, 0, 0, 0));
-        db.JobApplications.First(a => a.CandidateId == candidateId && a.Status == ApplicationStatus.Interview)
-            .UpdateStatus(ApplicationStatus.Rejected);
+        db.JobApplications.First(a => a.CandidateId == candidateId && a.Status == ApplicationStatus.Mülakat)
+            .UpdateStatus(ApplicationStatus.Elendi);
         await db.SaveChangesAsync();
         var updated = await repository.GetCandidateStatisticsAsync(candidateId);
         updated.InProgress.Should().Be(2);
         updated.Interviews.Should().Be(0);
-        updated.Completed.Should().Be(3);
+        updated.Completed.Should().Be(4);
     }
 
     [Fact]
-    public async Task Statistics_ShouldCountOnlyRequestedJobsAndExcludeRejectedFromActive()
+    public async Task Statistics_ShouldCountOnlyRequestedJobsAndExcludeRejectedAndHiredFromActive()
     {
         await using var db = new JobDbContext(new DbContextOptionsBuilder<JobDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
@@ -60,27 +60,27 @@ public class ApplicationStatisticsTests
             db.JobApplications.Add(application);
         }
         var other = new JobApplication();
-        other.CreateApplication(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, ApplicationStatus.Submitted);
+        other.CreateApplication(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, ApplicationStatus.Başvuruldu);
         db.JobApplications.Add(other);
         await db.SaveChangesAsync();
         var repository = new JobApplicationRepository(db);
         var result = await repository.GetStatisticsAsync(companyId);
-        result.TotalApplications.Should().Be(5);
+        result.TotalApplications.Should().Be(6);
         result.ActiveApplications.Should().Be(4);
         var empty = await repository.GetStatisticsAsync(Guid.NewGuid());
         empty.TotalApplications.Should().Be(0);
         empty.ActiveApplications.Should().Be(0);
-        db.JobApplications.First(a => a.JobPostingId == jobId && a.Status == ApplicationStatus.Submitted)
-            .UpdateStatus(ApplicationStatus.Rejected);
+        db.JobApplications.First(a => a.JobPostingId == jobId && a.Status == ApplicationStatus.Başvuruldu)
+            .UpdateStatus(ApplicationStatus.Elendi);
         await db.SaveChangesAsync();
         (await repository.GetStatisticsAsync(companyId)).ActiveApplications.Should().Be(3);
     }
 
     [Fact]
-    public void RemovedStatus_ShouldBeRejected()
+    public void UndefinedStatus_ShouldBeRejected()
     {
         var application = new JobApplication();
-        Action act = () => application.CreateApplication(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, (ApplicationStatus)6);
+        Action act = () => application.CreateApplication(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, (ApplicationStatus)7);
         act.Should().Throw<ArgumentOutOfRangeException>();
     }
 }
