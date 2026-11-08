@@ -54,10 +54,6 @@ namespace Vettingo.ExamService.Persistence.DbContext
                 .HasForeignKey(option => option.MultipleChoiceQuestionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Entity<ExamAttempt>()
-                .Property(attempt => attempt.Status)
-                .HasConversion<string>();
-
             base.OnModelCreating(builder);
         }
     }

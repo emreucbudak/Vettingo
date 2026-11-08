@@ -1,5 +1,4 @@
 using Vettingo.ExamService.Domain.Common;
-using Vettingo.ExamService.Domain.Enums;
 
 namespace Vettingo.ExamService.Domain.Entities
 {
@@ -15,7 +14,7 @@ namespace Vettingo.ExamService.Domain.Entities
         public DateTime StartedAt { get; private set; }
         public DateTime CompletedAt { get; private set; }
         public int Score { get; private set; }
-        public ExamAttemptStatus Status { get; private set; }
+        public bool Passed { get; private set; }
 
         public void CreateAttempt(JobExam jobExam, Guid candidateId, int score, DateTime startedAt, DateTime completedAt)
         {
@@ -33,7 +32,7 @@ namespace Vettingo.ExamService.Domain.Entities
             StartedAt = startedAt.ToUniversalTime();
             Score = score;
             CompletedAt = completedAt.ToUniversalTime();
-            Status = score >= exam.PassingScore ? ExamAttemptStatus.Passed : ExamAttemptStatus.Failed;
+            Passed = score >= exam.PassingScore;
         }
 
         public void CheckScore(int score)

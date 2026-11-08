@@ -11,12 +11,13 @@ namespace Vettingo.InterviewService.Domain.Entities
         public int InterviewScore { get; private set; }
         public bool Passed { get; private set; }
 
-        public void Create(Guid userId, Guid interviewId, int interviewScore, bool passed)
+        public void Create(Guid userId, Guid interviewId, Guid jobId, int interviewScore, bool passed)
         {
             SetId();
             SetCreatedAt();
             UserId = userId;
             InterviewId = interviewId;
+            JobId = jobId;
             InterviewScore = interviewScore;
             Passed = passed;
         }

@@ -20,9 +20,9 @@ public sealed class UpdateInterviewResultCommandTests
     {
         await using var context = CreateContext();
         var result = new InterviewResult();
-        result.Create(Guid.NewGuid(), Guid.NewGuid(), 75, true);
+        result.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), 75, true);
         var other = new InterviewResult();
-        other.Create(Guid.NewGuid(), Guid.NewGuid(), 50, true);
+        other.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), 50, true);
         context.InterviewResults.AddRange(result, other);
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
