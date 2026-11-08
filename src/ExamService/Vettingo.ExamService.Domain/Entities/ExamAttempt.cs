@@ -13,34 +13,26 @@ namespace Vettingo.ExamService.Domain.Entities
         public Exam Exam { get; private set; } = null!;
         public Guid CandidateId { get; private set; }
         public DateTime StartedAt { get; private set; }
-        public DateTime? CompletedAt { get; private set; }
+        public DateTime CompletedAt { get; private set; }
         public int Score { get; private set; }
-        public ExamAttemptStatus Status { get; private set; } = ExamAttemptStatus.NotAttempted;
+        public ExamAttemptStatus Status { get; private set; }
 
-        public void StartAttempt(Guid examId, Guid candidateId)
+        public void CreateAttempt(Exam exam, Guid candidateId, int score, DateTime startedAt, DateTime completedAt)
         {
-            CheckStartAttemptContent(examId, candidateId);
+            ArgumentNullException.ThrowIfNull(exam);
+            CheckGuid(exam.Id, nameof(ExamId));
+            CheckGuid(candidateId, nameof(candidateId));
+            CheckScore(score);
+
             SetId();
             SetCreatedAt();
-            ExamId = examId;
+            Exam = exam;
+            ExamId = exam.Id;
             CandidateId = candidateId;
-            StartedAt = DateTime.UtcNow;
-            Status = ExamAttemptStatus.NotAttempted;
-        }
-
-        public void CompleteAttempt(int score)
-        {
-            CheckScore(score);
-            var status = score >= Exam.PassingScore ? ExamAttemptStatus.Passed : ExamAttemptStatus.Failed;
+            StartedAt = startedAt.ToUniversalTime();
             Score = score;
-            CompletedAt = DateTime.UtcNow;
-            Status = status;
-        }
-
-        public void CheckStartAttemptContent(Guid examId, Guid candidateId)
-        {
-            CheckGuid(examId, nameof(examId));
-            CheckGuid(candidateId, nameof(candidateId));
+            CompletedAt = completedAt.ToUniversalTime();
+            Status = score >= exam.PassingScore ? ExamAttemptStatus.Passed : ExamAttemptStatus.Failed;
         }
 
         public void CheckScore(int score)
