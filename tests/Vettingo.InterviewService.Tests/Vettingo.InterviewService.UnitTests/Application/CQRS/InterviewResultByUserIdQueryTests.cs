@@ -101,7 +101,7 @@ public sealed class InterviewResultByUserIdQueryTests
     private static InterviewResult CreateResult(Guid userId, int score, bool passed)
     {
         var result = new InterviewResult();
-        result.Create(userId, Guid.NewGuid(), score, passed);
+        result.Create(userId, Guid.NewGuid(), Guid.NewGuid(), score, passed);
         return result;
     }
 

@@ -7,10 +7,10 @@ namespace Vettingo.ExamService.UnitTests.Domain
     public class ExamAttemptDomainTest
     {
         [Theory]
-        [InlineData(69, ExamAttemptStatus.Failed)]
-        [InlineData(70, ExamAttemptStatus.Passed)]
-        [InlineData(71, ExamAttemptStatus.Passed)]
-        public void Create_ExamAttempt_Should_Use_Exam_PassingScore(int score, ExamAttemptStatus expectedStatus)
+        [InlineData(69, false)]
+        [InlineData(70, true)]
+        [InlineData(71, true)]
+        public void Create_ExamAttempt_Should_Use_Exam_PassingScore(int score, bool passed)
         {
             var jobExam = CreateJobExam();
             var attempt = new ExamAttempt();
@@ -19,7 +19,7 @@ namespace Vettingo.ExamService.UnitTests.Domain
 
             attempt.CreateAttempt(jobExam, Guid.NewGuid(), score, startedAt, completedAt);
 
-            attempt.Status.Should().Be(expectedStatus);
+            attempt.Passed.Should().Be(passed);
             attempt.Score.Should().Be(score);
             attempt.StartedAt.Should().Be(startedAt);
             attempt.CompletedAt.Should().Be(completedAt);

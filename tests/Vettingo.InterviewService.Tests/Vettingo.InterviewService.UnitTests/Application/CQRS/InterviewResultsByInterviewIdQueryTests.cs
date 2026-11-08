@@ -63,7 +63,7 @@ public sealed class InterviewResultsByInterviewIdQueryTests
     private static InterviewResult CreateResult(Guid interviewId, int score, bool passed)
     {
         var result = new InterviewResult();
-        result.Create(Guid.NewGuid(), interviewId, score, passed);
+        result.Create(Guid.NewGuid(), interviewId, Guid.NewGuid(), score, passed);
         return result;
     }
 

@@ -40,6 +40,13 @@ namespace Vettingo.ExamService.Persistence.Repository
                 return exam as T;
             }
 
+            if (typeof(T) == typeof(JobExam))
+            {
+                var jobExam = await context.JobExams.Include(entity => entity.Exam)
+                    .FirstOrDefaultAsync(entity => entity.Id == id);
+                return jobExam as T;
+            }
+
             return await EntitySet
                 .FirstOrDefaultAsync(entity => entity.Id == id);
         }

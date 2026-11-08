@@ -91,7 +91,7 @@ public sealed class InterviewRepositoriesTests
     private static InterviewResult CreateResult(Guid userId, Guid interviewId, int score)
     {
         var result = new InterviewResult();
-        result.Create(userId, interviewId, score, score >= 50);
+        result.Create(userId, interviewId, Guid.NewGuid(), score, score >= 50);
         return result;
     }
 
