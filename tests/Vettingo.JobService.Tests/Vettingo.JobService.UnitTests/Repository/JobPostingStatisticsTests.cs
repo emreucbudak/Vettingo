@@ -45,13 +45,13 @@ public class JobPostingStatisticsTests
     }
 
     [Fact]
-    public void AcceptingApplications_Status_Remains_Compatible_With_Existing_Published_Postings()
+    public void Posting_Status_Uses_Enum_Member_Names()
     {
         using var context = CreateContext();
         var converter = context.Model.FindEntityType(typeof(JobPosting))!
-            .FindProperty(nameof(JobPosting.Status))!.GetValueConverter()!;
-        converter.ConvertFromProvider("Published").Should().Be(JobPostingStatus.AcceptingApplications);
-        converter.ConvertToProvider(JobPostingStatus.AcceptingApplications).Should().Be("Published");
+            .FindProperty(nameof(JobPosting.Status))!.GetTypeMapping().Converter!;
+        converter.ConvertFromProvider("AcceptingApplications").Should().Be(JobPostingStatus.AcceptingApplications);
+        converter.ConvertToProvider(JobPostingStatus.AcceptingApplications).Should().Be("AcceptingApplications");
         converter.ConvertFromProvider("Exam").Should().Be(JobPostingStatus.Exam);
         converter.ConvertFromProvider("Interview").Should().Be(JobPostingStatus.Interview);
         converter.ConvertToProvider(JobPostingStatus.Interview).Should().Be("Interview");

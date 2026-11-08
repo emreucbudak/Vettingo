@@ -52,7 +52,7 @@ namespace Vettingo.JobService.Persistence.Repository
                 .GroupBy(application => 1)
                 .Select(group => new ApplicationStatistics(group.Count(),
                     group.Count(application => application.Status != Domain.Enums.ApplicationStatus.Elendi
-                        && application.Status != Domain.Enums.ApplicationStatus.İşeAlındı)))
+                        && application.Status != Domain.Enums.ApplicationStatus.Kabul)))
                 .SingleOrDefaultAsync(cancellationToken);
             return result ?? new ApplicationStatistics(0, 0);
         }
@@ -87,7 +87,7 @@ namespace Vettingo.JobService.Persistence.Repository
                     group.Count(a => a.Status == Domain.Enums.ApplicationStatus.Mülakat),
                     group.Count(a => a.Status == Domain.Enums.ApplicationStatus.Teklif
                         || a.Status == Domain.Enums.ApplicationStatus.Elendi
-                        || a.Status == Domain.Enums.ApplicationStatus.İşeAlındı)))
+                        || a.Status == Domain.Enums.ApplicationStatus.Kabul)))
                 .SingleOrDefaultAsync(cancellationToken);
             return result ?? new CandidateApplicationStatistics(0, 0, 0, 0);
         }
