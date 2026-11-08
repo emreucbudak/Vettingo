@@ -17,6 +17,6 @@ public sealed class InterviewResultPublisher : IInterviewResultPublisher
 
     public Task PublishAsync(InterviewResultMessage message, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return _capPublisher.PublishAsync(TopicName, message, cancellationToken: cancellationToken);
     }
 }

@@ -5,6 +5,7 @@ namespace Vettingo.InterviewService.Domain.Entities
     public class InterviewResult : BaseEntity
     {
         public Guid UserId { get; private set; }
+        public Guid JobId { get; private set; }
         public Guid InterviewId { get; private set; }
         public Interview Interview { get; private set; } = null!;
         public int InterviewScore { get; private set; }
