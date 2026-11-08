@@ -9,7 +9,6 @@ namespace Vettingo.ExamService.Domain.Entities
     {
         private readonly List<MultipleChoiceQuestion> _multipleChoiceQuestions = new();
         private readonly List<TrueFalseQuestion> _trueFalseQuestions = new();
-        private readonly List<ExamAttempt> _attempts = new();
 
         public Exam()
         {
@@ -24,7 +23,6 @@ namespace Vettingo.ExamService.Domain.Entities
         public DateTime? UpdatedAt { get; private set; }
         public IReadOnlyCollection<MultipleChoiceQuestion> MultipleChoiceQuestions => _multipleChoiceQuestions.AsReadOnly();
         public IReadOnlyCollection<TrueFalseQuestion> TrueFalseQuestions => _trueFalseQuestions.AsReadOnly();
-        public IReadOnlyCollection<ExamAttempt> Attempts => _attempts.AsReadOnly();
         
 
         public IReadOnlyCollection<MultipleChoiceQuestion> GetMultipleChoiceQuestions()
@@ -59,12 +57,6 @@ namespace Vettingo.ExamService.Domain.Entities
         {
             var question = _trueFalseQuestions.FirstOrDefault(question => question.Id == questionId);
             return question is not null && _trueFalseQuestions.Remove(question);
-        }
-
-        public void AddAttempt(ExamAttempt attempt)
-        {
-            ArgumentNullException.ThrowIfNull(attempt, nameof(attempt));
-            _attempts.Add(attempt);
         }
 
         public void setCompanyId(Guid? companyId)

@@ -42,10 +42,10 @@ namespace Vettingo.ExamService.Persistence.DbContext
                 .HasForeignKey(question => question.ExamId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Entity<Exam>()
-                .HasMany(exam => exam.Attempts)
-                .WithOne(attempt => attempt.Exam)
-                .HasForeignKey(attempt => attempt.ExamId)
+            builder.Entity<JobExam>()
+                .HasMany(jobExam => jobExam.Attempts)
+                .WithOne(attempt => attempt.JobExam)
+                .HasForeignKey(attempt => attempt.JobExamId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<MultipleChoiceQuestion>()

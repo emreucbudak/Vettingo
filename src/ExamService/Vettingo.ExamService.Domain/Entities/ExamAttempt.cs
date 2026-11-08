@@ -9,25 +9,26 @@ namespace Vettingo.ExamService.Domain.Entities
         {
         }
 
-        public Guid ExamId { get; private set; }
-        public Exam Exam { get; private set; } = null!;
+        public Guid JobExamId { get; private set; }
+        public JobExam JobExam { get; private set; } = null!;
         public Guid CandidateId { get; private set; }
         public DateTime StartedAt { get; private set; }
         public DateTime CompletedAt { get; private set; }
         public int Score { get; private set; }
         public ExamAttemptStatus Status { get; private set; }
 
-        public void CreateAttempt(Exam exam, Guid candidateId, int score, DateTime startedAt, DateTime completedAt)
+        public void CreateAttempt(JobExam jobExam, Guid candidateId, int score, DateTime startedAt, DateTime completedAt)
         {
-            ArgumentNullException.ThrowIfNull(exam);
-            CheckGuid(exam.Id, nameof(ExamId));
+            ArgumentNullException.ThrowIfNull(jobExam);
+            CheckGuid(jobExam.Id, nameof(JobExamId));
             CheckGuid(candidateId, nameof(candidateId));
             CheckScore(score);
+            var exam = jobExam.Exam ?? throw new ArgumentException("İlana bağlı sınav yüklenmelidir.", nameof(jobExam));
 
             SetId();
             SetCreatedAt();
-            Exam = exam;
-            ExamId = exam.Id;
+            JobExam = jobExam;
+            JobExamId = jobExam.Id;
             CandidateId = candidateId;
             StartedAt = startedAt.ToUniversalTime();
             Score = score;

@@ -28,11 +28,11 @@ public class JobExamQueryTests
         var trueFalseQuestion = new TrueFalseQuestion();
         trueFalseQuestion.CreateQuestion(exam.Id, "Is this true?", 1, 2, "True", "False");
         exam.AddTrueFalseQuestion(trueFalseQuestion);
-        var attempt = new ExamAttempt();
-        attempt.CreateAttempt(exam, Guid.NewGuid(), 80, DateTime.UtcNow, DateTime.UtcNow);
-        exam.AddAttempt(attempt);
         var jobExam = new JobExam { Exam = exam };
         jobExam.CreateJobExam(Guid.NewGuid(), exam.Id);
+        var attempt = new ExamAttempt();
+        attempt.CreateAttempt(jobExam, Guid.NewGuid(), 80, DateTime.UtcNow, DateTime.UtcNow);
+        jobExam.AddAttempt(attempt);
         var otherExam = new Exam();
         otherExam.CreateExam("Other", "Other exam", 30, 50, ExamOwnerType.System, null);
         var otherJobExam = new JobExam { Exam = otherExam };
