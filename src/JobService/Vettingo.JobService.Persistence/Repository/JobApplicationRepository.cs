@@ -21,6 +21,12 @@ namespace Vettingo.JobService.Persistence.Repository
         public Task<JobApplication?> GetByIdAsync(Guid applicationId) =>
             Applications.FirstOrDefaultAsync(application => application.Id == applicationId);
 
+        public Task<JobApplication?> GetByCandidateAndJobPostingIdAsync(
+            Guid candidateId, Guid jobPostingId, CancellationToken cancellationToken = default) =>
+            Applications.AsTracking().SingleOrDefaultAsync(application =>
+                application.CandidateId == candidateId && application.JobPostingId == jobPostingId,
+                cancellationToken);
+
         public async Task<IEnumerable<JobApplication>> GetAllAsync(Guid? candidateId = null, Guid? jobPostingId = null)
         {
             IQueryable<JobApplication> query = Applications.AsNoTracking();
@@ -45,7 +51,8 @@ namespace Vettingo.JobService.Persistence.Repository
                     posting.Id == application.JobPostingId && posting.CompanyId == companyId))
                 .GroupBy(application => 1)
                 .Select(group => new ApplicationStatistics(group.Count(),
-                    group.Count(application => application.Status != Domain.Enums.ApplicationStatus.Rejected)))
+                    group.Count(application => application.Status != Domain.Enums.ApplicationStatus.Elendi
+                        && application.Status != Domain.Enums.ApplicationStatus.İşeAlındı)))
                 .SingleOrDefaultAsync(cancellationToken);
             return result ?? new ApplicationStatistics(0, 0);
         }
@@ -59,10 +66,10 @@ namespace Vettingo.JobService.Persistence.Repository
                 .GroupBy(application => 1)
                 .Select(group => new CompanyApplicationStatistics(
                     group.Count(),
-                    group.Count(application => application.Status == ApplicationStatus.UnderReview),
-                    group.Count(application => application.Status == ApplicationStatus.Interview),
-                    group.Count(application => application.Status == ApplicationStatus.Offer),
-                    group.Count(application => application.Status == ApplicationStatus.Rejected)))
+                    group.Count(application => application.Status == ApplicationStatus.Sınav),
+                    group.Count(application => application.Status == ApplicationStatus.Mülakat),
+                    group.Count(application => application.Status == ApplicationStatus.Teklif),
+                    group.Count(application => application.Status == ApplicationStatus.Elendi)))
                 .SingleOrDefaultAsync(cancellationToken);
 
             return result ?? new CompanyApplicationStatistics(0, 0, 0, 0, 0);
@@ -75,10 +82,12 @@ namespace Vettingo.JobService.Persistence.Repository
                 .GroupBy(application => 1)
                 .Select(group => new CandidateApplicationStatistics(
                     group.Count(),
-                    group.Count(a => a.Status == Domain.Enums.ApplicationStatus.Submitted
-                        || a.Status == Domain.Enums.ApplicationStatus.UnderReview || a.Status == Domain.Enums.ApplicationStatus.Interview),
-                    group.Count(a => a.Status == Domain.Enums.ApplicationStatus.Interview),
-                    group.Count(a => a.Status == Domain.Enums.ApplicationStatus.Offer || a.Status == Domain.Enums.ApplicationStatus.Rejected)))
+                    group.Count(a => a.Status == Domain.Enums.ApplicationStatus.Başvuruldu
+                        || a.Status == Domain.Enums.ApplicationStatus.Sınav || a.Status == Domain.Enums.ApplicationStatus.Mülakat),
+                    group.Count(a => a.Status == Domain.Enums.ApplicationStatus.Mülakat),
+                    group.Count(a => a.Status == Domain.Enums.ApplicationStatus.Teklif
+                        || a.Status == Domain.Enums.ApplicationStatus.Elendi
+                        || a.Status == Domain.Enums.ApplicationStatus.İşeAlındı)))
                 .SingleOrDefaultAsync(cancellationToken);
             return result ?? new CandidateApplicationStatistics(0, 0, 0, 0);
         }
@@ -92,11 +101,11 @@ namespace Vettingo.JobService.Persistence.Repository
                 .GroupBy(application => 1)
                 .Select(group => new CandidateDashboardApplicationStatistics(
                     group.Count(),
-                    group.Count(application => application.Status == Domain.Enums.ApplicationStatus.Submitted
-                        || application.Status == Domain.Enums.ApplicationStatus.UnderReview
-                        || application.Status == Domain.Enums.ApplicationStatus.Interview),
-                    group.Count(application => application.Status == Domain.Enums.ApplicationStatus.Offer),
-                    group.Count(application => application.Status == Domain.Enums.ApplicationStatus.Rejected)))
+                    group.Count(application => application.Status == Domain.Enums.ApplicationStatus.Başvuruldu
+                        || application.Status == Domain.Enums.ApplicationStatus.Sınav
+                        || application.Status == Domain.Enums.ApplicationStatus.Mülakat),
+                    group.Count(application => application.Status == Domain.Enums.ApplicationStatus.Teklif),
+                    group.Count(application => application.Status == Domain.Enums.ApplicationStatus.Elendi)))
                 .SingleOrDefaultAsync(cancellationToken);
             return result ?? new CandidateDashboardApplicationStatistics(0, 0, 0, 0);
         }

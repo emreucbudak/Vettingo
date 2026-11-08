@@ -8,6 +8,7 @@ namespace Vettingo.InterviewService.Domain.Entities
         public DateOnly InterviewDate { get; private set; }
         public Guid UserId { get; private set; }
         public Guid CompanyId { get; private set; }
+        public Guid JobId { get; private set; }
         public string Name { get; private set; } = string.Empty;
         public string Surname { get; private set; } = string.Empty;
         public string Chapter { get; private set; } = string.Empty;

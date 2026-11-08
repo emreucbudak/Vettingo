@@ -25,7 +25,7 @@ public class CompanyJobPostingsTests
         foreach (var posting in new[] { active, active, other })
         {
             var application = new JobApplication();
-            application.CreateApplication(Guid.NewGuid(), posting.Id, DateTime.UtcNow, ApplicationStatus.Submitted);
+            application.CreateApplication(Guid.NewGuid(), posting.Id, DateTime.UtcNow, ApplicationStatus.Başvuruldu);
             context.JobApplications.Add(application);
         }
         await context.SaveChangesAsync();
@@ -66,7 +66,7 @@ public class CompanyJobPostingsTests
 
         context.JobPostings.Add(CreatePosting(Guid.NewGuid(), "Newest other company", JobPostingStatus.AcceptingApplications));
         var application = new JobApplication();
-        application.CreateApplication(Guid.NewGuid(), postings[4].Id, DateTime.UtcNow, ApplicationStatus.Submitted);
+        application.CreateApplication(Guid.NewGuid(), postings[4].Id, DateTime.UtcNow, ApplicationStatus.Başvuruldu);
         context.JobApplications.Add(application);
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();

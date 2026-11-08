@@ -1,4 +1,7 @@
+using FlashMediator;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Vettingo.JobService.Application.Exceptions;
@@ -6,11 +9,52 @@ using Vettingo.JobService.Application.Features.CQRS.JobApplication.Command.Creat
 using Vettingo.JobService.Application.Repository;
 using Vettingo.JobService.Domain.Entities;
 using Vettingo.JobService.Domain.Enums;
+using Vettingo.JobService.Infrastructure.Messages;
+using Vettingo.JobService.Infrastructure.Messaging;
+using Vettingo.JobService.Persistence.DbContext;
+using Vettingo.JobService.Persistence.Repository;
 
 namespace Vettingo.JobService.UnitTests.Application;
 
 public class JobApplicationCqrsTests
 {
+    [Fact]
+    public async Task FailedExamMessage_Should_Reject_Only_Matching_Application_Once()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddDbContext<JobDbContext>(options => options.UseInMemoryDatabase(Guid.NewGuid().ToString()));
+        services.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
+        services.AddFlashMediator(typeof(CreateJobApplicationCommandHandler).Assembly);
+        await using var provider = services.BuildServiceProvider();
+        await using var scope = provider.CreateAsyncScope();
+        var context = scope.ServiceProvider.GetRequiredService<JobDbContext>();
+        var userId = Guid.NewGuid();
+        var jobId = Guid.NewGuid();
+        var matching = new JobApplication();
+        matching.CreateApplication(userId, jobId, DateTime.UtcNow, ApplicationStatus.Sınav);
+        var otherUser = new JobApplication();
+        otherUser.CreateApplication(Guid.NewGuid(), jobId, DateTime.UtcNow, ApplicationStatus.Sınav);
+        var otherJob = new JobApplication();
+        otherJob.CreateApplication(userId, Guid.NewGuid(), DateTime.UtcNow, ApplicationStatus.Sınav);
+        context.JobApplications.AddRange(matching, otherUser, otherJob);
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+
+        var subscriber = new ExamResultSubscriber(scope.ServiceProvider.GetRequiredService<IMediator>());
+        var message = new ExamResultMessage { UserId = userId, JobId = jobId };
+        await subscriber.HandleAsync(message, CancellationToken.None);
+        context.ChangeTracker.Clear();
+        var saved = await context.JobApplications.AsNoTracking().ToDictionaryAsync(application => application.Id);
+        saved[matching.Id].Status.Should().Be(ApplicationStatus.Elendi);
+        saved[otherUser.Id].Status.Should().Be(ApplicationStatus.Sınav);
+        saved[otherJob.Id].Status.Should().Be(ApplicationStatus.Sınav);
+
+        await subscriber.HandleAsync(message, CancellationToken.None);
+        var replayed = await context.JobApplications.AsNoTracking().SingleAsync(application => application.Id == matching.Id);
+        replayed.UpdatedAt.Should().Be(saved[matching.Id].UpdatedAt);
+    }
+
     [Fact]
     public async Task Create_ShouldSaveApplicationInRepository()
     {
