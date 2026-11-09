@@ -5,12 +5,14 @@ using Vettingo.JobService.Domain.Enums;
 namespace Vettingo.JobService.Domain.Entities
 {
     [Index(nameof(CandidateId))]
+    [Index(nameof(JobPostingId))]
     public class JobApplication : BaseEntity
     {
         public Guid CandidateId { get; private set; }
         public Guid JobPostingId { get; private set; }
         public DateTime AppliedAt { get; private set; }
         public ApplicationStatus Status { get; private set; }
+        public bool IsCurrentStepPassed { get; private set; }
 
         public void CreateApplication(
             Guid candidateId,
@@ -36,6 +38,12 @@ namespace Vettingo.JobService.Domain.Entities
         {
             ValidateStatus(status);
             Status = status;
+            SetUpdatedAt();
+        }
+
+        public void MarkCurrentStepPassed()
+        {
+            IsCurrentStepPassed = true;
             SetUpdatedAt();
         }
 

@@ -6,7 +6,7 @@ namespace Vettingo.ExamService.Infrastructure.Messaging;
 
 public sealed class ExamResultPublisher : IExamResultPublisher
 {
-    public const string TopicName = "vettingo.job.exam-result.published.v1";
+    public const string TopicName = "vettingo.job.exam-result.passed.v1";
 
     private readonly ICapPublisher _capPublisher;
 

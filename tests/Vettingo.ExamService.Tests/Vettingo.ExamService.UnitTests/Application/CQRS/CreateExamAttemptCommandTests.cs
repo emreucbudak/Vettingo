@@ -16,7 +16,7 @@ public sealed class CreateExamAttemptCommandTests
     [Theory]
     [InlineData(69, false)]
     [InlineData(70, true)]
-    public async Task Should_Save_Attempt_And_Publish_Only_Failed_Results(int score, bool passed)
+    public async Task Should_Save_Attempt_And_Publish_Only_Passed_Results(int score, bool passed)
     {
         await using var context = new ExamDbContext(new DbContextOptionsBuilder<ExamDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
@@ -49,12 +49,12 @@ public sealed class CreateExamAttemptCommandTests
         saved.CandidateId.Should().Be(request.CandidateId);
         if (passed)
         {
-            await publisher.DidNotReceiveWithAnyArgs().PublishAsync(default!, default);
+            await publisher.Received(1).PublishAsync(Arg.Is<ExamResultMessage>(message =>
+                message.UserId == request.CandidateId && message.JobId == jobExam.JobId), CancellationToken.None);
         }
         else
         {
-            await publisher.Received(1).PublishAsync(Arg.Is<ExamResultMessage>(message =>
-                message.UserId == request.CandidateId && message.JobId == jobExam.JobId), CancellationToken.None);
+            await publisher.DidNotReceiveWithAnyArgs().PublishAsync(default!, default);
         }
     }
 }

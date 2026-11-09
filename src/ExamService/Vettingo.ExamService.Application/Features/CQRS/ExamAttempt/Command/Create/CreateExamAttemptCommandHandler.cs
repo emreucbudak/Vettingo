@@ -26,7 +26,7 @@ public sealed class CreateExamAttemptCommandHandler(
         await attemptRepository.AddAsync(attempt);
         await attemptRepository.SaveChangesAsync();
 
-        if (!attempt.Passed)
+        if (attempt.Passed)
         {
             await publisher.PublishAsync(new ExamResultMessage
             {

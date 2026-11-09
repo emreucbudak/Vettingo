@@ -18,8 +18,10 @@ namespace Vettingo.JobService.UnitTests.Application;
 
 public class JobApplicationCqrsTests
 {
-    [Fact]
-    public async Task FailedExamMessage_Should_Reject_Only_Matching_Application_Once()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task PassedResult_Should_Mark_Only_Matching_Application_Once(bool isExam)
     {
         var services = new ServiceCollection();
         services.AddLogging();
@@ -31,26 +33,33 @@ public class JobApplicationCqrsTests
         var context = scope.ServiceProvider.GetRequiredService<JobDbContext>();
         var userId = Guid.NewGuid();
         var jobId = Guid.NewGuid();
+        var status = isExam ? ApplicationStatus.Sınav : ApplicationStatus.Mülakat;
         var matching = new JobApplication();
-        matching.CreateApplication(userId, jobId, DateTime.UtcNow, ApplicationStatus.Sınav);
+        matching.CreateApplication(userId, jobId, DateTime.UtcNow, status);
         var otherUser = new JobApplication();
-        otherUser.CreateApplication(Guid.NewGuid(), jobId, DateTime.UtcNow, ApplicationStatus.Sınav);
+        otherUser.CreateApplication(Guid.NewGuid(), jobId, DateTime.UtcNow, status);
         var otherJob = new JobApplication();
-        otherJob.CreateApplication(userId, Guid.NewGuid(), DateTime.UtcNow, ApplicationStatus.Sınav);
+        otherJob.CreateApplication(userId, Guid.NewGuid(), DateTime.UtcNow, status);
         context.JobApplications.AddRange(matching, otherUser, otherJob);
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
 
-        var subscriber = new ExamResultSubscriber(scope.ServiceProvider.GetRequiredService<IMediator>());
-        var message = new ExamResultMessage { UserId = userId, JobId = jobId };
-        await subscriber.HandleAsync(message, CancellationToken.None);
+        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+        Func<Task> handleMessage = isExam
+            ? () => new ExamResultSubscriber(mediator).HandleAsync(
+                new ExamResultMessage { UserId = userId, JobId = jobId }, CancellationToken.None)
+            : () => new InterviewResultSubscriber(mediator).HandleAsync(
+                new InterviewResultMessage { UserId = userId, JobId = jobId }, CancellationToken.None);
+
+        await handleMessage();
         context.ChangeTracker.Clear();
         var saved = await context.JobApplications.AsNoTracking().ToDictionaryAsync(application => application.Id);
-        saved[matching.Id].Status.Should().Be(ApplicationStatus.Elendi);
-        saved[otherUser.Id].Status.Should().Be(ApplicationStatus.Sınav);
-        saved[otherJob.Id].Status.Should().Be(ApplicationStatus.Sınav);
+        saved[matching.Id].IsCurrentStepPassed.Should().BeTrue();
+        saved[matching.Id].Status.Should().Be(status);
+        saved[otherUser.Id].IsCurrentStepPassed.Should().BeFalse();
+        saved[otherJob.Id].IsCurrentStepPassed.Should().BeFalse();
 
-        await subscriber.HandleAsync(message, CancellationToken.None);
+        await handleMessage();
         var replayed = await context.JobApplications.AsNoTracking().SingleAsync(application => application.Id == matching.Id);
         replayed.UpdatedAt.Should().Be(saved[matching.Id].UpdatedAt);
     }

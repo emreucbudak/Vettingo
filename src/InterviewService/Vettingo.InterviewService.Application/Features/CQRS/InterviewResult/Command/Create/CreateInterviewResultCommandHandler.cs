@@ -25,7 +25,7 @@ public class CreateInterviewResultCommandHandler(
         await repository.AddAsync(interviewResult, cancellationToken);
         await repository.SaveChangesAsync(cancellationToken);
 
-        if (!interviewResult.Passed)
+        if (interviewResult.Passed)
         {
             await publisher.PublishAsync(new InterviewResultMessage
             {

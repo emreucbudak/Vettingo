@@ -1,11 +1,12 @@
 using FlashMediator;
+using Vettingo.JobService.Application.Repository;
 
 namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.AdvanceJobStep;
 
-public class AdvanceJobStepCommandHandler : IRequestHandler<AdvanceJobStepCommandRequest>
+public class AdvanceJobStepCommandHandler(IJobPostingRepository jobPostingRepository) : IRequestHandler<AdvanceJobStepCommandRequest>
 {
-    public Task Handle(AdvanceJobStepCommandRequest request, CancellationToken cancellationToken)
+    public async Task Handle(AdvanceJobStepCommandRequest request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var expiredJobPostings = await jobPostingRepository.GetExpiredJobPostingsAsync(cancellationToken);
     }
 }

@@ -6,7 +6,7 @@ namespace Vettingo.InterviewService.Infrastructure.Messaging;
 
 public sealed class InterviewResultPublisher : IInterviewResultPublisher
 {
-    public const string TopicName = "vettingo.job.interview-result.published.v1";
+    public const string TopicName = "vettingo.job.interview-result.passed.v1";
 
     private readonly ICapPublisher _capPublisher;
 
