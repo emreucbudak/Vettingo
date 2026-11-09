@@ -1,4 +1,5 @@
 using FlashMediator;
+using Vettingo.JobService.Application.DTOs;
 using Vettingo.JobService.Application.Repository;
 
 namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetStatistics;

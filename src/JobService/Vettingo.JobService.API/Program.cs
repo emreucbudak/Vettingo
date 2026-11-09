@@ -5,10 +5,12 @@ using FlashMediator;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Quartz;
 using Vettingo.JobService.API.ExceptionHandlers;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CreateJobPosting;
+using Vettingo.JobService.Persistence.Queries;
 using Vettingo.JobService.Persistence.Registration;
-using Vettingo.JobService.Infrastructure.BackgroundServices;
+using Vettingo.JobService.Infrastructure.Jobs;
 using Vettingo.JobService.Infrastructure.Register;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -64,14 +66,29 @@ builder.Services.AddRateLimiter(options =>
 
 builder.Services.SaveDb(builder.Configuration);
 builder.Services.AddJobCap(builder.Configuration);
-builder.Services.AddHostedService<JobStepControl>();
+var jobStepControlKey = new JobKey(nameof(JobStepControl));
+var istanbulTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul");
+builder.Services.AddQuartz(quartz =>
+{
+    quartz.UseInMemoryStore();
+    quartz.AddJob<JobStepControl>(job => job.WithIdentity(jobStepControlKey));
+    quartz.AddTrigger(trigger => trigger
+        .WithIdentity("job-step-control-midnight")
+        .ForJob(jobStepControlKey)
+        .WithCronSchedule("0 0 0 * * ?", schedule => schedule.InTimeZone(istanbulTimeZone)));
+    quartz.AddTrigger(trigger => trigger
+        .WithIdentity("job-step-control-startup")
+        .ForJob(jobStepControlKey)
+        .StartNow());
+});
+builder.Services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = builder.Configuration.GetConnectionString("Redis")
         ?? throw new InvalidOperationException("Connection string 'Redis' is not configured.");
     options.InstanceName = "Vettingo:JobService:";
 });
-builder.Services.AddFlashMediator(typeof(CreateJobPostingCommandHandler).Assembly);
+builder.Services.AddFlashMediator(typeof(CreateJobPostingCommandHandler).Assembly, typeof(GetAllCitiesQueryHandler).Assembly);
 builder.Services.AddFlashMediatorHybridCache();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateJobPostingCommandRequest>();
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();

@@ -1,5 +1,5 @@
 using FluentAssertions;
-using Vettingo.JobService.Application.Repository;
+using Vettingo.JobService.Application.DTOs;
 using Vettingo.JobService.Domain.Entities;
 using Vettingo.JobService.Domain.Enums;
 using Vettingo.JobService.IntegrationTests;
