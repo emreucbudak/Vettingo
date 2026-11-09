@@ -10,6 +10,7 @@ namespace Vettingo.JobService.Application.Repository
         void DeleteJobPosting(JobPosting jobPosting);
         Task<JobPosting?> GetJobPostingByIdAsync(Guid jobPostingId);
         Task<IEnumerable<JobPosting>> GetAllJobPostingsAsync();
+        Task<List<JobPosting>> GetExpiredJobPostingsAsync(CancellationToken cancellationToken = default);
         Task<IEnumerable<JobPosting>> GetJobPostingsByCompanyIdAsync(Guid companyId);
         Task<IReadOnlyList<JobPosting>> SearchJobPostingsAsync(
             JobPostingSearchCriteria criteria,

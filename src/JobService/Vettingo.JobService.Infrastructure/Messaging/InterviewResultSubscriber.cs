@@ -1,5 +1,6 @@
 using DotNetCore.CAP;
 using FlashMediator;
+using Vettingo.JobService.Application.Features.CQRS.JobApplication.Command.MarkInterviewStepPassed;
 using Vettingo.JobService.Infrastructure.Messages;
 
 namespace Vettingo.JobService.Infrastructure.Messaging;
@@ -13,9 +14,13 @@ public sealed class InterviewResultSubscriber : ICapSubscribe
         _mediator = mediator;
     }
 
-    [CapSubscribe("vettingo.job.interview-result.published.v1", Group = "vettingo.job-service")]
-    public Task HandleAsync(InterviewResultMessage message, CancellationToken cancellationToken)
+    [CapSubscribe("vettingo.job.interview-result.passed.v1", Group = "vettingo.job-service")]
+    public async Task HandleAsync(InterviewResultMessage message, CancellationToken cancellationToken)
     {
-        return Task.CompletedTask;
+        await _mediator.Send(new MarkInterviewStepPassedCommandRequest
+        {
+            UserId = message.UserId,
+            JobId = message.JobId
+        }, cancellationToken);
     }
 }

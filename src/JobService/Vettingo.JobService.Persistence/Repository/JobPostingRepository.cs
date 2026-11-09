@@ -33,6 +33,17 @@ namespace Vettingo.JobService.Persistence.Repository
             return await JobPostingSet.FirstOrDefaultAsync(jobPosting => jobPosting.Id == jobPostingId);
         }
 
+        public async Task<List<JobPosting>> GetExpiredJobPostingsAsync(CancellationToken cancellationToken = default)
+        {
+            var today = DateOnly.FromDateTime(DateTime.Now);
+
+            return await JobPostingSet
+                .Where(posting => !posting.IsPostingClosed && posting.JobSteps.Any(step =>
+                    step.Order == posting.CurrentStep && step.EndDate < today))
+                .Include(posting => posting.JobSteps)
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task<IEnumerable<JobPosting>> GetJobPostingsByCompanyIdAsync(Guid companyId)
         {
             return await JobPostingSet

@@ -15,7 +15,7 @@ public sealed class CreateInterviewResultCommandTests
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public async Task Should_Persist_Result_And_Publish_Only_Failed_Results(bool passed)
+    public async Task Should_Persist_Result_And_Publish_Only_Passed_Results(bool passed)
     {
         await using var context = CreateContext();
         var interview = new Interview();
@@ -49,12 +49,12 @@ public sealed class CreateInterviewResultCommandTests
         result.CreatedAt.Should().BeOnOrAfter(before).And.BeOnOrBefore(DateTime.UtcNow);
         if (passed)
         {
-            await publisher.DidNotReceiveWithAnyArgs().PublishAsync(default!, default);
+            await publisher.Received(1).PublishAsync(Arg.Is<InterviewResultMessage>(message =>
+                message.UserId == request.UserId && message.JobId == jobId), CancellationToken.None);
         }
         else
         {
-            await publisher.Received(1).PublishAsync(Arg.Is<InterviewResultMessage>(message =>
-                message.UserId == request.UserId && message.JobId == jobId), CancellationToken.None);
+            await publisher.DidNotReceiveWithAnyArgs().PublishAsync(default!, default);
         }
     }
 
