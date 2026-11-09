@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Vettingo.JobService.Application.DTOs;
 using Vettingo.JobService.Domain.Entities;
 using Vettingo.JobService.Domain.Enums;
 using Vettingo.JobService.Persistence.DbContext;
@@ -32,7 +33,7 @@ public class ApplicationStatisticsTests
         result.Interviews.Should().Be(1);
         result.Completed.Should().Be(3);
         (await repository.GetCandidateStatisticsAsync(Guid.NewGuid()))
-            .Should().Be(new Vettingo.JobService.Application.Repository.CandidateApplicationStatistics(0, 0, 0, 0));
+            .Should().Be(new CandidateApplicationStatistics(0, 0, 0, 0));
         db.JobApplications.First(a => a.CandidateId == candidateId && a.Status == ApplicationStatus.Mülakat)
             .UpdateStatus(ApplicationStatus.Elendi);
         await db.SaveChangesAsync();

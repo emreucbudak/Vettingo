@@ -17,7 +17,6 @@ namespace Vettingo.JobService.Persistence.Registration
             });
 
             collect.AddScoped<IJobPostingRepository, JobPostingRepository>();
-            collect.AddScoped<ICityRepository, CityRepository>();
             collect.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
             collect.AddScoped<IPersonalizedJobPostingsRepository, PersonalizedJobPostingsRepository>();
         }

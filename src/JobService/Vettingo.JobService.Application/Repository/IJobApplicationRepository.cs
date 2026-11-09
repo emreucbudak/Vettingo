@@ -1,3 +1,4 @@
+using Vettingo.JobService.Application.DTOs;
 using Vettingo.JobService.Domain.Entities;
 
 namespace Vettingo.JobService.Application.Repository

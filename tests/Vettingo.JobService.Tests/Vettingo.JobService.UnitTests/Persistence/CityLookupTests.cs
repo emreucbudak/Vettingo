@@ -1,9 +1,8 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using Vettingo.JobService.Application.Features.CQRS.City.Query.GetAll;
 using Vettingo.JobService.Domain.Entities;
 using Vettingo.JobService.Persistence.DbContext;
-using Vettingo.JobService.Persistence.Repository;
+using Vettingo.JobService.Persistence.Queries;
 
 namespace Vettingo.JobService.UnitTests.Persistence;
 
@@ -15,7 +14,7 @@ public sealed class CityLookupTests
         await using var context = CreateContext();
         await context.Database.EnsureCreatedAsync();
         context.ChangeTracker.Clear();
-        var handler = new GetAllCitiesQueryHandler(new CityRepository(context));
+        var handler = new GetAllCitiesQueryHandler(context);
 
         var cities = await handler.Handle(new(), CancellationToken.None);
 
@@ -46,7 +45,7 @@ public sealed class CityLookupTests
         context.Cities.RemoveRange(context.Cities);
         await context.SaveChangesAsync();
 
-        var cities = await new GetAllCitiesQueryHandler(new CityRepository(context))
+        var cities = await new GetAllCitiesQueryHandler(context)
             .Handle(new(), CancellationToken.None);
 
         cities.Should().BeEmpty();

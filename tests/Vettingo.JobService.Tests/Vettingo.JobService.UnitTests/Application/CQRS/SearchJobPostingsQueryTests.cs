@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.Search;
+using Vettingo.JobService.Application.DTOs;
 using Vettingo.JobService.Application.Repository;
 using Vettingo.JobService.Domain.Entities;
 using Vettingo.JobService.Domain.Enums;
