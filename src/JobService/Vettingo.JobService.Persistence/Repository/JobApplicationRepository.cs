@@ -28,6 +28,14 @@ namespace Vettingo.JobService.Persistence.Repository
                 application.CandidateId == candidateId && application.JobPostingId == jobPostingId,
                 cancellationToken);
 
+        public Task<List<JobApplication>> GetPassedApplicationsByJobPostingIdAsync(
+            Guid jobPostingId, CancellationToken cancellationToken = default) =>
+            Applications.AsTracking()
+                .Where(application => application.JobPostingId == jobPostingId
+                    && application.IsCurrentStepPassed
+                    && application.Status != ApplicationStatus.Elendi)
+                .ToListAsync(cancellationToken);
+
         public async Task<IEnumerable<JobApplication>> GetAllAsync(Guid? candidateId = null, Guid? jobPostingId = null)
         {
             IQueryable<JobApplication> query = Applications.AsNoTracking();

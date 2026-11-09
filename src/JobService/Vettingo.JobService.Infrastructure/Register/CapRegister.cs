@@ -30,6 +30,8 @@ public static class CapRegister
 
         services.AddTransient<IJobAnalyticsPublisher, JobAnalyticsPublisher>();
         services.AddTransient<IPersonalizedJobPostingNotificationPublisher, PersonalizedJobPostingNotificationPublisher>();
+        services.AddTransient<ICandidateExamListPublisher, CandidateExamListPublisher>();
+        services.AddTransient<ICandidateInterviewListPublisher, CandidateInterviewListPublisher>();
         services.AddTransient<PersonalizedJobPostingRequestedConsumer>();
         services.AddTransient<ExamResultSubscriber>();
         services.AddTransient<InterviewResultSubscriber>();
