@@ -11,6 +11,8 @@ namespace Vettingo.JobService.Application.Repository
         Task<JobApplication?> GetByIdAsync(Guid applicationId);
         Task<JobApplication?> GetByCandidateAndJobPostingIdAsync(
             Guid candidateId, Guid jobPostingId, CancellationToken cancellationToken = default);
+        Task<List<JobApplication>> GetPassedApplicationsByJobPostingIdAsync(
+            Guid jobPostingId, CancellationToken cancellationToken = default);
         Task<IEnumerable<JobApplication>> GetAllAsync(Guid? candidateId = null, Guid? jobPostingId = null);
         Task<ApplicationStatistics> GetStatisticsAsync(Guid companyId, CancellationToken cancellationToken = default);
         Task<CompanyApplicationStatistics> GetCompanyStatisticsAsync(Guid companyId, CancellationToken cancellationToken = default);

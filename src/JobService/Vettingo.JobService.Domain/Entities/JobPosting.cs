@@ -95,6 +95,12 @@ namespace Vettingo.JobService.Domain.Entities
             SetUpdatedAt();
         }
 
+        public void AdvanceCurrentStep()
+        {
+            CurrentStep++;
+            SetUpdatedAt();
+        }
+
         public void CloseJobPosting()
         {
             IsPostingClosed = true;
