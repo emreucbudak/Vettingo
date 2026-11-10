@@ -91,7 +91,6 @@ public class PersonalizedJobPostingsCqrsTests
         var developerResult = results.Single(item => item.JobPostingId == developer.Id);
         developerResult.CityName.Should().Be("İstanbul");
         developerResult.CompanyId.Should().Be(developer.CompanyId);
-        developerResult.CompanyName.Should().Be("Vettingo Teknoloji");
         developerResult.MinSalary.Should().Be(developer.MinSalary);
         developerResult.MaxSalary.Should().Be(developer.MaxSalary);
         developerResult.EmploymentType.Should().Be(developer.EmploymentType);
@@ -101,7 +100,7 @@ public class PersonalizedJobPostingsCqrsTests
         developerResult.RequirementSkills.Should().BeEquivalentTo(developer.RequirementSkills);
         using var json = JsonDocument.Parse(JsonSerializer.Serialize(developerResult, JsonSerializerOptions.Web));
         json.RootElement.EnumerateObject().Select(property => property.Name).Should().BeEquivalentTo(
-            "jobPostingId", "companyId", "companyName", "title", "cityName", "employmentType", "workingModel",
+            "jobPostingId", "companyId", "title", "cityName", "employmentType", "workingModel",
             "minimumExperienceYear", "maximumExperienceYear", "minSalary", "maxSalary", "requirementSkills");
         (await list.Handle(new(), CancellationToken.None)).Should().BeEmpty();
         (await list.Handle(new() { UserId = Guid.NewGuid() }, CancellationToken.None)).Should().BeEmpty();
@@ -146,7 +145,7 @@ public class PersonalizedJobPostingsCqrsTests
     private static JobPosting CreateJobPosting(string title, int cityId = 34)
     {
         var posting = new JobPosting();
-        posting.CreateJobPosting(Guid.NewGuid(), "Vettingo Teknoloji", title, new Dictionary<string, int> { ["C#"] = 3 },
+        posting.CreateJobPosting(Guid.NewGuid(), title, new Dictionary<string, int> { ["C#"] = 3 },
             cityId, EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 50000, 75000, null, JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
         return posting;
     }

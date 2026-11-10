@@ -22,7 +22,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public async Task GetAll_Should_Return_Stored_Company_Name(bool filterByCompany)
+        public async Task GetAll_Should_Return_Company_Id(bool filterByCompany)
         {
             var posting = CreateJobPosting(Guid.NewGuid(), "Backend Developer");
             var repository = Substitute.For<IJobPostingRepository>();
@@ -35,18 +35,6 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 .Should().ContainSingle().Subject;
 
             result.CompanyId.Should().Be(posting.CompanyId);
-            result.CompanyName.Should().Be("Vettingo Teknoloji");
-        }
-
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData(" ")]
-        public void Create_Validator_Should_Reject_Missing_Company_Name(string? companyName)
-        {
-            var request = CreateJobPostingRequest() with { CompanyName = companyName! };
-            new CreateJobPostingCommandRequestValidator().Validate(request).Errors
-                .Select(error => error.PropertyName).Should().BeEquivalentTo("CompanyName");
         }
 
         [Fact]
@@ -115,7 +103,6 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
 
             await repository.Received(1).AddJobPostingAsync(Arg.Is<JobPosting>(jobPosting =>
                 jobPosting.CompanyId == request.CompanyId &&
-                jobPosting.CompanyName == request.CompanyName &&
                 jobPosting.Title == request.Title &&
                 jobPosting.RequirementSkills.Count == request.RequirementSkills.Count &&
                 jobPosting.RequirementSkills["C#"] == request.RequirementSkills["C#"] &&
@@ -174,7 +161,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 .Returns(_ => ReturnAsync<List<JobApplication>>([application]));
             var publisher = Substitute.For<ICandidateExamListPublisher>();
             var handler = new AdvanceJobStepCommandHandler(postingRepository, applicationRepository, publisher,
-                Substitute.For<ICandidateInterviewListPublisher>());
+                Substitute.For<ICandidateInterviewListPublisher>(), Substitute.For<IInterviewStageExtendedPublisher>());
 
             await handler.Handle(new AdvanceJobStepCommandRequest(), CancellationToken.None);
 
@@ -239,8 +226,9 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             applicationRepository.GetPassedApplicationsByJobPostingIdAsync(posting.Id)
                 .Returns(_ => ReturnAsync(applications));
             var publisher = Substitute.For<ICandidateInterviewListPublisher>();
+            var extendedPublisher = Substitute.For<IInterviewStageExtendedPublisher>();
             var handler = new AdvanceJobStepCommandHandler(postingRepository, applicationRepository,
-                Substitute.For<ICandidateExamListPublisher>(), publisher);
+                Substitute.For<ICandidateExamListPublisher>(), publisher, extendedPublisher);
 
             await handler.Handle(new AdvanceJobStepCommandRequest(), CancellationToken.None);
 
@@ -265,6 +253,20 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 message.InterviewChapterName == nextStep.InterviewChapterName &&
                 message.MeetingLink == nextStep.MeetingLink &&
                 message.CandidateIds.SequenceEqual(applications.Select(application => application.CandidateId))), CancellationToken.None);
+
+            var notifications = extendedPublisher.ReceivedCalls()
+                .Select(call => (InterviewStageExtendedMessage)call.GetArguments()[0]!).ToList();
+            if (hasFollowingStep && additionalDays > 0)
+            {
+                notifications.Select(message => message.CandidateId)
+                    .Should().BeEquivalentTo(applications.Select(application => application.CandidateId));
+                notifications.Should().OnlyContain(message => message.CompanyId == posting.CompanyId &&
+                    message.Title == posting.Title && message.AdditionalDays == additionalDays && message.EndDate == expectedEndDate);
+            }
+            else
+            {
+                notifications.Should().BeEmpty();
+            }
         }
 
         [Theory]
@@ -381,7 +383,6 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             return new CreateJobPostingCommandRequest
             {
                 CompanyId = Guid.NewGuid(),
-                CompanyName = "Vettingo Teknoloji",
                 Title = "Backend Developer",
                 RequirementSkills = new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                 CityId = 34,
@@ -434,7 +435,6 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             JobPosting jobPosting = new();
             jobPosting.CreateJobPosting(
                 companyId,
-                "Vettingo Teknoloji",
                 title,
                 new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                 34,

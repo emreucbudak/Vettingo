@@ -18,7 +18,6 @@ public class GetAllPersonalizedJobPostingsQueryHandler(
         {
             JobPostingId = posting.JobPostingId,
             CompanyId = posting.JobPosting.CompanyId,
-            CompanyName = posting.JobPosting.CompanyName,
             Title = posting.JobPosting.Title,
             CityName = posting.JobPosting.City.CityName,
             EmploymentType = posting.JobPosting.EmploymentType,

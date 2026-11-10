@@ -32,7 +32,7 @@ namespace Vettingo.JobService.UnitTests.Repository
             result.Should().NotBeNull();
             result!.Id.Should().Be(jobPosting.Id);
             result.Title.Should().Be("Backend Developer");
-            result.CompanyName.Should().Be("Vettingo Teknoloji");
+            result.CompanyId.Should().Be(jobPosting.CompanyId);
             result.RequirementSkills.Should().BeEquivalentTo(jobPosting.RequirementSkills);
         }
 
@@ -87,7 +87,6 @@ namespace Vettingo.JobService.UnitTests.Repository
             JobPosting jobPosting = new();
             jobPosting.CreateJobPosting(
                 companyId,
-                "Vettingo Teknoloji",
                 title,
                 new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                 34,
