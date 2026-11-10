@@ -43,7 +43,6 @@ namespace Vettingo.ExamService.UnitTests.Domain
         {
             var attempt = new ExamAttempt();
             var jobExam = new JobStageExam();
-            jobExam.CreateJobStageExam(Guid.NewGuid(), Guid.NewGuid(), new DateOnly(2026, 11, 8), new DateOnly(2026, 11, 9), []);
             Action action = () => attempt.CreateAttempt(jobExam, Guid.NewGuid(), 80, DateTime.UtcNow, DateTime.UtcNow);
 
             action.Should().Throw<ArgumentException>();
@@ -79,17 +78,9 @@ namespace Vettingo.ExamService.UnitTests.Domain
         {
             var exam = new Exam();
             exam.CreateExam("Backend", "Backend exam", 60, 70, ExamOwnerType.System, null);
-            var jobExam = new JobStageExamWithId(Guid.NewGuid()) { Exam = exam };
-            jobExam.CreateJobStageExam(Guid.NewGuid(), exam.Id, new DateOnly(2026, 11, 8), new DateOnly(2026, 11, 9), []);
+            var jobExam = new JobStageExam { Exam = exam };
+            jobExam.CreateJobStageExam(Guid.NewGuid(), Guid.NewGuid(), exam.Id, new DateOnly(2026, 11, 8), new DateOnly(2026, 11, 9), []);
             return jobExam;
-        }
-    }
-
-    internal sealed class JobStageExamWithId : JobStageExam
-    {
-        public JobStageExamWithId(Guid id)
-        {
-            Id = id;
         }
     }
 }

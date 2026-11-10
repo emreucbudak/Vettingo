@@ -25,7 +25,9 @@ public sealed class InterviewRepository(InterviewDbContext context) : IInterview
 
     public Task<Interview?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return context.Interviews.FirstOrDefaultAsync(interview => interview.Id == id, cancellationToken);
+        return context.Interviews
+            .Include(interview => interview.JobInterview)
+            .FirstOrDefaultAsync(interview => interview.Id == id, cancellationToken);
     }
 
     public async Task<IEnumerable<Interview>> GetByCompanyAndDateAsync(

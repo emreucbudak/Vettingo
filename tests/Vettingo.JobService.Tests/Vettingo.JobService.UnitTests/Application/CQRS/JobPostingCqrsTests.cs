@@ -188,7 +188,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task AdvanceJobStep_Should_Publish_Interview_Schedule_And_Passed_Candidate_Ids(bool hasLimitTimes)
+        public async Task AdvanceJobStep_Should_Publish_Interview_Schedule_And_Passed_Candidate_Ids(bool hasInterviewDetails)
         {
             var nextStep = new JobSteps
             {
@@ -196,8 +196,10 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 StepType = StepType.Interview,
                 StartedDate = new DateOnly(2026, 1, 3),
                 EndDate = new DateOnly(2026, 1, 5),
-                StartingLimitTime = hasLimitTimes ? new TimeOnly(9, 0) : null,
-                StoppedLimitTime = hasLimitTimes ? new TimeOnly(17, 0) : null
+                StartingLimitTime = hasInterviewDetails ? new TimeOnly(9, 0) : null,
+                StoppedLimitTime = hasInterviewDetails ? new TimeOnly(17, 0) : null,
+                InterviewChapterName = hasInterviewDetails ? "Teknik Mülakat" : null,
+                MeetingLink = hasInterviewDetails ? "https://meet.google.com/abc-defg-hij" : null
             };
             var posting = CreateJobPosting(Guid.NewGuid(), "Backend Developer",
                 [new() { Order = 1, StepType = StepType.Exam }, nextStep]);
@@ -218,10 +220,13 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             await publisher.Received(1).PublishAsync(Arg.Is<InterviewCreateMessage>(message =>
                 message.JobId == posting.Id &&
                 message.CompanyId == posting.CompanyId &&
+                message.Title == posting.Title &&
                 message.StartedDate == nextStep.StartedDate &&
                 message.EndDate == nextStep.EndDate &&
                 message.StartingLimitTime == nextStep.StartingLimitTime &&
                 message.StoppedLimitTime == nextStep.StoppedLimitTime &&
+                message.InterviewChapterName == nextStep.InterviewChapterName &&
+                message.MeetingLink == nextStep.MeetingLink &&
                 message.CandidateIds.SequenceEqual(new[] { application.CandidateId })), CancellationToken.None);
         }
 

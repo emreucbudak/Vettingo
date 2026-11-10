@@ -27,7 +27,7 @@ public sealed class CreateExamAttemptCommandTests
         var candidateId = Guid.NewGuid();
         var otherCandidateId = Guid.NewGuid();
         var jobExam = new JobStageExam { Exam = exam };
-        jobExam.CreateJobStageExam(Guid.NewGuid(), exam.Id, new DateOnly(2026, 11, 8), new DateOnly(2026, 11, 9),
+        jobExam.CreateJobStageExam(Guid.NewGuid(), Guid.NewGuid(), exam.Id, new DateOnly(2026, 11, 8), new DateOnly(2026, 11, 9),
             [candidateId, otherCandidateId]);
         context.JobExams.Add(jobExam);
         await context.SaveChangesAsync();

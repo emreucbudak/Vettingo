@@ -11,7 +11,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.JobStageExam.Command.Cr
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(CreateJobStageExamCommandHandler));
             Domain.Entities.JobStageExam jobStageExam = new();
             jobStageExam.CreateJobStageExam(
-                request.JobId, request.ExamId, request.StartedDate, request.EndDate, request.ExamCandidateList);
+                request.StepId, request.JobId, request.ExamId, request.StartedDate, request.EndDate, request.ExamCandidateList);
 
             await examRepository.AddAsync(jobStageExam);
             await examRepository.SaveChangesAsync();

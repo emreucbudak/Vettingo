@@ -30,7 +30,7 @@ public class AdvanceJobStepCommandHandler(
                 {
                     JobId = jobPosting.Id,
                     StepId = nextStep.Id,
-                    ExamId = nextStep.ExamId,
+                    ExamId = nextStep.ExamId!.Value,
                     StartedDate = nextStep.StartedDate,
                     EndDate = nextStep.EndDate,
                     CandidateIds = passedApplications.Select(application => application.CandidateId).ToList()
@@ -42,10 +42,13 @@ public class AdvanceJobStepCommandHandler(
                 {
                     JobId = jobPosting.Id,
                     CompanyId = jobPosting.CompanyId,
+                    Title = jobPosting.Title,
                     StartedDate = nextStep.StartedDate,
                     EndDate = nextStep.EndDate,
                     StartingLimitTime = nextStep.StartingLimitTime,
                     StoppedLimitTime = nextStep.StoppedLimitTime,
+                    InterviewChapterName = nextStep.InterviewChapterName,
+                    MeetingLink = nextStep.MeetingLink,
                     CandidateIds = passedApplications.Select(application => application.CandidateId).ToList()
                 }, cancellationToken);
             }

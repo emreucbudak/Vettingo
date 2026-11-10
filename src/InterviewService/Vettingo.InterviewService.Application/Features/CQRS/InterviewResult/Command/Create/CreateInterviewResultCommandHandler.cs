@@ -30,7 +30,7 @@ public class CreateInterviewResultCommandHandler(
             await publisher.PublishAsync(new InterviewResultMessage
             {
                 UserId = interview.UserId,
-                JobId = interview.JobId
+                JobId = interview.JobInterview.JobId
             }, cancellationToken);
         }
     }
