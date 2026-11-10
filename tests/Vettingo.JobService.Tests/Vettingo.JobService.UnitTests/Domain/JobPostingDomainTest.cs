@@ -11,13 +11,13 @@ namespace Vettingo.JobService.UnitTests.Domain
         {
             // Arrange
             JobPosting jobPosting = new();
+            var companyId = Guid.NewGuid();
 
             // Act
             Action action = () =>
             {
                 jobPosting.CreateJobPosting(
-                    Guid.NewGuid(),
-                    "Vettingo Teknoloji",
+                    companyId,
                     "Test Title",
                     new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                     34,
@@ -31,20 +31,7 @@ namespace Vettingo.JobService.UnitTests.Domain
 
             // Assert
             action.Should().NotThrow();
-            jobPosting.CompanyName.Should().Be("Vettingo Teknoloji");
-        }
-
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData(" ")]
-        public void Create_JobPosting_With_Blank_CompanyName_Should_Throw(string? companyName)
-        {
-            var posting = new JobPosting();
-            Action create = () => posting.CreateJobPosting(Guid.NewGuid(), companyName!, "Developer",
-                new Dictionary<string, int> { ["C#"] = 3 }, 34, EmploymentType.FullTime, WorkingModel.Remote,
-                2, 5, 50000, 75000, null, JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
-            create.Should().Throw<ArgumentException>().WithParameterName("companyName");
+            jobPosting.CompanyId.Should().Be(companyId);
         }
 
         [Fact]
@@ -58,7 +45,6 @@ namespace Vettingo.JobService.UnitTests.Domain
             {
                 jobPosting.CreateJobPosting(
                     Guid.Empty,
-                    "Vettingo Teknoloji",
                     "Test Title",
                     new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                     34,
@@ -83,7 +69,7 @@ namespace Vettingo.JobService.UnitTests.Domain
             var posting = new JobPosting();
             List<JobSteps> steps = invalidCase switch { 0 => null!, 1 => [], _ => [null!] };
 
-            Action create = () => posting.CreateJobPosting(Guid.NewGuid(), "Vettingo Teknoloji", "Developer",
+            Action create = () => posting.CreateJobPosting(Guid.NewGuid(), "Developer",
                 new Dictionary<string, int> { ["C#"] = 3 }, 34, EmploymentType.FullTime, WorkingModel.Remote,
                 2, 5, 50000, 75000, null, JobPostingStatus.AcceptingApplications, steps);
 
@@ -103,7 +89,7 @@ namespace Vettingo.JobService.UnitTests.Domain
             };
             var steps = new List<JobSteps> { step };
 
-            posting.CreateJobPosting(Guid.NewGuid(), "Vettingo Teknoloji", "Developer",
+            posting.CreateJobPosting(Guid.NewGuid(), "Developer",
                 new Dictionary<string, int> { ["C#"] = 3 }, 34, EmploymentType.FullTime, WorkingModel.Remote,
                 2, 5, 50000, 75000, null, JobPostingStatus.AcceptingApplications, steps);
             posting.JobSteps.Should().ContainSingle().Which.Should().BeSameAs(step);

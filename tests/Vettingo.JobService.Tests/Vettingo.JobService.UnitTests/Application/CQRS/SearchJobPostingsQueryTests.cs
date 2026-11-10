@@ -64,7 +64,6 @@ public sealed class SearchJobPostingsQueryTests
         JobPosting jobPosting = new();
         jobPosting.CreateJobPosting(
             Guid.NewGuid(),
-            "Vettingo Teknoloji",
             "Senior Backend Developer",
             new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
             34,

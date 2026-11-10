@@ -88,7 +88,7 @@ public sealed class CompanyApplicationStatisticsTests
     private static JobPosting CreatePosting(Guid companyId, JobPostingStatus status)
     {
         var posting = new JobPosting();
-        posting.CreateJobPosting(companyId, "Vettingo Teknoloji", Guid.NewGuid().ToString(), new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34, EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5,
+        posting.CreateJobPosting(companyId, Guid.NewGuid().ToString(), new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34, EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5,
             0, 0, null, status, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
         return posting;
     }

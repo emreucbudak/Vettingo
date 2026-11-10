@@ -17,7 +17,6 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetAll
             {
                 Id = jobPosting.Id,
                 CompanyId = jobPosting.CompanyId,
-                CompanyName = jobPosting.CompanyName,
                 Title = jobPosting.Title,
                 RequirementSkills = new Dictionary<string, int>(jobPosting.RequirementSkills),
                 CityId = jobPosting.CityId,

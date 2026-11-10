@@ -28,6 +28,7 @@ public static class CapRegister
         }
 
         services.AddTransient<PersonalizedJobPostingNotificationSubscriber>();
+        services.AddTransient<InterviewStageExtendedSubscriber>();
         services
             .AddCap(options =>
             {

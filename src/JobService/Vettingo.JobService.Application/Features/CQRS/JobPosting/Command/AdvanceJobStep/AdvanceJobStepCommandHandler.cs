@@ -10,7 +10,8 @@ public class AdvanceJobStepCommandHandler(
     IJobPostingRepository jobPostingRepository,
     IJobApplicationRepository jobApplicationRepository,
     ICandidateExamListPublisher candidateExamListPublisher,
-    ICandidateInterviewListPublisher candidateInterviewListPublisher) : IRequestHandler<AdvanceJobStepCommandRequest>
+    ICandidateInterviewListPublisher candidateInterviewListPublisher,
+    IInterviewStageExtendedPublisher interviewStageExtendedPublisher) : IRequestHandler<AdvanceJobStepCommandRequest>
 {
     public async Task Handle(AdvanceJobStepCommandRequest request, CancellationToken cancellationToken)
     {
@@ -58,6 +59,18 @@ public class AdvanceJobStepCommandHandler(
                     {
                         followingStep.StartedDate = followingStep.StartedDate.AddDays(additionalDays);
                         followingStep.EndDate = followingStep.EndDate.AddDays(additionalDays);
+
+                        foreach (var application in passedApplications)
+                        {
+                            await interviewStageExtendedPublisher.SendExtendedNotification(new InterviewStageExtendedMessage
+                            {
+                                CandidateId = application.CandidateId,
+                                CompanyId = jobPosting.CompanyId,
+                                Title = jobPosting.Title,
+                                AdditionalDays = additionalDays,
+                                EndDate = nextStep.EndDate
+                            }, cancellationToken);
+                        }
                     }
                 }
 

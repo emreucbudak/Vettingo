@@ -37,7 +37,7 @@ public sealed class JobPostingSkillsTests
         await using var context = new JobDbContext(new DbContextOptionsBuilder<JobDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         var posting = new JobPosting();
-        posting.CreateJobPosting(Guid.NewGuid(), "Vettingo Teknoloji", "Developer", new Dictionary<string, int> { ["C#"] = 3, ["SQL"] = 2 },
+        posting.CreateJobPosting(Guid.NewGuid(), "Developer", new Dictionary<string, int> { ["C#"] = 3, ["SQL"] = 2 },
             34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 50000, 75000,
             null, JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
         context.JobPostings.Add(posting);
