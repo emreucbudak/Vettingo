@@ -25,13 +25,13 @@ public sealed class InterviewRepositoriesTests
         var saved = (await repository.GetByIdAsync(interview.Id))!;
         saved.CompanyId.Should().Be(companyId);
         context.ChangeTracker.Clear();
-        context.Entry(saved).Property(entity => entity.Name).CurrentValue = "Ayşe";
+        context.Entry(saved).Property(entity => entity.Role).CurrentValue = "Backend Geliştirici";
         repository.Update(saved);
         await repository.SaveChangesAsync();
         context.ChangeTracker.Clear();
 
         var results = await repository.GetByCompanyAndDateAsync(companyId, date);
-        results.Should().ContainSingle().Which.Name.Should().Be("Ayşe");
+        results.Should().ContainSingle().Which.Role.Should().Be("Backend Geliştirici");
         (await repository.GetByCompanyAndDateAsync(Guid.NewGuid(), date)).Should().BeEmpty();
 
         context.ChangeTracker.Clear();

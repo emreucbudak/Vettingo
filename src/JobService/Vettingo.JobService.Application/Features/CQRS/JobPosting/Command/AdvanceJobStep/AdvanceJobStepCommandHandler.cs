@@ -14,11 +14,6 @@ public class AdvanceJobStepCommandHandler(
 
         foreach (var jobPosting in expiredJobPostings)
         {
-            if (jobPosting.IsPostingClosed)
-            {
-                continue;
-            }
-
             var passedApplications = await jobApplicationRepository.GetPassedApplicationsByJobPostingIdAsync(
                 jobPosting.Id, cancellationToken);
 

@@ -10,6 +10,5 @@ public sealed record GetInterviewsByDateQueryResponse
     public string Surname { get; init; } = string.Empty;
     public string Chapter { get; init; } = string.Empty;
     public string Role { get; init; } = string.Empty;
-    public string WhereIsMeeting { get; init; } = string.Empty;
     public string? MeetingLink { get; init; }
 }
