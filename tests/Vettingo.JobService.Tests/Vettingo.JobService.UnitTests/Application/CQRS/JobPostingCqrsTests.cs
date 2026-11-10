@@ -188,37 +188,69 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task AdvanceJobStep_Should_Publish_Interview_Schedule_And_Passed_Candidate_Ids(bool hasInterviewDetails)
+        [InlineData(true, 1, 0, true)]
+        [InlineData(false, 1, 0, true)]
+        [InlineData(true, 7, 1, true)]
+        [InlineData(true, 8, 1, true)]
+        [InlineData(true, 9, 2, true)]
+        [InlineData(true, 9, 2, false)]
+        public async Task AdvanceJobStep_Should_Publish_Interview_Schedule_And_Passed_Candidate_Ids(
+            bool hasInterviewDetails, int candidateCount, int additionalDays, bool hasFollowingStep)
         {
+            var endDate = new DateOnly(2026, 1, 5);
             var nextStep = new JobSteps
             {
                 Order = 2,
                 StepType = StepType.Interview,
                 StartedDate = new DateOnly(2026, 1, 3),
-                EndDate = new DateOnly(2026, 1, 5),
+                EndDate = endDate,
                 StartingLimitTime = new TimeOnly(9, 0),
-                StoppedLimitTime = new TimeOnly(17, 0),
+                StoppedLimitTime = new TimeOnly(10, 0),
                 InterviewIntervalMinutes = hasInterviewDetails ? 30 : null,
                 InterviewChapterName = hasInterviewDetails ? "Teknik Mülakat" : null,
                 MeetingLink = hasInterviewDetails ? "https://meet.google.com/abc-defg-hij" : null
             };
-            var posting = CreateJobPosting(Guid.NewGuid(), "Backend Developer",
-                [new() { Order = 1, StepType = StepType.Exam }, nextStep]);
-            var application = new JobApplication();
-            application.CreateApplication(Guid.NewGuid(), posting.Id, DateTime.UtcNow, ApplicationStatus.Sınav);
-            application.MarkCurrentStepPassed();
+            var followingStartDate = endDate.AddDays(1);
+            var followingEndDate = endDate.AddDays(3);
+            var followingStep = new JobSteps
+            {
+                Order = 3,
+                StepType = StepType.Exam,
+                StartedDate = followingStartDate,
+                EndDate = followingEndDate
+            };
+            List<JobSteps> jobSteps = [new() { Order = 1, StepType = StepType.Exam }, nextStep];
+            if (hasFollowingStep)
+            {
+                jobSteps.Add(followingStep);
+            }
+
+            var posting = CreateJobPosting(Guid.NewGuid(), "Backend Developer", jobSteps);
+            var applications = Enumerable.Range(0, candidateCount).Select(_ =>
+            {
+                var application = new JobApplication();
+                application.CreateApplication(Guid.NewGuid(), posting.Id, DateTime.UtcNow, ApplicationStatus.Sınav);
+                application.MarkCurrentStepPassed();
+                return application;
+            }).ToList();
             var postingRepository = Substitute.For<IJobPostingRepository>();
             postingRepository.GetExpiredJobPostingsAsync().Returns(_ => ReturnAsync<List<JobPosting>>([posting]));
             var applicationRepository = Substitute.For<IJobApplicationRepository>();
             applicationRepository.GetPassedApplicationsByJobPostingIdAsync(posting.Id)
-                .Returns(_ => ReturnAsync<List<JobApplication>>([application]));
+                .Returns(_ => ReturnAsync(applications));
             var publisher = Substitute.For<ICandidateInterviewListPublisher>();
             var handler = new AdvanceJobStepCommandHandler(postingRepository, applicationRepository,
                 Substitute.For<ICandidateExamListPublisher>(), publisher);
 
             await handler.Handle(new AdvanceJobStepCommandRequest(), CancellationToken.None);
+
+            var expectedEndDate = endDate.AddDays(additionalDays);
+            nextStep.EndDate.Should().Be(expectedEndDate);
+            if (hasFollowingStep)
+            {
+                followingStep.StartedDate.Should().Be(followingStartDate.AddDays(additionalDays));
+                followingStep.EndDate.Should().Be(followingEndDate.AddDays(additionalDays));
+            }
 
             await publisher.Received(1).PublishAsync(Arg.Is<InterviewCreateMessage>(message =>
                 message.JobId == posting.Id &&
@@ -226,13 +258,13 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 message.CompanyId == posting.CompanyId &&
                 message.Title == posting.Title &&
                 message.StartedDate == nextStep.StartedDate &&
-                message.EndDate == nextStep.EndDate &&
+                message.EndDate == expectedEndDate &&
                 message.StartingLimitTime == nextStep.StartingLimitTime &&
                 message.StoppedLimitTime == nextStep.StoppedLimitTime &&
                 message.InterviewIntervalMinutes == nextStep.InterviewIntervalMinutes &&
                 message.InterviewChapterName == nextStep.InterviewChapterName &&
                 message.MeetingLink == nextStep.MeetingLink &&
-                message.CandidateIds.SequenceEqual(new[] { application.CandidateId })), CancellationToken.None);
+                message.CandidateIds.SequenceEqual(applications.Select(application => application.CandidateId))), CancellationToken.None);
         }
 
         [Theory]

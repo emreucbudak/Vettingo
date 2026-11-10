@@ -63,8 +63,8 @@ public sealed class PersonalizedJobPostingNotificationTests
         await publisher.PublishAsync(dto, cancellation.Token);
 
         var arguments = cap.ReceivedCalls().Single().GetArguments();
-        var subscription = typeof(PersonalizedJobPostingNotificationConsumer)
-            .GetMethod(nameof(PersonalizedJobPostingNotificationConsumer.HandleAsync))!
+        var subscription = typeof(PersonalizedJobPostingNotificationSubscriber)
+            .GetMethod(nameof(PersonalizedJobPostingNotificationSubscriber.HandleAsync))!
             .GetCustomAttribute<CapSubscribeAttribute>()!;
         arguments[0].Should().Be(AuthPublisher.TopicName);
         arguments[0].Should().Be(subscription.Name);
