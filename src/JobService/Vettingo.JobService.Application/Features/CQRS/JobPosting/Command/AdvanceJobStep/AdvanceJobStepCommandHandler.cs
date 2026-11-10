@@ -38,15 +38,30 @@ public class AdvanceJobStepCommandHandler(
             }
             else if (nextStep?.StepType == StepType.Interview)
             {
+                var startingLimitTime = nextStep.StartingLimitTime!.Value;
+                var stoppedLimitTime = nextStep.StoppedLimitTime!.Value;
+
+                var dayCount = nextStep.EndDate.DayNumber - nextStep.StartedDate.DayNumber + 1;
+                var dailyDuration = stoppedLimitTime.ToTimeSpan() - startingLimitTime.ToTimeSpan();
+                var totalMinutes = dailyDuration.TotalMinutes * dayCount;
+                var interviewCapacity = totalMinutes / nextStep.InterviewIntervalMinutes;
+
+                if (interviewCapacity < passedApplications.Count)
+                {
+                    var remainingCandidateCount = passedApplications.Count - (int)interviewCapacity!.Value;
+                }
+
                 await candidateInterviewListPublisher.PublishAsync(new InterviewCreateMessage
                 {
                     JobId = jobPosting.Id,
+                    StepId = nextStep.Id,
                     CompanyId = jobPosting.CompanyId,
                     Title = jobPosting.Title,
                     StartedDate = nextStep.StartedDate,
                     EndDate = nextStep.EndDate,
-                    StartingLimitTime = nextStep.StartingLimitTime,
-                    StoppedLimitTime = nextStep.StoppedLimitTime,
+                    StartingLimitTime = startingLimitTime,
+                    StoppedLimitTime = stoppedLimitTime,
+                    InterviewIntervalMinutes = nextStep.InterviewIntervalMinutes,
                     InterviewChapterName = nextStep.InterviewChapterName,
                     MeetingLink = nextStep.MeetingLink,
                     CandidateIds = passedApplications.Select(application => application.CandidateId).ToList()

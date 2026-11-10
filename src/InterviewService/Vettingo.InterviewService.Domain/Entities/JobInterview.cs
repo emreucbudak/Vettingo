@@ -4,7 +4,7 @@ namespace Vettingo.InterviewService.Domain.Entities
 {
     public class JobInterview : BaseEntity
     {
-        private readonly List<Interview> _interviews = new();
+        private List<Interview> _interviews = new();
 
         public Guid JobId { get; set; }
         public DateOnly StartedDate { get; set; }
@@ -15,6 +15,7 @@ namespace Vettingo.InterviewService.Domain.Entities
         public IReadOnlyCollection<Interview> Interviews => _interviews.AsReadOnly();
 
         public void CreateJobInterview(
+            Guid stepId,
             Guid jobId,
             DateOnly startedDate,
             DateOnly endDate,
@@ -23,7 +24,7 @@ namespace Vettingo.InterviewService.Domain.Entities
             IEnumerable<Guid> candidatesToInterview)
         {
             CandidatesToInterview = candidatesToInterview.ToList();
-            SetId();
+            Id = stepId;
             SetCreatedAt();
             JobId = jobId;
             StartedDate = startedDate;
@@ -32,10 +33,10 @@ namespace Vettingo.InterviewService.Domain.Entities
             WindowEndTime = windowEndTime;
         }
 
-        public void AddInterview(Interview interview)
+        public void SetInterviews(List<Interview> interviews)
         {
-            ArgumentNullException.ThrowIfNull(interview);
-            _interviews.Add(interview);
+            ArgumentNullException.ThrowIfNull(interviews);
+            _interviews = interviews;
         }
     }
 }
