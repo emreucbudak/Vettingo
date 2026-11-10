@@ -27,7 +27,7 @@ public static class CapRegister
             throw new InvalidOperationException("RabbitMq:Port is not configured or is invalid.");
         }
 
-        services.AddTransient<PersonalizedJobPostingNotificationConsumer>();
+        services.AddTransient<PersonalizedJobPostingNotificationSubscriber>();
         services
             .AddCap(options =>
             {
@@ -47,7 +47,7 @@ public static class CapRegister
                 options.FailedRetryInterval = 60;
                 options.ConsumerThreadCount = 3;
                 options.FailedRetryCount = 5;
-            }).AddSubscriberAssembly(typeof(PersonalizedJobPostingNotificationConsumer));
+            }).AddSubscriberAssembly(typeof(PersonalizedJobPostingNotificationSubscriber));
 
         return services;
     }

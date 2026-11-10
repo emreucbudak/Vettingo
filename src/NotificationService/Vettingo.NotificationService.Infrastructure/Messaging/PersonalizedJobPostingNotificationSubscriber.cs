@@ -7,8 +7,8 @@ using Vettingo.NotificationService.Application.Services;
 
 namespace Vettingo.NotificationService.Infrastructure.Messaging;
 
-public sealed class PersonalizedJobPostingNotificationConsumer(
-    ILogger<PersonalizedJobPostingNotificationConsumer> logger,
+public sealed class PersonalizedJobPostingNotificationSubscriber(
+    ILogger<PersonalizedJobPostingNotificationSubscriber> logger,
     IEmailSender emailSender,
     IMediator mediator) : ICapSubscribe
 {

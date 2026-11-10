@@ -49,6 +49,16 @@ public class AdvanceJobStepCommandHandler(
                 if (interviewCapacity < passedApplications.Count)
                 {
                     var remainingCandidateCount = passedApplications.Count - (int)interviewCapacity!.Value;
+                    var interviewsPerDay = (int)(dailyDuration.TotalMinutes / nextStep.InterviewIntervalMinutes!.Value);
+                    var additionalDays = (int)Math.Ceiling((double)remainingCandidateCount / interviewsPerDay);
+                    nextStep.EndDate = nextStep.EndDate.AddDays(additionalDays);
+
+                    var followingStep = jobPosting.JobSteps.FirstOrDefault(step => step.Order == nextStep.Order + 1);
+                    if (followingStep is not null)
+                    {
+                        followingStep.StartedDate = followingStep.StartedDate.AddDays(additionalDays);
+                        followingStep.EndDate = followingStep.EndDate.AddDays(additionalDays);
+                    }
                 }
 
                 await candidateInterviewListPublisher.PublishAsync(new InterviewCreateMessage

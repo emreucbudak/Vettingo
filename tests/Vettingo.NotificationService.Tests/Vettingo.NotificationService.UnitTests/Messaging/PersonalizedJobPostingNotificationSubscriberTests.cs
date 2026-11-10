@@ -15,7 +15,7 @@ using Vettingo.NotificationService.Persistence.Repository;
 
 namespace Vettingo.NotificationService.UnitTests.Messaging;
 
-public sealed class PersonalizedJobPostingNotificationConsumerTests
+public sealed class PersonalizedJobPostingNotificationSubscriberTests
 {
     [Fact]
     public async Task Message_Should_Create_And_Deliver_Notification_Then_Email_Received_Address()
@@ -32,13 +32,13 @@ public sealed class PersonalizedJobPostingNotificationConsumerTests
         await using var provider = services.BuildServiceProvider();
         await using var scope = provider.CreateAsyncScope();
         var context = scope.ServiceProvider.GetRequiredService<NotificationDbContext>();
-        var consumer = CreateConsumer(emailSender, scope.ServiceProvider.GetRequiredService<IMediator>());
+        var subscriber = CreateSubscriber(emailSender, scope.ServiceProvider.GetRequiredService<IMediator>());
         var message = Message();
         using var cancellation = new CancellationTokenSource();
         emailSender.When(sender => sender.Send(Arg.Any<EmailMessage>())).Do(_ =>
             context.Notifications.Local.Should().ContainSingle());
 
-        await consumer.HandleAsync(message, cancellation.Token);
+        await subscriber.HandleAsync(message, cancellation.Token);
 
         context.ChangeTracker.Clear();
         var notification = await context.Notifications.SingleAsync();
@@ -63,9 +63,9 @@ public sealed class PersonalizedJobPostingNotificationConsumerTests
         var mediator = Substitute.For<IMediator>();
         mediator.Send(Arg.Any<CreateNotificationCommandRequest>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromException(new InvalidOperationException("Database unavailable")));
-        var consumer = CreateConsumer(emailSender, mediator);
+        var subscriber = CreateSubscriber(emailSender, mediator);
 
-        Func<Task> handle = () => consumer.HandleAsync(Message(), CancellationToken.None);
+        Func<Task> handle = () => subscriber.HandleAsync(Message(), CancellationToken.None);
 
         await handle.Should().ThrowAsync<InvalidOperationException>().WithMessage("Database unavailable");
         emailSender.ReceivedCalls().Should().BeEmpty();
@@ -80,9 +80,9 @@ public sealed class PersonalizedJobPostingNotificationConsumerTests
         var mediator = Substitute.For<IMediator>();
         mediator.Send(Arg.Any<CreateNotificationCommandRequest>(), Arg.Any<CancellationToken>())
             .Returns(Task.CompletedTask);
-        var consumer = CreateConsumer(emailSender, mediator);
+        var subscriber = CreateSubscriber(emailSender, mediator);
 
-        var handling = consumer.HandleAsync(Message(), CancellationToken.None);
+        var handling = subscriber.HandleAsync(Message(), CancellationToken.None);
 
         handling.IsCompleted.Should().BeFalse();
         emailCompletion.SetResult();
@@ -98,9 +98,9 @@ public sealed class PersonalizedJobPostingNotificationConsumerTests
         var mediator = Substitute.For<IMediator>();
         mediator.Send(Arg.Any<CreateNotificationCommandRequest>(), Arg.Any<CancellationToken>())
             .Returns(Task.CompletedTask);
-        var consumer = CreateConsumer(emailSender, mediator);
+        var subscriber = CreateSubscriber(emailSender, mediator);
 
-        Func<Task> handle = () => consumer.HandleAsync(Message(), CancellationToken.None);
+        Func<Task> handle = () => subscriber.HandleAsync(Message(), CancellationToken.None);
 
         await handle.Should().ThrowAsync<InvalidOperationException>().WithMessage("SMTP unavailable");
     }
@@ -112,6 +112,6 @@ public sealed class PersonalizedJobPostingNotificationConsumerTests
         Email = "candidate@example.com"
     };
 
-    private static PersonalizedJobPostingNotificationConsumer CreateConsumer(IEmailSender emailSender, IMediator mediator) =>
-        new(NullLogger<PersonalizedJobPostingNotificationConsumer>.Instance, emailSender, mediator);
+    private static PersonalizedJobPostingNotificationSubscriber CreateSubscriber(IEmailSender emailSender, IMediator mediator) =>
+        new(NullLogger<PersonalizedJobPostingNotificationSubscriber>.Instance, emailSender, mediator);
 }
