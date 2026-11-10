@@ -29,7 +29,7 @@ public class JobStageExamQueryTests
         trueFalseQuestion.CreateQuestion(exam.Id, "Is this true?", 1, 2, "True", "False");
         exam.AddTrueFalseQuestion(trueFalseQuestion);
         var jobExam = new JobStageExam { Exam = exam };
-        jobExam.CreateJobExam(Guid.NewGuid(), exam.Id);
+        jobExam.CreateJobStageExam(Guid.NewGuid(), exam.Id, new DateOnly(2026, 11, 8), new DateOnly(2026, 11, 9), []);
         context.Entry(jobExam).Property(entity => entity.Id).CurrentValue = Guid.NewGuid();
         var attempt = new ExamAttempt();
         attempt.CreateAttempt(jobExam, Guid.NewGuid(), 80, DateTime.UtcNow, DateTime.UtcNow);
@@ -37,7 +37,7 @@ public class JobStageExamQueryTests
         var otherExam = new Exam();
         otherExam.CreateExam("Other", "Other exam", 30, 50, ExamOwnerType.System, null);
         var otherJobExam = new JobStageExam { Exam = otherExam };
-        otherJobExam.CreateJobExam(Guid.NewGuid(), otherExam.Id);
+        otherJobExam.CreateJobStageExam(Guid.NewGuid(), otherExam.Id, new DateOnly(2026, 11, 8), new DateOnly(2026, 11, 9), []);
         context.JobExams.AddRange(otherJobExam, jobExam);
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();

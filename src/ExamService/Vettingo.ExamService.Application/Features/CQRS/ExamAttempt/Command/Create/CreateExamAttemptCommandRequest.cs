@@ -4,7 +4,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.ExamAttempt.Command.Cre
 
 public sealed record CreateExamAttemptCommandRequest : IRequest
 {
-    public required Guid JobExamId { get; init; }
+    public required Guid JobStageExamId { get; init; }
     public required Guid CandidateId { get; init; }
     public required int Score { get; init; }
     public required DateTime StartedAt { get; init; }

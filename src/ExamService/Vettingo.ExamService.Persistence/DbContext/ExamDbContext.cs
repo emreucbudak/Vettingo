@@ -43,6 +43,10 @@ namespace Vettingo.ExamService.Persistence.DbContext
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<JobStageExam>()
+                .Property(jobStageExam => jobStageExam.ExamCandidateList)
+                .IsConcurrencyToken();
+
+            builder.Entity<JobStageExam>()
                 .HasMany(jobExam => jobExam.Attempts)
                 .WithOne(attempt => attempt.JobExam)
                 .HasForeignKey(attempt => attempt.JobExamId)

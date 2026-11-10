@@ -14,11 +14,15 @@ namespace Vettingo.ExamService.Domain.Entities
         public Exam Exam { get; set; } = null!;
         public IReadOnlyCollection<ExamAttempt> Attempts => _attempts.AsReadOnly();
 
-        public void CreateJobExam(Guid jobId, Guid examId)
+        public void CreateJobStageExam(
+            Guid jobId, Guid examId, DateOnly startedDate, DateOnly endDate, IEnumerable<Guid> examCandidateList)
         {
+            ExamCandidateList = examCandidateList.ToList();
             SetCreatedAt();
             JobId = jobId;
             ExamId = examId;
+            StartedDate = startedDate;
+            EndDate = endDate;
         }
 
         public void AddAttempt(ExamAttempt attempt)
