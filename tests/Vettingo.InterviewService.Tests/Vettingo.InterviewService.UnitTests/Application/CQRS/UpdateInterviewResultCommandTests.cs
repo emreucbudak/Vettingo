@@ -20,9 +20,9 @@ public sealed class UpdateInterviewResultCommandTests
     {
         await using var context = CreateContext();
         var result = new InterviewResult();
-        result.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), 75, true);
+        result.Create(Guid.NewGuid(), 75, true);
         var other = new InterviewResult();
-        other.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), 50, true);
+        other.Create(Guid.NewGuid(), 50, true);
         context.InterviewResults.AddRange(result, other);
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
@@ -39,7 +39,6 @@ public sealed class UpdateInterviewResultCommandTests
         var saved = await context.InterviewResults.SingleAsync(entity => entity.Id == result.Id);
         saved.InterviewScore.Should().Be(expectedScore);
         saved.Passed.Should().Be(expectedPassed);
-        saved.UserId.Should().Be(result.UserId);
         saved.InterviewId.Should().Be(result.InterviewId);
         saved.CreatedAt.Should().Be(result.CreatedAt);
         if (score is null && passed is null)

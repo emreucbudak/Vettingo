@@ -20,13 +20,14 @@ public sealed class CreateInterviewResultCommandTests
         await using var context = CreateContext();
         var interview = new Interview();
         var jobId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
         context.Entry(interview).Property(entity => entity.JobId).CurrentValue = jobId;
+        context.Entry(interview).Property(entity => entity.UserId).CurrentValue = userId;
         context.Interviews.Add(interview);
         await context.SaveChangesAsync();
 
         var request = new CreateInterviewResultCommandRequest
         {
-            UserId = Guid.NewGuid(),
             InterviewId = interview.Id,
             InterviewScore = passed ? 85 : 40,
             Passed = passed
@@ -40,8 +41,6 @@ public sealed class CreateInterviewResultCommandTests
 
         context.ChangeTracker.Clear();
         var result = await context.InterviewResults.SingleAsync();
-        result.UserId.Should().Be(request.UserId);
-        result.JobId.Should().Be(jobId);
         result.InterviewId.Should().Be(request.InterviewId);
         result.InterviewScore.Should().Be(request.InterviewScore);
         result.Passed.Should().Be(passed);
@@ -50,7 +49,7 @@ public sealed class CreateInterviewResultCommandTests
         if (passed)
         {
             await publisher.Received(1).PublishAsync(Arg.Is<InterviewResultMessage>(message =>
-                message.UserId == request.UserId && message.JobId == jobId), CancellationToken.None);
+                message.UserId == userId && message.JobId == jobId), CancellationToken.None);
         }
         else
         {

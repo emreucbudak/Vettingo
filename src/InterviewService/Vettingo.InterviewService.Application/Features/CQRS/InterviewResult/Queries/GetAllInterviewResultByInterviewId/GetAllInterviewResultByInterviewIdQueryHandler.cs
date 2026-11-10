@@ -13,7 +13,7 @@ public class GetAllInterviewResultByInterviewIdQueryHandler(IInterviewResultRepo
 
         return results.Select(result => new GetAllInterviewResultByInterviewIdQueryResponse
         {
-            UserId = result.UserId,
+            UserId = result.Interview.UserId,
             InterviewScore = result.InterviewScore,
             Passed = result.Passed
         }).ToList();

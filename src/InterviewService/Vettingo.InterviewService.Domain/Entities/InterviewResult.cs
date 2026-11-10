@@ -4,20 +4,16 @@ namespace Vettingo.InterviewService.Domain.Entities
 {
     public class InterviewResult : BaseEntity
     {
-        public Guid UserId { get; private set; }
-        public Guid JobId { get; private set; }
         public Guid InterviewId { get; private set; }
         public Interview Interview { get; private set; } = null!;
         public int InterviewScore { get; private set; }
         public bool Passed { get; private set; }
 
-        public void Create(Guid userId, Guid interviewId, Guid jobId, int interviewScore, bool passed)
+        public void Create(Guid interviewId, int interviewScore, bool passed)
         {
             SetId();
             SetCreatedAt();
-            UserId = userId;
             InterviewId = interviewId;
-            JobId = jobId;
             InterviewScore = interviewScore;
             Passed = passed;
         }

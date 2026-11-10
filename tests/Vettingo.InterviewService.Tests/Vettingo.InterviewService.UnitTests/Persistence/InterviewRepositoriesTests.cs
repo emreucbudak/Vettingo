@@ -48,12 +48,13 @@ public sealed class InterviewRepositoriesTests
         var repository = new InterviewResultRepository(context);
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
-        var interviewId = AddInterview(context, companyId);
-        var otherInterviewId = AddInterview(context, Guid.NewGuid());
-        var result = CreateResult(userId, interviewId, 40);
+        var interviewId = AddInterview(context, companyId, userId);
+        var sameCompanyInterviewId = AddInterview(context, companyId, Guid.NewGuid());
+        var otherCompanyInterviewId = AddInterview(context, Guid.NewGuid(), Guid.NewGuid());
+        var result = CreateResult(interviewId, 40);
         await repository.AddAsync(result);
-        await repository.AddAsync(CreateResult(Guid.NewGuid(), interviewId, 90));
-        await repository.AddAsync(CreateResult(Guid.NewGuid(), otherInterviewId, 100));
+        await repository.AddAsync(CreateResult(sameCompanyInterviewId, 90));
+        await repository.AddAsync(CreateResult(otherCompanyInterviewId, 100));
         await repository.SaveChangesAsync();
         context.ChangeTracker.Clear();
 
@@ -80,18 +81,19 @@ public sealed class InterviewRepositoriesTests
             .Which.InterviewScore.Should().Be(90);
     }
 
-    private static Guid AddInterview(InterviewDbContext context, Guid companyId)
+    private static Guid AddInterview(InterviewDbContext context, Guid companyId, Guid userId)
     {
         var interview = new Interview();
         context.Entry(interview).Property(entity => entity.CompanyId).CurrentValue = companyId;
+        context.Entry(interview).Property(entity => entity.UserId).CurrentValue = userId;
         context.Interviews.Add(interview);
         return interview.Id;
     }
 
-    private static InterviewResult CreateResult(Guid userId, Guid interviewId, int score)
+    private static InterviewResult CreateResult(Guid interviewId, int score)
     {
         var result = new InterviewResult();
-        result.Create(userId, interviewId, Guid.NewGuid(), score, score >= 50);
+        result.Create(interviewId, score, score >= 50);
         return result;
     }
 
