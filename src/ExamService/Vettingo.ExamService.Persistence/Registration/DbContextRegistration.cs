@@ -2,7 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Vettingo.ExamService.Application.Repository;
+using Vettingo.ExamService.Application.UnitOfWork;
 using Vettingo.ExamService.Persistence.Repository;
+using Vettingo.ExamService.Persistence.UnitOfWork;
 using ExamPersistenceDbContext = Vettingo.ExamService.Persistence.DbContext.ExamDbContext;
 
 namespace Vettingo.ExamService.Persistence.Registration
@@ -17,6 +19,7 @@ namespace Vettingo.ExamService.Persistence.Registration
             });
 
             collect.AddScoped(typeof(IExamRepository<>), typeof(ExamRepository<>));
+            collect.AddScoped<IExamUnitOfWork, ExamUnitOfWork>();
         }
     }
 }
