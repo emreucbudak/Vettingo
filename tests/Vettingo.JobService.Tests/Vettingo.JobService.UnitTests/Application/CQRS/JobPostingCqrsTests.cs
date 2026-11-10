@@ -126,14 +126,25 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             var created = (JobPosting)repository.ReceivedCalls()
                 .Single(call => call.GetMethodInfo().Name == nameof(IJobPostingRepository.AddJobPostingAsync))
                 .GetArguments()[0]!;
-            created.JobSteps.Select(step => new { step.Order, step.StepType, step.ExamId, step.StartedDate, step.EndDate })
+            created.JobSteps.Select(step => new
+                {
+                    step.Order,
+                    step.StepType,
+                    step.ExamId,
+                    step.StartedDate,
+                    step.EndDate,
+                    step.StartingLimitTime,
+                    step.StoppedLimitTime
+                })
                 .Should().BeEquivalentTo(request.JobSteps.Select(step => new
                 {
                     step.Order,
                     step.StepType,
                     step.ExamId,
                     StartedDate = DateOnly.FromDateTime(step.StartedDate),
-                    EndDate = DateOnly.FromDateTime(step.EndDate)
+                    EndDate = DateOnly.FromDateTime(step.EndDate),
+                    step.StartingLimitTime,
+                    step.StoppedLimitTime
                 }));
             await repository.Received(1).SaveChangesAsync();
         }
@@ -174,23 +185,30 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 message.CandidateIds.SequenceEqual(new[] { application.CandidateId })), CancellationToken.None);
         }
 
-        [Fact]
-        public async Task AdvanceJobStep_Should_Publish_JobId_And_Interview_Dates()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task AdvanceJobStep_Should_Publish_Interview_Schedule_And_Passed_Candidate_Ids(bool hasLimitTimes)
         {
             var nextStep = new JobSteps
             {
                 Order = 2,
                 StepType = StepType.Interview,
                 StartedDate = new DateOnly(2026, 1, 3),
-                EndDate = new DateOnly(2026, 1, 5)
+                EndDate = new DateOnly(2026, 1, 5),
+                StartingLimitTime = hasLimitTimes ? new TimeOnly(9, 0) : null,
+                StoppedLimitTime = hasLimitTimes ? new TimeOnly(17, 0) : null
             };
             var posting = CreateJobPosting(Guid.NewGuid(), "Backend Developer",
                 [new() { Order = 1, StepType = StepType.Exam }, nextStep]);
+            var application = new JobApplication();
+            application.CreateApplication(Guid.NewGuid(), posting.Id, DateTime.UtcNow, ApplicationStatus.Sınav);
+            application.MarkCurrentStepPassed();
             var postingRepository = Substitute.For<IJobPostingRepository>();
             postingRepository.GetExpiredJobPostingsAsync().Returns(_ => ReturnAsync<List<JobPosting>>([posting]));
             var applicationRepository = Substitute.For<IJobApplicationRepository>();
             applicationRepository.GetPassedApplicationsByJobPostingIdAsync(posting.Id)
-                .Returns(_ => ReturnAsync<List<JobApplication>>([]));
+                .Returns(_ => ReturnAsync<List<JobApplication>>([application]));
             var publisher = Substitute.For<ICandidateInterviewListPublisher>();
             var handler = new AdvanceJobStepCommandHandler(postingRepository, applicationRepository,
                 Substitute.For<ICandidateExamListPublisher>(), publisher);
@@ -199,8 +217,12 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
 
             await publisher.Received(1).PublishAsync(Arg.Is<InterviewCreateMessage>(message =>
                 message.JobId == posting.Id &&
-                message.StartedDate == new DateTime(2026, 1, 3, 0, 0, 0, DateTimeKind.Utc) &&
-                message.EndDate == new DateTime(2026, 1, 5, 0, 0, 0, DateTimeKind.Utc)), CancellationToken.None);
+                message.CompanyId == posting.CompanyId &&
+                message.StartedDate == nextStep.StartedDate &&
+                message.EndDate == nextStep.EndDate &&
+                message.StartingLimitTime == nextStep.StartingLimitTime &&
+                message.StoppedLimitTime == nextStep.StoppedLimitTime &&
+                message.CandidateIds.SequenceEqual(new[] { application.CandidateId })), CancellationToken.None);
         }
 
         [Theory]
@@ -332,7 +354,15 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 JobSteps =
                 [
                     new() { Order = 1, StepType = StepType.Exam, ExamId = Guid.NewGuid(), StartedDate = DateTime.UtcNow.AddDays(1), EndDate = DateTime.UtcNow.AddDays(2) },
-                    new() { Order = 2, StepType = StepType.Interview, StartedDate = DateTime.UtcNow.AddDays(3), EndDate = DateTime.UtcNow.AddDays(4) }
+                    new()
+                    {
+                        Order = 2,
+                        StepType = StepType.Interview,
+                        StartedDate = DateTime.UtcNow.AddDays(3),
+                        EndDate = DateTime.UtcNow.AddDays(4),
+                        StartingLimitTime = new TimeOnly(9, 0),
+                        StoppedLimitTime = new TimeOnly(17, 0)
+                    }
                 ]
             };
         }
