@@ -3,20 +3,20 @@ using Microsoft.Extensions.Logging;
 using Vettingo.ExamService.Application.Exceptions;
 using Vettingo.ExamService.Application.Repository;
 
-namespace Vettingo.ExamService.Application.Features.CQRS.JobExam.Query.GetByJobId
+namespace Vettingo.ExamService.Application.Features.CQRS.JobStageExam.Query.GetByJobId
 {
-    public class GetJobExamByJobIdQueryHandler(IExamRepository<Domain.Entities.JobStageExam> jobExamRepository, IExamRepository<Domain.Entities.Exam> examRepository, ILogger<GetJobExamByJobIdQueryHandler> logger) : IRequestHandler<GetJobExamByJobIdQueryRequest, GetJobExamByJobIdQueryResponse>
+    public class GetJobStageExamByJobIdQueryHandler(IExamRepository<Domain.Entities.JobStageExam> jobStageExamRepository, IExamRepository<Domain.Entities.Exam> examRepository, ILogger<GetJobStageExamByJobIdQueryHandler> logger) : IRequestHandler<GetJobStageExamByJobIdQueryRequest, GetJobStageExamByJobIdQueryResponse>
     {
-        public async Task<GetJobExamByJobIdQueryResponse> Handle(GetJobExamByJobIdQueryRequest request, CancellationToken cancellationToken)
+        public async Task<GetJobStageExamByJobIdQueryResponse> Handle(GetJobStageExamByJobIdQueryRequest request, CancellationToken cancellationToken)
         {
-            logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetJobExamByJobIdQueryHandler));
-            var jobExams = await jobExamRepository.GetAllAsync();
-            var jobExam = jobExams.FirstOrDefault(item => item.JobId == request.JobId)
+            logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetJobStageExamByJobIdQueryHandler));
+            var jobStageExams = await jobStageExamRepository.GetAllAsync();
+            var jobStageExam = jobStageExams.FirstOrDefault(item => item.JobId == request.JobId)
                 ?? throw new NotFoundException("İş ilanına ait sınav bulunamadı");
-            var exam = await examRepository.GetByIdAsync(jobExam.ExamId)
+            var exam = await examRepository.GetByIdAsync(jobStageExam.ExamId)
                 ?? throw new NotFoundException("Sınav bulunamadı");
 
-            return new GetJobExamByJobIdQueryResponse
+            return new GetJobStageExamByJobIdQueryResponse
             {
                 CompanyId = exam.CompanyId,
                 OwnerType = exam.OwnerType,
@@ -25,14 +25,14 @@ namespace Vettingo.ExamService.Application.Features.CQRS.JobExam.Query.GetByJobI
                 DurationMinutes = exam.DurationMinutes,
                 MultipleChoiceQuestions = exam.GetMultipleChoiceQuestions()
                     .OrderBy(question => question.DisplayOrder)
-                    .Select(question => new GetJobExamByJobIdMultipleChoiceQuestionResponse
+                    .Select(question => new GetJobStageExamByJobIdMultipleChoiceQuestionResponse
                     {
                         Id = question.Id,
                         ExamId = question.ExamId,
                         QuestionText = question.QuestionText,
                         Weight = question.Weight,
                         DisplayOrder = question.DisplayOrder,
-                        Options = question.Options.Select(option => new GetJobExamByJobIdMultipleChoiceOptionResponse
+                        Options = question.Options.Select(option => new GetJobStageExamByJobIdMultipleChoiceOptionResponse
                         {
                             Id = option.Id,
                             OptionText = option.OptionText,
@@ -41,7 +41,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.JobExam.Query.GetByJobI
                     }).ToList(),
                 TrueFalseQuestions = exam.GetTrueFalseQuestions()
                     .OrderBy(question => question.DisplayOrder)
-                    .Select(question => new GetJobExamByJobIdTrueFalseQuestionResponse
+                    .Select(question => new GetJobStageExamByJobIdTrueFalseQuestionResponse
                     {
                         Id = question.Id,
                         ExamId = question.ExamId,

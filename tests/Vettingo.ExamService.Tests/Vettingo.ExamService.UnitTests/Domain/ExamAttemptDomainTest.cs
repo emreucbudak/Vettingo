@@ -59,6 +59,22 @@ namespace Vettingo.ExamService.UnitTests.Domain
             action.Should().Throw<ArgumentOutOfRangeException>();
         }
 
+        [Fact]
+        public void AddAttempt_Should_Remove_Only_The_Attempt_Candidate()
+        {
+            var jobExam = CreateJobExam();
+            var candidateId = Guid.NewGuid();
+            var otherCandidateId = Guid.NewGuid();
+            jobExam.ExamCandidateList.AddRange([candidateId, otherCandidateId]);
+            var attempt = new ExamAttempt();
+            attempt.CreateAttempt(jobExam, candidateId, 80, DateTime.UtcNow, DateTime.UtcNow);
+
+            jobExam.AddAttempt(attempt);
+
+            jobExam.Attempts.Should().ContainSingle().Which.Should().BeSameAs(attempt);
+            jobExam.ExamCandidateList.Should().Equal(otherCandidateId);
+        }
+
         private static JobStageExam CreateJobExam()
         {
             var exam = new Exam();
