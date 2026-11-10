@@ -10,6 +10,10 @@ public sealed class InterviewCreateConsumer(IMediator mediator) : ICapSubscribe
     [CapSubscribe("vettingo.interview.job-interview.create.requested.v1", Group = "vettingo.interview-service")]
     public async Task HandleAsync(InterviewCreateMessage message, CancellationToken cancellationToken)
     {
-        await mediator.Send(new CreateJobInterviewCommandRequest(), cancellationToken);
+        await mediator.Send(new CreateJobInterviewCommandRequest
+        {
+            StepId = message.StepId,
+            InterviewIntervalMinutes = message.InterviewIntervalMinutes
+        }, cancellationToken);
     }
 }

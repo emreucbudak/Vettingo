@@ -11,4 +11,5 @@ public record CreateJobStepRequest
     public DateTime EndDate { get; init; }
     public TimeOnly? StartingLimitTime { get; init; }
     public TimeOnly? StoppedLimitTime { get; init; }
+    public int? InterviewIntervalMinutes { get; init; }
 }

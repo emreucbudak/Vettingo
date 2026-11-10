@@ -19,6 +19,7 @@ public class JobSteps : BaseEntity
     public DateOnly EndDate { get; set; }
     public TimeOnly? StartingLimitTime { get; set; }
     public TimeOnly? StoppedLimitTime { get; set; }
+    public int? InterviewIntervalMinutes { get; set; }
     public string? InterviewChapterName { get; set; }
     public string? MeetingLink { get; set; }
 }

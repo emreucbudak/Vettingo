@@ -1,4 +1,5 @@
 using FlashMediator;
+using FluentValidation;
 using Vettingo.ExamService.Application.DTOs;
 using Vettingo.ExamService.Application.Exceptions;
 using Vettingo.ExamService.Application.Messaging;
@@ -9,11 +10,13 @@ namespace Vettingo.ExamService.Application.Features.CQRS.ExamAttempt.Command.Cre
 
 public sealed class CreateExamAttemptCommandHandler(
     IExamUnitOfWork unitOfWork,
-    IExamResultPublisher publisher) : IRequestHandler<CreateExamAttemptCommandRequest>
+    IExamResultPublisher publisher,
+    IValidator<CreateExamAttemptCommandRequest> validator) : IRequestHandler<CreateExamAttemptCommandRequest>
 {
     public async Task Handle(CreateExamAttemptCommandRequest request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        await validator.ValidateAndThrowAsync(request, cancellationToken);
         var jobStageExam = await unitOfWork.JobStageExamRepository.GetByIdAsync(request.JobStageExamId)
             ?? throw new NotFoundException("İş ilanına ait sınav bulunamadı.");
 

@@ -16,8 +16,9 @@ public sealed class InterviewRepositoriesTests
         var interview = new Interview();
         var companyId = Guid.NewGuid();
         var date = new DateOnly(2026, 10, 30);
+        var stepId = Guid.NewGuid();
         var jobInterview = new JobInterview();
-        jobInterview.CreateJobInterview(Guid.NewGuid(), date, date, new TimeOnly(9, 0), new TimeOnly(17, 0), []);
+        jobInterview.CreateJobInterview(stepId, Guid.NewGuid(), date, date, new TimeOnly(9, 0), new TimeOnly(17, 0), []);
         context.Add(jobInterview);
         await context.SaveChangesAsync();
         context.Entry(interview).Property(entity => entity.JobInterviewId).CurrentValue = jobInterview.Id;
@@ -29,6 +30,7 @@ public sealed class InterviewRepositoriesTests
 
         var saved = (await repository.GetByIdAsync(interview.Id))!;
         saved.CompanyId.Should().Be(companyId);
+        saved.JobInterview.Id.Should().Be(stepId);
         context.ChangeTracker.Clear();
         context.Entry(saved).Property(entity => entity.Role).CurrentValue = "Backend Geliştirici";
         repository.Update(saved);

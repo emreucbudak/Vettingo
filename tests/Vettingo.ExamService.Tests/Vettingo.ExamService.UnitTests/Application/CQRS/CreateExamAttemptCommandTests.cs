@@ -1,4 +1,5 @@
 using FluentAssertions;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using Vettingo.ExamService.Application.DTOs;
@@ -14,6 +15,30 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS;
 
 public sealed class CreateExamAttemptCommandTests
 {
+    [Fact]
+    public async Task Should_Reject_Invalid_Attempt_Before_Accessing_Repository()
+    {
+        var unitOfWork = Substitute.For<IExamUnitOfWork>();
+        var handler = new CreateExamAttemptCommandHandler(unitOfWork, Substitute.For<IExamResultPublisher>(),
+            new CreateExamAttemptCommandRequestValidator());
+        var startedAt = DateTime.UtcNow;
+        var request = new CreateExamAttemptCommandRequest
+        {
+            JobStageExamId = Guid.NewGuid(),
+            CandidateId = Guid.Empty,
+            Score = 0,
+            StartedAt = startedAt,
+            CompletedAt = startedAt
+        };
+
+        var action = () => handler.Handle(request, CancellationToken.None);
+
+        var exception = await action.Should().ThrowAsync<ValidationException>();
+        exception.Which.Errors.Select(error => error.PropertyName).Should().BeEquivalentTo(
+            nameof(request.CandidateId), nameof(request.Score), nameof(request.CompletedAt));
+        unitOfWork.ReceivedCalls().Should().BeEmpty();
+    }
+
     [Theory]
     [InlineData(69, false, false)]
     [InlineData(70, true, false)]
@@ -39,7 +64,7 @@ public sealed class CreateExamAttemptCommandTests
         unitOfWork.ExamAttemptRepository.Returns(new ExamRepository<ExamAttempt>(context));
         unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>())
             .Returns(call => context.SaveChangesAsync(call.Arg<CancellationToken>()));
-        var handler = new CreateExamAttemptCommandHandler(unitOfWork, publisher);
+        var handler = new CreateExamAttemptCommandHandler(unitOfWork, publisher, new CreateExamAttemptCommandRequestValidator());
         var completedAt = DateTime.UtcNow;
         var request = new CreateExamAttemptCommandRequest
         {

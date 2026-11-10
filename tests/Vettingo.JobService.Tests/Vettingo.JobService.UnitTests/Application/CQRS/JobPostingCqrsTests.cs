@@ -134,7 +134,8 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                     step.StartedDate,
                     step.EndDate,
                     step.StartingLimitTime,
-                    step.StoppedLimitTime
+                    step.StoppedLimitTime,
+                    step.InterviewIntervalMinutes
                 })
                 .Should().BeEquivalentTo(request.JobSteps.Select(step => new
                 {
@@ -144,7 +145,8 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                     StartedDate = DateOnly.FromDateTime(step.StartedDate),
                     EndDate = DateOnly.FromDateTime(step.EndDate),
                     step.StartingLimitTime,
-                    step.StoppedLimitTime
+                    step.StoppedLimitTime,
+                    step.InterviewIntervalMinutes
                 }));
             await repository.Received(1).SaveChangesAsync();
         }
@@ -196,8 +198,9 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 StepType = StepType.Interview,
                 StartedDate = new DateOnly(2026, 1, 3),
                 EndDate = new DateOnly(2026, 1, 5),
-                StartingLimitTime = hasInterviewDetails ? new TimeOnly(9, 0) : null,
-                StoppedLimitTime = hasInterviewDetails ? new TimeOnly(17, 0) : null,
+                StartingLimitTime = new TimeOnly(9, 0),
+                StoppedLimitTime = new TimeOnly(17, 0),
+                InterviewIntervalMinutes = hasInterviewDetails ? 30 : null,
                 InterviewChapterName = hasInterviewDetails ? "Teknik Mülakat" : null,
                 MeetingLink = hasInterviewDetails ? "https://meet.google.com/abc-defg-hij" : null
             };
@@ -219,12 +222,14 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
 
             await publisher.Received(1).PublishAsync(Arg.Is<InterviewCreateMessage>(message =>
                 message.JobId == posting.Id &&
+                message.StepId == nextStep.Id &&
                 message.CompanyId == posting.CompanyId &&
                 message.Title == posting.Title &&
                 message.StartedDate == nextStep.StartedDate &&
                 message.EndDate == nextStep.EndDate &&
                 message.StartingLimitTime == nextStep.StartingLimitTime &&
                 message.StoppedLimitTime == nextStep.StoppedLimitTime &&
+                message.InterviewIntervalMinutes == nextStep.InterviewIntervalMinutes &&
                 message.InterviewChapterName == nextStep.InterviewChapterName &&
                 message.MeetingLink == nextStep.MeetingLink &&
                 message.CandidateIds.SequenceEqual(new[] { application.CandidateId })), CancellationToken.None);
@@ -366,7 +371,8 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                         StartedDate = DateTime.UtcNow.AddDays(3),
                         EndDate = DateTime.UtcNow.AddDays(4),
                         StartingLimitTime = new TimeOnly(9, 0),
-                        StoppedLimitTime = new TimeOnly(17, 0)
+                        StoppedLimitTime = new TimeOnly(17, 0),
+                        InterviewIntervalMinutes = 30
                     }
                 ]
             };
