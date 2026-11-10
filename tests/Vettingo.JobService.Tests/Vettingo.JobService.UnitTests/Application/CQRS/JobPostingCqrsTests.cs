@@ -160,7 +160,8 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             applicationRepository.GetPassedApplicationsByJobPostingIdAsync(posting.Id)
                 .Returns(_ => ReturnAsync<List<JobApplication>>([application]));
             var publisher = Substitute.For<ICandidateExamListPublisher>();
-            var handler = new AdvanceJobStepCommandHandler(postingRepository, applicationRepository, publisher);
+            var handler = new AdvanceJobStepCommandHandler(postingRepository, applicationRepository, publisher,
+                Substitute.For<ICandidateInterviewListPublisher>());
 
             await handler.Handle(new AdvanceJobStepCommandRequest(), CancellationToken.None);
 
@@ -171,6 +172,35 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 message.StartedDate == nextStep.StartedDate &&
                 message.EndDate == nextStep.EndDate &&
                 message.CandidateIds.SequenceEqual(new[] { application.CandidateId })), CancellationToken.None);
+        }
+
+        [Fact]
+        public async Task AdvanceJobStep_Should_Publish_JobId_And_Interview_Dates()
+        {
+            var nextStep = new JobSteps
+            {
+                Order = 2,
+                StepType = StepType.Interview,
+                StartedDate = new DateOnly(2026, 1, 3),
+                EndDate = new DateOnly(2026, 1, 5)
+            };
+            var posting = CreateJobPosting(Guid.NewGuid(), "Backend Developer",
+                [new() { Order = 1, StepType = StepType.Exam }, nextStep]);
+            var postingRepository = Substitute.For<IJobPostingRepository>();
+            postingRepository.GetExpiredJobPostingsAsync().Returns(_ => ReturnAsync<List<JobPosting>>([posting]));
+            var applicationRepository = Substitute.For<IJobApplicationRepository>();
+            applicationRepository.GetPassedApplicationsByJobPostingIdAsync(posting.Id)
+                .Returns(_ => ReturnAsync<List<JobApplication>>([]));
+            var publisher = Substitute.For<ICandidateInterviewListPublisher>();
+            var handler = new AdvanceJobStepCommandHandler(postingRepository, applicationRepository,
+                Substitute.For<ICandidateExamListPublisher>(), publisher);
+
+            await handler.Handle(new AdvanceJobStepCommandRequest(), CancellationToken.None);
+
+            await publisher.Received(1).PublishAsync(Arg.Is<InterviewCreateMessage>(message =>
+                message.JobId == posting.Id &&
+                message.StartedDate == new DateTime(2026, 1, 3, 0, 0, 0, DateTimeKind.Utc) &&
+                message.EndDate == new DateTime(2026, 1, 5, 0, 0, 0, DateTimeKind.Utc)), CancellationToken.None);
         }
 
         [Theory]

@@ -9,7 +9,8 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.Advan
 public class AdvanceJobStepCommandHandler(
     IJobPostingRepository jobPostingRepository,
     IJobApplicationRepository jobApplicationRepository,
-    ICandidateExamListPublisher candidateExamListPublisher) : IRequestHandler<AdvanceJobStepCommandRequest>
+    ICandidateExamListPublisher candidateExamListPublisher,
+    ICandidateInterviewListPublisher candidateInterviewListPublisher) : IRequestHandler<AdvanceJobStepCommandRequest>
 {
     public async Task Handle(AdvanceJobStepCommandRequest request, CancellationToken cancellationToken)
     {
@@ -37,6 +38,12 @@ public class AdvanceJobStepCommandHandler(
             }
             else if (nextStep?.StepType == StepType.Interview)
             {
+                await candidateInterviewListPublisher.PublishAsync(new InterviewCreateMessage
+                {
+                    JobId = jobPosting.Id,
+                    StartedDate = nextStep.StartedDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
+                    EndDate = nextStep.EndDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)
+                }, cancellationToken);
             }
             else if (nextStep is null)
             {
