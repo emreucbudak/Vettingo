@@ -41,8 +41,12 @@ public class AdvanceJobStepCommandHandler(
                 await candidateInterviewListPublisher.PublishAsync(new InterviewCreateMessage
                 {
                     JobId = jobPosting.Id,
-                    StartedDate = nextStep.StartedDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
-                    EndDate = nextStep.EndDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)
+                    CompanyId = jobPosting.CompanyId,
+                    StartedDate = nextStep.StartedDate,
+                    EndDate = nextStep.EndDate,
+                    StartingLimitTime = nextStep.StartingLimitTime,
+                    StoppedLimitTime = nextStep.StoppedLimitTime,
+                    CandidateIds = passedApplications.Select(application => application.CandidateId).ToList()
                 }, cancellationToken);
             }
             else if (nextStep is null)

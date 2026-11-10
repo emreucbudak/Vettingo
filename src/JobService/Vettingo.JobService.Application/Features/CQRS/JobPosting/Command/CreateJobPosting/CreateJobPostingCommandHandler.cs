@@ -27,7 +27,9 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.Creat
                 StepType = step.StepType,
                 ExamId = step.ExamId,
                 StartedDate = DateOnly.FromDateTime(step.StartedDate),
-                EndDate = DateOnly.FromDateTime(step.EndDate)
+                EndDate = DateOnly.FromDateTime(step.EndDate),
+                StartingLimitTime = step.StartingLimitTime,
+                StoppedLimitTime = step.StoppedLimitTime
             }).ToList();
 
             Domain.Entities.JobPosting jobPosting = new();

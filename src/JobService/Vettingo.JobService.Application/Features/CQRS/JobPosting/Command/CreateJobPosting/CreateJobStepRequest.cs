@@ -9,4 +9,6 @@ public record CreateJobStepRequest
     public Guid? ExamId { get; init; }
     public DateTime StartedDate { get; init; }
     public DateTime EndDate { get; init; }
+    public TimeOnly? StartingLimitTime { get; init; }
+    public TimeOnly? StoppedLimitTime { get; init; }
 }
