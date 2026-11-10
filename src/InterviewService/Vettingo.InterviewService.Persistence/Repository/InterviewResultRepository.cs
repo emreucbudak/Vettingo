@@ -42,6 +42,7 @@ public sealed class InterviewResultRepository(InterviewDbContext context) : IInt
         Guid interviewId, CancellationToken cancellationToken = default)
     {
         return await context.InterviewResults.AsNoTracking()
+            .Include(interviewResult => interviewResult.Interview)
             .Where(interviewResult => interviewResult.InterviewId == interviewId)
             .ToListAsync(cancellationToken);
     }
@@ -49,7 +50,8 @@ public sealed class InterviewResultRepository(InterviewDbContext context) : IInt
     public async Task<IEnumerable<InterviewResult>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return await context.InterviewResults.AsNoTracking()
-            .Where(interviewResult => interviewResult.UserId == userId)
+            .Include(interviewResult => interviewResult.Interview)
+            .Where(interviewResult => interviewResult.Interview.UserId == userId)
             .ToListAsync(cancellationToken);
     }
 

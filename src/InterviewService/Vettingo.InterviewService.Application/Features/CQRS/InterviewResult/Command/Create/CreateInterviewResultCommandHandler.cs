@@ -20,7 +20,7 @@ public class CreateInterviewResultCommandHandler(
             ?? throw new NotFoundException("Mülakat bulunamadı.");
 
         var interviewResult = new InterviewResultEntity();
-        interviewResult.Create(request.UserId, interview.Id, interview.JobId, request.InterviewScore, request.Passed);
+        interviewResult.Create(interview.Id, request.InterviewScore, request.Passed);
 
         await repository.AddAsync(interviewResult, cancellationToken);
         await repository.SaveChangesAsync(cancellationToken);
@@ -29,8 +29,8 @@ public class CreateInterviewResultCommandHandler(
         {
             await publisher.PublishAsync(new InterviewResultMessage
             {
-                UserId = interviewResult.UserId,
-                JobId = interviewResult.JobId
+                UserId = interview.UserId,
+                JobId = interview.JobId
             }, cancellationToken);
         }
     }
