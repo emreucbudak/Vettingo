@@ -4,6 +4,7 @@ using NSubstitute;
 using Vettingo.ExamService.Application.DTOs;
 using Vettingo.ExamService.Application.Features.CQRS.ExamAttempt.Command.Create;
 using Vettingo.ExamService.Application.Messaging;
+using Vettingo.ExamService.Application.UnitOfWork;
 using Vettingo.ExamService.Domain.Entities;
 using Vettingo.ExamService.Domain.Enums;
 using Vettingo.ExamService.Persistence.DbContext;
@@ -14,9 +15,10 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS;
 public sealed class CreateExamAttemptCommandTests
 {
     [Theory]
-    [InlineData(69, false)]
-    [InlineData(70, true)]
-    public async Task Should_Save_Attempt_And_Publish_Only_Passed_Results(int score, bool passed)
+    [InlineData(69, false, false)]
+    [InlineData(70, true, false)]
+    [InlineData(70, true, true)]
+    public async Task Should_Save_Attempt_And_Publish_Only_Passed_Results(int score, bool passed, bool publishFails)
     {
         await using var context = new ExamDbContext(new DbContextOptionsBuilder<ExamDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
@@ -32,8 +34,12 @@ public sealed class CreateExamAttemptCommandTests
         context.ChangeTracker.Clear();
 
         var publisher = Substitute.For<IExamResultPublisher>();
-        var handler = new CreateExamAttemptCommandHandler(
-            new ExamRepository<JobStageExam>(context), new ExamRepository<ExamAttempt>(context), publisher);
+        var unitOfWork = Substitute.For<IExamUnitOfWork>();
+        unitOfWork.JobStageExamRepository.Returns(new ExamRepository<JobStageExam>(context));
+        unitOfWork.ExamAttemptRepository.Returns(new ExamRepository<ExamAttempt>(context));
+        unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>())
+            .Returns(call => context.SaveChangesAsync(call.Arg<CancellationToken>()));
+        var handler = new CreateExamAttemptCommandHandler(unitOfWork, publisher);
         var completedAt = DateTime.UtcNow;
         var request = new CreateExamAttemptCommandRequest
         {
@@ -48,6 +54,25 @@ public sealed class CreateExamAttemptCommandTests
         (await context.ExamAttempts.AnyAsync()).Should().BeFalse();
         await publisher.DidNotReceiveWithAnyArgs().PublishAsync(default!, default);
 
+        if (publishFails)
+        {
+            publisher.PublishAsync(Arg.Any<ExamResultMessage>(), Arg.Any<CancellationToken>())
+                .Returns(Task.FromException(new InvalidOperationException("Publish failed.")));
+
+            var action = () => handler.Handle(request, CancellationToken.None);
+            await action.Should().ThrowAsync<InvalidOperationException>().WithMessage("Publish failed.");
+
+            Received.InOrder(() =>
+            {
+                _ = unitOfWork.BeginTransactionAsync(CancellationToken.None);
+                _ = unitOfWork.SaveChangesAsync(CancellationToken.None);
+                _ = publisher.PublishAsync(Arg.Any<ExamResultMessage>(), CancellationToken.None);
+                _ = unitOfWork.RollbackTransactionAsync();
+            });
+            await unitOfWork.DidNotReceiveWithAnyArgs().CommitTransactionAsync(default);
+            return;
+        }
+
         await handler.Handle(request, CancellationToken.None);
         context.ChangeTracker.Clear();
         var saved = await context.ExamAttempts.AsNoTracking().SingleAsync();
@@ -59,10 +84,23 @@ public sealed class CreateExamAttemptCommandTests
 
         await handler.Handle(request, CancellationToken.None);
         (await context.ExamAttempts.CountAsync()).Should().Be(1);
+        Received.InOrder(() =>
+        {
+            _ = unitOfWork.BeginTransactionAsync(CancellationToken.None);
+            _ = unitOfWork.SaveChangesAsync(CancellationToken.None);
+            if (passed)
+            {
+                _ = publisher.PublishAsync(Arg.Is<ExamResultMessage>(message =>
+                    message.UserId == request.CandidateId && message.JobId == jobExam.JobId), CancellationToken.None);
+            }
+            _ = unitOfWork.CommitTransactionAsync(CancellationToken.None);
+        });
+        await unitOfWork.DidNotReceive().RollbackTransactionAsync();
+        await unitOfWork.Received(1).BeginTransactionAsync(CancellationToken.None);
+
         if (passed)
         {
-            await publisher.Received(1).PublishAsync(Arg.Is<ExamResultMessage>(message =>
-                message.UserId == request.CandidateId && message.JobId == jobExam.JobId), CancellationToken.None);
+            await publisher.ReceivedWithAnyArgs(1).PublishAsync(default!, default);
         }
         else
         {
