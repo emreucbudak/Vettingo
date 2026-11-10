@@ -20,5 +20,5 @@ public class JobSteps : BaseEntity
     public TimeOnly? StartingLimitTime { get; set; }
     public TimeOnly? StoppedLimitTime { get; set; }
     public string? InterviewChapterName { get; set; }
-    public string MeetingLink { get; set; } = string.Empty;
+    public string? MeetingLink { get; set; }
 }

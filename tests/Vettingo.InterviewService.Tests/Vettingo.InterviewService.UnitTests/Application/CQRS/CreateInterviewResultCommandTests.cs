@@ -21,10 +21,15 @@ public sealed class CreateInterviewResultCommandTests
         var interview = new Interview();
         var jobId = Guid.NewGuid();
         var userId = Guid.NewGuid();
-        context.Entry(interview).Property(entity => entity.JobId).CurrentValue = jobId;
         context.Entry(interview).Property(entity => entity.UserId).CurrentValue = userId;
-        context.Interviews.Add(interview);
+        var jobInterview = new JobInterview();
+        jobInterview.CreateJobInterview(jobId, new DateOnly(2026, 11, 10), new DateOnly(2026, 11, 11),
+            new TimeOnly(9, 0), new TimeOnly(17, 0), [userId]);
+        jobInterview.AddInterview(interview);
+        context.Add(jobInterview);
         await context.SaveChangesAsync();
+        interview.JobInterviewId.Should().Be(jobInterview.Id);
+        context.ChangeTracker.Clear();
 
         var request = new CreateInterviewResultCommandRequest
         {

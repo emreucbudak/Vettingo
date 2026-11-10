@@ -16,6 +16,11 @@ public sealed class InterviewRepositoriesTests
         var interview = new Interview();
         var companyId = Guid.NewGuid();
         var date = new DateOnly(2026, 10, 30);
+        var jobInterview = new JobInterview();
+        jobInterview.CreateJobInterview(Guid.NewGuid(), date, date, new TimeOnly(9, 0), new TimeOnly(17, 0), []);
+        context.Add(jobInterview);
+        await context.SaveChangesAsync();
+        context.Entry(interview).Property(entity => entity.JobInterviewId).CurrentValue = jobInterview.Id;
         context.Entry(interview).Property(entity => entity.CompanyId).CurrentValue = companyId;
         context.Entry(interview).Property(entity => entity.InterviewDate).CurrentValue = date;
         await repository.AddAsync(interview);

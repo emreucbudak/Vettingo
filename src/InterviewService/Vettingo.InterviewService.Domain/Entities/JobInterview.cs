@@ -14,13 +14,22 @@ namespace Vettingo.InterviewService.Domain.Entities
         public List<Guid> CandidatesToInterview { get; set; } = new();
         public IReadOnlyCollection<Interview> Interviews => _interviews.AsReadOnly();
 
-        public void CreateJobInterview(Guid jobId, DateOnly startedDate, DateOnly endDate)
+        public void CreateJobInterview(
+            Guid jobId,
+            DateOnly startedDate,
+            DateOnly endDate,
+            TimeOnly windowStartTime,
+            TimeOnly windowEndTime,
+            IEnumerable<Guid> candidatesToInterview)
         {
+            CandidatesToInterview = candidatesToInterview.ToList();
             SetId();
             SetCreatedAt();
             JobId = jobId;
             StartedDate = startedDate;
             EndDate = endDate;
+            WindowStartTime = windowStartTime;
+            WindowEndTime = windowEndTime;
         }
 
         public void AddInterview(Interview interview)

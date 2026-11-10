@@ -22,13 +22,15 @@ namespace Vettingo.ExamService.UnitTests.Domain
             var trueFalseQuestion = new TrueFalseQuestion();
             trueFalseQuestion.CreateQuestion(exam.Id, "Is this true?", 1, 2, "True", "False");
             var attempt = new ExamAttempt();
-            var jobExam = new JobStageExamWithId(Guid.NewGuid()) { Exam = exam };
+            var jobExam = new JobStageExam { Exam = exam };
+            var stepId = Guid.NewGuid();
             var startedDate = new DateOnly(2026, 11, 8);
             var endDate = new DateOnly(2026, 11, 9);
-            jobExam.CreateJobStageExam(Guid.NewGuid(), exam.Id, startedDate, endDate, []);
+            jobExam.CreateJobStageExam(stepId, Guid.NewGuid(), exam.Id, startedDate, endDate, []);
             attempt.CreateAttempt(jobExam, Guid.NewGuid(), 80, DateTime.UtcNow, DateTime.UtcNow);
             var after = DateOnly.FromDateTime(DateTime.UtcNow);
 
+            jobExam.Id.Should().Be(stepId);
             jobExam.StartedDate.Should().Be(startedDate);
             jobExam.EndDate.Should().Be(endDate);
             BaseEntity[] entities = [exam, question, option, trueFalseQuestion, attempt];
