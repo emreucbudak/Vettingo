@@ -5,7 +5,7 @@ using Vettingo.ExamService.Application.Repository;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.JobExam.Query.GetByJobId
 {
-    public class GetJobExamByJobIdQueryHandler(IExamRepository<Domain.Entities.JobExam> jobExamRepository, IExamRepository<Domain.Entities.Exam> examRepository, ILogger<GetJobExamByJobIdQueryHandler> logger) : IRequestHandler<GetJobExamByJobIdQueryRequest, GetJobExamByJobIdQueryResponse>
+    public class GetJobExamByJobIdQueryHandler(IExamRepository<Domain.Entities.JobStageExam> jobExamRepository, IExamRepository<Domain.Entities.Exam> examRepository, ILogger<GetJobExamByJobIdQueryHandler> logger) : IRequestHandler<GetJobExamByJobIdQueryRequest, GetJobExamByJobIdQueryResponse>
     {
         public async Task<GetJobExamByJobIdQueryResponse> Handle(GetJobExamByJobIdQueryRequest request, CancellationToken cancellationToken)
         {

@@ -9,14 +9,14 @@ namespace Vettingo.ExamService.Domain.Entities
         }
 
         public Guid JobExamId { get; private set; }
-        public JobExam JobExam { get; private set; } = null!;
+        public JobStageExam JobExam { get; private set; } = null!;
         public Guid CandidateId { get; private set; }
         public DateTime StartedAt { get; private set; }
         public DateTime CompletedAt { get; private set; }
         public int Score { get; private set; }
         public bool Passed { get; private set; }
 
-        public void CreateAttempt(JobExam jobExam, Guid candidateId, int score, DateTime startedAt, DateTime completedAt)
+        public void CreateAttempt(JobStageExam jobExam, Guid candidateId, int score, DateTime startedAt, DateTime completedAt)
         {
             ArgumentNullException.ThrowIfNull(jobExam);
             CheckGuid(jobExam.Id, nameof(JobExamId));

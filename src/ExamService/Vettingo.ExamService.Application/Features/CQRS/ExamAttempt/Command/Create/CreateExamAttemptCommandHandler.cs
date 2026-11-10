@@ -4,7 +4,7 @@ using Vettingo.ExamService.Application.Exceptions;
 using Vettingo.ExamService.Application.Messaging;
 using Vettingo.ExamService.Application.Repository;
 using ExamAttemptEntity = Vettingo.ExamService.Domain.Entities.ExamAttempt;
-using JobExamEntity = Vettingo.ExamService.Domain.Entities.JobExam;
+using JobExamEntity = Vettingo.ExamService.Domain.Entities.JobStageExam;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.ExamAttempt.Command.Create;
 

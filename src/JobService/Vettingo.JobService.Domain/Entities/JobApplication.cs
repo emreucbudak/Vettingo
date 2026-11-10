@@ -47,6 +47,12 @@ namespace Vettingo.JobService.Domain.Entities
             SetUpdatedAt();
         }
 
+        public void ResetCurrentStepPassed()
+        {
+            IsCurrentStepPassed = false;
+            SetUpdatedAt();
+        }
+
         private static void ValidateGuid(Guid value, string parameterName)
         {
             if (value == Guid.Empty)

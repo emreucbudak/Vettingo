@@ -42,7 +42,9 @@ namespace Vettingo.ExamService.UnitTests.Domain
         public void Create_ExamAttempt_With_Empty_JobExamId_Should_Throw()
         {
             var attempt = new ExamAttempt();
-            Action action = () => attempt.CreateAttempt(new JobExam(), Guid.NewGuid(), 80, DateTime.UtcNow, DateTime.UtcNow);
+            var jobExam = new JobStageExam();
+            jobExam.CreateJobExam(Guid.NewGuid(), Guid.NewGuid());
+            Action action = () => attempt.CreateAttempt(jobExam, Guid.NewGuid(), 80, DateTime.UtcNow, DateTime.UtcNow);
 
             action.Should().Throw<ArgumentException>();
         }
@@ -57,13 +59,21 @@ namespace Vettingo.ExamService.UnitTests.Domain
             action.Should().Throw<ArgumentOutOfRangeException>();
         }
 
-        private static JobExam CreateJobExam()
+        private static JobStageExam CreateJobExam()
         {
             var exam = new Exam();
             exam.CreateExam("Backend", "Backend exam", 60, 70, ExamOwnerType.System, null);
-            var jobExam = new JobExam { Exam = exam };
+            var jobExam = new JobStageExamWithId(Guid.NewGuid()) { Exam = exam };
             jobExam.CreateJobExam(Guid.NewGuid(), exam.Id);
             return jobExam;
+        }
+    }
+
+    internal sealed class JobStageExamWithId : JobStageExam
+    {
+        public JobStageExamWithId(Guid id)
+        {
+            Id = id;
         }
     }
 }
