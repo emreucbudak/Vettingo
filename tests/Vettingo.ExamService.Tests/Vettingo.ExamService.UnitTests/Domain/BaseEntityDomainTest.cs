@@ -22,7 +22,7 @@ namespace Vettingo.ExamService.UnitTests.Domain
             var trueFalseQuestion = new TrueFalseQuestion();
             trueFalseQuestion.CreateQuestion(exam.Id, "Is this true?", 1, 2, "True", "False");
             var attempt = new ExamAttempt();
-            var jobExam = new JobExam { Exam = exam };
+            var jobExam = new JobStageExamWithId(Guid.NewGuid()) { Exam = exam };
             jobExam.CreateJobExam(Guid.NewGuid(), exam.Id);
             attempt.CreateAttempt(jobExam, Guid.NewGuid(), 80, DateTime.UtcNow, DateTime.UtcNow);
             var after = DateOnly.FromDateTime(DateTime.UtcNow);

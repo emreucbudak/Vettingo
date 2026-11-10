@@ -1,4 +1,6 @@
 using FlashMediator;
+using Vettingo.JobService.Application.DTOs;
+using Vettingo.JobService.Application.Messaging;
 using Vettingo.JobService.Application.Repository;
 using Vettingo.JobService.Domain.Enums;
 
@@ -6,7 +8,8 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.Advan
 
 public class AdvanceJobStepCommandHandler(
     IJobPostingRepository jobPostingRepository,
-    IJobApplicationRepository jobApplicationRepository) : IRequestHandler<AdvanceJobStepCommandRequest>
+    IJobApplicationRepository jobApplicationRepository,
+    ICandidateExamListPublisher candidateExamListPublisher) : IRequestHandler<AdvanceJobStepCommandRequest>
 {
     public async Task Handle(AdvanceJobStepCommandRequest request, CancellationToken cancellationToken)
     {
@@ -22,6 +25,15 @@ public class AdvanceJobStepCommandHandler(
             var nextStep = jobPosting.JobSteps.FirstOrDefault(step => step.Order == jobPosting.CurrentStep);
             if (nextStep?.StepType == StepType.Exam)
             {
+                await candidateExamListPublisher.PublishAsync(new ContinuingCandidateListMessage
+                {
+                    JobId = jobPosting.Id,
+                    StepId = nextStep.Id,
+                    ExamId = nextStep.ExamId,
+                    StartedDate = nextStep.StartedDate,
+                    EndDate = nextStep.EndDate,
+                    CandidateIds = passedApplications.Select(application => application.CandidateId).ToList()
+                }, cancellationToken);
             }
             else if (nextStep?.StepType == StepType.Interview)
             {
@@ -31,6 +43,10 @@ public class AdvanceJobStepCommandHandler(
                 jobPosting.CloseJobPosting();
                 continue;
             }
+            passedApplications.ForEach(application =>
+            {
+                application.ResetCurrentStepPassed();
+            });
         }
     }
 }

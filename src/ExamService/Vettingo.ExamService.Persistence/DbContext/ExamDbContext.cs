@@ -6,7 +6,7 @@ namespace Vettingo.ExamService.Persistence.DbContext
     public class ExamDbContext(DbContextOptions<ExamDbContext> options) : Microsoft.EntityFrameworkCore.DbContext(options)
     {
         public DbSet<Exam> Exams { get; set; }
-        public DbSet<JobExam> JobExams { get; set; }
+        public DbSet<JobStageExam> JobExams { get; set; }
         public DbSet<MultipleChoiceQuestion> MultipleChoiceQuestions { get; set; }
         public DbSet<MultipleChoiceOption> MultipleChoiceOptions { get; set; }
         public DbSet<TrueFalseQuestion> TrueFalseQuestions { get; set; }
@@ -42,7 +42,7 @@ namespace Vettingo.ExamService.Persistence.DbContext
                 .HasForeignKey(question => question.ExamId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Entity<JobExam>()
+            builder.Entity<JobStageExam>()
                 .HasMany(jobExam => jobExam.Attempts)
                 .WithOne(attempt => attempt.JobExam)
                 .HasForeignKey(attempt => attempt.JobExamId)

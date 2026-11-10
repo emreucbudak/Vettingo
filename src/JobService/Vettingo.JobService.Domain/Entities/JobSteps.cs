@@ -14,6 +14,7 @@ public class JobSteps : BaseEntity
     public JobPosting JobPosting { get; set; } = null!;
     public int Order { get; set; }
     public StepType StepType { get; set; }
+    public Guid? ExamId { get; set; }
     public DateOnly StartedDate { get; set; }
     public DateOnly EndDate { get; set; }
     public TimeOnly? StartingLimitTime { get; set; }

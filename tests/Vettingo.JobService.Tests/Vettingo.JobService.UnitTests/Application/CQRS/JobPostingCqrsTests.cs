@@ -1,6 +1,8 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using Vettingo.JobService.Application.DTOs;
+using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.AdvanceJobStep;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CloseJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CloseJobPostingApplications;
 using Vettingo.JobService.Application.Exceptions;
@@ -124,15 +126,51 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             var created = (JobPosting)repository.ReceivedCalls()
                 .Single(call => call.GetMethodInfo().Name == nameof(IJobPostingRepository.AddJobPostingAsync))
                 .GetArguments()[0]!;
-            created.JobSteps.Select(step => new { step.Order, step.StepType, step.StartedDate, step.EndDate })
+            created.JobSteps.Select(step => new { step.Order, step.StepType, step.ExamId, step.StartedDate, step.EndDate })
                 .Should().BeEquivalentTo(request.JobSteps.Select(step => new
                 {
                     step.Order,
                     step.StepType,
+                    step.ExamId,
                     StartedDate = DateOnly.FromDateTime(step.StartedDate),
                     EndDate = DateOnly.FromDateTime(step.EndDate)
                 }));
             await repository.Received(1).SaveChangesAsync();
+        }
+
+        [Fact]
+        public async Task AdvanceJobStep_Should_Publish_Next_Exam_And_Passed_Candidate_Ids()
+        {
+            var nextStep = new JobSteps
+            {
+                Order = 2,
+                StepType = StepType.Exam,
+                ExamId = Guid.NewGuid(),
+                StartedDate = new DateOnly(2026, 1, 3),
+                EndDate = new DateOnly(2026, 1, 5)
+            };
+            var posting = CreateJobPosting(Guid.NewGuid(), "Backend Developer",
+                [new() { Order = 1, StepType = StepType.Interview }, nextStep]);
+            var application = new JobApplication();
+            application.CreateApplication(Guid.NewGuid(), posting.Id, DateTime.UtcNow, ApplicationStatus.Mülakat);
+            application.MarkCurrentStepPassed();
+            var postingRepository = Substitute.For<IJobPostingRepository>();
+            postingRepository.GetExpiredJobPostingsAsync().Returns(_ => ReturnAsync<List<JobPosting>>([posting]));
+            var applicationRepository = Substitute.For<IJobApplicationRepository>();
+            applicationRepository.GetPassedApplicationsByJobPostingIdAsync(posting.Id)
+                .Returns(_ => ReturnAsync<List<JobApplication>>([application]));
+            var publisher = Substitute.For<ICandidateExamListPublisher>();
+            var handler = new AdvanceJobStepCommandHandler(postingRepository, applicationRepository, publisher);
+
+            await handler.Handle(new AdvanceJobStepCommandRequest(), CancellationToken.None);
+
+            await publisher.Received(1).PublishAsync(Arg.Is<ContinuingCandidateListMessage>(message =>
+                message.JobId == posting.Id &&
+                message.StepId == nextStep.Id &&
+                message.ExamId == nextStep.ExamId &&
+                message.StartedDate == nextStep.StartedDate &&
+                message.EndDate == nextStep.EndDate &&
+                message.CandidateIds.SequenceEqual(new[] { application.CandidateId })), CancellationToken.None);
         }
 
         [Theory]
@@ -263,7 +301,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 Status = JobPostingStatus.AcceptingApplications,
                 JobSteps =
                 [
-                    new() { Order = 1, StepType = StepType.Exam, StartedDate = DateTime.UtcNow.AddDays(1), EndDate = DateTime.UtcNow.AddDays(2) },
+                    new() { Order = 1, StepType = StepType.Exam, ExamId = Guid.NewGuid(), StartedDate = DateTime.UtcNow.AddDays(1), EndDate = DateTime.UtcNow.AddDays(2) },
                     new() { Order = 2, StepType = StepType.Interview, StartedDate = DateTime.UtcNow.AddDays(3), EndDate = DateTime.UtcNow.AddDays(4) }
                 ]
             };
@@ -288,7 +326,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             };
         }
 
-        private static JobPosting CreateJobPosting(Guid companyId, string title)
+        private static JobPosting CreateJobPosting(Guid companyId, string title, List<JobSteps>? jobSteps = null)
         {
             JobPosting jobPosting = new();
             jobPosting.CreateJobPosting(
@@ -302,7 +340,8 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 2, 5,
                 50000, 75000,
                 DateTime.UtcNow.AddDays(30),
-                JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
+                JobPostingStatus.AcceptingApplications,
+                jobSteps ?? [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
 
             return jobPosting;
         }

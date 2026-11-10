@@ -28,14 +28,15 @@ public class JobExamQueryTests
         var trueFalseQuestion = new TrueFalseQuestion();
         trueFalseQuestion.CreateQuestion(exam.Id, "Is this true?", 1, 2, "True", "False");
         exam.AddTrueFalseQuestion(trueFalseQuestion);
-        var jobExam = new JobExam { Exam = exam };
+        var jobExam = new JobStageExam { Exam = exam };
         jobExam.CreateJobExam(Guid.NewGuid(), exam.Id);
+        context.Entry(jobExam).Property(entity => entity.Id).CurrentValue = Guid.NewGuid();
         var attempt = new ExamAttempt();
         attempt.CreateAttempt(jobExam, Guid.NewGuid(), 80, DateTime.UtcNow, DateTime.UtcNow);
         jobExam.AddAttempt(attempt);
         var otherExam = new Exam();
         otherExam.CreateExam("Other", "Other exam", 30, 50, ExamOwnerType.System, null);
-        var otherJobExam = new JobExam { Exam = otherExam };
+        var otherJobExam = new JobStageExam { Exam = otherExam };
         otherJobExam.CreateJobExam(Guid.NewGuid(), otherExam.Id);
         context.JobExams.AddRange(otherJobExam, jobExam);
         await context.SaveChangesAsync();
@@ -74,5 +75,5 @@ public class JobExamQueryTests
         .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
 
     private static GetJobExamByJobIdQueryHandler CreateHandler(ExamDbContext context) => new(
-        new ExamRepository<JobExam>(context), new ExamRepository<Exam>(context), NullLogger<GetJobExamByJobIdQueryHandler>.Instance);
+        new ExamRepository<JobStageExam>(context), new ExamRepository<Exam>(context), NullLogger<GetJobExamByJobIdQueryHandler>.Instance);
 }

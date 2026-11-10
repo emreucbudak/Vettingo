@@ -22,7 +22,7 @@ public sealed class CreateExamAttemptCommandTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         var exam = new Exam();
         exam.CreateExam("Backend", "Backend exam", 60, 70, ExamOwnerType.System, null);
-        var jobExam = new JobExam { Exam = exam };
+        var jobExam = new JobStageExam { Exam = exam };
         jobExam.CreateJobExam(Guid.NewGuid(), exam.Id);
         context.JobExams.Add(jobExam);
         await context.SaveChangesAsync();
@@ -30,7 +30,7 @@ public sealed class CreateExamAttemptCommandTests
 
         var publisher = Substitute.For<IExamResultPublisher>();
         var handler = new CreateExamAttemptCommandHandler(
-            new ExamRepository<JobExam>(context), new ExamRepository<ExamAttempt>(context), publisher);
+            new ExamRepository<JobStageExam>(context), new ExamRepository<ExamAttempt>(context), publisher);
         var completedAt = DateTime.UtcNow;
         var request = new CreateExamAttemptCommandRequest
         {
