@@ -18,11 +18,8 @@ public sealed class GetInterviewsByDateQueryHandler(IInterviewRepository reposit
             UserId = interview.UserId,
             InterviewDate = interview.InterviewDate,
             StartedTime = interview.StartedTime,
-            Name = interview.Name,
-            Surname = interview.Surname,
             Chapter = interview.Chapter,
             Role = interview.Role,
-            WhereIsMeeting = interview.WhereIsMeeting,
             MeetingLink = interview.MeetingLink
         }).ToArray();
     }

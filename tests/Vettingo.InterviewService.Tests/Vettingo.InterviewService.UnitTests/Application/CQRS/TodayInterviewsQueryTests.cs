@@ -15,22 +15,19 @@ namespace Vettingo.InterviewService.UnitTests.Application.CQRS
             await using var context = CreateContext();
             var companyId = Guid.NewGuid();
             var today = new DateOnly(2026, 10, 8);
-            AddInterview(context, companyId, today, new TimeOnly(13, 30), "Ceren", "Aksoy");
-            AddInterview(context, companyId, today, new TimeOnly(9, 30), "Ayşe", "Yılmaz");
-            AddInterview(context, companyId, today.AddDays(-1), new TimeOnly(8, 0), "Dün", "Aday");
-            AddInterview(context, companyId, today.AddDays(1), new TimeOnly(8, 0), "Yarın", "Aday");
-            AddInterview(context, Guid.NewGuid(), today, new TimeOnly(8, 0), "Diğer", "Şirket");
+            var secondId = AddInterview(context, companyId, today, new TimeOnly(13, 30));
+            var firstId = AddInterview(context, companyId, today, new TimeOnly(9, 30));
+            AddInterview(context, companyId, today.AddDays(-1), new TimeOnly(8, 0));
+            AddInterview(context, companyId, today.AddDays(1), new TimeOnly(8, 0));
+            AddInterview(context, Guid.NewGuid(), today, new TimeOnly(8, 0));
             await context.SaveChangesAsync();
             var handler = new GetTodayInterviewsQueryHandler(new InterviewRepository(context),
                 new FixedTimeProvider(DateTimeOffset.Parse("2026-10-08T09:00:00Z")));
 
             var result = (await handler.Handle(new(companyId), CancellationToken.None)).ToArray();
 
-            result.Should().HaveCount(2);
+            result.Select(interview => interview.Id).Should().Equal(firstId, secondId);
             result.Select(interview => interview.StartedTime).Should().Equal(new TimeOnly(9, 30), new TimeOnly(13, 30));
-            result[0].Name.Should().Be("Ayşe");
-            result[0].Surname.Should().Be("Yılmaz");
-            result[0].Id.Should().NotBeEmpty();
         }
 
         [Theory]
@@ -40,15 +37,15 @@ namespace Vettingo.InterviewService.UnitTests.Application.CQRS
         {
             await using var context = CreateContext();
             var companyId = Guid.NewGuid();
-            AddInterview(context, companyId, new DateOnly(2026, 10, 7), new TimeOnly(9, 0), "7", "Ekim");
-            AddInterview(context, companyId, new DateOnly(2026, 10, 8), new TimeOnly(9, 0), "8", "Ekim");
+            var previousDayId = AddInterview(context, companyId, new DateOnly(2026, 10, 7), new TimeOnly(9, 0));
+            var nextDayId = AddInterview(context, companyId, new DateOnly(2026, 10, 8), new TimeOnly(9, 0));
             await context.SaveChangesAsync();
             var handler = new GetTodayInterviewsQueryHandler(new InterviewRepository(context),
                 new FixedTimeProvider(DateTimeOffset.Parse(utcNow)));
 
             var result = await handler.Handle(new(companyId), CancellationToken.None);
 
-            result.Should().ContainSingle().Which.Name.Should().Be(expectedDay.ToString());
+            result.Should().ContainSingle().Which.Id.Should().Be(expectedDay == 7 ? previousDayId : nextDayId);
         }
 
         [Fact]
@@ -88,8 +85,7 @@ namespace Vettingo.InterviewService.UnitTests.Application.CQRS
             new DbContextOptionsBuilder<InterviewDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
 
-        private static void AddInterview(InterviewDbContext context, Guid companyId,
-            DateOnly date, TimeOnly time, string name, string surname)
+        private static Guid AddInterview(InterviewDbContext context, Guid companyId, DateOnly date, TimeOnly time)
         {
             var interview = new Interview();
             var entry = context.Entry(interview);
@@ -98,9 +94,8 @@ namespace Vettingo.InterviewService.UnitTests.Application.CQRS
             entry.Property(entity => entity.UserId).CurrentValue = Guid.NewGuid();
             entry.Property(entity => entity.InterviewDate).CurrentValue = date;
             entry.Property(entity => entity.StartedTime).CurrentValue = time;
-            entry.Property(entity => entity.Name).CurrentValue = name;
-            entry.Property(entity => entity.Surname).CurrentValue = surname;
             context.Interviews.Add(interview);
+            return interview.Id;
         }
 
         private sealed class FixedTimeProvider(DateTimeOffset utcNow) : TimeProvider

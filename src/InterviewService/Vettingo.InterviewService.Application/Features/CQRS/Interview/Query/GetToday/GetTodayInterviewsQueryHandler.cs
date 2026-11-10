@@ -19,8 +19,6 @@ namespace Vettingo.InterviewService.Application.Features.CQRS.Interview.Query.Ge
             return interviews.Select(interview => new GetTodayInterviewsQueryResponse
             {
                 Id = interview.Id,
-                Name = interview.Name,
-                Surname = interview.Surname,
                 StartedTime = interview.StartedTime
             }).ToArray();
         }
