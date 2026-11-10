@@ -22,8 +22,11 @@ public sealed class CreateExamAttemptCommandTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         var exam = new Exam();
         exam.CreateExam("Backend", "Backend exam", 60, 70, ExamOwnerType.System, null);
+        var candidateId = Guid.NewGuid();
+        var otherCandidateId = Guid.NewGuid();
         var jobExam = new JobStageExam { Exam = exam };
-        jobExam.CreateJobExam(Guid.NewGuid(), exam.Id);
+        jobExam.CreateJobStageExam(Guid.NewGuid(), exam.Id, new DateOnly(2026, 11, 8), new DateOnly(2026, 11, 9),
+            [candidateId, otherCandidateId]);
         context.JobExams.Add(jobExam);
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
@@ -34,19 +37,28 @@ public sealed class CreateExamAttemptCommandTests
         var completedAt = DateTime.UtcNow;
         var request = new CreateExamAttemptCommandRequest
         {
-            JobExamId = jobExam.Id,
-            CandidateId = Guid.NewGuid(),
+            JobStageExamId = jobExam.Id,
+            CandidateId = candidateId,
             Score = score,
             StartedAt = completedAt.AddMinutes(-20),
             CompletedAt = completedAt
         };
 
-        await handler.Handle(request, CancellationToken.None);
+        await handler.Handle(request with { CandidateId = Guid.NewGuid() }, CancellationToken.None);
+        (await context.ExamAttempts.AnyAsync()).Should().BeFalse();
+        await publisher.DidNotReceiveWithAnyArgs().PublishAsync(default!, default);
 
+        await handler.Handle(request, CancellationToken.None);
+        context.ChangeTracker.Clear();
         var saved = await context.ExamAttempts.AsNoTracking().SingleAsync();
         saved.Passed.Should().Be(passed);
         saved.JobExamId.Should().Be(jobExam.Id);
         saved.CandidateId.Should().Be(request.CandidateId);
+        var savedStage = await context.JobExams.AsNoTracking().SingleAsync();
+        savedStage.ExamCandidateList.Should().Equal(otherCandidateId);
+
+        await handler.Handle(request, CancellationToken.None);
+        (await context.ExamAttempts.CountAsync()).Should().Be(1);
         if (passed)
         {
             await publisher.Received(1).PublishAsync(Arg.Is<ExamResultMessage>(message =>

@@ -4,25 +4,31 @@ using Vettingo.ExamService.Application.Exceptions;
 using Vettingo.ExamService.Application.Messaging;
 using Vettingo.ExamService.Application.Repository;
 using ExamAttemptEntity = Vettingo.ExamService.Domain.Entities.ExamAttempt;
-using JobExamEntity = Vettingo.ExamService.Domain.Entities.JobStageExam;
+using JobStageExamEntity = Vettingo.ExamService.Domain.Entities.JobStageExam;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.ExamAttempt.Command.Create;
 
 public sealed class CreateExamAttemptCommandHandler(
-    IExamRepository<JobExamEntity> jobExamRepository,
+    IExamRepository<JobStageExamEntity> jobStageExamRepository,
     IExamRepository<ExamAttemptEntity> attemptRepository,
     IExamResultPublisher publisher) : IRequestHandler<CreateExamAttemptCommandRequest>
 {
     public async Task Handle(CreateExamAttemptCommandRequest request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var jobExam = await jobExamRepository.GetByIdAsync(request.JobExamId)
+        var jobStageExam = await jobStageExamRepository.GetByIdAsync(request.JobStageExamId)
             ?? throw new NotFoundException("İş ilanına ait sınav bulunamadı.");
 
+        if (!jobStageExam.ExamCandidateList.Contains(request.CandidateId))
+        {
+            return;
+        }
+
         var attempt = new ExamAttemptEntity();
-        attempt.CreateAttempt(jobExam, request.CandidateId, request.Score, request.StartedAt, request.CompletedAt);
+        attempt.CreateAttempt(jobStageExam, request.CandidateId, request.Score, request.StartedAt, request.CompletedAt);
 
         cancellationToken.ThrowIfCancellationRequested();
+        jobStageExam.AddAttempt(attempt);
         await attemptRepository.AddAsync(attempt);
         await attemptRepository.SaveChangesAsync();
 
@@ -31,7 +37,7 @@ public sealed class CreateExamAttemptCommandHandler(
             await publisher.PublishAsync(new ExamResultMessage
             {
                 UserId = attempt.CandidateId,
-                JobId = jobExam.JobId
+                JobId = jobStageExam.JobId
             }, cancellationToken);
         }
     }
