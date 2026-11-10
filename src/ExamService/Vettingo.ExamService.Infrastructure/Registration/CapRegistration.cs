@@ -19,6 +19,7 @@ public static class CapRegistration
         }
 
         services.AddTransient<IExamResultPublisher, ExamResultPublisher>();
+        services.AddTransient<ExamCreateConsumer>();
         services.AddCap(options =>
         {
             options.UsePostgreSql(connectionString);
@@ -31,7 +32,7 @@ public static class CapRegistration
                 rabbitMqOptions.VirtualHost = rabbitMq.GetRequiredSection("VirtualHost").Value!;
             });
             options.DefaultGroupName = "vettingo.exam-service";
-        });
+        }).AddSubscriberAssembly(typeof(ExamCreateConsumer));
 
         return services;
     }

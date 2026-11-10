@@ -18,6 +18,7 @@ public static class CapRegistration
         }
 
         services.AddTransient<IInterviewResultPublisher, InterviewResultPublisher>();
+        services.AddTransient<InterviewCreateConsumer>();
         services.AddCap(options =>
         {
             options.UsePostgreSql(connectionString);
@@ -30,7 +31,7 @@ public static class CapRegistration
                 rabbitMqOptions.VirtualHost = rabbitMq.GetRequiredSection("VirtualHost").Value!;
             });
             options.DefaultGroupName = "vettingo.interview-service";
-        });
+        }).AddSubscriberAssembly(typeof(InterviewCreateConsumer));
 
         return services;
     }
