@@ -3,7 +3,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Vettingo.ExamService.Application.Exceptions;
-using Vettingo.ExamService.Application.Features.CQRS.JobExam.Query.GetByJobId;
+using Vettingo.ExamService.Application.Features.CQRS.JobStageExam.Query.GetByJobId;
 using Vettingo.ExamService.Domain.Entities;
 using Vettingo.ExamService.Domain.Enums;
 using Vettingo.ExamService.Persistence.DbContext;
@@ -11,7 +11,7 @@ using Vettingo.ExamService.Persistence.Repository;
 
 namespace Vettingo.ExamService.UnitTests.Application.CQRS;
 
-public class JobExamQueryTests
+public class JobStageExamQueryTests
 {
     [Fact]
     public async Task Handle_Should_Find_By_JobId_And_Return_Exam_With_Related_Data()
@@ -43,7 +43,7 @@ public class JobExamQueryTests
         context.ChangeTracker.Clear();
         var handler = CreateHandler(context);
 
-        var response = await handler.Handle(new GetJobExamByJobIdQueryRequest { JobId = jobExam.JobId }, CancellationToken.None);
+        var response = await handler.Handle(new GetJobStageExamByJobIdQueryRequest { JobId = jobExam.JobId }, CancellationToken.None);
 
         response.CompanyId.Should().Be(exam.CompanyId);
         response.OwnerType.Should().Be(exam.OwnerType);
@@ -61,12 +61,12 @@ public class JobExamQueryTests
     }
 
     [Fact]
-    public async Task Handle_When_JobExam_Is_Missing_Should_Throw_NotFoundException()
+    public async Task Handle_When_JobStageExam_Is_Missing_Should_Throw_NotFoundException()
     {
         await using var context = CreateContext();
         var handler = CreateHandler(context);
 
-        var action = () => handler.Handle(new GetJobExamByJobIdQueryRequest { JobId = Guid.NewGuid() }, CancellationToken.None);
+        var action = () => handler.Handle(new GetJobStageExamByJobIdQueryRequest { JobId = Guid.NewGuid() }, CancellationToken.None);
 
         await action.Should().ThrowAsync<NotFoundException>();
     }
@@ -74,6 +74,6 @@ public class JobExamQueryTests
     private static ExamDbContext CreateContext() => new(new DbContextOptionsBuilder<ExamDbContext>()
         .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
 
-    private static GetJobExamByJobIdQueryHandler CreateHandler(ExamDbContext context) => new(
-        new ExamRepository<JobStageExam>(context), new ExamRepository<Exam>(context), NullLogger<GetJobExamByJobIdQueryHandler>.Instance);
+    private static GetJobStageExamByJobIdQueryHandler CreateHandler(ExamDbContext context) => new(
+        new ExamRepository<JobStageExam>(context), new ExamRepository<Exam>(context), NullLogger<GetJobStageExamByJobIdQueryHandler>.Instance);
 }

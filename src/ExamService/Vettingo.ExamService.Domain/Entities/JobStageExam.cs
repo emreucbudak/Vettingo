@@ -25,6 +25,7 @@ namespace Vettingo.ExamService.Domain.Entities
         {
             ArgumentNullException.ThrowIfNull(attempt, nameof(attempt));
             _attempts.Add(attempt);
+            ExamCandidateList.Remove(attempt.CandidateId);
         }
     }
 }
