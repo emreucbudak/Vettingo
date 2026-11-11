@@ -53,12 +53,14 @@ namespace Vettingo.JobService.Persistence.DbContext
 
             builder.Entity<JobOffer>().HasOne(offer => offer.JobPosting).WithMany()
                 .HasForeignKey(offer => offer.JobPostingId).OnDelete(DeleteBehavior.Restrict);
+            builder.Entity<JobOffer>().Property(offer => offer.Id).ValueGeneratedNever();
 
             builder.Entity<Offers>().HasOne<JobPosting>().WithMany()
                 .HasForeignKey(offer => offer.JobPostingId).OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Offers>().HasMany(offer => offer.JobOffers).WithOne()
                 .HasForeignKey(jobOffer => jobOffer.OffersId).OnDelete(DeleteBehavior.Restrict);
+            builder.Entity<Offers>().Property(offer => offer.CandidateIds).IsConcurrencyToken();
 
             builder.Entity<JobSteps>()
                 .Property(step => step.StepType)
