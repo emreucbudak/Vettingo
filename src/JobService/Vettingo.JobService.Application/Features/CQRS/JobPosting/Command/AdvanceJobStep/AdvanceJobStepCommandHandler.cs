@@ -22,6 +22,11 @@ public class AdvanceJobStepCommandHandler(
             var passedApplications = await unitOfWork.JobApplicationRepository.GetPassedApplicationsByJobPostingIdAsync(
                 jobPosting.Id, cancellationToken);
 
+            if (jobPosting.GetCurrentStepType() == StepType.CandidateCollection)
+            {
+                jobPosting.CloseJobPostingApplications();
+            }
+
             jobPosting.AdvanceCurrentStep();
 
             var nextStep = jobPosting.JobSteps.FirstOrDefault(step => step.Order == jobPosting.CurrentStep);

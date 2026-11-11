@@ -64,7 +64,7 @@ public sealed class CityModelTests
         var userId = Guid.NewGuid();
         var jobPosting = new JobPosting();
         jobPosting.CreateJobPosting(Guid.NewGuid(), "Software Developer", new Dictionary<string, int> { ["C#"] = 3 },
-            34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 50000, 75000, null, JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
+            34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 50000, 75000, null, [new() { Order = 1, StepType = StepType.CandidateCollection, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
         var posting = new PersonalizedJobPostings
         {
             UserId = userId,
@@ -92,7 +92,7 @@ public sealed class CityModelTests
     {
         var posting = new JobPosting();
         Action create = () => posting.CreateJobPosting(Guid.NewGuid(), "Title", new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, cityId, EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5,
-            0, 0, null, JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
+            0, 0, null, [new() { Order = 1, StepType = StepType.CandidateCollection, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
         create.Should().Throw<ArgumentOutOfRangeException>().WithParameterName("cityId");
         new SearchJobPostingsQueryRequestValidator().Validate(new SearchJobPostingsQueryRequest { CityId = cityId })
             .IsValid.Should().BeFalse();
@@ -106,7 +106,7 @@ public sealed class CityModelTests
         {
             var posting = new JobPosting();
             posting.CreateJobPosting(Guid.NewGuid(), $"Developer {cityId}", new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, cityId, EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5,
-                0, 0, null, JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
+                0, 0, null, [new() { Order = 1, StepType = StepType.CandidateCollection, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
             context.JobPostings.Add(posting);
         }
         await context.SaveChangesAsync();
@@ -123,7 +123,7 @@ public sealed class CityModelTests
     {
         var posting = new JobPosting();
         posting.CreateJobPosting(Guid.NewGuid(), "Remote developer", new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5,
-            0, 0, null, JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
+            0, 0, null, [new() { Order = 1, StepType = StepType.CandidateCollection, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
         posting.CityId.Should().Be(34);
         posting.WorkingModel.Should().Be(WorkingModel.Remote);
     }

@@ -39,7 +39,7 @@ public sealed class JobPostingSkillsTests
         var posting = new JobPosting();
         posting.CreateJobPosting(Guid.NewGuid(), "Developer", new Dictionary<string, int> { ["C#"] = 3, ["SQL"] = 2 },
             34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 50000, 75000,
-            null, JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
+            null, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
         context.JobPostings.Add(posting);
         await context.SaveChangesAsync();
 

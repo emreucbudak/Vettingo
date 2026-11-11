@@ -41,10 +41,6 @@ namespace Vettingo.JobService.Persistence.DbContext
                 .Property(jobPosting => jobPosting.WorkingModel)
                 .HasConversion<string>();
 
-            builder.Entity<JobPosting>()
-                .Property(jobPosting => jobPosting.Status)
-                .HasConversion<string>();
-
             builder.Entity<JobApplication>()
                 .Property(application => application.Status)
                 .HasConversion<string>();

@@ -24,13 +24,16 @@ namespace Vettingo.JobService.Persistence.Repository
         public async Task<IEnumerable<JobPosting>> GetAllJobPostingsAsync()
         {
             return await JobPostingSet
+                .Include(posting => posting.JobSteps)
                 .OrderByDescending(jobPosting => jobPosting.CreatedAt)
                 .ToListAsync();
         }
 
         public async Task<JobPosting?> GetJobPostingByIdAsync(Guid jobPostingId)
         {
-            return await JobPostingSet.FirstOrDefaultAsync(jobPosting => jobPosting.Id == jobPostingId);
+            return await JobPostingSet
+                .Include(posting => posting.JobSteps)
+                .FirstOrDefaultAsync(jobPosting => jobPosting.Id == jobPostingId);
         }
 
         public async Task<List<JobPosting>> GetExpiredJobPostingsAsync(CancellationToken cancellationToken = default)
@@ -48,6 +51,7 @@ namespace Vettingo.JobService.Persistence.Repository
         {
             return await JobPostingSet
                 .Where(jobPosting => jobPosting.CompanyId == companyId)
+                .Include(posting => posting.JobSteps)
                 .OrderByDescending(jobPosting => jobPosting.CreatedAt)
                 .ToListAsync();
         }
@@ -58,7 +62,8 @@ namespace Vettingo.JobService.Persistence.Repository
         {
             IQueryable<JobPosting> query = JobPostingSet
                 .AsNoTracking()
-                .Where(jobPosting => jobPosting.Status == JobPostingStatus.AcceptingApplications);
+                .Where(posting => !posting.IsPostingClosed && !posting.IsApplicationClosed && posting.JobSteps.Any(step =>
+                    step.Order == posting.CurrentStep && step.StepType == StepType.CandidateCollection));
 
             if (!string.IsNullOrWhiteSpace(criteria.Title))
             {
@@ -109,6 +114,7 @@ namespace Vettingo.JobService.Persistence.Repository
             }
 
             return await query
+                .Include(posting => posting.JobSteps)
                 .OrderByDescending(jobPosting => jobPosting.CreatedAt)
                 .ToListAsync(cancellationToken);
         }
@@ -121,7 +127,8 @@ namespace Vettingo.JobService.Persistence.Repository
                 .GroupBy(jobPosting => jobPosting.CompanyId)
                 .Select(group => new JobPostingStatistics(
                     group.Count(),
-                    group.Count(jobPosting => jobPosting.Status == JobPostingStatus.AcceptingApplications)))
+                    group.Count(posting => !posting.IsPostingClosed && !posting.IsApplicationClosed && posting.JobSteps.Any(step =>
+                        step.Order == posting.CurrentStep && step.StepType == StepType.CandidateCollection))))
                 .SingleOrDefaultAsync(cancellationToken);
 
             return statistics ?? new JobPostingStatistics(0, 0);
@@ -146,7 +153,10 @@ namespace Vettingo.JobService.Persistence.Repository
             return await query.Select(posting => new CompanyJobPosting(
                     posting.Id, posting.Title, posting.CityId, posting.City.CityName,
                     context.JobApplications.Count(application => application.JobPostingId == posting.Id),
-                    posting.CreatedAt, posting.Status))
+                    posting.CreatedAt, posting.JobSteps
+                        .Where(step => step.Order == posting.CurrentStep)
+                        .Select(step => (StepType?)step.StepType)
+                        .FirstOrDefault()))
                 .ToListAsync(cancellationToken);
         }
 

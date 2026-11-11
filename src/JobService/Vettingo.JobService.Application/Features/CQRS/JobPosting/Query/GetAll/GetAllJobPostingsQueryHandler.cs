@@ -27,7 +27,7 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetAll
                 MinSalary = jobPosting.MinSalary,
                 MaxSalary = jobPosting.MaxSalary,
                 ApplicationDeadline = jobPosting.ApplicationDeadline,
-                Status = jobPosting.Status,
+                CurrentStepType = jobPosting.GetCurrentStepType(),
                 CreatedAt = jobPosting.CreatedAt
             });
         }

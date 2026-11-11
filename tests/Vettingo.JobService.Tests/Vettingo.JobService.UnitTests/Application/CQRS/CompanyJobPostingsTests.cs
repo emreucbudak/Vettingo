@@ -18,9 +18,9 @@ public class CompanyJobPostingsTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         await context.Database.EnsureCreatedAsync();
         var companyId = Guid.NewGuid();
-        var active = CreatePosting(companyId, "Active posting", JobPostingStatus.AcceptingApplications);
-        var closed = CreatePosting(companyId, "Closed posting", JobPostingStatus.Exam);
-        var other = CreatePosting(Guid.NewGuid(), "Other company", JobPostingStatus.AcceptingApplications);
+        var active = CreatePosting(companyId, "Active posting", StepType.CandidateCollection);
+        var closed = CreatePosting(companyId, "Closed posting", StepType.Exam);
+        var other = CreatePosting(Guid.NewGuid(), "Other company", StepType.CandidateCollection);
         context.JobPostings.AddRange(active, closed, other);
         foreach (var posting in new[] { active, active, other })
         {
@@ -37,11 +37,11 @@ public class CompanyJobPostingsTests
         var savedActive = result.Single(posting => posting.Id == active.Id);
         savedActive.CityName.Should().Be("İstanbul");
         savedActive.Applicants.Should().Be(2);
-        savedActive.Status.Should().Be("AcceptingApplications");
+        savedActive.CurrentStepType.Should().Be(StepType.CandidateCollection);
         savedActive.PublishedAt.Should().Be(active.CreatedAt);
         var savedClosed = result.Single(posting => posting.Id == closed.Id);
         savedClosed.Applicants.Should().Be(0);
-        savedClosed.Status.Should().Be("Exam");
+        savedClosed.CurrentStepType.Should().Be(StepType.Exam);
         savedClosed.PublishedAt.Should().Be(closed.CreatedAt);
         (await handler.Handle(new() { CompanyId = Guid.NewGuid() }, CancellationToken.None)).Should().BeEmpty();
     }
@@ -58,13 +58,13 @@ public class CompanyJobPostingsTests
         await context.Database.EnsureCreatedAsync();
         var companyId = Guid.NewGuid();
         var postings = Enumerable.Range(1, 5)
-            .Select(index => CreatePosting(companyId, $"Position {index}", JobPostingStatus.AcceptingApplications)).ToArray();
+            .Select(index => CreatePosting(companyId, $"Position {index}", StepType.CandidateCollection)).ToArray();
         context.JobPostings.AddRange(postings);
         for (var index = 0; index < postings.Length; index++)
             context.Entry(postings[index]).Property(posting => posting.CreatedAt).CurrentValue =
                 new DateTime(2026, 1, index + 1, 0, 0, 0, DateTimeKind.Utc);
 
-        context.JobPostings.Add(CreatePosting(Guid.NewGuid(), "Newest other company", JobPostingStatus.AcceptingApplications));
+        context.JobPostings.Add(CreatePosting(Guid.NewGuid(), "Newest other company", StepType.CandidateCollection));
         var application = new JobApplication();
         application.CreateApplication(Guid.NewGuid(), postings[4].Id, DateTime.UtcNow, ApplicationStatus.Başvuruldu);
         context.JobApplications.Add(application);
@@ -93,11 +93,11 @@ public class CompanyJobPostingsTests
         result.IsValid.Should().Be(valid);
     }
 
-    private static JobPosting CreatePosting(Guid companyId, string title, JobPostingStatus status)
+    private static JobPosting CreatePosting(Guid companyId, string title, StepType stepType)
     {
         var posting = new JobPosting();
         posting.CreateJobPosting(companyId, title, new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34,
-            EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5, 0, 0, null, status, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
+            EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5, 0, 0, null, [new() { Order = 1, StepType = stepType, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
         return posting;
     }
 }

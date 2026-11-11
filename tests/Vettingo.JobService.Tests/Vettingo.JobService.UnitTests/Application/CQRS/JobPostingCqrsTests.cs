@@ -109,8 +109,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 jobPosting.RequirementSkills["C#"] == request.RequirementSkills["C#"] &&
                 jobPosting.RequirementSkills["PostgreSQL"] == request.RequirementSkills["PostgreSQL"] &&
                 jobPosting.MinSalary == request.MinSalary &&
-                jobPosting.MaxSalary == request.MaxSalary &&
-                jobPosting.Status == request.Status));
+                jobPosting.MaxSalary == request.MaxSalary));
             var created = (JobPosting)repository.ReceivedCalls()
                 .Single(call => call.GetMethodInfo().Name == nameof(IJobPostingRepository.AddJobPostingAsync))
                 .GetArguments()[0]!;
@@ -385,7 +384,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             response.RequirementSkills.Should().BeEquivalentTo(jobPosting.RequirementSkills);
             response.MinSalary.Should().Be(jobPosting.MinSalary);
             response.MaxSalary.Should().Be(jobPosting.MaxSalary);
-            response.Status.Should().Be(jobPosting.Status);
+            response.CurrentStepType.Should().Be(StepType.CandidateCollection);
         }
 
         [Theory]
@@ -404,7 +403,6 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
 
             posting.IsPostingClosed.Should().BeTrue();
             posting.IsApplicationClosed.Should().BeFalse();
-            posting.Status.Should().Be(JobPostingStatus.AcceptingApplications);
             posting.UpdatedAt.Should().NotBeNull();
             await repository.Received(1).SaveChangesAsync();
         }
@@ -454,8 +452,6 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 MaximumExperienceYear = 5,
                 MinSalary = 50000,
                 MaxSalary = 75000,
-                ApplicationDeadline = DateTime.UtcNow.AddDays(30),
-                Status = JobPostingStatus.AcceptingApplications,
                 JobSteps =
                 [
                     new() { Order = 1, StepType = StepType.Exam, ExamId = Guid.NewGuid(), StartedDate = DateTime.UtcNow.AddDays(1), EndDate = DateTime.UtcNow.AddDays(2) },
@@ -487,8 +483,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 MaximumExperienceYear = 5,
                 MinSalary = 60000,
                 MaxSalary = 75000,
-                ApplicationDeadline = DateTime.UtcNow.AddDays(45),
-                Status = JobPostingStatus.AcceptingApplications
+                ApplicationDeadline = DateTime.UtcNow.AddDays(45)
             };
         }
 
@@ -505,8 +500,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 2, 5,
                 50000, 75000,
                 DateTime.UtcNow.AddDays(30),
-                JobPostingStatus.AcceptingApplications,
-                jobSteps ?? [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
+                jobSteps ?? [new() { Order = 1, StepType = StepType.CandidateCollection, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
 
             return jobPosting;
         }

@@ -13,6 +13,6 @@ public class GetCompanyJobPostingsQueryHandler(IJobPostingRepository repository)
         return postings.Select(posting => new GetCompanyJobPostingsQueryResponse(
             posting.Id, posting.Title, posting.CityId, posting.CityName, posting.Applicants,
             posting.CreatedAt,
-            posting.Status.ToString())).ToList();
+            posting.CurrentStepType)).ToList();
     }
 }

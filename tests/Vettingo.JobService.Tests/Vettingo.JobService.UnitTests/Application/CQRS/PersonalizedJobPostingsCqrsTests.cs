@@ -147,7 +147,7 @@ public class PersonalizedJobPostingsCqrsTests
     {
         var posting = new JobPosting();
         posting.CreateJobPosting(Guid.NewGuid(), title, new Dictionary<string, int> { ["C#"] = 3 },
-            cityId, EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 50000, 75000, null, JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
+            cityId, EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 50000, 75000, null, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
         return posting;
     }
 }

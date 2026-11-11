@@ -56,17 +56,17 @@ namespace Vettingo.JobService.UnitTests.Repository
         }
 
         [Fact]
-        public async Task Statistics_Should_Count_Only_Company_Postings_And_Active_Status()
+        public async Task Statistics_Should_Count_Only_Company_Postings_And_Open_Applications()
         {
             await using JobDbContext context = _fixture.CreateDbContext();
             var repository = new JobPostingRepository(context);
             var companyId = Guid.NewGuid();
             var active = CreateJobPosting(companyId, Guid.NewGuid().ToString());
             var closed = CreateJobPosting(companyId, Guid.NewGuid().ToString());
-            closed.SetStatus(JobPostingStatus.Exam);
-            var deleted = CreateJobPosting(companyId, Guid.NewGuid().ToString());
-            deleted.SetStatus(JobPostingStatus.Interview);
-            context.JobPostings.AddRange(active, closed, deleted,
+            closed.CloseJobPostingApplications();
+            var closedPosting = CreateJobPosting(companyId, Guid.NewGuid().ToString());
+            closedPosting.CloseJobPosting();
+            context.JobPostings.AddRange(active, closed, closedPosting,
                 CreateJobPosting(Guid.NewGuid(), Guid.NewGuid().ToString()));
             await context.SaveChangesAsync();
 
@@ -77,7 +77,7 @@ namespace Vettingo.JobService.UnitTests.Repository
             empty.TotalJobPostings.Should().Be(0);
             empty.ActiveJobPostings.Should().Be(0);
 
-            active.SetStatus(JobPostingStatus.Exam);
+            active.AdvanceCurrentStep();
             await context.SaveChangesAsync();
             (await repository.GetStatisticsAsync(companyId)).ActiveJobPostings.Should().Be(0);
         }
@@ -95,7 +95,7 @@ namespace Vettingo.JobService.UnitTests.Repository
                 2, 5,
                 50000, 50000,
                 DateTime.UtcNow.AddDays(30),
-                JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
+                [new() { Order = 1, StepType = StepType.CandidateCollection, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
 
             return jobPosting;
         }

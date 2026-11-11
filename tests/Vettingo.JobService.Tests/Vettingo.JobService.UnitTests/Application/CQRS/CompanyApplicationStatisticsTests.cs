@@ -17,9 +17,9 @@ public sealed class CompanyApplicationStatisticsTests
         await using var context = CreateContext();
         await context.Database.EnsureCreatedAsync();
         var companyId = Guid.NewGuid();
-        var activePosting = CreatePosting(companyId, JobPostingStatus.AcceptingApplications);
-        var closedPosting = CreatePosting(companyId, JobPostingStatus.Exam);
-        var otherPosting = CreatePosting(Guid.NewGuid(), JobPostingStatus.AcceptingApplications);
+        var activePosting = CreatePosting(companyId, StepType.CandidateCollection);
+        var closedPosting = CreatePosting(companyId, StepType.Exam);
+        var otherPosting = CreatePosting(Guid.NewGuid(), StepType.CandidateCollection);
         context.JobPostings.AddRange(activePosting, closedPosting, otherPosting);
         var candidateId = Guid.NewGuid();
         var statuses = new[]
@@ -65,7 +65,7 @@ public sealed class CompanyApplicationStatisticsTests
     {
         await using var context = CreateContext();
         var companyId = Guid.NewGuid();
-        context.JobPostings.Add(CreatePosting(companyId, JobPostingStatus.AcceptingApplications));
+        context.JobPostings.Add(CreatePosting(companyId, StepType.CandidateCollection));
         await context.SaveChangesAsync();
         var handler = new GetCompanyApplicationStatisticsQueryHandler(new JobApplicationRepository(context));
 
@@ -85,11 +85,11 @@ public sealed class CompanyApplicationStatisticsTests
             .IsValid.Should().BeTrue();
     }
 
-    private static JobPosting CreatePosting(Guid companyId, JobPostingStatus status)
+    private static JobPosting CreatePosting(Guid companyId, StepType stepType)
     {
         var posting = new JobPosting();
         posting.CreateJobPosting(companyId, Guid.NewGuid().ToString(), new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34, EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5,
-            0, 0, null, status, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
+            0, 0, null, [new() { Order = 1, StepType = stepType, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
         return posting;
     }
 
