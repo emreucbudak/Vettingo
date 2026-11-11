@@ -97,8 +97,7 @@ namespace Vettingo.JobService.API.Controllers
                 MaximumExperienceYear = request.MaximumExperienceYear,
                 MinSalary = request.MinSalary,
                 MaxSalary = request.MaxSalary,
-                ApplicationDeadline = request.ApplicationDeadline,
-                Status = request.Status
+                ApplicationDeadline = request.ApplicationDeadline
             });
 
             return Ok();

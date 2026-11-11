@@ -72,7 +72,7 @@ public sealed class SearchJobPostingsQueryTests
             2, 5,
             100000, 150000,
             DateTime.UtcNow.AddDays(30),
-            JobPostingStatus.AcceptingApplications, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
+            [new() { Order = 1, StepType = StepType.CandidateCollection, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
         return jobPosting;
     }
 

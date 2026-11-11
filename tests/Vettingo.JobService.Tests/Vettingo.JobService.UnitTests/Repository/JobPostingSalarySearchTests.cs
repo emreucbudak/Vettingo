@@ -16,9 +16,14 @@ public sealed class JobPostingSalarySearchTests
         await using var context = new JobDbContext(new DbContextOptionsBuilder<JobDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         foreach (var (minSalary, maxSalary) in new[] { (0, 25000), (50000, 75000), (75000, 100000), (100000, 125000) })
-            context.JobPostings.Add(CreatePosting(minSalary, maxSalary, JobPostingStatus.AcceptingApplications));
-        context.JobPostings.Add(CreatePosting(50000, 75000, JobPostingStatus.Exam));
-        context.JobPostings.Add(CreatePosting(50000, 75000, JobPostingStatus.Interview));
+            context.JobPostings.Add(CreatePosting(minSalary, maxSalary, StepType.CandidateCollection));
+        context.JobPostings.Add(CreatePosting(50000, 75000, StepType.Exam));
+        context.JobPostings.Add(CreatePosting(50000, 75000, StepType.Interview));
+        var applicationsClosed = CreatePosting(50000, 75000, StepType.CandidateCollection);
+        applicationsClosed.CloseJobPostingApplications();
+        var postingClosed = CreatePosting(50000, 75000, StepType.CandidateCollection);
+        postingClosed.CloseJobPosting();
+        context.JobPostings.AddRange(applicationsClosed, postingClosed);
         await context.SaveChangesAsync();
         var repository = new JobPostingRepository(context);
 
@@ -35,11 +40,11 @@ public sealed class JobPostingSalarySearchTests
         (await repository.SearchJobPostingsAsync(new JobPostingSearchCriteria())).Should().HaveCount(4);
     }
 
-    private static JobPosting CreatePosting(int minSalary, int maxSalary, JobPostingStatus status)
+    private static JobPosting CreatePosting(int minSalary, int maxSalary, StepType stepType)
     {
         var posting = new JobPosting();
         posting.CreateJobPosting(Guid.NewGuid(), Guid.NewGuid().ToString(), new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5,
-            minSalary, maxSalary, null, status, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
+            minSalary, maxSalary, null, [new() { Order = 1, StepType = stepType, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
         return posting;
     }
 }

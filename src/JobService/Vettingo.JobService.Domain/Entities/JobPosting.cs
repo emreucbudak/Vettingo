@@ -25,11 +25,12 @@ namespace Vettingo.JobService.Domain.Entities
         public int MinSalary { get; private set; }
         public int MaxSalary { get; private set; }
         public DateTime? ApplicationDeadline { get; private set; }
-        public JobPostingStatus Status { get; private set; }
         public int CurrentStep { get; private set; }
         public bool IsApplicationClosed { get; private set; }
         public bool IsPostingClosed { get; private set; }
         public IReadOnlyCollection<JobSteps> JobSteps => _jobSteps.AsReadOnly();
+
+        public StepType? GetCurrentStepType() => JobSteps.FirstOrDefault(step => step.Order == CurrentStep)?.StepType;
 
         public void CreateJobPosting(
             Guid companyId,
@@ -43,10 +44,9 @@ namespace Vettingo.JobService.Domain.Entities
             int minSalary,
             int maxSalary,
             DateTime? applicationDeadline,
-            JobPostingStatus status,
             List<JobSteps> jobSteps)
         {
-            CheckJobPostingContent(companyId, title, cityId, employmentType, workingModel, applicationDeadline, status);
+            CheckJobPostingContent(companyId, title, cityId, employmentType, workingModel, applicationDeadline);
             ArgumentNullException.ThrowIfNull(jobSteps, nameof(jobSteps));
             if (jobSteps.Count == 0 || jobSteps.Any(step => step is null))
             {
@@ -56,7 +56,6 @@ namespace Vettingo.JobService.Domain.Entities
             SetId();
             CompanyId = companyId;
             UpdateJobPosting(title, requirementSkills, cityId, employmentType, workingModel, minimumExperienceYear, maximumExperienceYear, minSalary, maxSalary, applicationDeadline);
-            Status = status;
             CurrentStep = 1;
             IsApplicationClosed = false;
             IsPostingClosed = false;
@@ -109,17 +108,6 @@ namespace Vettingo.JobService.Domain.Entities
             SetUpdatedAt();
         }
 
-        public void SetStatus(JobPostingStatus status)
-        {
-            if (!Enum.IsDefined(typeof(JobPostingStatus), status))
-            {
-                throw new ArgumentOutOfRangeException(nameof(status), status, "İş ilanı durumu geçersiz.");
-            }
-
-            Status = status;
-            SetUpdatedAt();
-        }
-
         public void CheckJobPosting(Guid companyId, string title)
         {
             if (companyId == Guid.Empty)
@@ -136,8 +124,7 @@ namespace Vettingo.JobService.Domain.Entities
             int cityId,
             EmploymentType employmentType,
             WorkingModel workingModel,
-            DateTime? applicationDeadline,
-            JobPostingStatus? status = null)
+            DateTime? applicationDeadline)
         {
             CheckJobPosting(companyId, title);
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(cityId, nameof(cityId));
@@ -150,11 +137,6 @@ namespace Vettingo.JobService.Domain.Entities
             if (!Enum.IsDefined(typeof(WorkingModel), workingModel))
             {
                 throw new ArgumentOutOfRangeException(nameof(workingModel), workingModel, "Çalışma modeli geçersiz.");
-            }
-
-            if (status.HasValue && !Enum.IsDefined(typeof(JobPostingStatus), status.Value))
-            {
-                throw new ArgumentOutOfRangeException(nameof(status), status.Value, "İş ilanı durumu geçersiz.");
             }
 
             if (applicationDeadline.HasValue && applicationDeadline.Value == default)

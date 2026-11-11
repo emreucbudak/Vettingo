@@ -45,8 +45,7 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.Creat
                 request.MaximumExperienceYear,
                 request.MinSalary,
                 request.MaxSalary,
-                request.ApplicationDeadline,
-                request.Status,
+                applicationDeadline: null,
                 jobSteps);
 
             await jobPostingRepository.AddJobPostingAsync(jobPosting);

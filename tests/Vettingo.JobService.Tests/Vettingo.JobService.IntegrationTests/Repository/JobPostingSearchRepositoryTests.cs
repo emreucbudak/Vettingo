@@ -18,7 +18,7 @@ public sealed class JobPostingSearchRepositoryTests : IClassFixture<PostgreSqlCo
     }
 
     [Fact]
-    public async Task SearchJobPostingsAsync_Should_Apply_Text_Enum_Salary_And_Status_Filters()
+    public async Task SearchJobPostingsAsync_Should_Apply_Text_Enum_Salary_And_Active_Step_Filters()
     {
         await using JobDbContext context = _fixture.CreateDbContext();
         var repository = new JobPostingRepository(context);
@@ -26,23 +26,23 @@ public sealed class JobPostingSearchRepositoryTests : IClassFixture<PostgreSqlCo
             "Senior Backend Developer",
             34,
             WorkingModel.Hybrid,
-            JobPostingStatus.AcceptingApplications);
+            StepType.CandidateCollection);
         await repository.AddJobPostingAsync(expected);
         await repository.AddJobPostingAsync(CreateJobPosting(
             "Senior Backend Developer",
             34,
             WorkingModel.Remote,
-            JobPostingStatus.AcceptingApplications));
+            StepType.CandidateCollection));
         await repository.AddJobPostingAsync(CreateJobPosting(
             "Senior Backend Developer",
             34,
             WorkingModel.Hybrid,
-            JobPostingStatus.Exam));
+            StepType.Exam));
         await repository.AddJobPostingAsync(CreateJobPosting(
             "Senior Backend Developer",
             34,
             WorkingModel.Hybrid,
-            JobPostingStatus.Interview));
+            StepType.Interview));
         await repository.SaveChangesAsync();
         var criteria = new JobPostingSearchCriteria
         {
@@ -83,7 +83,7 @@ public sealed class JobPostingSearchRepositoryTests : IClassFixture<PostgreSqlCo
         string title,
         int cityId,
         WorkingModel workingModel,
-        JobPostingStatus status)
+        StepType stepType)
     {
         JobPosting jobPosting = new();
         jobPosting.CreateJobPosting(
@@ -96,7 +96,7 @@ public sealed class JobPostingSearchRepositoryTests : IClassFixture<PostgreSqlCo
             2, 5,
             125000, 135000,
             DateTime.UtcNow.AddDays(30),
-            status, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
+            [new() { Order = 1, StepType = stepType, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
         return jobPosting;
     }
 }

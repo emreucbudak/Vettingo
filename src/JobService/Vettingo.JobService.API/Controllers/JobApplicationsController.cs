@@ -87,8 +87,8 @@ namespace Vettingo.JobService.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateJobApplicationCommandRequest request)
         {
-            var response = await mediator.Send(request);
-            return StatusCode(StatusCodes.Status201Created, response);
+            await mediator.Send(request);
+            return StatusCode(StatusCodes.Status201Created);
         }
 
         [Authorize(Roles = "Company")]

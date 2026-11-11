@@ -69,14 +69,12 @@ public class JobApplicationCqrsTests
     {
         var applications = Substitute.For<IJobApplicationRepository>();
         var jobs = Substitute.For<IJobPostingRepository>();
-        var job = new JobPosting();
-        job.SetStatus(JobPostingStatus.AcceptingApplications);
+        var job = CreateJobPosting(StepType.CandidateCollection);
         var id = Guid.NewGuid();
         jobs.GetJobPostingByIdAsync(id).Returns(job);
         var handler = new CreateJobApplicationCommandHandler(applications, jobs, Substitute.For<ILogger<CreateJobApplicationCommandHandler>>());
-        var result = await handler.Handle(new CreateJobApplicationCommandRequest { CandidateId = Guid.NewGuid(), JobPostingId = id }, CancellationToken.None);
-        result.Id.Should().NotBeEmpty();
-        await applications.Received(1).AddAsync(Arg.Is<JobApplication>(a => a.JobPostingId == id));
+        await handler.Handle(new CreateJobApplicationCommandRequest { CandidateId = Guid.NewGuid(), JobPostingId = id }, CancellationToken.None);
+        await applications.Received(1).AddAsync(Arg.Is<JobApplication>(a => a.JobPostingId == id && a.Id != Guid.Empty));
         await applications.Received(1).SaveChangesAsync();
     }
 
@@ -101,17 +99,30 @@ public class JobApplicationCqrsTests
         await applications.DidNotReceive().SaveChangesAsync();
     }
 
-    [Fact]
-    public async Task Create_ShouldRejectPostingInExamStage()
+    [Theory]
+    [InlineData(StepType.Exam, false, false)]
+    [InlineData(StepType.CandidateCollection, true, false)]
+    [InlineData(StepType.CandidateCollection, false, true)]
+    public async Task Create_ShouldRejectPostingNotAcceptingApplications(StepType stepType, bool closeApplications, bool closePosting)
     {
         var applications = Substitute.For<IJobApplicationRepository>();
         var jobs = Substitute.For<IJobPostingRepository>();
-        var job = new JobPosting();
-        job.SetStatus(JobPostingStatus.Exam);
+        var job = CreateJobPosting(stepType);
+        if (closeApplications) job.CloseJobPostingApplications();
+        if (closePosting) job.CloseJobPosting();
         jobs.GetJobPostingByIdAsync(Arg.Any<Guid>()).Returns(job);
         var handler = new CreateJobApplicationCommandHandler(applications, jobs, Substitute.For<ILogger<CreateJobApplicationCommandHandler>>());
         Func<Task> act = () => handler.Handle(new CreateJobApplicationCommandRequest { CandidateId = Guid.NewGuid(), JobPostingId = Guid.NewGuid() }, CancellationToken.None);
         await act.Should().ThrowAsync<BadRequestException>();
         await applications.DidNotReceive().SaveChangesAsync();
+    }
+
+    private static JobPosting CreateJobPosting(StepType stepType)
+    {
+        var posting = new JobPosting();
+        posting.CreateJobPosting(Guid.NewGuid(), "Backend Developer", new Dictionary<string, int> { ["C#"] = 3 },
+            34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 0, 0, null,
+            [new() { Order = 1, StepType = stepType }]);
+        return posting;
     }
 }

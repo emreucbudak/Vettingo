@@ -2,6 +2,7 @@ using FlashMediator;
 using Microsoft.Extensions.Logging;
 using Vettingo.JobService.Application.Exceptions;
 using Vettingo.JobService.Application.Repository;
+using Vettingo.JobService.Domain.Enums;
 using JobApplicationEntity = Vettingo.JobService.Domain.Entities.JobApplication;
 
 namespace Vettingo.JobService.Application.Features.CQRS.JobApplication.Command.Create
@@ -10,9 +11,9 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobApplication.Command.C
         IJobApplicationRepository repository,
         IJobPostingRepository jobPostings,
         ILogger<CreateJobApplicationCommandHandler> logger)
-        : IRequestHandler<CreateJobApplicationCommandRequest, CreateJobApplicationCommandResponse>
+        : IRequestHandler<CreateJobApplicationCommandRequest>
     {
-        public async Task<CreateJobApplicationCommandResponse> Handle(
+        public async Task Handle(
             CreateJobApplicationCommandRequest request,
             CancellationToken cancellationToken)
         {
@@ -25,7 +26,7 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobApplication.Command.C
 
             var posting = await jobPostings.GetJobPostingByIdAsync(request.JobPostingId)
                 ?? throw new NotFoundException("İş ilanı bulunamadı.");
-            if (posting.Status != Domain.Enums.JobPostingStatus.AcceptingApplications)
+            if (posting.IsPostingClosed || posting.IsApplicationClosed || posting.GetCurrentStepType() != StepType.CandidateCollection)
                 throw new BadRequestException("Bu ilan başvuruya açık değil.");
 
             JobApplicationEntity application = new();
@@ -34,6 +35,7 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobApplication.Command.C
                 request.JobPostingId,
                 request.AppliedAt ?? DateTime.UtcNow,
                 request.Status);
+            application.MarkCurrentStepPassed();
 
             try
             {
@@ -45,9 +47,6 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobApplication.Command.C
                 logger.LogError(exception, "Başvuru kaydedilemedi. JobPostingId: {JobPostingId}, CandidateId: {CandidateId}", application.JobPostingId, application.CandidateId);
                 throw;
             }
-
-
-            return new CreateJobApplicationCommandResponse(application.Id);
         }
     }
 }
