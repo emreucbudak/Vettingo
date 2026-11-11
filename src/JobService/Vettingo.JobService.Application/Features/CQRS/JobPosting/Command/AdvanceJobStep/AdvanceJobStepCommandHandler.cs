@@ -95,6 +95,9 @@ public class AdvanceJobStepCommandHandler(
                 jobPosting.CloseJobPosting();
                 continue;
             }
+            else if (nextStep.StepType == StepType.Offer)
+            {
+            }
             passedApplications.ForEach(application =>
             {
                 application.ResetCurrentStepPassed();
