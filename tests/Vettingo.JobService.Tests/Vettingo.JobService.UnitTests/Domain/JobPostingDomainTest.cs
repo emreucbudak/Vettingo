@@ -25,7 +25,6 @@ namespace Vettingo.JobService.UnitTests.Domain
                     WorkingModel.OnSite,
                     2, 5,
                     50000, 50000,
-                    DateTime.UtcNow.AddDays(30),
                     [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
             };
 
@@ -52,7 +51,6 @@ namespace Vettingo.JobService.UnitTests.Domain
                     WorkingModel.OnSite,
                     2, 5,
                     50000, 50000,
-                    DateTime.UtcNow.AddDays(30),
                     [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
             };
 
@@ -71,7 +69,7 @@ namespace Vettingo.JobService.UnitTests.Domain
 
             Action create = () => posting.CreateJobPosting(Guid.NewGuid(), "Developer",
                 new Dictionary<string, int> { ["C#"] = 3 }, 34, EmploymentType.FullTime, WorkingModel.Remote,
-                2, 5, 50000, 75000, null, steps);
+                2, 5, 50000, 75000, steps);
 
             create.Should().Throw<ArgumentException>().WithParameterName("jobSteps");
             posting.Id.Should().BeEmpty();
@@ -91,7 +89,7 @@ namespace Vettingo.JobService.UnitTests.Domain
 
             posting.CreateJobPosting(Guid.NewGuid(), "Developer",
                 new Dictionary<string, int> { ["C#"] = 3 }, 34, EmploymentType.FullTime, WorkingModel.Remote,
-                2, 5, 50000, 75000, null, steps);
+                2, 5, 50000, 75000, steps);
             posting.JobSteps.Should().ContainSingle().Which.Should().BeSameAs(step);
             posting.IsApplicationClosed.Should().BeFalse();
             posting.IsPostingClosed.Should().BeFalse();

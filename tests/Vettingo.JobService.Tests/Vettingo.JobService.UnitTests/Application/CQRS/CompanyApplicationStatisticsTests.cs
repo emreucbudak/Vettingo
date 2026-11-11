@@ -89,7 +89,7 @@ public sealed class CompanyApplicationStatisticsTests
     {
         var posting = new JobPosting();
         posting.CreateJobPosting(companyId, Guid.NewGuid().ToString(), new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34, EmploymentType.FullTime, WorkingModel.Hybrid, 2, 5,
-            0, 0, null, [new() { Order = 1, StepType = stepType, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
+            0, 0, [new() { Order = 1, StepType = stepType, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
         return posting;
     }
 

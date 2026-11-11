@@ -22,7 +22,6 @@ public sealed class UpdateJobPostingCommandRequestValidator : AbstractValidator<
         RuleFor(x => x.MinSalary).GreaterThanOrEqualTo(0);
         RuleFor(x => x.MaxSalary).GreaterThanOrEqualTo(0)
             .GreaterThan(x => x.MinSalary);
-        RuleFor(x => x.ApplicationDeadline).NotEmpty();
     }
 }
 

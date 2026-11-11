@@ -70,7 +70,7 @@ namespace Vettingo.JobService.UnitTests.Repository
         {
             var posting = new JobPosting();
             posting.CreateJobPosting(companyId, Guid.NewGuid().ToString(), new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34,
-                EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 0, 0, null, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
+                EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 0, 0, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
             return posting;
         }
 

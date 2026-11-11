@@ -482,8 +482,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 MinimumExperienceYear = 2,
                 MaximumExperienceYear = 5,
                 MinSalary = 60000,
-                MaxSalary = 75000,
-                ApplicationDeadline = DateTime.UtcNow.AddDays(45)
+                MaxSalary = 75000
             };
         }
 
@@ -499,7 +498,6 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 WorkingModel.Remote,
                 2, 5,
                 50000, 75000,
-                DateTime.UtcNow.AddDays(30),
                 jobSteps ?? [new() { Order = 1, StepType = StepType.CandidateCollection, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
 
             return jobPosting;

@@ -71,7 +71,6 @@ public sealed class SearchJobPostingsQueryTests
             WorkingModel.Hybrid,
             2, 5,
             100000, 150000,
-            DateTime.UtcNow.AddDays(30),
             [new() { Order = 1, StepType = StepType.CandidateCollection, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
         return jobPosting;
     }
