@@ -5,7 +5,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.JobStageExam.Command.Cr
     public record CreateJobStageExamCommandRequest : IRequest
     {
         public Guid JobId { get; init; }
-        public required Guid StepId { get; init; }
+        public  Guid StepId { get; init; }
         public Guid ExamId { get; init; }
         public DateOnly StartedDate { get; init; }
         public DateOnly EndDate { get; init; }
