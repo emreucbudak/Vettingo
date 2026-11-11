@@ -8,6 +8,7 @@ public interface IJobUnitOfWork : IAsyncDisposable
 {
     IJobPostingRepository JobPostingRepository { get; }
     IJobApplicationRepository JobApplicationRepository { get; }
+    IOffersRepository OffersRepository { get; }
     DbSet<City> Cities { get; }
     DbSet<PersonalizedJobPostings> PersonalizedJobPostings { get; }
     DbSet<JobOffer> JobOffers { get; }

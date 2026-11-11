@@ -14,6 +14,7 @@ public sealed class JobUnitOfWork(JobDbContext context) : IJobUnitOfWork
 
     public IJobPostingRepository JobPostingRepository { get; } = new JobPostingRepository(context);
     public IJobApplicationRepository JobApplicationRepository { get; } = new JobApplicationRepository(context);
+    public IOffersRepository OffersRepository { get; } = new OffersRepository(context);
 
     public DbSet<City> Cities => context.Cities;
     public DbSet<PersonalizedJobPostings> PersonalizedJobPostings => context.PersonalizedJobPostings;
