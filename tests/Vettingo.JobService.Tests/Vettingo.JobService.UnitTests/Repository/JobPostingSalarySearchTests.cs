@@ -44,7 +44,7 @@ public sealed class JobPostingSalarySearchTests
     {
         var posting = new JobPosting();
         posting.CreateJobPosting(Guid.NewGuid(), Guid.NewGuid().ToString(), new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5,
-            minSalary, maxSalary, null, [new() { Order = 1, StepType = stepType, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
+            minSalary, maxSalary, [new() { Order = 1, StepType = stepType, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
         return posting;
     }
 }

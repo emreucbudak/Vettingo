@@ -40,7 +40,6 @@ public sealed class SearchJobPostingsQueryHandler(
             MaximumExperienceYear = jobPosting.MaximumExperienceYear,
             MinSalary = jobPosting.MinSalary,
             MaxSalary = jobPosting.MaxSalary,
-            ApplicationDeadline = jobPosting.ApplicationDeadline,
             CurrentStepType = jobPosting.GetCurrentStepType(),
             CreatedAt = jobPosting.CreatedAt
         }).ToArray();

@@ -26,8 +26,7 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.Updat
                 request.MinimumExperienceYear,
                 request.MaximumExperienceYear,
                 request.MinSalary,
-                request.MaxSalary,
-                request.ApplicationDeadline);
+                request.MaxSalary);
 
             jobPostingRepository.UpdateJobPosting(jobPosting);
             await jobPostingRepository.SaveChangesAsync();

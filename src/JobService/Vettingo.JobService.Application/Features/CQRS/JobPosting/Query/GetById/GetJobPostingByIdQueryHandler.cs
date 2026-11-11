@@ -30,7 +30,6 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetById
                 MaximumExperienceYear = jobPosting.MaximumExperienceYear,
                 MinSalary = jobPosting.MinSalary,
                 MaxSalary = jobPosting.MaxSalary,
-                ApplicationDeadline = jobPosting.ApplicationDeadline,
                 CurrentStepType = jobPosting.GetCurrentStepType(),
                 CreatedAt = jobPosting.CreatedAt,
                 UpdatedAt = jobPosting.UpdatedAt

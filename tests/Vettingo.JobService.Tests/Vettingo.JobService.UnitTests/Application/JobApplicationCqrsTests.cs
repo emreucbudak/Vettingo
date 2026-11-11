@@ -121,7 +121,7 @@ public class JobApplicationCqrsTests
     {
         var posting = new JobPosting();
         posting.CreateJobPosting(Guid.NewGuid(), "Backend Developer", new Dictionary<string, int> { ["C#"] = 3 },
-            34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 0, 0, null,
+            34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 0, 0,
             [new() { Order = 1, StepType = stepType }]);
         return posting;
     }

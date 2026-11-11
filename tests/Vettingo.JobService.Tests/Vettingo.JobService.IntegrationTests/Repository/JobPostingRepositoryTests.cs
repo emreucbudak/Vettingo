@@ -94,7 +94,6 @@ namespace Vettingo.JobService.UnitTests.Repository
                 WorkingModel.Remote,
                 2, 5,
                 50000, 50000,
-                DateTime.UtcNow.AddDays(30),
                 [new() { Order = 1, StepType = StepType.CandidateCollection, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
 
             return jobPosting;

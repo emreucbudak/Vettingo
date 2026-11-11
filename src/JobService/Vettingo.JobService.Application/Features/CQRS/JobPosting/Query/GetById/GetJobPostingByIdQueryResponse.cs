@@ -15,7 +15,6 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetById
         public int MaximumExperienceYear { get; init; }
         public int MinSalary { get; init; }
         public int MaxSalary { get; init; }
-        public DateTime? ApplicationDeadline { get; init; }
         public StepType? CurrentStepType { get; init; }
         public DateTime CreatedAt { get; init; }
         public DateTime? UpdatedAt { get; init; }

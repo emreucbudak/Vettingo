@@ -51,7 +51,7 @@ public class ApplicationStatisticsTests
         var companyId = Guid.NewGuid();
         var job = new JobPosting();
         job.CreateJobPosting(companyId, "Stats role", new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 }, 34,
-            EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 0, 0, null, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
+            EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 0, 0, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
         db.JobPostings.Add(job);
         var jobId = job.Id;
         foreach (var status in Enum.GetValues<ApplicationStatus>())

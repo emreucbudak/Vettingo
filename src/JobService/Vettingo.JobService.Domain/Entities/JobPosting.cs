@@ -24,7 +24,6 @@ namespace Vettingo.JobService.Domain.Entities
         public int MaximumExperienceYear { get; private set; }
         public int MinSalary { get; private set; }
         public int MaxSalary { get; private set; }
-        public DateTime? ApplicationDeadline { get; private set; }
         public int CurrentStep { get; private set; }
         public bool IsApplicationClosed { get; private set; }
         public bool IsPostingClosed { get; private set; }
@@ -43,10 +42,9 @@ namespace Vettingo.JobService.Domain.Entities
             int maximumExperienceYear,
             int minSalary,
             int maxSalary,
-            DateTime? applicationDeadline,
             List<JobSteps> jobSteps)
         {
-            CheckJobPostingContent(companyId, title, cityId, employmentType, workingModel, applicationDeadline);
+            CheckJobPostingContent(companyId, title, cityId, employmentType, workingModel);
             ArgumentNullException.ThrowIfNull(jobSteps, nameof(jobSteps));
             if (jobSteps.Count == 0 || jobSteps.Any(step => step is null))
             {
@@ -55,7 +53,7 @@ namespace Vettingo.JobService.Domain.Entities
 
             SetId();
             CompanyId = companyId;
-            UpdateJobPosting(title, requirementSkills, cityId, employmentType, workingModel, minimumExperienceYear, maximumExperienceYear, minSalary, maxSalary, applicationDeadline);
+            UpdateJobPosting(title, requirementSkills, cityId, employmentType, workingModel, minimumExperienceYear, maximumExperienceYear, minSalary, maxSalary);
             CurrentStep = 1;
             IsApplicationClosed = false;
             IsPostingClosed = false;
@@ -73,10 +71,9 @@ namespace Vettingo.JobService.Domain.Entities
             int minimumExperienceYear,
             int maximumExperienceYear,
             int minSalary,
-            int maxSalary,
-            DateTime? applicationDeadline)
+            int maxSalary)
         {
-            CheckJobPostingContent(CompanyId, title, cityId, employmentType, workingModel, applicationDeadline);
+            CheckJobPostingContent(CompanyId, title, cityId, employmentType, workingModel);
             Title = title;
             RequirementSkills = new Dictionary<string, int>(requirementSkills);
             CityId = cityId;
@@ -86,7 +83,6 @@ namespace Vettingo.JobService.Domain.Entities
             MaximumExperienceYear = maximumExperienceYear;
             MinSalary = minSalary;
             MaxSalary = maxSalary;
-            ApplicationDeadline = applicationDeadline;
             SetUpdatedAt();
         }
 
@@ -123,8 +119,7 @@ namespace Vettingo.JobService.Domain.Entities
             string title,
             int cityId,
             EmploymentType employmentType,
-            WorkingModel workingModel,
-            DateTime? applicationDeadline)
+            WorkingModel workingModel)
         {
             CheckJobPosting(companyId, title);
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(cityId, nameof(cityId));
@@ -137,11 +132,6 @@ namespace Vettingo.JobService.Domain.Entities
             if (!Enum.IsDefined(typeof(WorkingModel), workingModel))
             {
                 throw new ArgumentOutOfRangeException(nameof(workingModel), workingModel, "Çalışma modeli geçersiz.");
-            }
-
-            if (applicationDeadline.HasValue && applicationDeadline.Value == default)
-            {
-                throw new ArgumentException("Son başvuru tarihi geçersiz.", nameof(applicationDeadline));
             }
         }
     }
