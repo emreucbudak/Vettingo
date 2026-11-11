@@ -14,6 +14,7 @@ namespace Vettingo.JobService.Persistence.DbContext
         public DbSet<JobSteps> JobSteps { get; set; }
         public DbSet<PersonalizedJobPostings> PersonalizedJobPostings { get; set; }
         public DbSet<JobApplication> JobApplications { get; set; }
+        public DbSet<JobOffer> JobOffers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -48,6 +49,9 @@ namespace Vettingo.JobService.Persistence.DbContext
                 .HasConversion<string>();
             builder.Entity<JobApplication>().HasOne<JobPosting>().WithMany()
                 .HasForeignKey(application => application.JobPostingId).OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<JobOffer>().HasOne(offer => offer.JobPosting).WithMany()
+                .HasForeignKey(offer => offer.JobPostingId).OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<JobSteps>()
                 .Property(step => step.StepType)
