@@ -1,25 +1,25 @@
 using FlashMediator;
 using Vettingo.JobService.Application.DTOs;
 using Vettingo.JobService.Application.Messaging;
-using Vettingo.JobService.Application.Repository;
+using Vettingo.JobService.Application.UnitOfWork;
+using Vettingo.JobService.Domain.Entities;
 using Vettingo.JobService.Domain.Enums;
 
 namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.AdvanceJobStep;
 
 public class AdvanceJobStepCommandHandler(
-    IJobPostingRepository jobPostingRepository,
-    IJobApplicationRepository jobApplicationRepository,
+    IJobUnitOfWork unitOfWork,
     ICandidateExamListPublisher candidateExamListPublisher,
     ICandidateInterviewListPublisher candidateInterviewListPublisher,
     IInterviewStageExtendedPublisher interviewStageExtendedPublisher) : IRequestHandler<AdvanceJobStepCommandRequest>
 {
     public async Task Handle(AdvanceJobStepCommandRequest request, CancellationToken cancellationToken)
     {
-        var expiredJobPostings = await jobPostingRepository.GetExpiredJobPostingsAsync(cancellationToken);
+        var expiredJobPostings = await unitOfWork.JobPostingRepository.GetExpiredJobPostingsAsync(cancellationToken);
 
         foreach (var jobPosting in expiredJobPostings)
         {
-            var passedApplications = await jobApplicationRepository.GetPassedApplicationsByJobPostingIdAsync(
+            var passedApplications = await unitOfWork.JobApplicationRepository.GetPassedApplicationsByJobPostingIdAsync(
                 jobPosting.Id, cancellationToken);
 
             jobPosting.AdvanceCurrentStep();
@@ -90,18 +90,27 @@ public class AdvanceJobStepCommandHandler(
                     CandidateIds = passedApplications.Select(application => application.CandidateId).ToList()
                 }, cancellationToken);
             }
+            else if (nextStep?.StepType == StepType.Offer)
+            {
+                var offers = new Offers();
+                offers.CreateOffers(
+                    jobPosting.Id,
+                    nextStep.StartedDate,
+                    nextStep.EndDate,
+                    passedApplications.Select(application => application.CandidateId).ToList());
+                await unitOfWork.OffersRepository.AddAsync(offers, cancellationToken);
+            }
             else if (nextStep is null)
             {
                 jobPosting.CloseJobPosting();
                 continue;
-            }
-            else if (nextStep.StepType == StepType.Offer)
-            {
             }
             passedApplications.ForEach(application =>
             {
                 application.ResetCurrentStepPassed();
             });
         }
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

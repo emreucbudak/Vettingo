@@ -12,6 +12,7 @@ using Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetById;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetAll;
 using Vettingo.JobService.Application.Messaging;
 using Vettingo.JobService.Application.Repository;
+using Vettingo.JobService.Application.UnitOfWork;
 using Vettingo.JobService.Domain.Entities;
 using Vettingo.JobService.Domain.Enums;
 
@@ -159,8 +160,11 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             var applicationRepository = Substitute.For<IJobApplicationRepository>();
             applicationRepository.GetPassedApplicationsByJobPostingIdAsync(posting.Id)
                 .Returns(_ => ReturnAsync<List<JobApplication>>([application]));
+            var unitOfWork = Substitute.For<IJobUnitOfWork>();
+            unitOfWork.JobPostingRepository.Returns(postingRepository);
+            unitOfWork.JobApplicationRepository.Returns(applicationRepository);
             var publisher = Substitute.For<ICandidateExamListPublisher>();
-            var handler = new AdvanceJobStepCommandHandler(postingRepository, applicationRepository, publisher,
+            var handler = new AdvanceJobStepCommandHandler(unitOfWork, publisher,
                 Substitute.For<ICandidateInterviewListPublisher>(), Substitute.For<IInterviewStageExtendedPublisher>());
 
             await handler.Handle(new AdvanceJobStepCommandRequest(), CancellationToken.None);
@@ -172,6 +176,47 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 message.StartedDate == nextStep.StartedDate &&
                 message.EndDate == nextStep.EndDate &&
                 message.CandidateIds.SequenceEqual(new[] { application.CandidateId })), CancellationToken.None);
+        }
+
+        [Fact]
+        public async Task AdvanceJobStep_Should_Save_Offer_Stage_And_Application_Progress_Together()
+        {
+            var offerStep = new JobSteps
+            {
+                Order = 2,
+                StepType = StepType.Offer,
+                StartedDate = new DateOnly(2026, 1, 3),
+                EndDate = new DateOnly(2026, 1, 5)
+            };
+            var posting = CreateJobPosting(Guid.NewGuid(), "Backend Developer",
+                [new() { Order = 1, StepType = StepType.Interview }, offerStep]);
+            var application = new JobApplication();
+            application.CreateApplication(Guid.NewGuid(), posting.Id, DateTime.UtcNow, ApplicationStatus.Mülakat);
+            application.MarkCurrentStepPassed();
+            var unitOfWork = Substitute.For<IJobUnitOfWork>();
+            unitOfWork.JobPostingRepository.GetExpiredJobPostingsAsync().Returns(new List<JobPosting> { posting });
+            unitOfWork.JobApplicationRepository.GetPassedApplicationsByJobPostingIdAsync(posting.Id)
+                .Returns(new List<JobApplication> { application });
+            unitOfWork.SaveChangesAsync().Returns(_ =>
+            {
+                posting.CurrentStep.Should().Be(offerStep.Order);
+                application.IsCurrentStepPassed.Should().BeFalse();
+                return ReturnAsync(1);
+            });
+            var handler = new AdvanceJobStepCommandHandler(unitOfWork, Substitute.For<ICandidateExamListPublisher>(),
+                Substitute.For<ICandidateInterviewListPublisher>(), Substitute.For<IInterviewStageExtendedPublisher>());
+
+            await handler.Handle(new AdvanceJobStepCommandRequest(), CancellationToken.None);
+
+            var offersRepository = unitOfWork.OffersRepository;
+            Received.InOrder(() =>
+            {
+                _ = offersRepository.AddAsync(Arg.Is<Offers>(offers => offers.JobPostingId == posting.Id &&
+                    offers.StartedDate == offerStep.StartedDate && offers.EndDate == offerStep.EndDate &&
+                    offers.CandidateIds.SequenceEqual(new[] { application.CandidateId })), CancellationToken.None);
+                _ = unitOfWork.SaveChangesAsync(CancellationToken.None);
+            });
+            await unitOfWork.Received(1).SaveChangesAsync(CancellationToken.None);
         }
 
         [Theory]
@@ -225,9 +270,12 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             var applicationRepository = Substitute.For<IJobApplicationRepository>();
             applicationRepository.GetPassedApplicationsByJobPostingIdAsync(posting.Id)
                 .Returns(_ => ReturnAsync(applications));
+            var unitOfWork = Substitute.For<IJobUnitOfWork>();
+            unitOfWork.JobPostingRepository.Returns(postingRepository);
+            unitOfWork.JobApplicationRepository.Returns(applicationRepository);
             var publisher = Substitute.For<ICandidateInterviewListPublisher>();
             var extendedPublisher = Substitute.For<IInterviewStageExtendedPublisher>();
-            var handler = new AdvanceJobStepCommandHandler(postingRepository, applicationRepository,
+            var handler = new AdvanceJobStepCommandHandler(unitOfWork,
                 Substitute.For<ICandidateExamListPublisher>(), publisher, extendedPublisher);
 
             await handler.Handle(new AdvanceJobStepCommandRequest(), CancellationToken.None);
