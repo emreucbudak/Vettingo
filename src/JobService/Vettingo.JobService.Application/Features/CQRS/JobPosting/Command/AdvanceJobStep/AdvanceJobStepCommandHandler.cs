@@ -54,12 +54,16 @@ public class AdvanceJobStepCommandHandler(
                     var additionalDays = (int)Math.Ceiling((double)remainingCandidateCount / interviewsPerDay);
                     nextStep.EndDate = nextStep.EndDate.AddDays(additionalDays);
 
-                    var followingStep = jobPosting.JobSteps.FirstOrDefault(step => step.Order == nextStep.Order + 1);
-                    if (followingStep is not null)
+                    var lastShiftedOrder = nextStep.Order;
+                    while (jobPosting.JobSteps.FirstOrDefault(step => step.Order == lastShiftedOrder + 1) is { } followingStep)
                     {
                         followingStep.StartedDate = followingStep.StartedDate.AddDays(additionalDays);
                         followingStep.EndDate = followingStep.EndDate.AddDays(additionalDays);
+                        lastShiftedOrder++;
+                    }
 
+                    if (lastShiftedOrder > nextStep.Order)
+                    {
                         foreach (var application in passedApplications)
                         {
                             await interviewStageExtendedPublisher.SendExtendedNotification(new InterviewStageExtendedMessage

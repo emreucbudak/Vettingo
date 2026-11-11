@@ -251,10 +251,20 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 StartedDate = followingStartDate,
                 EndDate = followingEndDate
             };
+            var offerStartDate = followingEndDate.AddDays(1);
+            var offerEndDate = followingEndDate.AddDays(3);
+            var offerStep = new JobSteps
+            {
+                Order = 4,
+                StepType = StepType.Offer,
+                StartedDate = offerStartDate,
+                EndDate = offerEndDate
+            };
             List<JobSteps> jobSteps = [new() { Order = 1, StepType = StepType.Exam }, nextStep];
             if (hasFollowingStep)
             {
                 jobSteps.Add(followingStep);
+                jobSteps.Add(offerStep);
             }
 
             var posting = CreateJobPosting(Guid.NewGuid(), "Backend Developer", jobSteps);
@@ -286,6 +296,10 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             {
                 followingStep.StartedDate.Should().Be(followingStartDate.AddDays(additionalDays));
                 followingStep.EndDate.Should().Be(followingEndDate.AddDays(additionalDays));
+                followingStep.Order.Should().Be(3);
+                offerStep.StartedDate.Should().Be(offerStartDate.AddDays(additionalDays));
+                offerStep.EndDate.Should().Be(offerEndDate.AddDays(additionalDays));
+                offerStep.Order.Should().Be(4);
             }
 
             await publisher.Received(1).PublishAsync(Arg.Is<InterviewCreateMessage>(message =>
