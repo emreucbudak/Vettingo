@@ -10,7 +10,7 @@ using Vettingo.JobService.Application.Validations;
 using Vettingo.JobService.Domain.Entities;
 using Vettingo.JobService.Domain.Enums;
 using Vettingo.JobService.Persistence.DbContext;
-using Vettingo.JobService.Persistence.Repository;
+using Vettingo.JobService.Persistence.UnitOfWork;
 
 namespace Vettingo.JobService.UnitTests.Application.CQRS;
 
@@ -44,8 +44,9 @@ public class PersonalizedJobPostingsCqrsTests
         });
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
+        await using var unitOfWork = new JobUnitOfWork(context);
         var handler = new GetAllPersonalizedJobPostingsQueryHandler(
-            new PersonalizedJobPostingsRepository(context),
+            unitOfWork,
             NullLogger<GetAllPersonalizedJobPostingsQueryHandler>.Instance);
 
         var results = (await handler.Handle(new() { UserId = userId }, CancellationToken.None)).ToList();
@@ -61,12 +62,12 @@ public class PersonalizedJobPostingsCqrsTests
         await using var context = new JobDbContext(new DbContextOptionsBuilder<JobDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         await context.Database.EnsureCreatedAsync();
-        var repository = new PersonalizedJobPostingsRepository(context);
-        var create = new CreatePersonalizedJobPostingCommandHandler(repository,
+        await using var unitOfWork = new JobUnitOfWork(context);
+        var create = new CreatePersonalizedJobPostingCommandHandler(unitOfWork,
             NullLogger<CreatePersonalizedJobPostingCommandHandler>.Instance);
-        var list = new GetAllPersonalizedJobPostingsQueryHandler(repository,
+        var list = new GetAllPersonalizedJobPostingsQueryHandler(unitOfWork,
             NullLogger<GetAllPersonalizedJobPostingsQueryHandler>.Instance);
-        var delete = new DeletePersonalizedJobPostingCommandHandler(repository,
+        var delete = new DeletePersonalizedJobPostingCommandHandler(unitOfWork,
             NullLogger<DeletePersonalizedJobPostingCommandHandler>.Instance);
         var userId = Guid.NewGuid();
         var developer = CreateJobPosting("Developer");

@@ -11,14 +11,14 @@ using Vettingo.EvaluationService.Application.DTOs;
 using Vettingo.EvaluationService.Infrastructure.Messaging;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Command.CreatePersonalizedJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Query.GetAll;
-using Vettingo.JobService.Application.Repository;
+using Vettingo.JobService.Application.UnitOfWork;
 using Vettingo.JobService.Application.Validations;
 using Vettingo.JobService.Domain.Entities;
 using Vettingo.JobService.Domain.Enums;
 using Vettingo.JobService.Infrastructure.Messaging;
 using Vettingo.JobService.Infrastructure.Messages;
 using Vettingo.JobService.Persistence.DbContext;
-using Vettingo.JobService.Persistence.Repository;
+using Vettingo.JobService.Persistence.UnitOfWork;
 
 namespace Vettingo.JobService.UnitTests.Application;
 
@@ -30,7 +30,7 @@ public sealed class PersonalizedJobPostingMessagingTests
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddDbContext<JobDbContext>(options => options.UseInMemoryDatabase(Guid.NewGuid().ToString()));
-        services.AddScoped<IPersonalizedJobPostingsRepository, PersonalizedJobPostingsRepository>();
+        services.AddScoped<IJobUnitOfWork, JobUnitOfWork>();
         services.AddFlashMediator(typeof(CreatePersonalizedJobPostingCommandHandler).Assembly);
         services.AddFlashMediatorHybridCache();
         await using var provider = services.BuildServiceProvider();
@@ -70,8 +70,8 @@ public sealed class PersonalizedJobPostingMessagingTests
 
         await consumer.HandleAsync(message, cancellation.Token);
         context.ChangeTracker.Clear();
-        var repository = scope.ServiceProvider.GetRequiredService<IPersonalizedJobPostingsRepository>();
-        var all = new GetAllPersonalizedJobPostingsQueryHandler(repository,
+        var unitOfWork = scope.ServiceProvider.GetRequiredService<IJobUnitOfWork>();
+        var all = new GetAllPersonalizedJobPostingsQueryHandler(unitOfWork,
             NullLogger<GetAllPersonalizedJobPostingsQueryHandler>.Instance);
         var persisted = (await all.Handle(new() { UserId = dto.UserId }, cancellation.Token))
             .Should().ContainSingle().Subject;

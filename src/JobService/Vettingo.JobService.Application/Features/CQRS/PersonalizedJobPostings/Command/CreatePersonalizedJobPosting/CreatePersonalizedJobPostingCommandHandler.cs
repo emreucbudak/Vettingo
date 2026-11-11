@@ -1,11 +1,11 @@
 using FlashMediator;
 using Microsoft.Extensions.Logging;
-using Vettingo.JobService.Application.Repository;
+using Vettingo.JobService.Application.UnitOfWork;
 
 namespace Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Command.CreatePersonalizedJobPosting;
 
 public class CreatePersonalizedJobPostingCommandHandler(
-    IPersonalizedJobPostingsRepository repository,
+    IJobUnitOfWork unitOfWork,
     ILogger<CreatePersonalizedJobPostingCommandHandler> logger) : IRequestHandler<CreatePersonalizedJobPostingCommandRequest>
 {
     public async Task Handle(CreatePersonalizedJobPostingCommandRequest request, CancellationToken cancellationToken)
@@ -16,7 +16,7 @@ public class CreatePersonalizedJobPostingCommandHandler(
             UserId = request.UserId,
             JobPostingId = request.JobPostingId
         };
-        await repository.AddAsync(posting, cancellationToken);
-        await repository.SaveChangesAsync(cancellationToken);
+        await unitOfWork.PersonalizedJobPostings.AddAsync(posting, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

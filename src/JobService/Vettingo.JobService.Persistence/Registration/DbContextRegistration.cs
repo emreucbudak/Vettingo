@@ -2,7 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Vettingo.JobService.Application.Repository;
+using Vettingo.JobService.Application.UnitOfWork;
 using Vettingo.JobService.Persistence.Repository;
+using Vettingo.JobService.Persistence.UnitOfWork;
 using JobPersistenceDbContext = Vettingo.JobService.Persistence.DbContext.JobDbContext;
 
 namespace Vettingo.JobService.Persistence.Registration
@@ -18,7 +20,7 @@ namespace Vettingo.JobService.Persistence.Registration
 
             collect.AddScoped<IJobPostingRepository, JobPostingRepository>();
             collect.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
-            collect.AddScoped<IPersonalizedJobPostingsRepository, PersonalizedJobPostingsRepository>();
+            collect.AddScoped<IJobUnitOfWork, JobUnitOfWork>();
         }
     }
 }
