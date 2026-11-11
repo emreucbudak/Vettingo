@@ -8,7 +8,6 @@ using Microsoft.IdentityModel.Tokens;
 using Quartz;
 using Vettingo.JobService.API.ExceptionHandlers;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CreateJobPosting;
-using Vettingo.JobService.Persistence.Queries;
 using Vettingo.JobService.Persistence.Registration;
 using Vettingo.JobService.Infrastructure.Jobs;
 using Vettingo.JobService.Infrastructure.Register;
@@ -88,7 +87,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
         ?? throw new InvalidOperationException("Connection string 'Redis' is not configured.");
     options.InstanceName = "Vettingo:JobService:";
 });
-builder.Services.AddFlashMediator(typeof(CreateJobPostingCommandHandler).Assembly, typeof(GetAllCitiesQueryHandler).Assembly);
+builder.Services.AddFlashMediator(typeof(CreateJobPostingCommandHandler).Assembly);
 builder.Services.AddFlashMediatorHybridCache();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateJobPostingCommandRequest>();
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
