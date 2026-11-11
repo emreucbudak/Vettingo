@@ -17,6 +17,7 @@ public sealed class JobUnitOfWork(JobDbContext context) : IJobUnitOfWork
 
     public DbSet<City> Cities => context.Cities;
     public DbSet<PersonalizedJobPostings> PersonalizedJobPostings => context.PersonalizedJobPostings;
+    public DbSet<JobOffer> JobOffers => context.JobOffers;
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         => context.SaveChangesAsync(cancellationToken);
