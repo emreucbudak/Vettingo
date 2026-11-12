@@ -4,6 +4,7 @@ using NSubstitute;
 using Vettingo.EvaluationService.Application.Exceptions;
 using Vettingo.EvaluationService.Application.Features.CQRS.Cv.Command.Update;
 using Vettingo.EvaluationService.Application.Repository;
+using Vettingo.EvaluationService.Domain.Enums;
 using Vettingo.EvaluationService.Domain.Models;
 using Vettingo.EvaluationService.Persistence.DbContext;
 using Vettingo.EvaluationService.Persistence.Repository;
@@ -53,6 +54,8 @@ public sealed class UpdateCvCommandHandlerTests
         var cv = AttachExistingCv(context);
         var id = cv.Id;
         var createdAt = cv.CreatedAt;
+        var oldLanguage = cv.Languages.Single();
+        var language = new Language("Turkish", LanguageLevel.C2);
         var oldEducation = cv.Educations.Single();
         var oldProject = cv.Projects.Single();
         var oldExperience = cv.Experiences.Single();
@@ -61,14 +64,16 @@ public sealed class UpdateCvCommandHandlerTests
         var experience = new Experience();
 
         new CvRepository(context).Update(cv, "Developer", 0,
-            new() { ["SQL"] = 3 }, new() { ["Turkish"] = "Native" },
+            new() { ["SQL"] = 3 }, [language],
             [education], [project], [experience]);
         context.ChangeTracker.DetectChanges();
 
         cv.TargetRole.Should().Be("Developer");
         cv.TargetSalary.Should().Be(0);
         cv.Skills.Should().BeEquivalentTo(new Dictionary<string, int> { ["SQL"] = 3 });
-        cv.Languages.Should().BeEquivalentTo(new Dictionary<string, string> { ["Turkish"] = "Native" });
+        cv.Languages.Should().ContainSingle().Which.Should().BeSameAs(language);
+        context.Entry(oldLanguage).State.Should().Be(EntityState.Deleted);
+        context.Entry(language).State.Should().Be(EntityState.Added);
         cv.Educations.Should().ContainSingle().Which.Should().BeSameAs(education);
         cv.Projects.Should().ContainSingle().Which.Should().BeSameAs(project);
         cv.Experiences.Should().ContainSingle().Which.Should().BeSameAs(experience);
@@ -98,7 +103,7 @@ public sealed class UpdateCvCommandHandlerTests
         cv.TargetRole.Should().Be("Backend Developer");
         cv.TargetSalary.Should().Be(75000);
         cv.Skills.Should().ContainKey("C#");
-        cv.Languages.Should().ContainKey("English");
+        cv.Languages.Should().ContainSingle().Which.LanguageName.Should().Be("English");
         cv.Educations.Should().ContainSingle().Which.Should().BeSameAs(education);
         cv.Projects.Should().ContainSingle().Which.Should().BeSameAs(project);
         cv.Experiences.Should().ContainSingle().Which.Should().BeSameAs(experience);
@@ -112,7 +117,7 @@ public sealed class UpdateCvCommandHandlerTests
         using var context = CreateContext();
         var cv = AttachExistingCv(context);
 
-        new CvRepository(context).Update(cv, null, null, new(), new(), [], [], []);
+        new CvRepository(context).Update(cv, null, null, new(), [], [], [], []);
         context.ChangeTracker.DetectChanges();
 
         cv.TargetRole.Should().Be("Backend Developer");
@@ -128,7 +133,7 @@ public sealed class UpdateCvCommandHandlerTests
     {
         var cv = new Cv();
         cv.Create(Guid.NewGuid(), "Backend Developer", 75000,
-            new() { ["C#"] = 4 }, new() { ["English"] = "B2" });
+            new() { ["C#"] = 4 }, [new("English", LanguageLevel.B2)]);
         cv.AddEducation(new Education());
         cv.AddProject(new Project());
         cv.AddExperience(new Experience());

@@ -1,5 +1,6 @@
 using FlashMediator;
 using Vettingo.EvaluationService.Application.Repository;
+using Vettingo.EvaluationService.Domain.Models;
 using CvEntity = Vettingo.EvaluationService.Domain.Models.Cv;
 
 namespace Vettingo.EvaluationService.Application.Features.CQRS.Cv.Command.Create;
@@ -9,7 +10,8 @@ public sealed class CreateCvCommandHandler(ICvRepository cvRepository) : IReques
     public async Task Handle(CreateCvCommandRequest request, CancellationToken cancellationToken)
     {
         var cv = new CvEntity();
-        cv.Create(request.UserId, request.TargetRole, request.TargetSalary, request.Skills, request.Languages);
+        var languages = request.Languages?.Select(language => new Language(language.LanguageName, language.LanguageLevel)).ToArray();
+        cv.Create(request.UserId, request.TargetRole, request.TargetSalary, request.Skills, languages);
 
         request.Educations?.ForEach(cv.AddEducation);
         request.Projects?.ForEach(cv.AddProject);

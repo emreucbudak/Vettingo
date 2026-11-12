@@ -2,6 +2,7 @@ using FluentAssertions;
 using NSubstitute;
 using Vettingo.EvaluationService.Application.Features.CQRS.Cv.Command.Create;
 using Vettingo.EvaluationService.Application.Repository;
+using Vettingo.EvaluationService.Domain.Enums;
 using Vettingo.EvaluationService.Domain.Models;
 
 namespace Vettingo.EvaluationService.UnitTests;
@@ -21,7 +22,7 @@ public sealed class CreateCvCommandHandlerTests
             TargetRole = "Backend Developer",
             TargetSalary = 75000,
             Skills = new() { ["C#"] = 4 },
-            Languages = new() { ["English"] = "B2" },
+            Languages = [new("English", LanguageLevel.B2)],
             Educations = [education],
             Projects = [project],
             Experiences = [experience]
@@ -41,7 +42,9 @@ public sealed class CreateCvCommandHandlerTests
         savedCv.TargetRole.Should().Be(request.TargetRole);
         savedCv.TargetSalary.Should().Be(request.TargetSalary);
         savedCv.Skills.Should().BeEquivalentTo(request.Skills);
-        savedCv.Languages.Should().BeEquivalentTo(request.Languages);
+        var language = savedCv.Languages.Should().ContainSingle().Which;
+        language.LanguageName.Should().Be("English");
+        language.LanguageLevel.Should().Be(LanguageLevel.B2);
         savedCv.Educations.Should().ContainSingle().Which.Should().BeSameAs(education);
         savedCv.Projects.Should().ContainSingle().Which.Should().BeSameAs(project);
         savedCv.Experiences.Should().ContainSingle().Which.Should().BeSameAs(experience);
