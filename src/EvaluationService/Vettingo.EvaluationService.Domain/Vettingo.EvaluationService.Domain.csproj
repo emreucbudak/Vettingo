@@ -7,11 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Models\Evaluation.cs" />
-    <Compile Include="Models\Evaluation.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="10.0.8" />
     <PackageReference Include="Microsoft.SemanticKernel" Version="1.81.0" />
   </ItemGroup>

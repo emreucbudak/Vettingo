@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Vettingo.EvaluationService.API.ExceptionHandlers;
-using Vettingo.EvaluationService.Application.Features.CQRS.Evaluation.Command.CreateEvaluation;
+using Vettingo.EvaluationService.Application.Features.CQRS.Cv.Command.Create;
 using Vettingo.EvaluationService.Persistence.Registration;
 using Vettingo.EvaluationService.Infrastructure.Register;
 
@@ -63,9 +63,9 @@ builder.Services.AddRateLimiter(options =>
 
 builder.Services.AddEvaluationPersistence(builder.Configuration);
 builder.Services.AddEvaluationCap(builder.Configuration);
-builder.Services.AddFlashMediator(typeof(CreateEvaluationCommandHandler).Assembly);
+builder.Services.AddFlashMediator(typeof(CreateCvCommandHandler).Assembly);
 builder.Services.AddFlashMediatorHybridCache();
-builder.Services.AddValidatorsFromAssemblyContaining<CreateEvaluationCommandRequest>();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateCvCommandRequest>();
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = builder.Configuration.GetConnectionString("Redis")

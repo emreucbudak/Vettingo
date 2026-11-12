@@ -4,7 +4,7 @@
 
 ### A modular recruitment, candidate vetting, and technical assessment platform
 
-Vettingo brings identity management, job postings, applications, assessments, interviews, evaluations, analytics, and real-time notifications together in a microservice-based backend.
+Vettingo brings identity management, job postings, applications, assessments, interviews, CV management, analytics, and real-time notifications together in a microservice-based backend.
 
 <br />
 
@@ -23,7 +23,7 @@ Vettingo brings identity management, job postings, applications, assessments, in
 
 **Vettingo** is a backend platform designed to manage the complete recruitment and candidate evaluation lifecycle.
 
-The system provides dedicated services for authentication, companies, job postings, applications, technical exams, structured interviews, evaluations, recruitment analytics, and real-time notifications.
+The system provides dedicated services for authentication, companies, job postings, applications, technical exams, structured interviews, CV management, recruitment analytics, and real-time notifications.
 
 It is built with **.NET 10**, **ASP.NET Core Web API**, **PostgreSQL**, **Redis**, and a modular microservice architecture.
 
@@ -81,12 +81,10 @@ The exact seeded name of the HR role in the identity system is `Human Resources`
 - Candidate interview answers
 - Interview question and exam management
 
-### Candidate evaluations
+### Candidate CVs
 
-- Candidate evaluation records
-- Evaluation creation and updates
-- Evaluation history
-- Candidate-focused authorization
+- CV creation and updates
+- CV existence checks
 
 ### Subscription payments
 
@@ -177,7 +175,7 @@ This structure keeps business rules independent from transport and persistence c
 | **Application Service** | Job applications and application statuses | `/api/job-applications` |
 | **Exam Service** | Exams and technical assessment questions | `/api/exams` |
 | **Interview Service** | Interview exams, questions, and answers | `/api/interview-exams`, `/api/interview-questions`, `/api/interview-answers` |
-| **Evaluation Service** | Candidate evaluations | `/api/evaluations` |
+| **Evaluation Service** | Candidate CV management | `/api/evaluations/cv`, `/api/evaluations/cv/exists` |
 | **Analytics Service** | Hiring volume, candidate sources | `/api/analytics` |
 | **Notification Service** | Persistent and real-time notifications | `/api/notifications`, `/notification-hub` |
 
@@ -190,7 +188,7 @@ This structure keeps business rules independent from transport and persistence c
 | **Admin** | Platform-level administration and company management |
 | **Human Resources (HR)** | Dedicated identity role for recruitment and HR personnel |
 | **Company** | Employer-side job, application, exam, interview, and analytics operations |
-| **Candidate** | Job applications, assessments, interview participation, evaluations, and CV analysis |
+| **Candidate** | Job applications, assessments, interview participation, and CV management |
 
 JWTs contain the assigned roles under the `Role` claim. API endpoints use ASP.NET Core role-based authorization to protect operations.
 
@@ -497,14 +495,12 @@ Question resources are grouped under an exam:
 /api/interview-answers
 ```
 
-### Evaluations
+### Candidate CVs
 
 ```text
-GET    /api/evaluations
-GET    /api/evaluations/{evaluationId}
-POST   /api/evaluations
-PUT    /api/evaluations/{evaluationId}
-DELETE /api/evaluations/{evaluationId}
+POST /api/evaluations/cv
+PUT  /api/evaluations/cv
+GET  /api/evaluations/cv/exists
 ```
 
 ### Analytics
