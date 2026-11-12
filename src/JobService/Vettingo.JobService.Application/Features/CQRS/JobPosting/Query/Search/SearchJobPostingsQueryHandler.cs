@@ -32,7 +32,6 @@ public sealed class SearchJobPostingsQueryHandler(
             Id = jobPosting.Id,
             CompanyId = jobPosting.CompanyId,
             Title = jobPosting.Title,
-            RequirementSkills = new Dictionary<string, int>(jobPosting.RequirementSkills),
             CityId = jobPosting.CityId,
             EmploymentType = jobPosting.EmploymentType,
             WorkingModel = jobPosting.WorkingModel,

@@ -39,35 +39,18 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
         }
 
         [Fact]
-        public void Command_Validators_Should_Reject_Missing_Skills_And_Blank_Keys()
-        {
-            Dictionary<string, int>[] invalidSkills = [null!, new(), new() { [" "] = 3 }];
-            foreach (var skills in invalidSkills)
-            {
-                var create = CreateJobPostingRequest() with { RequirementSkills = skills };
-                var update = CreateUpdateJobPostingRequest(Guid.NewGuid()) with { RequirementSkills = skills };
-
-                new CreateJobPostingCommandRequestValidator().Validate(create).IsValid.Should().BeFalse();
-                new UpdateJobPostingCommandRequestValidator().Validate(update).IsValid.Should().BeFalse();
-            }
-        }
-
-        [Fact]
-        public async Task UpdateJobPostingCommandHandler_Should_Replace_RequirementSkills()
+        public async Task UpdateJobPostingCommandHandler_Should_Update_And_Save_JobPosting()
         {
             var repository = Substitute.For<IJobPostingRepository>();
             var posting = CreateJobPosting(Guid.NewGuid(), "Backend Developer");
             repository.GetJobPostingByIdAsync(posting.Id).Returns(_ => ReturnAsync<JobPosting?>(posting));
             repository.SaveChangesAsync().Returns(_ => ReturnAsync(1));
             var handler = new UpdateJobPostingCommandHandler(repository, Substitute.For<ILogger<UpdateJobPostingCommandHandler>>());
-            var request = CreateUpdateJobPostingRequest(posting.Id) with
-            {
-                RequirementSkills = new Dictionary<string, int> { ["Go"] = 4 }
-            };
+            var request = CreateUpdateJobPostingRequest(posting.Id);
 
             await handler.Handle(request, CancellationToken.None);
 
-            posting.RequirementSkills.Should().BeEquivalentTo(request.RequirementSkills);
+            posting.Title.Should().Be(request.Title);
             repository.Received(1).UpdateJobPosting(posting);
             await repository.Received(1).SaveChangesAsync();
         }
@@ -105,9 +88,6 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             await repository.Received(1).AddJobPostingAsync(Arg.Is<JobPosting>(jobPosting =>
                 jobPosting.CompanyId == request.CompanyId &&
                 jobPosting.Title == request.Title &&
-                jobPosting.RequirementSkills.Count == request.RequirementSkills.Count &&
-                jobPosting.RequirementSkills["C#"] == request.RequirementSkills["C#"] &&
-                jobPosting.RequirementSkills["PostgreSQL"] == request.RequirementSkills["PostgreSQL"] &&
                 jobPosting.MinSalary == request.MinSalary &&
                 jobPosting.MaxSalary == request.MaxSalary));
             var created = (JobPosting)repository.ReceivedCalls()
@@ -381,7 +361,6 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             response.Id.Should().Be(jobPosting.Id);
             response.CompanyId.Should().Be(jobPosting.CompanyId);
             response.Title.Should().Be(jobPosting.Title);
-            response.RequirementSkills.Should().BeEquivalentTo(jobPosting.RequirementSkills);
             response.MinSalary.Should().Be(jobPosting.MinSalary);
             response.MaxSalary.Should().Be(jobPosting.MaxSalary);
             response.CurrentStepType.Should().Be(StepType.CandidateCollection);
@@ -444,7 +423,6 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             {
                 CompanyId = Guid.NewGuid(),
                 Title = "Backend Developer",
-                RequirementSkills = new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                 CityId = 34,
                 EmploymentType = EmploymentType.FullTime,
                 WorkingModel = WorkingModel.Remote,
@@ -475,7 +453,6 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             {
                 JobPostingId = jobPostingId,
                 Title = "Updated Backend Developer",
-                RequirementSkills = new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                 CityId = 6,
                 EmploymentType = EmploymentType.FullTime,
                 WorkingModel = WorkingModel.Hybrid,
@@ -492,7 +469,6 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             jobPosting.CreateJobPosting(
                 companyId,
                 title,
-                new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                 34,
                 EmploymentType.FullTime,
                 WorkingModel.Remote,

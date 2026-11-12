@@ -89,7 +89,6 @@ public sealed class JobPostingSearchRepositoryTests : IClassFixture<PostgreSqlCo
         jobPosting.CreateJobPosting(
             Guid.NewGuid(),
             title,
-            new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
             cityId,
             EmploymentType.FullTime,
             workingModel,

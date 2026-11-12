@@ -120,7 +120,7 @@ public class JobApplicationCqrsTests
     private static JobPosting CreateJobPosting(StepType stepType)
     {
         var posting = new JobPosting();
-        posting.CreateJobPosting(Guid.NewGuid(), "Backend Developer", new Dictionary<string, int> { ["C#"] = 3 },
+        posting.CreateJobPosting(Guid.NewGuid(), "Backend Developer",
             34, EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 0, 0,
             [new() { Order = 1, StepType = stepType }]);
         return posting;

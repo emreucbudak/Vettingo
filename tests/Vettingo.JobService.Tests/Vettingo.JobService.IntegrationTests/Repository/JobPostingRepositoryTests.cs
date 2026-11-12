@@ -33,7 +33,6 @@ namespace Vettingo.JobService.UnitTests.Repository
             result!.Id.Should().Be(jobPosting.Id);
             result.Title.Should().Be("Backend Developer");
             result.CompanyId.Should().Be(jobPosting.CompanyId);
-            result.RequirementSkills.Should().BeEquivalentTo(jobPosting.RequirementSkills);
         }
 
         [Fact]
@@ -88,7 +87,6 @@ namespace Vettingo.JobService.UnitTests.Repository
             jobPosting.CreateJobPosting(
                 companyId,
                 title,
-                new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                 34,
                 EmploymentType.FullTime,
                 WorkingModel.Remote,

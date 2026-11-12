@@ -43,7 +43,6 @@ public sealed class SearchJobPostingsQueryTests
         response.Should().ContainSingle();
         response[0].Id.Should().Be(jobPosting.Id);
         response[0].Title.Should().Be(jobPosting.Title);
-        response[0].RequirementSkills.Should().BeEquivalentTo(jobPosting.RequirementSkills);
         response[0].MinSalary.Should().Be(jobPosting.MinSalary);
         response[0].MaxSalary.Should().Be(jobPosting.MaxSalary);
         await repository.Received(1).SearchJobPostingsAsync(
@@ -65,7 +64,6 @@ public sealed class SearchJobPostingsQueryTests
         jobPosting.CreateJobPosting(
             Guid.NewGuid(),
             "Senior Backend Developer",
-            new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
             34,
             EmploymentType.FullTime,
             WorkingModel.Hybrid,

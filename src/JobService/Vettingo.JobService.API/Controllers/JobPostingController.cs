@@ -89,7 +89,6 @@ namespace Vettingo.JobService.API.Controllers
             {
                 JobPostingId = jobPostingId,
                 Title = request.Title,
-                RequirementSkills = request.RequirementSkills,
                 CityId = request.CityId,
                 EmploymentType = request.EmploymentType,
                 WorkingModel = request.WorkingModel,
