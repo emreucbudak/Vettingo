@@ -31,8 +31,7 @@ public class GetAllPersonalizedJobPostingsQueryHandler(
             MinimumExperienceYear = posting.JobPosting.MinimumExperienceYear,
             MaximumExperienceYear = posting.JobPosting.MaximumExperienceYear,
             MinSalary = posting.JobPosting.MinSalary,
-            MaxSalary = posting.JobPosting.MaxSalary,
-            RequirementSkills = new Dictionary<string, int>(posting.JobPosting.RequirementSkills)
+            MaxSalary = posting.JobPosting.MaxSalary
         }).ToList();
     }
 }

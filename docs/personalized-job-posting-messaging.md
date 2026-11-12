@@ -29,7 +29,7 @@ nonempty user GUID to list only that user's personalized postings, ordered by
 association `CreatedAt` descending, then `Id` descending. The response is a flat
 array of mobile card data: `jobPostingId`, `companyId`, `companyName`, `title`, `cityName`,
 `employmentType`, `workingModel`, `minimumExperienceYear`, `maximumExperienceYear`,
-`minSalary`, `maxSalary`, and `requirementSkills`. Employment type and working model
+`minSalary` and `maxSalary`. Employment type and working model
 use their numeric enum values. Association IDs, user IDs, timestamps and a nested
 job object are not included. The job and city are loaded with the listing query.
 

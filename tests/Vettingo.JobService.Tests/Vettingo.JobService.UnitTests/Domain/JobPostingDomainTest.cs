@@ -19,7 +19,6 @@ namespace Vettingo.JobService.UnitTests.Domain
                 jobPosting.CreateJobPosting(
                     companyId,
                     "Test Title",
-                    new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                     34,
                     EmploymentType.FullTime,
                     WorkingModel.OnSite,
@@ -45,7 +44,6 @@ namespace Vettingo.JobService.UnitTests.Domain
                 jobPosting.CreateJobPosting(
                     Guid.Empty,
                     "Test Title",
-                    new Dictionary<string, int> { ["C#"] = 3, ["PostgreSQL"] = 2 },
                     34,
                     EmploymentType.FullTime,
                     WorkingModel.OnSite,
@@ -68,7 +66,7 @@ namespace Vettingo.JobService.UnitTests.Domain
             List<JobSteps> steps = invalidCase switch { 0 => null!, 1 => [], _ => [null!] };
 
             Action create = () => posting.CreateJobPosting(Guid.NewGuid(), "Developer",
-                new Dictionary<string, int> { ["C#"] = 3 }, 34, EmploymentType.FullTime, WorkingModel.Remote,
+                34, EmploymentType.FullTime, WorkingModel.Remote,
                 2, 5, 50000, 75000, steps);
 
             create.Should().Throw<ArgumentException>().WithParameterName("jobSteps");
@@ -88,7 +86,7 @@ namespace Vettingo.JobService.UnitTests.Domain
             var steps = new List<JobSteps> { step };
 
             posting.CreateJobPosting(Guid.NewGuid(), "Developer",
-                new Dictionary<string, int> { ["C#"] = 3 }, 34, EmploymentType.FullTime, WorkingModel.Remote,
+                34, EmploymentType.FullTime, WorkingModel.Remote,
                 2, 5, 50000, 75000, steps);
             posting.JobSteps.Should().ContainSingle().Which.Should().BeSameAs(step);
             posting.IsApplicationClosed.Should().BeFalse();

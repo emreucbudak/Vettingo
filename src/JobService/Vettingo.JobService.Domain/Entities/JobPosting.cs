@@ -15,7 +15,6 @@ namespace Vettingo.JobService.Domain.Entities
 
         public Guid CompanyId { get; private set; }
         public string Title { get; private set; } = string.Empty;
-        public Dictionary<string, int> RequirementSkills { get; private set; } = new();
         public int CityId { get; private set; }
         public City City { get; private set; } = null!;
         public EmploymentType EmploymentType { get; private set; }
@@ -34,7 +33,6 @@ namespace Vettingo.JobService.Domain.Entities
         public void CreateJobPosting(
             Guid companyId,
             string title,
-            Dictionary<string, int> requirementSkills,
             int cityId,
             EmploymentType employmentType,
             WorkingModel workingModel,
@@ -53,7 +51,7 @@ namespace Vettingo.JobService.Domain.Entities
 
             SetId();
             CompanyId = companyId;
-            UpdateJobPosting(title, requirementSkills, cityId, employmentType, workingModel, minimumExperienceYear, maximumExperienceYear, minSalary, maxSalary);
+            UpdateJobPosting(title, cityId, employmentType, workingModel, minimumExperienceYear, maximumExperienceYear, minSalary, maxSalary);
             CurrentStep = 1;
             IsApplicationClosed = false;
             IsPostingClosed = false;
@@ -64,7 +62,6 @@ namespace Vettingo.JobService.Domain.Entities
 
         public void UpdateJobPosting(
             string title,
-            Dictionary<string, int> requirementSkills,
             int cityId,
             EmploymentType employmentType,
             WorkingModel workingModel,
@@ -75,7 +72,6 @@ namespace Vettingo.JobService.Domain.Entities
         {
             CheckJobPostingContent(CompanyId, title, cityId, employmentType, workingModel);
             Title = title;
-            RequirementSkills = new Dictionary<string, int>(requirementSkills);
             CityId = cityId;
             EmploymentType = employmentType;
             WorkingModel = workingModel;

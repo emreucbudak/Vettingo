@@ -14,5 +14,4 @@ public sealed record GetAllPersonalizedJobPostingsQueryResponse
     public int MaximumExperienceYear { get; init; }
     public int MinSalary { get; init; }
     public int MaxSalary { get; init; }
-    public Dictionary<string, int> RequirementSkills { get; init; } = new();
 }

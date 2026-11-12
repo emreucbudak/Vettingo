@@ -98,11 +98,10 @@ public class PersonalizedJobPostingsCqrsTests
         developerResult.WorkingModel.Should().Be(developer.WorkingModel);
         developerResult.MinimumExperienceYear.Should().Be(developer.MinimumExperienceYear);
         developerResult.MaximumExperienceYear.Should().Be(developer.MaximumExperienceYear);
-        developerResult.RequirementSkills.Should().BeEquivalentTo(developer.RequirementSkills);
         using var json = JsonDocument.Parse(JsonSerializer.Serialize(developerResult, JsonSerializerOptions.Web));
         json.RootElement.EnumerateObject().Select(property => property.Name).Should().BeEquivalentTo(
             "jobPostingId", "companyId", "title", "cityName", "employmentType", "workingModel",
-            "minimumExperienceYear", "maximumExperienceYear", "minSalary", "maxSalary", "requirementSkills");
+            "minimumExperienceYear", "maximumExperienceYear", "minSalary", "maxSalary");
         (await list.Handle(new(), CancellationToken.None)).Should().BeEmpty();
         (await list.Handle(new() { UserId = Guid.NewGuid() }, CancellationToken.None)).Should().BeEmpty();
 
@@ -146,7 +145,7 @@ public class PersonalizedJobPostingsCqrsTests
     private static JobPosting CreateJobPosting(string title, int cityId = 34)
     {
         var posting = new JobPosting();
-        posting.CreateJobPosting(Guid.NewGuid(), title, new Dictionary<string, int> { ["C#"] = 3 },
+        posting.CreateJobPosting(Guid.NewGuid(), title,
             cityId, EmploymentType.FullTime, WorkingModel.Remote, 2, 5, 50000, 75000, [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]);
         return posting;
     }
