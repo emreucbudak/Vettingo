@@ -3,6 +3,7 @@ using NSubstitute;
 using Vettingo.EvaluationService.Application.Exceptions;
 using Vettingo.EvaluationService.Application.Features.CQRS.Cv.Query.GetCvByUserIdQueries;
 using Vettingo.EvaluationService.Application.Repository;
+using Vettingo.EvaluationService.Domain.Enums;
 using Vettingo.EvaluationService.Domain.Models;
 
 namespace Vettingo.EvaluationService.UnitTests;
@@ -16,7 +17,7 @@ public sealed class GetCvByUserIdQueriesTests
         using var cancellation = new CancellationTokenSource();
         var cv = new Cv();
         cv.Create(userId, "Backend Developer", 75000,
-            new() { ["C#"] = 4 }, new() { ["English"] = "B2" });
+            new() { ["C#"] = 4 }, [new("English", LanguageLevel.B2)]);
         cv.AddEducation(new Education());
         cv.AddProject(new Project());
         cv.AddExperience(new Experience());
@@ -29,7 +30,9 @@ public sealed class GetCvByUserIdQueriesTests
         response.TargetRole.Should().Be("Backend Developer");
         response.TargetSalary.Should().Be(75000);
         response.Skills.Should().BeEquivalentTo(cv.Skills);
-        response.Languages.Should().BeEquivalentTo(cv.Languages);
+        var language = response.Languages.Should().ContainSingle().Which;
+        language.LanguageName.Should().Be("English");
+        language.LanguageLevel.Should().Be(LanguageLevel.B2);
         response.Educations.Should().ContainSingle().Which.Should().BeSameAs(cv.Educations.Single());
         response.Projects.Should().ContainSingle().Which.Should().BeSameAs(cv.Projects.Single());
         response.Experiences.Should().ContainSingle().Which.Should().BeSameAs(cv.Experiences.Single());

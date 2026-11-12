@@ -14,7 +14,14 @@ public sealed class CvConfiguration : IEntityTypeConfiguration<Cv>
         builder.HasKey(cv => cv.Id);
         builder.Property(cv => cv.TargetRole).IsRequired();
         ConfigureDictionary(builder.Property(cv => cv.Skills));
-        ConfigureDictionary(builder.Property(cv => cv.Languages));
+        builder.OwnsMany(cv => cv.Languages, language =>
+        {
+            language.ToTable("CvLanguages");
+            language.WithOwner().HasForeignKey("CvId");
+            language.HasKey(item => item.Id);
+            language.Property(item => item.Id).ValueGeneratedNever();
+            language.Property(item => item.LanguageLevel).HasConversion<string>();
+        });
 
         builder.OwnsMany(cv => cv.Educations, education =>
         {

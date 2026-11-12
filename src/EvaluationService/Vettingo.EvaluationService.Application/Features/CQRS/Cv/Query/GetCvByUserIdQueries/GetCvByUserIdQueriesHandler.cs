@@ -1,4 +1,5 @@
 using FlashMediator;
+using Vettingo.EvaluationService.Application.DTOs;
 using Vettingo.EvaluationService.Application.Exceptions;
 using Vettingo.EvaluationService.Application.Repository;
 
@@ -19,7 +20,7 @@ public sealed class GetCvByUserIdQueriesHandler(ICvRepository cvRepository)
             TargetRole = cv.TargetRole,
             TargetSalary = cv.TargetSalary,
             Skills = new Dictionary<string, int>(cv.Skills),
-            Languages = new Dictionary<string, string>(cv.Languages),
+            Languages = cv.Languages.Select(language => new CvLanguageDto(language.LanguageName, language.LanguageLevel)).ToArray(),
             Educations = cv.Educations.ToArray(),
             Projects = cv.Projects.ToArray(),
             Experiences = cv.Experiences.ToArray()

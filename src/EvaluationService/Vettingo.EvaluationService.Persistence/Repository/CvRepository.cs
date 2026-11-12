@@ -18,7 +18,7 @@ public sealed class CvRepository(EvaluationDbContext context) : ICvRepository
     }
 
     public void Update(Cv cv, string? targetRole, int? targetSalary,
-        Dictionary<string, int>? skills, Dictionary<string, string>? languages,
+        Dictionary<string, int>? skills, IReadOnlyCollection<Language>? languages,
         IReadOnlyCollection<Education>? educations, IReadOnlyCollection<Project>? projects,
         IReadOnlyCollection<Experience>? experiences)
     {
@@ -43,11 +43,8 @@ public sealed class CvRepository(EvaluationDbContext context) : ICvRepository
         }
         if (languages is not null)
         {
-            cv.Languages.Clear();
-            foreach (var language in languages)
-            {
-                cv.Languages[language.Key] = language.Value;
-            }
+            context.RemoveRange(cv.Languages);
+            cv.SetLanguages(languages);
         }
         if (educations is not null)
         {
