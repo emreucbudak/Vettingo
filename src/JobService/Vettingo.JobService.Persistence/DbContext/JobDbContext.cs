@@ -33,7 +33,7 @@ namespace Vettingo.JobService.Persistence.DbContext
             builder.Entity<JobApplication>().HasOne<JobPosting>().WithMany()
                 .HasForeignKey(application => application.JobPostingId).OnDelete(DeleteBehavior.Restrict);
 
-            builder.Entity<CandidateSkill>().HasOne<JobPosting>().WithMany()
+            builder.Entity<CandidateSkill>().HasOne<JobPosting>().WithMany(posting => posting.CandidateSkills)
                 .HasForeignKey(candidateSkill => candidateSkill.JobPostingId);
 
             builder.Entity<JobOffer>().HasOne(offer => offer.JobPosting).WithMany()

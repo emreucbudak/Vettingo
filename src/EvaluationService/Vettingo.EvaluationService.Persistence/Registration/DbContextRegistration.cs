@@ -17,7 +17,6 @@ public static class DbContextRegistration
             ?? throw new InvalidOperationException("DefaultConnection bağlantı dizesi tanımlı değil.");
 
         services.AddDbContext<EvaluationDbContext>(options => options.UseNpgsql(connectionString));
-        services.AddScoped<IEvaluationRepository, EvaluationRepository>();
         services.AddScoped<ICvRepository, CvRepository>();
 
         return services;

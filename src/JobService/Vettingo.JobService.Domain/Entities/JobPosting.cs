@@ -8,6 +8,7 @@ namespace Vettingo.JobService.Domain.Entities
     public class JobPosting : BaseEntity
     {
         private List<JobSteps> _jobSteps = new();
+        private readonly List<CandidateSkill> _candidateSkills = new();
 
         public JobPosting()
         {
@@ -27,6 +28,7 @@ namespace Vettingo.JobService.Domain.Entities
         public bool IsApplicationClosed { get; private set; }
         public bool IsPostingClosed { get; private set; }
         public IReadOnlyCollection<JobSteps> JobSteps => _jobSteps.AsReadOnly();
+        public IReadOnlyCollection<CandidateSkill> CandidateSkills => _candidateSkills.AsReadOnly();
 
         public StepType? GetCurrentStepType() => JobSteps.FirstOrDefault(step => step.Order == CurrentStep)?.StepType;
 
