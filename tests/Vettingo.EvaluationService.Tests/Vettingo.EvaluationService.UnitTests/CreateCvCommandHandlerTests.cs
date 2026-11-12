@@ -21,7 +21,6 @@ public sealed class CreateCvCommandHandlerTests
             UserId = Guid.NewGuid(),
             TargetRole = "Backend Developer",
             TargetSalary = 75000,
-            Skills = new() { ["C#"] = 4 },
             Languages = [new("English", LanguageLevel.B2)],
             Educations = [education],
             Projects = [project],
@@ -41,7 +40,6 @@ public sealed class CreateCvCommandHandlerTests
         savedCv.UserId.Should().Be(request.UserId);
         savedCv.TargetRole.Should().Be(request.TargetRole);
         savedCv.TargetSalary.Should().Be(request.TargetSalary);
-        savedCv.Skills.Should().BeEquivalentTo(request.Skills);
         var language = savedCv.Languages.Should().ContainSingle().Which;
         language.LanguageName.Should().Be("English");
         language.LanguageLevel.Should().Be(LanguageLevel.B2);
@@ -69,8 +67,7 @@ public sealed class CreateCvCommandHandlerTests
         await new CreateCvCommandHandler(repository).Handle(request, CancellationToken.None);
 
         savedCv.Should().NotBeNull();
-        savedCv!.Skills.Should().BeEmpty();
-        savedCv.Languages.Should().BeEmpty();
+        savedCv!.Languages.Should().BeEmpty();
         savedCv.Educations.Should().BeEmpty();
         savedCv.Projects.Should().BeEmpty();
         savedCv.Experiences.Should().BeEmpty();

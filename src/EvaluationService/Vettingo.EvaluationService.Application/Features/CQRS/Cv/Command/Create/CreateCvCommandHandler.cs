@@ -11,7 +11,7 @@ public sealed class CreateCvCommandHandler(ICvRepository cvRepository) : IReques
     {
         var cv = new CvEntity();
         var languages = request.Languages?.Select(language => new Language(language.LanguageName, language.LanguageLevel)).ToArray();
-        cv.Create(request.UserId, request.TargetRole, request.TargetSalary, request.Skills, languages);
+        cv.Create(request.UserId, request.TargetRole, request.TargetSalary, languages);
 
         request.Educations?.ForEach(cv.AddEducation);
         request.Projects?.ForEach(cv.AddProject);

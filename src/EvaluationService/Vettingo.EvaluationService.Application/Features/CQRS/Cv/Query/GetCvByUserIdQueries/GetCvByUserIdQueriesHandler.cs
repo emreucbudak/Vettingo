@@ -19,7 +19,6 @@ public sealed class GetCvByUserIdQueriesHandler(ICvRepository cvRepository)
         {
             TargetRole = cv.TargetRole,
             TargetSalary = cv.TargetSalary,
-            Skills = new Dictionary<string, int>(cv.Skills),
             Languages = cv.Languages.Select(language => new CvLanguageDto(language.LanguageName, language.LanguageLevel)).ToArray(),
             Educations = cv.Educations.ToArray(),
             Projects = cv.Projects.ToArray(),

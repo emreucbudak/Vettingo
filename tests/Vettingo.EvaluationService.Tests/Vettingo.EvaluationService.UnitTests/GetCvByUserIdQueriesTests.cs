@@ -17,7 +17,7 @@ public sealed class GetCvByUserIdQueriesTests
         using var cancellation = new CancellationTokenSource();
         var cv = new Cv();
         cv.Create(userId, "Backend Developer", 75000,
-            new() { ["C#"] = 4 }, [new("English", LanguageLevel.B2)]);
+            [new("English", LanguageLevel.B2)]);
         cv.AddEducation(new Education());
         cv.AddProject(new Project());
         cv.AddExperience(new Experience());
@@ -29,7 +29,6 @@ public sealed class GetCvByUserIdQueriesTests
 
         response.TargetRole.Should().Be("Backend Developer");
         response.TargetSalary.Should().Be(75000);
-        response.Skills.Should().BeEquivalentTo(cv.Skills);
         var language = response.Languages.Should().ContainSingle().Which;
         language.LanguageName.Should().Be("English");
         language.LanguageLevel.Should().Be(LanguageLevel.B2);
@@ -44,14 +43,13 @@ public sealed class GetCvByUserIdQueriesTests
     {
         var userId = Guid.NewGuid();
         var cv = new Cv();
-        cv.Create(userId, "Backend Developer", 75000, null, null);
+        cv.Create(userId, "Backend Developer", 75000, null);
         var repository = Substitute.For<ICvRepository>();
         repository.GetByUserIdAsync(userId, CancellationToken.None).Returns(cv);
 
         var response = await new GetCvByUserIdQueriesHandler(repository).Handle(
             new GetCvByUserIdQueriesRequest { UserId = userId }, CancellationToken.None);
 
-        response.Skills.Should().BeEmpty();
         response.Languages.Should().BeEmpty();
         response.Educations.Should().BeEmpty();
         response.Projects.Should().BeEmpty();

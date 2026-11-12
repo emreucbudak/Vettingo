@@ -22,7 +22,6 @@ public sealed class UpdateCvCommandHandlerTests
         {
             UserId = cv.UserId,
             TargetSalary = 0,
-            Skills = new() { ["SQL"] = 3 },
             Educations = []
         };
         var repository = Substitute.For<ICvRepository>();
@@ -31,7 +30,7 @@ public sealed class UpdateCvCommandHandlerTests
         await new UpdateCvCommandHandler(repository).Handle(request, cancellation.Token);
 
         await repository.Received(1).GetByUserIdAsync(request.UserId, cancellation.Token);
-        repository.Received(1).Update(cv, null, 0, request.Skills, null, request.Educations, null, null);
+        repository.Received(1).Update(cv, null, 0, null, request.Educations, null, null);
         await repository.Received(1).SaveChangesAsync(cancellation.Token);
     }
 
@@ -64,13 +63,12 @@ public sealed class UpdateCvCommandHandlerTests
         var experience = new Experience();
 
         new CvRepository(context).Update(cv, "Developer", 0,
-            new() { ["SQL"] = 3 }, [language],
+            [language],
             [education], [project], [experience]);
         context.ChangeTracker.DetectChanges();
 
         cv.TargetRole.Should().Be("Developer");
         cv.TargetSalary.Should().Be(0);
-        cv.Skills.Should().BeEquivalentTo(new Dictionary<string, int> { ["SQL"] = 3 });
         cv.Languages.Should().ContainSingle().Which.Should().BeSameAs(language);
         context.Entry(oldLanguage).State.Should().Be(EntityState.Deleted);
         context.Entry(language).State.Should().Be(EntityState.Added);
@@ -97,12 +95,11 @@ public sealed class UpdateCvCommandHandlerTests
         var project = cv.Projects.Single();
         var experience = cv.Experiences.Single();
 
-        new CvRepository(context).Update(cv, null, null, null, null, null, null, null);
+        new CvRepository(context).Update(cv, null, null, null, null, null, null);
         context.ChangeTracker.DetectChanges();
 
         cv.TargetRole.Should().Be("Backend Developer");
         cv.TargetSalary.Should().Be(75000);
-        cv.Skills.Should().ContainKey("C#");
         cv.Languages.Should().ContainSingle().Which.LanguageName.Should().Be("English");
         cv.Educations.Should().ContainSingle().Which.Should().BeSameAs(education);
         cv.Projects.Should().ContainSingle().Which.Should().BeSameAs(project);
@@ -117,12 +114,11 @@ public sealed class UpdateCvCommandHandlerTests
         using var context = CreateContext();
         var cv = AttachExistingCv(context);
 
-        new CvRepository(context).Update(cv, null, null, new(), [], [], [], []);
+        new CvRepository(context).Update(cv, null, null, [], [], [], []);
         context.ChangeTracker.DetectChanges();
 
         cv.TargetRole.Should().Be("Backend Developer");
         cv.TargetSalary.Should().Be(75000);
-        cv.Skills.Should().BeEmpty();
         cv.Languages.Should().BeEmpty();
         cv.Educations.Should().BeEmpty();
         cv.Projects.Should().BeEmpty();
@@ -133,7 +129,7 @@ public sealed class UpdateCvCommandHandlerTests
     {
         var cv = new Cv();
         cv.Create(Guid.NewGuid(), "Backend Developer", 75000,
-            new() { ["C#"] = 4 }, [new("English", LanguageLevel.B2)]);
+            [new("English", LanguageLevel.B2)]);
         cv.AddEducation(new Education());
         cv.AddProject(new Project());
         cv.AddExperience(new Experience());

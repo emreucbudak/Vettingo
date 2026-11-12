@@ -1,6 +1,4 @@
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Vettingo.EvaluationService.Domain.Models;
 
@@ -13,7 +11,6 @@ public sealed class CvConfiguration : IEntityTypeConfiguration<Cv>
         builder.ToTable("Cvs");
         builder.HasKey(cv => cv.Id);
         builder.Property(cv => cv.TargetRole).IsRequired();
-        ConfigureDictionary(builder.Property(cv => cv.Skills));
         builder.OwnsMany(cv => cv.Languages, language =>
         {
             language.ToTable("CvLanguages");
@@ -41,21 +38,5 @@ public sealed class CvConfiguration : IEntityTypeConfiguration<Cv>
             experience.WithOwner().HasForeignKey("CvId");
             experience.HasKey(item => item.Id);
         });
-    }
-
-    private static void ConfigureDictionary<TValue>(PropertyBuilder<Dictionary<string, TValue>> property)
-    {
-        property.HasColumnType("jsonb")
-            .HasConversion(
-                value => JsonSerializer.Serialize(value, (JsonSerializerOptions?)null),
-                json => JsonSerializer.Deserialize<Dictionary<string, TValue>>(json, (JsonSerializerOptions?)null)!)
-            .Metadata.SetValueComparer(new ValueComparer<Dictionary<string, TValue>>(
-                (left, right) => left == right ||
-                    (left != null && right != null && left.Count == right.Count &&
-                     left.All(item => right.ContainsKey(item.Key) &&
-                         EqualityComparer<TValue>.Default.Equals(right[item.Key], item.Value))),
-                value => value.OrderBy(item => item.Key, StringComparer.Ordinal)
-                    .Aggregate(0, (hash, item) => HashCode.Combine(hash, item.Key, item.Value)),
-                value => new Dictionary<string, TValue>(value)));
     }
 }

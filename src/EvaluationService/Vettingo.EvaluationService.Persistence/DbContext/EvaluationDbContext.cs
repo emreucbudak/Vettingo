@@ -10,10 +10,15 @@ public sealed class EvaluationDbContext(DbContextOptions<EvaluationDbContext> op
 {
     public DbSet<EvaluationEntity> Evaluations => Set<EvaluationEntity>();
     public DbSet<Cv> Cvs => Set<Cv>();
+    public DbSet<Skill> Skills => Set<Skill>();
+    public DbSet<CandidateSkill> CandidateSkills => Set<CandidateSkill>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new CvConfiguration());
+        modelBuilder.Entity<CandidateSkill>().HasOne<Cv>().WithMany()
+            .HasForeignKey(candidateSkill => candidateSkill.CvId);
+
         modelBuilder.Entity<EvaluationEntity>(entity =>
         {
             entity.ToTable("Evaluations");
