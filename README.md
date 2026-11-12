@@ -88,6 +88,10 @@ The exact seeded name of the HR role in the identity system is `Human Resources`
 - Evaluation history
 - Candidate-focused authorization
 
+### Subscription payments
+
+- Initiate and verify subscription payments with Stripe PaymentIntents
+
 ### Recruitment analytics
 
 - Company hiring volume reports
