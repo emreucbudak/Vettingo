@@ -65,6 +65,8 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             foreach (var steps in invalidSteps)
             {
                 var request = CreateUpdateJobPostingRequest(Guid.NewGuid()) with { JobSteps = steps };
+                new UpdateJobPostingCommandRequestValidator().Validate(request).Errors
+                    .Should().Contain(error => error.PropertyName.StartsWith(nameof(request.JobSteps)));
                 Func<Task> action = () => handler.Handle(request, CancellationToken.None);
                 await action.Should().ThrowAsync<BadRequestException>();
             }
@@ -86,6 +88,30 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
 
             new CreateJobPostingCommandRequestValidator().Validate(create).IsValid.Should().Be(isValid);
             new UpdateJobPostingCommandRequestValidator().Validate(update).IsValid.Should().Be(isValid);
+        }
+
+        [Fact]
+        public void Update_Validator_Should_Reject_Invalid_Skill_And_Step_Fields()
+        {
+            var validRequest = CreateUpdateJobPostingRequest(Guid.NewGuid());
+            var invalidStep = validRequest.JobSteps[0] with
+            {
+                EndDate = validRequest.JobSteps[0].StartedDate,
+                StartingLimitTime = new TimeOnly(10, 0),
+                StoppedLimitTime = new TimeOnly(9, 0)
+            };
+            var request = validRequest with
+            {
+                CandidateSkills = [new(Guid.Empty, -1)],
+                JobSteps = [invalidStep]
+            };
+            var validator = new UpdateJobPostingCommandRequestValidator();
+
+            validator.Validate(request).Errors.Select(error => error.PropertyName).Should().BeEquivalentTo(
+                ["CandidateSkills[0].SkillId", "CandidateSkills[0].ExperienceYear",
+                 "JobSteps[0].EndDate", "JobSteps[0].StoppedLimitTime"]);
+            validator.Validate(validRequest with { CandidateSkills = [] }).Errors
+                .Should().ContainSingle().Which.PropertyName.Should().Be(nameof(request.CandidateSkills));
         }
 
         [Fact]
@@ -533,7 +559,8 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 MaximumExperienceYear = 5,
                 MinSalary = 60000,
                 MaxSalary = 75000,
-                JobSteps = [new() { Order = 1, StepType = StepType.CandidateCollection }]
+                CandidateSkills = [new(Guid.NewGuid(), 0)],
+                JobSteps = [new() { Order = 1, StepType = StepType.CandidateCollection, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]
             };
         }
 

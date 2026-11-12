@@ -1,4 +1,5 @@
 using FluentValidation;
+using Vettingo.JobService.Application.Validations;
 
 namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CreateJobPosting;
 
@@ -32,11 +33,8 @@ public sealed class CreateJobPostingCommandRequestValidator : AbstractValidator<
         });
 
         RuleFor(x => x.CandidateSkills).Cascade(CascadeMode.Stop).NotNull().NotEmpty();
-        RuleForEach(x => x.CandidateSkills).Cascade(CascadeMode.Stop).NotNull().ChildRules(skill =>
-        {
-            skill.RuleFor(x => x.SkillId).NotEmpty();
-            skill.RuleFor(x => x.ExperienceYear).GreaterThanOrEqualTo(0);
-        });
+        RuleForEach(x => x.CandidateSkills).Cascade(CascadeMode.Stop).NotNull()
+            .SetValidator(new CandidateSkillDtoValidator());
     }
 }
 
