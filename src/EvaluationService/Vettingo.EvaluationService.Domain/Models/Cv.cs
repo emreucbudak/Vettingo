@@ -9,6 +9,7 @@ public sealed class Cv : BaseEntity
     private readonly List<Education> _educations = new();
     private readonly List<Project> _projects = new();
     private readonly List<Experience> _experiences = new();
+    private readonly List<Certificate> _certificates = new();
 
     public Guid UserId { get; private set; }
     public string TargetRole { get; private set; } = string.Empty;
@@ -18,6 +19,7 @@ public sealed class Cv : BaseEntity
     public IReadOnlyCollection<Education> Educations => _educations.AsReadOnly();
     public IReadOnlyCollection<Project> Projects => _projects.AsReadOnly();
     public IReadOnlyCollection<Experience> Experiences => _experiences.AsReadOnly();
+    public IReadOnlyCollection<Certificate> Certificates => _certificates.AsReadOnly();
 
     public void Create(Guid userId, string targetRole, int targetSalary,
         Dictionary<string, int>? skills, Dictionary<string, string>? languages)
