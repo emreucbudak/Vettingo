@@ -95,7 +95,9 @@ namespace Vettingo.JobService.API.Controllers
                 MinimumExperienceYear = request.MinimumExperienceYear,
                 MaximumExperienceYear = request.MaximumExperienceYear,
                 MinSalary = request.MinSalary,
-                MaxSalary = request.MaxSalary
+                MaxSalary = request.MaxSalary,
+                JobSteps = request.JobSteps,
+                CandidateSkills = request.CandidateSkills
             });
 
             return Ok();

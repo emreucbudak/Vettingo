@@ -7,7 +7,7 @@ public sealed class CreateJobPostingCommandRequestValidator : AbstractValidator<
     public CreateJobPostingCommandRequestValidator()
     {
         RuleFor(x => x.CompanyId).NotEmpty();
-        RuleFor(x => x.Title).NotEmpty().MaximumLength(2000);
+        RuleFor(x => x.Title).NotEmpty().MaximumLength(100);
         RuleFor(x => x.CityId).GreaterThan(0);
         RuleFor(x => x.EmploymentType).IsInEnum();
         RuleFor(x => x.WorkingModel).IsInEnum();
@@ -18,7 +18,25 @@ public sealed class CreateJobPostingCommandRequestValidator : AbstractValidator<
         RuleFor(x => x.MaxSalary).GreaterThanOrEqualTo(0)
             .GreaterThan(x => x.MinSalary);
         RuleFor(x => x.JobSteps).NotEmpty();
-        RuleForEach(x => x.JobSteps).NotNull();
+        RuleForEach(x => x.JobSteps).Cascade(CascadeMode.Stop).NotNull().ChildRules(step =>
+        {
+            step.RuleFor(x => x.EndDate).GreaterThan(x => x.StartedDate);
+            step.RuleFor(x => x.StoppedLimitTime).GreaterThan(x => x.StartingLimitTime!.Value)
+                .When(x => x.StartingLimitTime.HasValue && x.StoppedLimitTime.HasValue);
+            step.RuleFor(x => x.InterviewChapterName).NotEmpty()
+                .When(x => x.InterviewChapterName is not null);
+            step.RuleFor(x => x.MeetingLink)
+                .Must(link => Uri.TryCreate(link, UriKind.Absolute, out var uri) && uri.Scheme is "http" or "https")
+                .WithMessage("Toplantı bağlantısı geçerli bir HTTP veya HTTPS adresi olmalıdır.")
+                .When(x => x.MeetingLink is not null);
+        });
+
+        RuleFor(x => x.CandidateSkills).Cascade(CascadeMode.Stop).NotNull().NotEmpty();
+        RuleForEach(x => x.CandidateSkills).Cascade(CascadeMode.Stop).NotNull().ChildRules(skill =>
+        {
+            skill.RuleFor(x => x.SkillId).NotEmpty();
+            skill.RuleFor(x => x.ExperienceYear).GreaterThanOrEqualTo(0);
+        });
     }
 }
 

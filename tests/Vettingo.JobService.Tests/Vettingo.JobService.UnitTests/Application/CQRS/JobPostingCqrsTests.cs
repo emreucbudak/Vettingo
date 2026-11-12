@@ -55,6 +55,23 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             await repository.Received(1).SaveChangesAsync();
         }
 
+        [Fact]
+        public async Task UpdateJobPostingCommandHandler_Should_Reject_Missing_Or_Empty_JobSteps()
+        {
+            var repository = Substitute.For<IJobPostingRepository>();
+            var handler = new UpdateJobPostingCommandHandler(repository, Substitute.For<ILogger<UpdateJobPostingCommandHandler>>());
+            List<JobPostingStepDto>[] invalidSteps = [null!, [], [null!]];
+
+            foreach (var steps in invalidSteps)
+            {
+                var request = CreateUpdateJobPostingRequest(Guid.NewGuid()) with { JobSteps = steps };
+                Func<Task> action = () => handler.Handle(request, CancellationToken.None);
+                await action.Should().ThrowAsync<BadRequestException>();
+            }
+
+            await repository.DidNotReceive().SaveChangesAsync();
+        }
+
         [Theory]
         [InlineData(-1, 0, false)]
         [InlineData(0, -1, false)]
@@ -69,6 +86,55 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
 
             new CreateJobPostingCommandRequestValidator().Validate(create).IsValid.Should().Be(isValid);
             new UpdateJobPostingCommandRequestValidator().Validate(update).IsValid.Should().Be(isValid);
+        }
+
+        [Fact]
+        public void Create_Validator_Should_Reject_Empty_CandidateSkills()
+        {
+            var request = CreateJobPostingRequest() with { CandidateSkills = [] };
+
+            new CreateJobPostingCommandRequestValidator().Validate(request).Errors
+                .Should().ContainSingle().Which.PropertyName.Should().Be(nameof(request.CandidateSkills));
+        }
+
+        [Fact]
+        public void Create_Validator_Should_Reject_Invalid_Skill_And_Interview_Fields()
+        {
+            var validRequest = CreateJobPostingRequest();
+            var request = validRequest with
+            {
+                CandidateSkills = [new(Guid.Empty, -1)],
+                JobSteps = [validRequest.JobSteps[1] with { InterviewChapterName = " ", MeetingLink = "invalid" }]
+            };
+
+            var result = new CreateJobPostingCommandRequestValidator().Validate(request);
+
+            result.Errors.Select(error => error.PropertyName).Should().BeEquivalentTo(
+                ["CandidateSkills[0].SkillId", "CandidateSkills[0].ExperienceYear",
+                 "JobSteps[0].InterviewChapterName", "JobSteps[0].MeetingLink"]);
+        }
+
+        [Theory]
+        [InlineData(-1, 9, 8, true, true)]
+        [InlineData(0, 9, 9, true, true)]
+        [InlineData(1, 9, 10, false, false)]
+        [InlineData(1, null, 10, false, false)]
+        [InlineData(1, 9, null, false, false)]
+        public void Create_Validator_Should_Check_Step_Date_And_Time_Order(
+            int days, int? startHour, int? endHour, bool invalidDate, bool invalidTime)
+        {
+            var request = CreateJobPostingRequest();
+            var step = request.JobSteps[0] with
+            {
+                EndDate = request.JobSteps[0].StartedDate.AddDays(days),
+                StartingLimitTime = startHour.HasValue ? new TimeOnly(startHour.Value, 0) : null,
+                StoppedLimitTime = endHour.HasValue ? new TimeOnly(endHour.Value, 0) : null
+            };
+
+            var result = new CreateJobPostingCommandRequestValidator().Validate(request with { JobSteps = [step] });
+
+            result.Errors.Any(error => error.PropertyName == "JobSteps[0].EndDate").Should().Be(invalidDate);
+            result.Errors.Any(error => error.PropertyName == "JobSteps[0].StoppedLimitTime").Should().Be(invalidTime);
         }
 
         [Fact]
@@ -102,18 +168,22 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                     step.EndDate,
                     step.StartingLimitTime,
                     step.StoppedLimitTime,
-                    step.InterviewIntervalMinutes
+                    step.InterviewIntervalMinutes,
+                    step.InterviewChapterName,
+                    step.MeetingLink
                 })
                 .Should().BeEquivalentTo(request.JobSteps.Select(step => new
                 {
                     step.Order,
                     step.StepType,
                     step.ExamId,
-                    StartedDate = DateOnly.FromDateTime(step.StartedDate),
-                    EndDate = DateOnly.FromDateTime(step.EndDate),
+                    step.StartedDate,
+                    step.EndDate,
                     step.StartingLimitTime,
                     step.StoppedLimitTime,
-                    step.InterviewIntervalMinutes
+                    step.InterviewIntervalMinutes,
+                    step.InterviewChapterName,
+                    step.MeetingLink
                 }));
             await repository.Received(1).SaveChangesAsync();
         }
@@ -430,18 +500,21 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 MaximumExperienceYear = 5,
                 MinSalary = 50000,
                 MaxSalary = 75000,
+                CandidateSkills = [new(Guid.NewGuid(), 0)],
                 JobSteps =
                 [
-                    new() { Order = 1, StepType = StepType.Exam, ExamId = Guid.NewGuid(), StartedDate = DateTime.UtcNow.AddDays(1), EndDate = DateTime.UtcNow.AddDays(2) },
+                    new() { Order = 1, StepType = StepType.Exam, ExamId = Guid.NewGuid(), StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) },
                     new()
                     {
                         Order = 2,
                         StepType = StepType.Interview,
-                        StartedDate = DateTime.UtcNow.AddDays(3),
-                        EndDate = DateTime.UtcNow.AddDays(4),
+                        StartedDate = new DateOnly(2026, 1, 3),
+                        EndDate = new DateOnly(2026, 1, 4),
                         StartingLimitTime = new TimeOnly(9, 0),
                         StoppedLimitTime = new TimeOnly(17, 0),
-                        InterviewIntervalMinutes = 30
+                        InterviewIntervalMinutes = 30,
+                        InterviewChapterName = "Teknik Mülakat",
+                        MeetingLink = "https://meet.google.com/abc-defg-hij"
                     }
                 ]
             };
@@ -459,7 +532,8 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 MinimumExperienceYear = 2,
                 MaximumExperienceYear = 5,
                 MinSalary = 60000,
-                MaxSalary = 75000
+                MaxSalary = 75000,
+                JobSteps = [new() { Order = 1, StepType = StepType.CandidateCollection }]
             };
         }
 

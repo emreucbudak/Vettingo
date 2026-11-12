@@ -10,6 +10,11 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.Updat
         public async Task Handle(UpdateJobPostingCommandRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(UpdateJobPostingCommandHandler));
+            if (request.JobSteps is not { Count: > 0 } || request.JobSteps.Any(step => step is null))
+            {
+                throw new BadRequestException("İş ilanı için en az bir geçerli adım gereklidir.");
+            }
+
             var jobPosting = await jobPostingRepository.GetJobPostingByIdAsync(request.JobPostingId);
 
             if (jobPosting is null)

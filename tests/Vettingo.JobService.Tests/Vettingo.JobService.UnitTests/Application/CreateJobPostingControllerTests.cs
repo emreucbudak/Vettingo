@@ -20,7 +20,7 @@ public sealed class CreateJobPostingControllerTests
         var request = new CreateJobPostingCommandRequest
         {
             CompanyId = Guid.NewGuid(), Title = "Developer",
-            JobSteps = [new() { Order = 1, StepType = StepType.Exam, StartedDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddHours(1) }]
+            JobSteps = [new() { Order = 1, StepType = StepType.Exam, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]
         };
         using var cancellation = new CancellationTokenSource();
 

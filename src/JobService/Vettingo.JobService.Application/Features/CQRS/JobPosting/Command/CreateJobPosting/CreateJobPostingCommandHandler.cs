@@ -26,11 +26,13 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.Creat
                 Order = step.Order,
                 StepType = step.StepType,
                 ExamId = step.ExamId,
-                StartedDate = DateOnly.FromDateTime(step.StartedDate),
-                EndDate = DateOnly.FromDateTime(step.EndDate),
+                StartedDate = step.StartedDate,
+                EndDate = step.EndDate,
                 StartingLimitTime = step.StartingLimitTime,
                 StoppedLimitTime = step.StoppedLimitTime,
-                InterviewIntervalMinutes = step.InterviewIntervalMinutes
+                InterviewIntervalMinutes = step.InterviewIntervalMinutes,
+                InterviewChapterName = step.InterviewChapterName,
+                MeetingLink = step.MeetingLink
             }).ToList();
 
             Domain.Entities.JobPosting jobPosting = new();
