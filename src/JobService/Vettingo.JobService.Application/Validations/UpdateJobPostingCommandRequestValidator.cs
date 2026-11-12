@@ -7,7 +7,7 @@ public sealed class UpdateJobPostingCommandRequestValidator : AbstractValidator<
     public UpdateJobPostingCommandRequestValidator()
     {
         RuleFor(x => x.JobPostingId).NotEmpty();
-        RuleFor(x => x.Title).NotEmpty().MaximumLength(2000);
+        RuleFor(x => x.Title).NotEmpty().MaximumLength(100);
         RuleFor(x => x.CityId).GreaterThan(0);
         RuleFor(x => x.EmploymentType).IsInEnum();
         RuleFor(x => x.WorkingModel).IsInEnum();
