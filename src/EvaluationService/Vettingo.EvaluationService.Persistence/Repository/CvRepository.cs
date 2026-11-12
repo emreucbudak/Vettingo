@@ -18,7 +18,7 @@ public sealed class CvRepository(EvaluationDbContext context) : ICvRepository
     }
 
     public void Update(Cv cv, string? targetRole, int? targetSalary,
-        Dictionary<string, int>? skills, IReadOnlyCollection<Language>? languages,
+        IReadOnlyCollection<Language>? languages,
         IReadOnlyCollection<Education>? educations, IReadOnlyCollection<Project>? projects,
         IReadOnlyCollection<Experience>? experiences)
     {
@@ -32,14 +32,6 @@ public sealed class CvRepository(EvaluationDbContext context) : ICvRepository
         if (targetSalary.HasValue)
         {
             entry.Property(item => item.TargetSalary).CurrentValue = targetSalary.Value;
-        }
-        if (skills is not null)
-        {
-            cv.Skills.Clear();
-            foreach (var skill in skills)
-            {
-                cv.Skills[skill.Key] = skill.Value;
-            }
         }
         if (languages is not null)
         {
@@ -74,7 +66,7 @@ public sealed class CvRepository(EvaluationDbContext context) : ICvRepository
             }
         }
 
-        if (targetRole is not null || targetSalary.HasValue || skills is not null || languages is not null ||
+        if (targetRole is not null || targetSalary.HasValue || languages is not null ||
             educations is not null || projects is not null || experiences is not null)
         {
             entry.Property(item => item.UpdatedAt).CurrentValue = DateTime.UtcNow;

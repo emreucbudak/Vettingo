@@ -14,7 +14,7 @@ public sealed class UpdateCvCommandHandler(ICvRepository cvRepository) : IReques
 
         var languages = request.Languages?.Select(language => new Language(language.LanguageName, language.LanguageLevel)).ToArray();
         cvRepository.Update(cv, request.TargetRole, request.TargetSalary,
-            request.Skills, languages, request.Educations, request.Projects, request.Experiences);
+            languages, request.Educations, request.Projects, request.Experiences);
         await cvRepository.SaveChangesAsync(cancellationToken);
     }
 }

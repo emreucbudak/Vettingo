@@ -15,24 +15,18 @@ public sealed class Cv : BaseEntity
     public Guid UserId { get; private set; }
     public string TargetRole { get; private set; } = string.Empty;
     public int TargetSalary { get; private set; }
-    public Dictionary<string, int> Skills { get; private set; } = new();
     public IReadOnlyCollection<Language> Languages => _languages.AsReadOnly();
     public IReadOnlyCollection<Education> Educations => _educations.AsReadOnly();
     public IReadOnlyCollection<Project> Projects => _projects.AsReadOnly();
     public IReadOnlyCollection<Experience> Experiences => _experiences.AsReadOnly();
     public IReadOnlyCollection<Certificate> Certificates => _certificates.AsReadOnly();
 
-    public void Create(Guid userId, string targetRole, int targetSalary,
-        Dictionary<string, int>? skills, IReadOnlyCollection<Language>? languages)
+    public void Create(Guid userId, string targetRole, int targetSalary, IReadOnlyCollection<Language>? languages)
     {
         Initialize();
         UserId = userId;
         TargetRole = targetRole;
         TargetSalary = targetSalary;
-        if (skills is not null)
-        {
-            Skills = new Dictionary<string, int>(skills);
-        }
         if (languages is not null)
         {
             SetLanguages(languages);
