@@ -4,9 +4,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using Vettingo.JobService.Application.DTOs;
 using Vettingo.JobService.Application.Exceptions;
 using Vettingo.JobService.Application.Features.CQRS.JobApplication.Command.Create;
+using Vettingo.JobService.Application.Messaging;
 using Vettingo.JobService.Application.Repository;
+using Vettingo.JobService.Application.UnitOfWork;
 using Vettingo.JobService.Domain.Entities;
 using Vettingo.JobService.Domain.Enums;
 using Vettingo.JobService.Infrastructure.Messages;
@@ -65,17 +68,51 @@ public class JobApplicationCqrsTests
     }
 
     [Fact]
-    public async Task Create_ShouldSaveApplicationInRepository()
+    public async Task Create_ShouldSaveApplicationAndPublishNotificationInSameTransaction()
     {
         var applications = Substitute.For<IJobApplicationRepository>();
         var jobs = Substitute.For<IJobPostingRepository>();
         var job = CreateJobPosting(StepType.CandidateCollection);
         var id = Guid.NewGuid();
         jobs.GetJobPostingByIdAsync(id).Returns(job);
-        var handler = new CreateJobApplicationCommandHandler(applications, jobs, Substitute.For<ILogger<CreateJobApplicationCommandHandler>>());
-        await handler.Handle(new CreateJobApplicationCommandRequest { CandidateId = Guid.NewGuid(), JobPostingId = id }, CancellationToken.None);
-        await applications.Received(1).AddAsync(Arg.Is<JobApplication>(a => a.JobPostingId == id && a.Id != Guid.Empty));
-        await applications.Received(1).SaveChangesAsync();
+        var publisher = Substitute.For<IJobApplicationCreatedPublisher>();
+        var unitOfWork = CreateUnitOfWork(applications, jobs);
+        var handler = new CreateJobApplicationCommandHandler(unitOfWork, publisher, Substitute.For<ILogger<CreateJobApplicationCommandHandler>>());
+        var candidateId = Guid.NewGuid();
+        await handler.Handle(new CreateJobApplicationCommandRequest { CandidateId = candidateId, JobPostingId = id }, CancellationToken.None);
+
+        var application = (JobApplication)applications.ReceivedCalls()
+            .Single(call => call.GetMethodInfo().Name == nameof(IJobApplicationRepository.AddAsync)).GetArguments()[0]!;
+        application.JobPostingId.Should().Be(id);
+        application.IsCurrentStepPassed.Should().BeTrue();
+        Received.InOrder(() =>
+        {
+            _ = unitOfWork.BeginTransactionAsync(CancellationToken.None);
+            _ = applications.AddAsync(application);
+            _ = unitOfWork.SaveChangesAsync(CancellationToken.None);
+            _ = publisher.PublishAsync(Arg.Is<JobApplicationCreatedMessage>(message =>
+                message.Id == application.Id && message.UserId == candidateId), CancellationToken.None);
+            _ = unitOfWork.CommitTransactionAsync(CancellationToken.None);
+        });
+    }
+
+    [Fact]
+    public async Task Create_ShouldRollbackWhenPublishingFails()
+    {
+        var jobs = Substitute.For<IJobPostingRepository>();
+        jobs.GetJobPostingByIdAsync(Arg.Any<Guid>()).Returns(CreateJobPosting(StepType.CandidateCollection));
+        var unitOfWork = CreateUnitOfWork(Substitute.For<IJobApplicationRepository>(), jobs);
+        var publisher = Substitute.For<IJobApplicationCreatedPublisher>();
+        publisher.PublishAsync(Arg.Any<JobApplicationCreatedMessage>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromException(new InvalidOperationException("CAP unavailable")));
+        var handler = new CreateJobApplicationCommandHandler(unitOfWork, publisher, Substitute.For<ILogger<CreateJobApplicationCommandHandler>>());
+
+        Func<Task> act = () => handler.Handle(
+            new CreateJobApplicationCommandRequest { CandidateId = Guid.NewGuid(), JobPostingId = Guid.NewGuid() }, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        await unitOfWork.Received(1).RollbackTransactionAsync(CancellationToken.None);
+        await unitOfWork.DidNotReceive().CommitTransactionAsync(Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -83,20 +120,22 @@ public class JobApplicationCqrsTests
     {
         var applications = Substitute.For<IJobApplicationRepository>();
         applications.ExistsAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(true);
-        var handler = new CreateJobApplicationCommandHandler(applications, Substitute.For<IJobPostingRepository>(), Substitute.For<ILogger<CreateJobApplicationCommandHandler>>());
+        var unitOfWork = CreateUnitOfWork(applications, Substitute.For<IJobPostingRepository>());
+        var handler = new CreateJobApplicationCommandHandler(unitOfWork, Substitute.For<IJobApplicationCreatedPublisher>(), Substitute.For<ILogger<CreateJobApplicationCommandHandler>>());
         Func<Task> act = () => handler.Handle(new CreateJobApplicationCommandRequest { CandidateId = Guid.NewGuid(), JobPostingId = Guid.NewGuid() }, CancellationToken.None);
         await act.Should().ThrowAsync<BadRequestException>();
-        await applications.DidNotReceive().SaveChangesAsync();
+        await unitOfWork.DidNotReceive().BeginTransactionAsync(Arg.Any<CancellationToken>());
     }
 
     [Fact]
     public async Task Create_ShouldRejectMissingPosting()
     {
         var applications = Substitute.For<IJobApplicationRepository>();
-        var handler = new CreateJobApplicationCommandHandler(applications, Substitute.For<IJobPostingRepository>(), Substitute.For<ILogger<CreateJobApplicationCommandHandler>>());
+        var unitOfWork = CreateUnitOfWork(applications, Substitute.For<IJobPostingRepository>());
+        var handler = new CreateJobApplicationCommandHandler(unitOfWork, Substitute.For<IJobApplicationCreatedPublisher>(), Substitute.For<ILogger<CreateJobApplicationCommandHandler>>());
         Func<Task> act = () => handler.Handle(new CreateJobApplicationCommandRequest { CandidateId = Guid.NewGuid(), JobPostingId = Guid.NewGuid() }, CancellationToken.None);
         await act.Should().ThrowAsync<NotFoundException>();
-        await applications.DidNotReceive().SaveChangesAsync();
+        await unitOfWork.DidNotReceive().BeginTransactionAsync(Arg.Any<CancellationToken>());
     }
 
     [Theory]
@@ -111,10 +150,19 @@ public class JobApplicationCqrsTests
         if (closeApplications) job.CloseJobPostingApplications();
         if (closePosting) job.CloseJobPosting();
         jobs.GetJobPostingByIdAsync(Arg.Any<Guid>()).Returns(job);
-        var handler = new CreateJobApplicationCommandHandler(applications, jobs, Substitute.For<ILogger<CreateJobApplicationCommandHandler>>());
+        var unitOfWork = CreateUnitOfWork(applications, jobs);
+        var handler = new CreateJobApplicationCommandHandler(unitOfWork, Substitute.For<IJobApplicationCreatedPublisher>(), Substitute.For<ILogger<CreateJobApplicationCommandHandler>>());
         Func<Task> act = () => handler.Handle(new CreateJobApplicationCommandRequest { CandidateId = Guid.NewGuid(), JobPostingId = Guid.NewGuid() }, CancellationToken.None);
         await act.Should().ThrowAsync<BadRequestException>();
-        await applications.DidNotReceive().SaveChangesAsync();
+        await unitOfWork.DidNotReceive().BeginTransactionAsync(Arg.Any<CancellationToken>());
+    }
+
+    private static IJobUnitOfWork CreateUnitOfWork(IJobApplicationRepository applications, IJobPostingRepository jobs)
+    {
+        var unitOfWork = Substitute.For<IJobUnitOfWork>();
+        unitOfWork.JobApplicationRepository.Returns(applications);
+        unitOfWork.JobPostingRepository.Returns(jobs);
+        return unitOfWork;
     }
 
     private static JobPosting CreateJobPosting(StepType stepType)
