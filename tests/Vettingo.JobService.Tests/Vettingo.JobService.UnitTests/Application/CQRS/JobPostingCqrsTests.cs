@@ -18,6 +18,7 @@ using Vettingo.JobService.Application.UnitOfWork;
 using Vettingo.JobService.Domain.Entities;
 using Vettingo.JobService.Domain.Enums;
 using Vettingo.JobService.Persistence.DbContext;
+using Vettingo.JobService.Persistence.Repository;
 
 namespace Vettingo.JobService.UnitTests.Application.CQRS
 {
@@ -170,7 +171,6 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
         public async Task CreateJobPostingCommandHandler_Should_Create_And_Save_JobPosting()
         {
             var repository = Substitute.For<IJobPostingRepository>();
-            repository.AddJobPostingAsync(Arg.Any<JobPosting>()).Returns(_ => CompleteAsync());
             var unitOfWork = Substitute.For<IJobUnitOfWork>();
             unitOfWork.JobPostingRepository.Returns(repository);
             await using var context = new JobDbContext(new DbContextOptionsBuilder<JobDbContext>()
@@ -179,6 +179,11 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             var postgresql = new Skill { Title = "PostgreSQL" };
             context.Skills.AddRange(csharp, postgresql, new Skill { Title = "Java" });
             await context.SaveChangesAsync();
+            context.ChangeTracker.Clear();
+            repository.AddJobPostingAsync(Arg.Any<JobPosting>()).Returns(call =>
+                new JobPostingRepository(context).AddJobPostingAsync(call.Arg<JobPosting>()));
+            unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(call =>
+                context.SaveChangesAsync(call.Arg<CancellationToken>()));
             unitOfWork.Skills.Returns(context.Skills);
             var analyticsPublisher = Substitute.For<IJobAnalyticsPublisher>();
             var postingPublisher = Substitute.For<IJobPostingPublishedPublisher>();
@@ -239,6 +244,21 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 _ = unitOfWork.CommitTransactionAsync(CancellationToken.None);
             });
 
+            context.ChangeTracker.Clear();
+            var savedSkills = await context.Skills.ToDictionaryAsync(skill => skill.Title);
+            savedSkills.Keys.Should().BeEquivalentTo("C#", "PostgreSQL", "Java", "Rust");
+            savedSkills["C#"].Id.Should().Be(csharp.Id);
+            savedSkills["PostgreSQL"].Id.Should().Be(postgresql.Id);
+            var savedCandidateSkills = await context.CandidateSkills
+                .Where(skill => skill.JobPostingId == created.Id)
+                .ToDictionaryAsync(skill => skill.SkillId, skill => skill.ExperienceYear);
+            savedCandidateSkills.Should().BeEquivalentTo(new Dictionary<Guid, int>
+            {
+                [csharp.Id] = 4,
+                [postgresql.Id] = 2,
+                [savedSkills["Rust"].Id] = 8
+            });
+
             var published = (JobPostingPublishedMessage)postingPublisher.ReceivedCalls().Single().GetArguments()[0]!;
             var received = JsonSerializer.Deserialize<Vettingo.EvaluationService.Infrastructure.Messages.JobPostingPublishedMessage>(
                 JsonSerializer.Serialize(published));
@@ -256,6 +276,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 CandidateSkills = new[]
                 {
                     new { SkillName = "PostgreSQL", ExperienceYear = 2 },
+                    new { SkillName = "Rust", ExperienceYear = 8 },
                     new { SkillName = "C#", ExperienceYear = 4 }
                 }
             });
@@ -264,7 +285,10 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
         [Fact]
         public async Task CreateJobPostingCommandHandler_Should_Roll_Back_When_Save_Fails()
         {
+            await using var context = new JobDbContext(new DbContextOptionsBuilder<JobDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
             var unitOfWork = Substitute.For<IJobUnitOfWork>();
+            unitOfWork.Skills.Returns(context.Skills);
             unitOfWork.JobPostingRepository.Returns(Substitute.For<IJobPostingRepository>());
             using var cancellation = new CancellationTokenSource();
             var failure = new OperationCanceledException(cancellation.Token);

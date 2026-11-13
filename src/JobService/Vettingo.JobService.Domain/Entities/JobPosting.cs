@@ -84,6 +84,13 @@ namespace Vettingo.JobService.Domain.Entities
             SetUpdatedAt();
         }
 
+        public void AddCandidateSkill(Skill skill, int experienceYear)
+        {
+            var candidateSkill = new CandidateSkill();
+            candidateSkill.CreateCandidateSkill(Id, skill, experienceYear);
+            _candidateSkills.Add(candidateSkill);
+        }
+
         public void AdvanceCurrentStep()
         {
             CurrentStep++;
