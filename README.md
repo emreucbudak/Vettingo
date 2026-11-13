@@ -53,7 +53,7 @@ The exact seeded name of the HR role in the identity system is `Human Resources`
 
 ### Job posting management
 
-- Create, update, list, and delete job postings
+- Create, list, and delete job postings
 - Search and filter job postings
 - Employment type and experience-level support
 - Working model management
@@ -458,7 +458,6 @@ GET    /api/job-postings
 GET    /api/job-postings/search
 GET    /api/job-postings/{jobPostingId}
 POST   /api/job-postings
-PUT    /api/job-postings/{jobPostingId}
 DELETE /api/job-postings/{jobPostingId}
 ```
 

@@ -159,10 +159,5 @@ namespace Vettingo.JobService.Persistence.Repository
                         .FirstOrDefault()))
                 .ToListAsync(cancellationToken);
         }
-
-        public void UpdateJobPosting(JobPosting jobPosting)
-        {
-            JobPostingSet.Update(jobPosting);
-        }
     }
 }

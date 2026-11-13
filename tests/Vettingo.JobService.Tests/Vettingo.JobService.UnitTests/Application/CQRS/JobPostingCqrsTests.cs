@@ -9,7 +9,6 @@ using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CloseJobP
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CloseJobPostingApplications;
 using Vettingo.JobService.Application.Exceptions;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CreateJobPosting;
-using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.UpdateJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetById;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetAll;
 using Vettingo.JobService.Application.Messaging;
@@ -42,42 +41,6 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             result.CompanyId.Should().Be(posting.CompanyId);
         }
 
-        [Fact]
-        public async Task UpdateJobPostingCommandHandler_Should_Update_And_Save_JobPosting()
-        {
-            var repository = Substitute.For<IJobPostingRepository>();
-            var posting = CreateJobPosting(Guid.NewGuid(), "Backend Developer");
-            repository.GetJobPostingByIdAsync(posting.Id).Returns(_ => ReturnAsync<JobPosting?>(posting));
-            repository.SaveChangesAsync().Returns(_ => ReturnAsync(1));
-            var handler = new UpdateJobPostingCommandHandler(repository, Substitute.For<ILogger<UpdateJobPostingCommandHandler>>());
-            var request = CreateUpdateJobPostingRequest(posting.Id);
-
-            await handler.Handle(request, CancellationToken.None);
-
-            posting.Title.Should().Be(request.Title);
-            repository.Received(1).UpdateJobPosting(posting);
-            await repository.Received(1).SaveChangesAsync();
-        }
-
-        [Fact]
-        public async Task UpdateJobPostingCommandHandler_Should_Reject_Missing_Or_Empty_JobSteps()
-        {
-            var repository = Substitute.For<IJobPostingRepository>();
-            var handler = new UpdateJobPostingCommandHandler(repository, Substitute.For<ILogger<UpdateJobPostingCommandHandler>>());
-            List<JobPostingStepDto>[] invalidSteps = [null!, [], [null!]];
-
-            foreach (var steps in invalidSteps)
-            {
-                var request = CreateUpdateJobPostingRequest(Guid.NewGuid()) with { JobSteps = steps };
-                new UpdateJobPostingCommandRequestValidator().Validate(request).Errors
-                    .Should().Contain(error => error.PropertyName.StartsWith(nameof(request.JobSteps)));
-                Func<Task> action = () => handler.Handle(request, CancellationToken.None);
-                await action.Should().ThrowAsync<BadRequestException>();
-            }
-
-            await repository.DidNotReceive().SaveChangesAsync();
-        }
-
         [Theory]
         [InlineData(-1, 0, false)]
         [InlineData(0, -1, false)]
@@ -85,37 +48,11 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
         [InlineData(0, 0, false)]
         [InlineData(50000, 50000, false)]
         [InlineData(50000, 75000, true)]
-        public void Command_Validators_Should_Validate_Salary_Range(int minSalary, int maxSalary, bool isValid)
+        public void Create_Validator_Should_Validate_Salary_Range(int minSalary, int maxSalary, bool isValid)
         {
             var create = CreateJobPostingRequest() with { MinSalary = minSalary, MaxSalary = maxSalary };
-            var update = CreateUpdateJobPostingRequest(Guid.NewGuid()) with { MinSalary = minSalary, MaxSalary = maxSalary };
 
             new CreateJobPostingCommandRequestValidator().Validate(create).IsValid.Should().Be(isValid);
-            new UpdateJobPostingCommandRequestValidator().Validate(update).IsValid.Should().Be(isValid);
-        }
-
-        [Fact]
-        public void Update_Validator_Should_Reject_Invalid_Skill_And_Step_Fields()
-        {
-            var validRequest = CreateUpdateJobPostingRequest(Guid.NewGuid());
-            var invalidStep = validRequest.JobSteps[0] with
-            {
-                EndDate = validRequest.JobSteps[0].StartedDate,
-                StartingLimitTime = new TimeOnly(10, 0),
-                StoppedLimitTime = new TimeOnly(9, 0)
-            };
-            var request = validRequest with
-            {
-                CandidateSkills = [new(" ", -1)],
-                JobSteps = [invalidStep]
-            };
-            var validator = new UpdateJobPostingCommandRequestValidator();
-
-            validator.Validate(request).Errors.Select(error => error.PropertyName).Should().BeEquivalentTo(
-                ["CandidateSkills[0].SkillTitle", "CandidateSkills[0].ExperienceYear",
-                 "JobSteps[0].EndDate", "JobSteps[0].StoppedLimitTime"]);
-            validator.Validate(validRequest with { CandidateSkills = [] }).Errors
-                .Should().ContainSingle().Which.PropertyName.Should().Be(nameof(request.CandidateSkills));
         }
 
         [Fact]
@@ -529,21 +466,6 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
         }
 
         [Fact]
-        public async Task UpdateJobPostingCommandHandler_When_JobPosting_Not_Found_Should_Throw_NotFoundException()
-        {
-            var repository = Substitute.For<IJobPostingRepository>();
-            var jobPostingId = Guid.NewGuid();
-            repository.GetJobPostingByIdAsync(jobPostingId).Returns(_ => ReturnAsync<JobPosting?>(null));
-            var handler = new UpdateJobPostingCommandHandler(repository, Substitute.For<ILogger<UpdateJobPostingCommandHandler>>());
-
-            Func<Task> action = () => handler.Handle(CreateUpdateJobPostingRequest(jobPostingId), CancellationToken.None);
-
-            await action.Should().ThrowAsync<NotFoundException>();
-            repository.DidNotReceive().UpdateJobPosting(Arg.Any<JobPosting>());
-            await repository.DidNotReceive().SaveChangesAsync();
-        }
-
-        [Fact]
         public async Task GetJobPostingByIdQueryHandler_Should_Map_JobPosting_To_Response()
         {
             var repository = Substitute.For<IJobPostingRepository>();
@@ -608,7 +530,6 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             Func<Task> action = () => handler.Handle(new CloseJobPostingCommandRequest { JobPostingId = jobPostingId }, CancellationToken.None);
 
             await action.Should().ThrowAsync<NotFoundException>();
-            repository.DidNotReceive().UpdateJobPosting(Arg.Any<JobPosting>());
             await repository.DidNotReceive().SaveChangesAsync();
         }
 
@@ -642,24 +563,6 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                         MeetingLink = "https://meet.google.com/abc-defg-hij"
                     }
                 ]
-            };
-        }
-
-        private static UpdateJobPostingCommandRequest CreateUpdateJobPostingRequest(Guid jobPostingId)
-        {
-            return new UpdateJobPostingCommandRequest
-            {
-                JobPostingId = jobPostingId,
-                Title = "Updated Backend Developer",
-                CityId = 6,
-                EmploymentType = EmploymentType.FullTime,
-                WorkingModel = WorkingModel.Hybrid,
-                MinimumExperienceYear = 2,
-                MaximumExperienceYear = 5,
-                MinSalary = 60000,
-                MaxSalary = 75000,
-                CandidateSkills = [new("C#", 0)],
-                JobSteps = [new() { Order = 1, StepType = StepType.CandidateCollection, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]
             };
         }
 

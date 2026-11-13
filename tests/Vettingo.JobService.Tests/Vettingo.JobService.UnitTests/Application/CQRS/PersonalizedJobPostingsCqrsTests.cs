@@ -9,6 +9,8 @@ using Vettingo.JobService.Application.Exceptions;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Command.CreatePersonalizedJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Command.DeletePersonalizedJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Query.GetAll;
+using Vettingo.JobService.Application.Messaging;
+using Vettingo.JobService.Application.UnitOfWork;
 using Vettingo.JobService.Application.Validations;
 using Vettingo.JobService.Domain.Entities;
 using Vettingo.JobService.Domain.Enums;
@@ -66,8 +68,13 @@ public class PersonalizedJobPostingsCqrsTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         await context.Database.EnsureCreatedAsync();
         await using var unitOfWork = new JobUnitOfWork(context, Substitute.For<ICapPublisher>(), Substitute.For<IDispatcher>());
-        var create = new CreatePersonalizedJobPostingCommandHandler(unitOfWork,
-            NullLogger<CreatePersonalizedJobPostingCommandHandler>.Instance);
+        var createUnitOfWork = Substitute.For<IJobUnitOfWork>();
+        createUnitOfWork.PersonalizedJobPostings.Returns(context.PersonalizedJobPostings);
+        createUnitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>())
+            .Returns(call => context.SaveChangesAsync(call.Arg<CancellationToken>()));
+        var create = new CreatePersonalizedJobPostingCommandHandler(createUnitOfWork,
+            NullLogger<CreatePersonalizedJobPostingCommandHandler>.Instance,
+            Substitute.For<IPersonalizedJobPostingNotificationPublisher>());
         var list = new GetAllPersonalizedJobPostingsQueryHandler(unitOfWork,
             NullLogger<GetAllPersonalizedJobPostingsQueryHandler>.Instance);
         var delete = new DeletePersonalizedJobPostingCommandHandler(unitOfWork,

@@ -53,26 +53,6 @@ namespace Vettingo.JobService.Domain.Entities
 
             SetId();
             CompanyId = companyId;
-            UpdateJobPosting(title, cityId, employmentType, workingModel, minimumExperienceYear, maximumExperienceYear, minSalary, maxSalary);
-            CurrentStep = 1;
-            IsApplicationClosed = false;
-            IsPostingClosed = false;
-            _jobSteps = jobSteps;
-            SetCreatedAt();
-            UpdatedAt = null;
-        }
-
-        public void UpdateJobPosting(
-            string title,
-            int cityId,
-            EmploymentType employmentType,
-            WorkingModel workingModel,
-            int minimumExperienceYear,
-            int maximumExperienceYear,
-            int minSalary,
-            int maxSalary)
-        {
-            CheckJobPostingContent(CompanyId, title, cityId, employmentType, workingModel);
             Title = title;
             CityId = cityId;
             EmploymentType = employmentType;
@@ -81,7 +61,12 @@ namespace Vettingo.JobService.Domain.Entities
             MaximumExperienceYear = maximumExperienceYear;
             MinSalary = minSalary;
             MaxSalary = maxSalary;
-            SetUpdatedAt();
+            CurrentStep = 1;
+            IsApplicationClosed = false;
+            IsPostingClosed = false;
+            _jobSteps = jobSteps;
+            SetCreatedAt();
+            UpdatedAt = null;
         }
 
         public void AddCandidateSkill(Skill skill, int experienceYear)
