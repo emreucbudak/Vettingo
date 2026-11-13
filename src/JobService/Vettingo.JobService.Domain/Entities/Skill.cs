@@ -7,4 +7,11 @@ namespace Vettingo.JobService.Domain.Entities;
 public sealed class Skill : BaseEntity
 {
     public string Title { get; set; } = string.Empty;
+
+    public void CreateSkill(string title)
+    {
+        SetId();
+        Title = title;
+        SetCreatedAt();
+    }
 }

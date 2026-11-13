@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Vettingo.JobService.Application.DTOs;
 using Vettingo.JobService.Application.Messaging;
 using Vettingo.JobService.Application.UnitOfWork;
+using Vettingo.JobService.Domain.Entities;
 
 namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CreateJobPosting
 {
@@ -52,18 +53,26 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.Creat
             await unitOfWork.BeginTransactionAsync(cancellationToken);
             try
             {
+                var skillTitles = request.CandidateSkills.Select(skill => skill.SkillTitle).ToArray();
+                var skillsByTitle = await unitOfWork.Skills
+                    .AsTracking()
+                    .Where(skill => skillTitles.Contains(skill.Title))
+                    .ToDictionaryAsync(skill => skill.Title, cancellationToken);
+
+                foreach (var requestedSkill in request.CandidateSkills)
+                {
+                    if (!skillsByTitle.TryGetValue(requestedSkill.SkillTitle, out var skill))
+                    {
+                        skill = new Skill();
+                        skill.CreateSkill(requestedSkill.SkillTitle);
+                        skillsByTitle.Add(skill.Title, skill);
+                    }
+
+                    jobPosting.AddCandidateSkill(skill, requestedSkill.ExperienceYear);
+                }
+
                 await unitOfWork.JobPostingRepository.AddJobPostingAsync(jobPosting);
                 await unitOfWork.SaveChangesAsync(cancellationToken);
-
-                var skillTitles = request.CandidateSkills.Select(skill => skill.SkillTitle).ToArray();
-                var matchingTitles = await unitOfWork.Skills
-                    .Where(skill => skillTitles.Contains(skill.Title))
-                    .Select(skill => skill.Title)
-                    .ToListAsync(cancellationToken);
-                var candidateSkills = request.CandidateSkills
-                    .Join(matchingTitles, requestedSkill => requestedSkill.SkillTitle, title => title,
-                        (requestedSkill, title) => new StepMessageDto(title, requestedSkill.ExperienceYear))
-                    .ToList();
 
                 await jobAnalyticsPublisher.PublishAsync(new JobAnalyticsDto
                 {
@@ -81,7 +90,9 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.Creat
                     MaximumExperienceYear = jobPosting.MaximumExperienceYear,
                     MinSalary = jobPosting.MinSalary,
                     MaxSalary = jobPosting.MaxSalary,
-                    CandidateSkills = candidateSkills
+                    CandidateSkills = jobPosting.CandidateSkills
+                        .Select(skill => new StepMessageDto(skill.Skill.Title, skill.ExperienceYear))
+                        .ToList()
                 }, cancellationToken);
                 await unitOfWork.CommitTransactionAsync(cancellationToken);
             }
