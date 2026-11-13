@@ -1,5 +1,6 @@
 using System.Text.Json;
 using DotNetCore.CAP;
+using DotNetCore.CAP.Transport;
 using FlashMediator;
 using FluentAssertions;
 using FluentValidation;
@@ -30,6 +31,8 @@ public sealed class PersonalizedJobPostingMessagingTests
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddDbContext<JobDbContext>(options => options.UseInMemoryDatabase(Guid.NewGuid().ToString()));
+        services.AddSingleton(Substitute.For<ICapPublisher>());
+        services.AddSingleton(Substitute.For<IDispatcher>());
         services.AddScoped<IJobUnitOfWork, JobUnitOfWork>();
         services.AddFlashMediator(typeof(CreatePersonalizedJobPostingCommandHandler).Assembly);
         services.AddFlashMediatorHybridCache();

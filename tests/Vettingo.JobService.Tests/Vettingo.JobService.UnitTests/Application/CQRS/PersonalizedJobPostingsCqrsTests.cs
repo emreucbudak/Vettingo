@@ -1,4 +1,7 @@
+using NSubstitute;
 using System.Text.Json;
+using DotNetCore.CAP;
+using DotNetCore.CAP.Transport;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -44,7 +47,7 @@ public class PersonalizedJobPostingsCqrsTests
         });
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
-        await using var unitOfWork = new JobUnitOfWork(context);
+        await using var unitOfWork = new JobUnitOfWork(context, Substitute.For<ICapPublisher>(), Substitute.For<IDispatcher>());
         var handler = new GetAllPersonalizedJobPostingsQueryHandler(
             unitOfWork,
             NullLogger<GetAllPersonalizedJobPostingsQueryHandler>.Instance);
@@ -62,7 +65,7 @@ public class PersonalizedJobPostingsCqrsTests
         await using var context = new JobDbContext(new DbContextOptionsBuilder<JobDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         await context.Database.EnsureCreatedAsync();
-        await using var unitOfWork = new JobUnitOfWork(context);
+        await using var unitOfWork = new JobUnitOfWork(context, Substitute.For<ICapPublisher>(), Substitute.For<IDispatcher>());
         var create = new CreatePersonalizedJobPostingCommandHandler(unitOfWork,
             NullLogger<CreatePersonalizedJobPostingCommandHandler>.Instance);
         var list = new GetAllPersonalizedJobPostingsQueryHandler(unitOfWork,

@@ -10,6 +10,7 @@ public interface IJobUnitOfWork : IAsyncDisposable
     IJobApplicationRepository JobApplicationRepository { get; }
     IOffersRepository OffersRepository { get; }
     DbSet<City> Cities { get; }
+    DbSet<Skill> Skills { get; }
     DbSet<PersonalizedJobPostings> PersonalizedJobPostings { get; }
     DbSet<JobOffer> JobOffers { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

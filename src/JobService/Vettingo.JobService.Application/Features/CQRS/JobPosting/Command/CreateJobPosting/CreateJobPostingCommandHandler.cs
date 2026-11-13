@@ -1,17 +1,18 @@
 using FlashMediator;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Vettingo.JobService.Application.DTOs;
 using Vettingo.JobService.Application.Messaging;
-using Vettingo.JobService.Application.Repository;
+using Vettingo.JobService.Application.UnitOfWork;
 
 namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CreateJobPosting
 {
     public class CreateJobPostingCommandHandler(
-        IJobPostingRepository jobPostingRepository,
+        IJobUnitOfWork unitOfWork,
         ILogger<CreateJobPostingCommandHandler> logger,
-        IJobAnalyticsPublisher jobAnalyticsPublisher) : IRequestHandler<CreateJobPostingCommandRequest>
+        IJobAnalyticsPublisher jobAnalyticsPublisher,
+        IJobPostingPublishedPublisher jobPostingPublishedPublisher) : IRequestHandler<CreateJobPostingCommandRequest>
     {
-        private readonly IJobAnalyticsPublisher _jobAnalyticsPublisher = jobAnalyticsPublisher;
-
         public async Task Handle(CreateJobPostingCommandRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(CreateJobPostingCommandHandler));
@@ -48,8 +49,47 @@ namespace Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.Creat
                 request.MaxSalary,
                 jobSteps);
 
-            await jobPostingRepository.AddJobPostingAsync(jobPosting);
-            await jobPostingRepository.SaveChangesAsync();
+            await unitOfWork.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                await unitOfWork.JobPostingRepository.AddJobPostingAsync(jobPosting);
+                await unitOfWork.SaveChangesAsync(cancellationToken);
+
+                var skillTitles = request.CandidateSkills.Select(skill => skill.SkillTitle).ToArray();
+                var matchingTitles = await unitOfWork.Skills
+                    .Where(skill => skillTitles.Contains(skill.Title))
+                    .Select(skill => skill.Title)
+                    .ToListAsync(cancellationToken);
+                var candidateSkills = request.CandidateSkills
+                    .Join(matchingTitles, requestedSkill => requestedSkill.SkillTitle, title => title,
+                        (requestedSkill, title) => new StepMessageDto(title, requestedSkill.ExperienceYear))
+                    .ToList();
+
+                await jobAnalyticsPublisher.PublishAsync(new JobAnalyticsDto
+                {
+                    CompanyId = jobPosting.CompanyId,
+                    EventId = jobPosting.Id
+                }, cancellationToken);
+                await jobPostingPublishedPublisher.PublishAsync(new JobPostingPublishedMessage
+                {
+                    JobPostingId = jobPosting.Id,
+                    Title = jobPosting.Title,
+                    CityId = jobPosting.CityId,
+                    EmploymentType = jobPosting.EmploymentType,
+                    WorkingModel = jobPosting.WorkingModel,
+                    MinimumExperienceYear = jobPosting.MinimumExperienceYear,
+                    MaximumExperienceYear = jobPosting.MaximumExperienceYear,
+                    MinSalary = jobPosting.MinSalary,
+                    MaxSalary = jobPosting.MaxSalary,
+                    CandidateSkills = candidateSkills
+                }, cancellationToken);
+                await unitOfWork.CommitTransactionAsync(cancellationToken);
+            }
+            catch
+            {
+                await unitOfWork.RollbackTransactionAsync(CancellationToken.None);
+                throw;
+            }
         }
     }
 }

@@ -1,7 +1,6 @@
 using Vettingo.JobService.Domain.Common;
 
 namespace Vettingo.JobService.Domain.Entities;
-
 public sealed class CandidateSkill : BaseEntity
 {
     public Guid JobPostingId { get; set; }
