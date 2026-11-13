@@ -11,7 +11,10 @@ public class AdvanceJobStepCommandHandler(
     IJobUnitOfWork unitOfWork,
     ICandidateExamListPublisher candidateExamListPublisher,
     ICandidateInterviewListPublisher candidateInterviewListPublisher,
-    IInterviewStageExtendedPublisher interviewStageExtendedPublisher) : IRequestHandler<AdvanceJobStepCommandRequest>
+    IInterviewStageExtendedPublisher interviewStageExtendedPublisher,
+    IExamStageAdvancedPublisher examStageAdvancedPublisher,
+    IInterviewStageAdvancedPublisher interviewStageAdvancedPublisher,
+    IOfferStageAdvancedPublisher offerStageAdvancedPublisher) : IRequestHandler<AdvanceJobStepCommandRequest>
 {
     public async Task Handle(AdvanceJobStepCommandRequest request, CancellationToken cancellationToken)
     {
@@ -41,6 +44,18 @@ public class AdvanceJobStepCommandHandler(
                     EndDate = nextStep.EndDate,
                     CandidateIds = passedApplications.Select(application => application.CandidateId).ToList()
                 }, cancellationToken);
+
+                if (passedApplications.Count > 0)
+                {
+                    await examStageAdvancedPublisher.PublishAsync(new ExamStageAdvancedRequestedMessage
+                    {
+                        NotificationIdsByCandidateId = passedApplications.Select(application => application.CandidateId).Distinct().ToDictionary(id => id, _ => Guid.CreateVersion7()),
+                        CompanyId = jobPosting.CompanyId,
+                        Title = jobPosting.Title,
+                        StartedDate = nextStep.StartedDate,
+                        EndDate = nextStep.EndDate
+                    }, cancellationToken);
+                }
             }
             else if (nextStep?.StepType == StepType.Interview)
             {
@@ -98,6 +113,19 @@ public class AdvanceJobStepCommandHandler(
                     MeetingLink = nextStep.MeetingLink,
                     CandidateIds = passedApplications.Select(application => application.CandidateId).ToList()
                 }, cancellationToken);
+
+                if (passedApplications.Count > 0)
+                {
+                    await interviewStageAdvancedPublisher.PublishAsync(new InterviewStageAdvancedRequestedMessage
+                    {
+                        NotificationIdsByCandidateId = passedApplications.Select(application => application.CandidateId).Distinct().ToDictionary(id => id, _ => Guid.CreateVersion7()),
+                        CompanyId = jobPosting.CompanyId,
+                        Title = jobPosting.Title,
+                        StartedDate = nextStep.StartedDate,
+                        EndDate = nextStep.EndDate,
+                        InterviewChapterName = nextStep.InterviewChapterName
+                    }, cancellationToken);
+                }
             }
             else if (nextStep?.StepType == StepType.Offer)
             {
@@ -108,6 +136,19 @@ public class AdvanceJobStepCommandHandler(
                     nextStep.EndDate,
                     passedApplications.Select(application => application.CandidateId).ToList());
                 await unitOfWork.OffersRepository.AddAsync(offers, cancellationToken);
+
+                if (offers.CandidateIds.Count > 0)
+                {
+                    await offerStageAdvancedPublisher.PublishAsync(new OfferStageAdvancedRequestedMessage
+                    {
+                        NotificationIdsByCandidateId = offers.CandidateIds.Distinct()
+                            .ToDictionary(candidateId => candidateId, _ => Guid.CreateVersion7()),
+                        CompanyId = jobPosting.CompanyId,
+                        Title = jobPosting.Title,
+                        StartedDate = nextStep.StartedDate,
+                        EndDate = nextStep.EndDate
+                    }, cancellationToken);
+                }
             }
             else if (nextStep is null)
             {

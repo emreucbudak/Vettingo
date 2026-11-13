@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using FlashMediator;
 
 namespace Vettingo.NotificationService.Application.Features.CQRS.Notification.Command.CreateNotification
@@ -8,5 +9,7 @@ namespace Vettingo.NotificationService.Application.Features.CQRS.Notification.Co
         public Guid UserId { get; init; }
         public string Title { get; init; } = string.Empty;
         public string Message { get; init; } = string.Empty;
+        [JsonIgnore]
+        public bool IgnoreDuplicateId { get; init; }
     }
 }

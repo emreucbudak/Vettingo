@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Vettingo.AuthService.Application.Features.CQRS.Auth.Query.SendJobStageAdvancedNotification;
 using Vettingo.AuthService.Application.Messaging;
 using Vettingo.AuthService.Infrastructure.Messaging;
 
@@ -16,6 +17,15 @@ namespace Vettingo.AuthService.Infrastructure.Register
             services.AddScoped<IPersonalizedJobPostingNotificationPublisher, PersonalizedJobPostingNotificationPublisher>();
             services.AddScoped<IInterviewStageExtendedPublisher, InterviewStageExtendedPublisher>();
             services.AddTransient<InterviewStageExtendedSubscriber>();
+            services.AddScoped<IJobStageAdvancedNotificationPublisher, JobStageAdvancedNotificationPublisher>();
+            services.AddTransient<JobStageAdvancedSubscriber>();
+            services.AddScoped<JobStageNotificationRecipients>();
+            services.AddScoped<IExamStageAdvancedNotificationPublisher, ExamStageAdvancedNotificationPublisher>();
+            services.AddScoped<IInterviewStageAdvancedNotificationPublisher, InterviewStageAdvancedNotificationPublisher>();
+            services.AddTransient<ExamStageAdvancedSubscriber>();
+            services.AddTransient<InterviewStageAdvancedSubscriber>();
+            services.AddScoped<IOfferStageAdvancedNotificationPublisher, OfferStageAdvancedNotificationPublisher>();
+            services.AddTransient<OfferStageAdvancedSubscriber>();
 
             string databaseConnectionString = configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");

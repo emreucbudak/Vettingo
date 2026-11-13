@@ -271,8 +271,11 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             unitOfWork.JobPostingRepository.Returns(postingRepository);
             unitOfWork.JobApplicationRepository.Returns(applicationRepository);
             var publisher = Substitute.For<ICandidateExamListPublisher>();
+            var stageAdvancedPublisher = Substitute.For<IExamStageAdvancedPublisher>();
+            var interviewStagePublisher = Substitute.For<IInterviewStageAdvancedPublisher>();
             var handler = new AdvanceJobStepCommandHandler(unitOfWork, publisher,
-                Substitute.For<ICandidateInterviewListPublisher>(), Substitute.For<IInterviewStageExtendedPublisher>());
+                Substitute.For<ICandidateInterviewListPublisher>(), Substitute.For<IInterviewStageExtendedPublisher>(),
+                stageAdvancedPublisher, interviewStagePublisher, Substitute.For<IOfferStageAdvancedPublisher>());
 
             await handler.Handle(new AdvanceJobStepCommandRequest(), CancellationToken.None);
 
@@ -283,6 +286,20 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 message.StartedDate == nextStep.StartedDate &&
                 message.EndDate == nextStep.EndDate &&
                 message.CandidateIds.SequenceEqual(new[] { application.CandidateId })), CancellationToken.None);
+
+            Received.InOrder(() =>
+            {
+                _ = stageAdvancedPublisher.PublishAsync(Arg.Is<ExamStageAdvancedRequestedMessage>(message =>
+                    message.CompanyId == posting.CompanyId &&
+                    message.Title == posting.Title &&
+                    message.StartedDate == nextStep.StartedDate &&
+                    message.EndDate == nextStep.EndDate &&
+                    message.NotificationIdsByCandidateId.Count == 1 &&
+                    message.NotificationIdsByCandidateId[application.CandidateId].Version == 7), CancellationToken.None);
+                _ = unitOfWork.SaveChangesAsync(CancellationToken.None);
+            });
+            await interviewStagePublisher.DidNotReceive().PublishAsync(
+                Arg.Any<InterviewStageAdvancedRequestedMessage>(), Arg.Any<CancellationToken>());
         }
 
         [Fact]
@@ -310,8 +327,12 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 application.IsCurrentStepPassed.Should().BeFalse();
                 return ReturnAsync(1);
             });
+            var examStagePublisher = Substitute.For<IExamStageAdvancedPublisher>();
+            var interviewStagePublisher = Substitute.For<IInterviewStageAdvancedPublisher>();
+            var offerStagePublisher = Substitute.For<IOfferStageAdvancedPublisher>();
             var handler = new AdvanceJobStepCommandHandler(unitOfWork, Substitute.For<ICandidateExamListPublisher>(),
-                Substitute.For<ICandidateInterviewListPublisher>(), Substitute.For<IInterviewStageExtendedPublisher>());
+                Substitute.For<ICandidateInterviewListPublisher>(), Substitute.For<IInterviewStageExtendedPublisher>(),
+                examStagePublisher, interviewStagePublisher, offerStagePublisher);
 
             await handler.Handle(new AdvanceJobStepCommandRequest(), CancellationToken.None);
 
@@ -321,12 +342,22 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 _ = offersRepository.AddAsync(Arg.Is<Offers>(offers => offers.JobPostingId == posting.Id &&
                     offers.StartedDate == offerStep.StartedDate && offers.EndDate == offerStep.EndDate &&
                     offers.CandidateIds.SequenceEqual(new[] { application.CandidateId })), CancellationToken.None);
+                _ = offerStagePublisher.PublishAsync(Arg.Is<OfferStageAdvancedRequestedMessage>(message =>
+                    message.CompanyId == posting.CompanyId && message.Title == posting.Title &&
+                    message.StartedDate == offerStep.StartedDate && message.EndDate == offerStep.EndDate &&
+                    message.NotificationIdsByCandidateId.Count == 1 &&
+                    message.NotificationIdsByCandidateId[application.CandidateId].Version == 7), CancellationToken.None);
                 _ = unitOfWork.SaveChangesAsync(CancellationToken.None);
             });
             await unitOfWork.Received(1).SaveChangesAsync(CancellationToken.None);
+            await examStagePublisher.DidNotReceive().PublishAsync(
+                Arg.Any<ExamStageAdvancedRequestedMessage>(), Arg.Any<CancellationToken>());
+            await interviewStagePublisher.DidNotReceive().PublishAsync(
+                Arg.Any<InterviewStageAdvancedRequestedMessage>(), Arg.Any<CancellationToken>());
         }
 
         [Theory]
+        [InlineData(true, 0, 0, true)]
         [InlineData(true, 1, 0, true)]
         [InlineData(false, 1, 0, true)]
         [InlineData(true, 7, 1, true)]
@@ -392,8 +423,11 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             unitOfWork.JobApplicationRepository.Returns(applicationRepository);
             var publisher = Substitute.For<ICandidateInterviewListPublisher>();
             var extendedPublisher = Substitute.For<IInterviewStageExtendedPublisher>();
+            var stageAdvancedPublisher = Substitute.For<IInterviewStageAdvancedPublisher>();
+            var examStagePublisher = Substitute.For<IExamStageAdvancedPublisher>();
             var handler = new AdvanceJobStepCommandHandler(unitOfWork,
-                Substitute.For<ICandidateExamListPublisher>(), publisher, extendedPublisher);
+                Substitute.For<ICandidateExamListPublisher>(), publisher, extendedPublisher, examStagePublisher,
+                stageAdvancedPublisher, Substitute.For<IOfferStageAdvancedPublisher>());
 
             await handler.Handle(new AdvanceJobStepCommandRequest(), CancellationToken.None);
 
@@ -422,6 +456,26 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 message.InterviewChapterName == nextStep.InterviewChapterName &&
                 message.MeetingLink == nextStep.MeetingLink &&
                 message.CandidateIds.SequenceEqual(applications.Select(application => application.CandidateId))), CancellationToken.None);
+
+            if (candidateCount > 0)
+            {
+                await stageAdvancedPublisher.Received(1).PublishAsync(Arg.Is<InterviewStageAdvancedRequestedMessage>(message =>
+                    message.CompanyId == posting.CompanyId &&
+                    message.Title == posting.Title &&
+                    message.StartedDate == nextStep.StartedDate &&
+                    message.EndDate == expectedEndDate &&
+                    message.InterviewChapterName == nextStep.InterviewChapterName &&
+                    message.NotificationIdsByCandidateId.Keys.ToHashSet().SetEquals(applications.Select(application => application.CandidateId)) &&
+                    message.NotificationIdsByCandidateId.Values.All(id => id.Version == 7) &&
+                    message.NotificationIdsByCandidateId.Values.Distinct().Count() == candidateCount), CancellationToken.None);
+            }
+            else
+            {
+                await stageAdvancedPublisher.DidNotReceive().PublishAsync(
+                    Arg.Any<InterviewStageAdvancedRequestedMessage>(), Arg.Any<CancellationToken>());
+            }
+            await examStagePublisher.DidNotReceive().PublishAsync(
+                Arg.Any<ExamStageAdvancedRequestedMessage>(), Arg.Any<CancellationToken>());
 
             var notifications = extendedPublisher.ReceivedCalls()
                 .Select(call => (InterviewStageExtendedMessage)call.GetArguments()[0]!).ToList();
