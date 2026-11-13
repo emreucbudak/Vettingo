@@ -1,3 +1,6 @@
+using NSubstitute;
+using DotNetCore.CAP;
+using DotNetCore.CAP.Transport;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Vettingo.JobService.Application.Features.CQRS.City.Query.GetAll;
@@ -15,7 +18,7 @@ public sealed class CityLookupTests
         await using var context = CreateContext();
         await context.Database.EnsureCreatedAsync();
         context.ChangeTracker.Clear();
-        await using var unitOfWork = new JobUnitOfWork(context);
+        await using var unitOfWork = new JobUnitOfWork(context, Substitute.For<ICapPublisher>(), Substitute.For<IDispatcher>());
         var handler = new GetAllCitiesQueryHandler(unitOfWork);
 
         var cities = await handler.Handle(new(), CancellationToken.None);
@@ -47,7 +50,7 @@ public sealed class CityLookupTests
         context.Cities.RemoveRange(context.Cities);
         await context.SaveChangesAsync();
 
-        await using var unitOfWork = new JobUnitOfWork(context);
+        await using var unitOfWork = new JobUnitOfWork(context, Substitute.For<ICapPublisher>(), Substitute.For<IDispatcher>());
         var cities = await new GetAllCitiesQueryHandler(unitOfWork)
             .Handle(new(), CancellationToken.None);
 

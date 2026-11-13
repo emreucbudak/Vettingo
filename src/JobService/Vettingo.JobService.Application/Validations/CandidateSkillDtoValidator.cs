@@ -7,7 +7,7 @@ public sealed class CandidateSkillDtoValidator : AbstractValidator<CandidateSkil
 {
     public CandidateSkillDtoValidator()
     {
-        RuleFor(x => x.SkillId).NotEmpty();
+        RuleFor(x => x.SkillTitle).NotEmpty();
         RuleFor(x => x.ExperienceYear).GreaterThanOrEqualTo(0);
     }
 }

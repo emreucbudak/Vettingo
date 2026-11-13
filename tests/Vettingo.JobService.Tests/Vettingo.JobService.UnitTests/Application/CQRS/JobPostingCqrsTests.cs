@@ -1,4 +1,6 @@
+using System.Text.Json;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Vettingo.JobService.Application.DTOs;
@@ -15,6 +17,7 @@ using Vettingo.JobService.Application.Repository;
 using Vettingo.JobService.Application.UnitOfWork;
 using Vettingo.JobService.Domain.Entities;
 using Vettingo.JobService.Domain.Enums;
+using Vettingo.JobService.Persistence.DbContext;
 
 namespace Vettingo.JobService.UnitTests.Application.CQRS
 {
@@ -102,13 +105,13 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             };
             var request = validRequest with
             {
-                CandidateSkills = [new(Guid.Empty, -1)],
+                CandidateSkills = [new(" ", -1)],
                 JobSteps = [invalidStep]
             };
             var validator = new UpdateJobPostingCommandRequestValidator();
 
             validator.Validate(request).Errors.Select(error => error.PropertyName).Should().BeEquivalentTo(
-                ["CandidateSkills[0].SkillId", "CandidateSkills[0].ExperienceYear",
+                ["CandidateSkills[0].SkillTitle", "CandidateSkills[0].ExperienceYear",
                  "JobSteps[0].EndDate", "JobSteps[0].StoppedLimitTime"]);
             validator.Validate(validRequest with { CandidateSkills = [] }).Errors
                 .Should().ContainSingle().Which.PropertyName.Should().Be(nameof(request.CandidateSkills));
@@ -129,14 +132,14 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             var validRequest = CreateJobPostingRequest();
             var request = validRequest with
             {
-                CandidateSkills = [new(Guid.Empty, -1)],
+                CandidateSkills = [new(" ", -1)],
                 JobSteps = [validRequest.JobSteps[1] with { InterviewChapterName = " ", MeetingLink = "invalid" }]
             };
 
             var result = new CreateJobPostingCommandRequestValidator().Validate(request);
 
             result.Errors.Select(error => error.PropertyName).Should().BeEquivalentTo(
-                ["CandidateSkills[0].SkillId", "CandidateSkills[0].ExperienceYear",
+                ["CandidateSkills[0].SkillTitle", "CandidateSkills[0].ExperienceYear",
                  "JobSteps[0].InterviewChapterName", "JobSteps[0].MeetingLink"]);
         }
 
@@ -168,12 +171,26 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
         {
             var repository = Substitute.For<IJobPostingRepository>();
             repository.AddJobPostingAsync(Arg.Any<JobPosting>()).Returns(_ => CompleteAsync());
-            repository.SaveChangesAsync().Returns(_ => ReturnAsync(1));
+            var unitOfWork = Substitute.For<IJobUnitOfWork>();
+            unitOfWork.JobPostingRepository.Returns(repository);
+            await using var context = new JobDbContext(new DbContextOptionsBuilder<JobDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+            var csharp = new Skill { Title = "C#" };
+            var postgresql = new Skill { Title = "PostgreSQL" };
+            context.Skills.AddRange(csharp, postgresql, new Skill { Title = "Java" });
+            await context.SaveChangesAsync();
+            unitOfWork.Skills.Returns(context.Skills);
+            var analyticsPublisher = Substitute.For<IJobAnalyticsPublisher>();
+            var postingPublisher = Substitute.For<IJobPostingPublishedPublisher>();
             var handler = new CreateJobPostingCommandHandler(
-                repository,
+                unitOfWork,
                 Substitute.For<ILogger<CreateJobPostingCommandHandler>>(),
-                Substitute.For<IJobAnalyticsPublisher>());
-            var request = CreateJobPostingRequest();
+                analyticsPublisher,
+                postingPublisher);
+            var request = CreateJobPostingRequest() with
+            {
+                CandidateSkills = [new("PostgreSQL", 2), new("Rust", 8), new("C#", 4)]
+            };
 
             await handler.Handle(request, CancellationToken.None);
 
@@ -211,7 +228,61 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                     step.InterviewChapterName,
                     step.MeetingLink
                 }));
-            await repository.Received(1).SaveChangesAsync();
+            Received.InOrder(() =>
+            {
+                _ = unitOfWork.BeginTransactionAsync(CancellationToken.None);
+                _ = repository.AddJobPostingAsync(created);
+                _ = unitOfWork.SaveChangesAsync(CancellationToken.None);
+                _ = analyticsPublisher.PublishAsync(Arg.Is<JobAnalyticsDto>(message =>
+                    message.CompanyId == created.CompanyId && message.EventId == created.Id), CancellationToken.None);
+                _ = postingPublisher.PublishAsync(Arg.Any<JobPostingPublishedMessage>(), CancellationToken.None);
+                _ = unitOfWork.CommitTransactionAsync(CancellationToken.None);
+            });
+
+            var published = (JobPostingPublishedMessage)postingPublisher.ReceivedCalls().Single().GetArguments()[0]!;
+            var received = JsonSerializer.Deserialize<Vettingo.EvaluationService.Infrastructure.Messages.JobPostingPublishedMessage>(
+                JsonSerializer.Serialize(published));
+            received.Should().BeEquivalentTo(new
+            {
+                JobPostingId = created.Id,
+                request.Title,
+                request.CityId,
+                EmploymentType = (int)request.EmploymentType,
+                WorkingModel = (int)request.WorkingModel,
+                request.MinimumExperienceYear,
+                request.MaximumExperienceYear,
+                request.MinSalary,
+                request.MaxSalary,
+                CandidateSkills = new[]
+                {
+                    new { SkillName = "PostgreSQL", ExperienceYear = 2 },
+                    new { SkillName = "C#", ExperienceYear = 4 }
+                }
+            });
+        }
+
+        [Fact]
+        public async Task CreateJobPostingCommandHandler_Should_Roll_Back_When_Save_Fails()
+        {
+            var unitOfWork = Substitute.For<IJobUnitOfWork>();
+            unitOfWork.JobPostingRepository.Returns(Substitute.For<IJobPostingRepository>());
+            using var cancellation = new CancellationTokenSource();
+            var failure = new OperationCanceledException(cancellation.Token);
+            unitOfWork.SaveChangesAsync(cancellation.Token).Returns(_ =>
+            {
+                cancellation.Cancel();
+                return Task.FromException<int>(failure);
+            });
+            var handler = new CreateJobPostingCommandHandler(unitOfWork,
+                Substitute.For<ILogger<CreateJobPostingCommandHandler>>(), Substitute.For<IJobAnalyticsPublisher>(),
+                Substitute.For<IJobPostingPublishedPublisher>());
+
+            Func<Task> action = () => handler.Handle(CreateJobPostingRequest(), cancellation.Token);
+
+            var thrown = await action.Should().ThrowAsync<OperationCanceledException>();
+            thrown.Which.Should().BeSameAs(failure);
+            await unitOfWork.Received(1).RollbackTransactionAsync(CancellationToken.None);
+            await unitOfWork.DidNotReceive().CommitTransactionAsync(Arg.Any<CancellationToken>());
         }
 
         [Fact]
@@ -419,14 +490,18 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
             new CreateJobPostingCommandRequestValidator().Validate(request).Errors
                 .Should().Contain(error => error.PropertyName.StartsWith("JobSteps"));
             var repository = Substitute.For<IJobPostingRepository>();
-            var handler = new CreateJobPostingCommandHandler(repository,
-                Substitute.For<ILogger<CreateJobPostingCommandHandler>>(), Substitute.For<IJobAnalyticsPublisher>());
+            var unitOfWork = Substitute.For<IJobUnitOfWork>();
+            unitOfWork.JobPostingRepository.Returns(repository);
+            var handler = new CreateJobPostingCommandHandler(unitOfWork,
+                Substitute.For<ILogger<CreateJobPostingCommandHandler>>(), Substitute.For<IJobAnalyticsPublisher>(),
+                Substitute.For<IJobPostingPublishedPublisher>());
 
             Func<Task> action = () => handler.Handle(request, CancellationToken.None);
 
             await action.Should().ThrowAsync<ArgumentException>();
             await repository.DidNotReceive().AddJobPostingAsync(Arg.Any<JobPosting>());
-            await repository.DidNotReceive().SaveChangesAsync();
+            await unitOfWork.DidNotReceive().BeginTransactionAsync(Arg.Any<CancellationToken>());
+            await unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
         }
 
         [Fact]
@@ -526,7 +601,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 MaximumExperienceYear = 5,
                 MinSalary = 50000,
                 MaxSalary = 75000,
-                CandidateSkills = [new(Guid.NewGuid(), 0)],
+                CandidateSkills = [new("C#", 0)],
                 JobSteps =
                 [
                     new() { Order = 1, StepType = StepType.Exam, ExamId = Guid.NewGuid(), StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) },
@@ -559,7 +634,7 @@ namespace Vettingo.JobService.UnitTests.Application.CQRS
                 MaximumExperienceYear = 5,
                 MinSalary = 60000,
                 MaxSalary = 75000,
-                CandidateSkills = [new(Guid.NewGuid(), 0)],
+                CandidateSkills = [new("C#", 0)],
                 JobSteps = [new() { Order = 1, StepType = StepType.CandidateCollection, StartedDate = new DateOnly(2026, 1, 1), EndDate = new DateOnly(2026, 1, 2) }]
             };
         }
