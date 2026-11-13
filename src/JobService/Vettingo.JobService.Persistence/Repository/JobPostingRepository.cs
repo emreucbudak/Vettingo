@@ -38,7 +38,8 @@ namespace Vettingo.JobService.Persistence.Repository
 
         public async Task<List<JobPosting>> GetExpiredJobPostingsAsync(CancellationToken cancellationToken = default)
         {
-            var today = DateOnly.FromDateTime(DateTime.Now);
+            var istanbulTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul");
+            var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istanbulTimeZone));
 
             return await JobPostingSet
                 .Where(posting => !posting.IsPostingClosed && posting.JobSteps.Any(step =>
