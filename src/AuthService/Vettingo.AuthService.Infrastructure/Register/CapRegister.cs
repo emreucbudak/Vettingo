@@ -26,6 +26,8 @@ namespace Vettingo.AuthService.Infrastructure.Register
             services.AddTransient<InterviewStageAdvancedSubscriber>();
             services.AddScoped<IOfferStageAdvancedNotificationPublisher, OfferStageAdvancedNotificationPublisher>();
             services.AddTransient<OfferStageAdvancedSubscriber>();
+            services.AddScoped<IJobApplicationCreatedNotificationPublisher, JobApplicationCreatedNotificationPublisher>();
+            services.AddTransient<JobApplicationCreatedSubscriber>();
 
             string databaseConnectionString = configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");
