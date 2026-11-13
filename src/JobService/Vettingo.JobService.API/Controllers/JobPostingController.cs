@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CreateJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.DeleteJobPosting;
-using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.UpdateJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetAll;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.GetById;
 using Vettingo.JobService.Application.Features.CQRS.JobPosting.Query.Search;
@@ -78,28 +77,6 @@ namespace Vettingo.JobService.API.Controllers
                 return Unauthorized();
 
             await mediator.Send(request with { CompanyId = companyId }, cancellationToken);
-            return Ok();
-        }
-
-        [Authorize(Roles = "Company")]
-        [HttpPut("{jobPostingId:guid}")]
-        public async Task<IActionResult> UpdateJobPosting([FromRoute] Guid jobPostingId, [FromBody] UpdateJobPostingCommandRequest request)
-        {
-            await mediator.Send(new UpdateJobPostingCommandRequest
-            {
-                JobPostingId = jobPostingId,
-                Title = request.Title,
-                CityId = request.CityId,
-                EmploymentType = request.EmploymentType,
-                WorkingModel = request.WorkingModel,
-                MinimumExperienceYear = request.MinimumExperienceYear,
-                MaximumExperienceYear = request.MaximumExperienceYear,
-                MinSalary = request.MinSalary,
-                MaxSalary = request.MaxSalary,
-                JobSteps = request.JobSteps,
-                CandidateSkills = request.CandidateSkills
-            });
-
             return Ok();
         }
 

@@ -51,6 +51,7 @@ public sealed class PersonalizedJobPostingNotificationSubscriberTests
             Arg.Is<Notification>(sent => sent.Id == notification.Id), cancellation.Token);
         var email = (EmailMessage)emailSender.ReceivedCalls().Single().GetArguments()[0]!;
         email.To.Should().Be(message.Email);
+        email.IsBodyHtml.Should().BeTrue();
         email.Body.Should().Contain("yeni bir kişiselleştirilmiş iş ilanı var!")
             .And.Contain("Hemen Vettingo'ya gelerek")
             .And.Contain("profilindeki Kişiselleştirilmiş İlanlar sayfasını");

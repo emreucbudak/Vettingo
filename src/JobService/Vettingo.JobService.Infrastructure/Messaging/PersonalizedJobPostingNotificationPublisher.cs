@@ -10,7 +10,7 @@ public sealed class PersonalizedJobPostingNotificationPublisher(ICapPublisher ca
     public const string TopicName = "vettingo.auth.personalized-job-posting.notification.requested.v1";
 
     public Task PublishAsync(
-        PersonalizedJobPostingNotificationDto notification,
+        PersonalizedJobPostingNotificationMessage notification,
         CancellationToken cancellationToken = default)
     {
         if (notification.Id == Guid.Empty)

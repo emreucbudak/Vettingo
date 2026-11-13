@@ -5,6 +5,6 @@ namespace Vettingo.JobService.Application.Messaging;
 public interface IPersonalizedJobPostingNotificationPublisher
 {
     Task PublishAsync(
-        PersonalizedJobPostingNotificationDto notification,
+        PersonalizedJobPostingNotificationMessage notification,
         CancellationToken cancellationToken = default);
 }

@@ -15,10 +15,10 @@ public sealed class PersonalizedJobPostingNotificationPublisherTests
     public async Task Publish_Should_Send_Only_Notification_And_User_Ids_To_Auth(bool hasId)
     {
         var cap = Substitute.For<ICapPublisher>();
-        cap.PublishAsync(Arg.Any<string>(), Arg.Any<PersonalizedJobPostingNotificationDto>(),
+        cap.PublishAsync(Arg.Any<string>(), Arg.Any<PersonalizedJobPostingNotificationMessage>(),
             Arg.Any<string?>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
         var publisher = new PersonalizedJobPostingNotificationPublisher(cap);
-        var notification = new PersonalizedJobPostingNotificationDto
+        var notification = new PersonalizedJobPostingNotificationMessage
         {
             Id = hasId ? Guid.CreateVersion7() : Guid.Empty,
             UserId = Guid.NewGuid()
@@ -30,7 +30,7 @@ public sealed class PersonalizedJobPostingNotificationPublisherTests
         var arguments = cap.ReceivedCalls().Single().GetArguments();
         arguments[0].Should().Be("vettingo.auth.personalized-job-posting.notification.requested.v1");
         arguments[3].Should().Be(cancellation.Token);
-        var published = (PersonalizedJobPostingNotificationDto)arguments[1]!;
+        var published = (PersonalizedJobPostingNotificationMessage)arguments[1]!;
         published.Id.Should().NotBeEmpty();
         published.UserId.Should().Be(notification.UserId);
         if (hasId)

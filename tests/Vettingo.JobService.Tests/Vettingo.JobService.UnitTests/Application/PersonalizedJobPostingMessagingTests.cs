@@ -1,6 +1,5 @@
 using System.Text.Json;
 using DotNetCore.CAP;
-using DotNetCore.CAP.Transport;
 using FlashMediator;
 using FluentAssertions;
 using FluentValidation;
@@ -12,6 +11,8 @@ using Vettingo.EvaluationService.Application.DTOs;
 using Vettingo.EvaluationService.Infrastructure.Messaging;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Command.CreatePersonalizedJobPosting;
 using Vettingo.JobService.Application.Features.CQRS.PersonalizedJobPostings.Query.GetAll;
+using NotificationMessage = Vettingo.JobService.Application.DTOs.PersonalizedJobPostingNotificationMessage;
+using Vettingo.JobService.Application.Messaging;
 using Vettingo.JobService.Application.UnitOfWork;
 using Vettingo.JobService.Application.Validations;
 using Vettingo.JobService.Domain.Entities;
@@ -19,7 +20,6 @@ using Vettingo.JobService.Domain.Enums;
 using Vettingo.JobService.Infrastructure.Messaging;
 using Vettingo.JobService.Infrastructure.Messages;
 using Vettingo.JobService.Persistence.DbContext;
-using Vettingo.JobService.Persistence.UnitOfWork;
 
 namespace Vettingo.JobService.UnitTests.Application;
 
@@ -31,9 +31,17 @@ public sealed class PersonalizedJobPostingMessagingTests
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddDbContext<JobDbContext>(options => options.UseInMemoryDatabase(Guid.NewGuid().ToString()));
-        services.AddSingleton(Substitute.For<ICapPublisher>());
-        services.AddSingleton(Substitute.For<IDispatcher>());
-        services.AddScoped<IJobUnitOfWork, JobUnitOfWork>();
+        services.AddScoped<IJobUnitOfWork>(provider =>
+        {
+            var db = provider.GetRequiredService<JobDbContext>();
+            var unitOfWork = Substitute.For<IJobUnitOfWork>();
+            unitOfWork.PersonalizedJobPostings.Returns(db.PersonalizedJobPostings);
+            unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>())
+                .Returns(call => db.SaveChangesAsync(call.Arg<CancellationToken>()));
+            return unitOfWork;
+        });
+        var notificationPublisher = Substitute.For<IPersonalizedJobPostingNotificationPublisher>();
+        services.AddSingleton(notificationPublisher);
         services.AddFlashMediator(typeof(CreatePersonalizedJobPostingCommandHandler).Assembly);
         services.AddFlashMediatorHybridCache();
         await using var provider = services.BuildServiceProvider();
@@ -74,6 +82,14 @@ public sealed class PersonalizedJobPostingMessagingTests
         await consumer.HandleAsync(message, cancellation.Token);
         context.ChangeTracker.Clear();
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IJobUnitOfWork>();
+        Received.InOrder(() =>
+        {
+            _ = unitOfWork.BeginTransactionAsync(cancellation.Token);
+            _ = unitOfWork.SaveChangesAsync(cancellation.Token);
+            _ = notificationPublisher.PublishAsync(Arg.Is<NotificationMessage>(notification =>
+                notification.Id.Version == 7 && notification.UserId == dto.UserId), cancellation.Token);
+            _ = unitOfWork.CommitTransactionAsync(cancellation.Token);
+        });
         var all = new GetAllPersonalizedJobPostingsQueryHandler(unitOfWork,
             NullLogger<GetAllPersonalizedJobPostingsQueryHandler>.Instance);
         var persisted = (await all.Handle(new() { UserId = dto.UserId }, cancellation.Token))
