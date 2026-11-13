@@ -5,6 +5,7 @@ namespace Vettingo.NotificationService.Application.Repository
     public interface INotificationRepository
     {
         Task AddNotificationAsync(Notification notification);
+        Task<bool> TryCreateNotificationAsync(Notification notification, CancellationToken cancellationToken);
         void UpdateNotification(Notification notification);
         Task<Notification?> GetNotificationByIdAsync(Guid notificationId);
         Task<IEnumerable<Notification>> GetNotificationsByUserIdAsync(Guid userId);

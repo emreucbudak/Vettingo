@@ -14,8 +14,19 @@ namespace Vettingo.NotificationService.Application.Features.CQRS.Notification.Co
             Domain.Entities.Notification notification = new();
             notification.CreateNotification(request.UserId, request.Title, request.Message, request.Id);
 
-            await notificationRepository.AddNotificationAsync(notification);
-            await notificationRepository.SaveChangesAsync();
+            if (request.IgnoreDuplicateId)
+            {
+                if (!await notificationRepository.TryCreateNotificationAsync(notification, cancellationToken))
+                {
+                    return;
+                }
+            }
+            else
+            {
+                await notificationRepository.AddNotificationAsync(notification);
+                await notificationRepository.SaveChangesAsync();
+            }
+
             await notificationSender.SendNotificationAsync(notification, cancellationToken);
         }
     }
