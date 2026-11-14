@@ -47,6 +47,20 @@ namespace Vettingo.ExamService.Domain.Entities
             _trueFalseQuestions.Add(question);
         }
 
+        public void UpdateMultipleChoiceQuestions(IReadOnlyCollection<MultipleChoiceQuestion> questions)
+        {
+            ArgumentNullException.ThrowIfNull(questions);
+            _multipleChoiceQuestions.Clear();
+            _multipleChoiceQuestions.AddRange(questions);
+        }
+
+        public void UpdateTrueFalseQuestions(IReadOnlyCollection<TrueFalseQuestion> questions)
+        {
+            ArgumentNullException.ThrowIfNull(questions);
+            _trueFalseQuestions.Clear();
+            _trueFalseQuestions.AddRange(questions);
+        }
+
         public bool RemoveMultipleChoiceQuestion(Guid questionId)
         {
             var question = _multipleChoiceQuestions.FirstOrDefault(question => question.Id == questionId);

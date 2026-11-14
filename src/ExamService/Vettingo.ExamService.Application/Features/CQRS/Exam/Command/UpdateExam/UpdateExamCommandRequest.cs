@@ -1,4 +1,5 @@
 using FlashMediator;
+using Vettingo.ExamService.Application.DTOs;
 using Vettingo.ExamService.Domain.Enums;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam
@@ -12,5 +13,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam
         public string Description { get; init; } = string.Empty;
         public int DurationMinutes { get; init; }
         public int PassingScore { get; init; }
+        public IReadOnlyCollection<CreateExamMultipleChoiceQuestionDto>? MultipleChoiceQuestions { get; init; }
+        public IReadOnlyCollection<CreateExamTrueFalseQuestionDto>? TrueFalseQuestions { get; init; }
     }
 }
