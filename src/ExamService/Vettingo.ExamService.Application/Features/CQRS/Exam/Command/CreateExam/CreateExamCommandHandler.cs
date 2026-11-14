@@ -12,6 +12,29 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam
             Domain.Entities.Exam exam = new();
             exam.CreateExam(request.Title, request.Description, request.DurationMinutes, request.PassingScore, request.OwnerType, request.CompanyId);
 
+            foreach (var questionRequest in request.MultipleChoiceQuestions)
+            {
+                Domain.Entities.MultipleChoiceQuestion question = new();
+                question.CreateQuestion(exam.Id, questionRequest.QuestionText, questionRequest.Weight, questionRequest.DisplayOrder);
+
+                foreach (var optionRequest in questionRequest.Options)
+                {
+                    Domain.Entities.MultipleChoiceOption option = new();
+                    option.CreateOption(question.Id, optionRequest.OptionText, optionRequest.IsCorrect);
+                    question.AddOption(option);
+                }
+
+                exam.AddMultipleChoiceQuestion(question);
+            }
+
+            foreach (var questionRequest in request.TrueFalseQuestions)
+            {
+                Domain.Entities.TrueFalseQuestion question = new();
+                question.CreateQuestion(exam.Id, questionRequest.QuestionText, questionRequest.Weight, questionRequest.DisplayOrder,
+                    questionRequest.TrueAnswer, questionRequest.FalseAnswer);
+                exam.AddTrueFalseQuestion(question);
+            }
+
             await examRepository.AddAsync(exam);
             await examRepository.SaveChangesAsync();
         }
