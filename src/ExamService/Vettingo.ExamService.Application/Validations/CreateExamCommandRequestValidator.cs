@@ -12,7 +12,10 @@ public sealed class CreateExamCommandRequestValidator : AbstractValidator<Create
         RuleFor(x => x.Description).NotEmpty().MaximumLength(2000);
         RuleFor(x => x.DurationMinutes).GreaterThanOrEqualTo(0);
         RuleFor(x => x.PassingScore).InclusiveBetween(0, 100);
-        RuleFor(x => x.MultipleChoiceQuestions).NotNull();
+        RuleFor(x => x)
+            .Must(x => x.MultipleChoiceQuestions is { Count: > 0 } || x.TrueFalseQuestions is { Count: > 0 })
+            .WithMessage("Sınav en az bir çoktan seçmeli veya doğru/yanlış sorusu içermelidir.");
+
         RuleForEach(x => x.MultipleChoiceQuestions).NotNull().ChildRules(question =>
         {
             question.RuleFor(x => x.QuestionText).NotEmpty().MaximumLength(2000);
@@ -25,7 +28,6 @@ public sealed class CreateExamCommandRequestValidator : AbstractValidator<Create
             });
         });
 
-        RuleFor(x => x.TrueFalseQuestions).NotNull();
         RuleForEach(x => x.TrueFalseQuestions).NotNull().ChildRules(question =>
         {
             question.RuleFor(x => x.QuestionText).NotEmpty().MaximumLength(2000);

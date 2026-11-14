@@ -47,7 +47,9 @@ namespace Vettingo.ExamService.API.Controllers
                 Title = request.Title,
                 Description = request.Description,
                 DurationMinutes = request.DurationMinutes,
-                PassingScore = request.PassingScore
+                PassingScore = request.PassingScore,
+                MultipleChoiceQuestions = request.MultipleChoiceQuestions,
+                TrueFalseQuestions = request.TrueFalseQuestions
             });
 
             return Ok();

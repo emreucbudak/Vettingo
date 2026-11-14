@@ -2,6 +2,7 @@ using System.Text.Json;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using Vettingo.ExamService.Application.DTOs;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam;
 using Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.Query.GetByExam;
 using Vettingo.ExamService.Application.Repository;
@@ -12,6 +13,52 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
 {
     public class ExamCqrsTests
     {
+        [Theory]
+        [InlineData(null, null, false)]
+        [InlineData(false, false, false)]
+        [InlineData(null, false, false)]
+        [InlineData(false, null, false)]
+        [InlineData(true, null, true)]
+        [InlineData(null, true, true)]
+        public void CreateExamCommandRequestValidator_Should_Require_At_Least_One_Question(
+            bool? hasMultipleChoiceQuestion, bool? hasTrueFalseQuestion, bool expectedValid)
+        {
+            var request = new CreateExamCommandRequest
+            {
+                Title = "Backend Exam",
+                Description = "Backend exam description",
+                DurationMinutes = 60,
+                PassingScore = 70,
+                MultipleChoiceQuestions = hasMultipleChoiceQuestion switch
+                {
+                    true => [new CreateExamMultipleChoiceQuestionDto
+                    {
+                        QuestionText = "Which option is correct?",
+                        Weight = 1,
+                        DisplayOrder = 1,
+                        Options = [new CreateExamMultipleChoiceOptionDto { OptionText = "A", IsCorrect = true }]
+                    }],
+                    false => [],
+                    null => null
+                },
+                TrueFalseQuestions = hasTrueFalseQuestion switch
+                {
+                    true => [new CreateExamTrueFalseQuestionDto
+                    {
+                        QuestionText = "Is this true?",
+                        Weight = 1,
+                        DisplayOrder = 1,
+                        TrueAnswer = "Yes",
+                        FalseAnswer = "No"
+                    }],
+                    false => [],
+                    null => null
+                }
+            };
+
+            new CreateExamCommandRequestValidator().Validate(request).IsValid.Should().Be(expectedValid);
+        }
+
         [Fact]
         public async Task CreateExamCommandHandler_Should_Create_And_Save_Exam()
         {
