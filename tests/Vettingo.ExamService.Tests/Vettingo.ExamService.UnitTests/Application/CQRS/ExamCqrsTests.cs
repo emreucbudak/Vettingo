@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -32,6 +33,64 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             await repository.Received(1).AddAsync(Arg.Is<Exam>(exam =>
                 exam.Title == request.Title &&
                 exam.PassingScore == request.PassingScore));
+            await repository.Received(1).SaveChangesAsync();
+        }
+
+        [Fact]
+        public async Task CreateExamCommandHandler_Should_Save_Questions_And_Options_From_Json()
+        {
+            var request = JsonSerializer.Deserialize<CreateExamCommandRequest>(
+                """
+                {
+                    "title": "Backend Exam",
+                    "description": "Backend exam description",
+                    "durationMinutes": 60,
+                    "passingScore": 70,
+                    "multipleChoiceQuestions": [
+                        {
+                            "questionText": "Which option is correct?",
+                            "weight": 2,
+                            "displayOrder": 1,
+                            "options": [{ "optionText": "A", "isCorrect": true }]
+                        }
+                    ],
+                    "trueFalseQuestions": [
+                        {
+                            "questionText": "Is this true?",
+                            "weight": 3,
+                            "displayOrder": 2,
+                            "trueAnswer": "Yes",
+                            "falseAnswer": "No"
+                        }
+                    ]
+                }
+                """, new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
+            var repository = Substitute.For<IExamRepository<Exam>>();
+            Exam? addedExam = null;
+            repository.AddAsync(Arg.Do<Exam>(exam => addedExam = exam)).Returns(Task.CompletedTask);
+            var handler = new CreateExamCommandHandler(repository, Substitute.For<ILogger<CreateExamCommandHandler>>());
+
+            await handler.Handle(request, CancellationToken.None);
+
+            addedExam.Should().NotBeNull();
+            var exam = addedExam!;
+            var multipleChoice = exam.MultipleChoiceQuestions.Should().ContainSingle().Subject;
+            multipleChoice.ExamId.Should().Be(exam.Id);
+            multipleChoice.QuestionText.Should().Be("Which option is correct?");
+            multipleChoice.Weight.Should().Be(2);
+            multipleChoice.DisplayOrder.Should().Be(1);
+            var option = multipleChoice.Options.Should().ContainSingle().Subject;
+            option.MultipleChoiceQuestionId.Should().Be(multipleChoice.Id);
+            option.OptionText.Should().Be("A");
+            option.IsCorrect.Should().BeTrue();
+
+            var trueFalse = exam.TrueFalseQuestions.Should().ContainSingle().Subject;
+            trueFalse.ExamId.Should().Be(exam.Id);
+            trueFalse.QuestionText.Should().Be("Is this true?");
+            trueFalse.Weight.Should().Be(3);
+            trueFalse.DisplayOrder.Should().Be(2);
+            trueFalse.TrueAnswer.Should().Be("Yes");
+            trueFalse.FalseAnswer.Should().Be("No");
             await repository.Received(1).SaveChangesAsync();
         }
 
