@@ -10,9 +10,10 @@ namespace Vettingo.EvaluationService.API.Controllers;
 
 [ApiController]
 [Route("api/evaluations")]
-[Authorize(Roles = "Candidate")]
+[Authorize]
 public sealed class EvaluationsController(IMediator mediator) : ControllerBase
 {
+    [Authorize(Roles = "Candidate")]
     [HttpPost("cv")]
     public async Task<IActionResult> CreateCv(
         [FromBody] CreateCvCommandRequest request,
@@ -22,6 +23,7 @@ public sealed class EvaluationsController(IMediator mediator) : ControllerBase
         return StatusCode(StatusCodes.Status201Created);
     }
 
+    [Authorize(Roles = "Candidate")]
     [HttpPut("cv")]
     public async Task<IActionResult> UpdateCv(
         [FromBody] UpdateCvCommandRequest request,
@@ -31,6 +33,7 @@ public sealed class EvaluationsController(IMediator mediator) : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Roles = "Candidate")]
     [HttpGet("cv/exists")]
     public async Task<ActionResult<bool>> HasCv(CancellationToken cancellationToken)
     {
@@ -41,6 +44,7 @@ public sealed class EvaluationsController(IMediator mediator) : ControllerBase
         return Ok(await mediator.Send(new HasCvQueryRequest(userId), cancellationToken));
     }
 
+    [Authorize(Roles = "Company,Human Resources")]
     [HttpGet("scout")]
     public IActionResult Scout()
     {
