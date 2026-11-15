@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Vettingo.ExamService.Domain.Enums;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam;
 
@@ -25,6 +26,7 @@ public sealed class CreateExamCommandRequestValidator : AbstractValidator<Create
             question.RuleForEach(x => x.Options).NotNull().ChildRules(option =>
             {
                 option.RuleFor(x => x.OptionText).NotEmpty().MaximumLength(2000);
+                option.RuleFor(x => x.Order).IsInEnum();
             });
         });
 
@@ -33,8 +35,16 @@ public sealed class CreateExamCommandRequestValidator : AbstractValidator<Create
             question.RuleFor(x => x.QuestionText).NotEmpty().MaximumLength(2000);
             question.RuleFor(x => x.Weight).GreaterThan(0);
             question.RuleFor(x => x.DisplayOrder).GreaterThan(0);
-            question.RuleFor(x => x.TrueAnswer).NotEmpty().MaximumLength(2000);
-            question.RuleFor(x => x.FalseAnswer).NotEmpty().MaximumLength(2000);
+            question.RuleFor(x => x.TrueAnswer).NotEmpty().MaximumLength(2000)
+                .When(x => x.TrueAnswer is not null);
+            question.RuleFor(x => x.FalseAnswer).NotEmpty().MaximumLength(2000)
+                .When(x => x.FalseAnswer is not null);
+            question.RuleFor(x => x.Options)
+                .Must(options => options is { Count: 2 } &&
+                    options.Count(option => option is { Type: TrueFalseOptionType.True }) == 1 &&
+                    options.Count(option => option is { Type: TrueFalseOptionType.False }) == 1 &&
+                    options.Count(option => option is { IsCorrect: true }) == 1)
+                .WithMessage("Bir doğru ve bir yanlış seçeneği gönderilmeli ve yalnızca biri doğru cevap olarak işaretlenmelidir.");
         });
     }
 }

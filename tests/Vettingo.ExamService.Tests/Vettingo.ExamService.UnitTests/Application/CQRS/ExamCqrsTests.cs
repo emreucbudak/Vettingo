@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Vettingo.ExamService.Application.DTOs;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam;
+using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam;
 using Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.Query.GetByExam;
 using Vettingo.ExamService.Application.Repository;
 using Vettingo.ExamService.Domain.Entities;
@@ -36,7 +37,10 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
                         QuestionText = "Which option is correct?",
                         Weight = 1,
                         DisplayOrder = 1,
-                        Options = [new CreateExamMultipleChoiceOptionDto { OptionText = "A", IsCorrect = true }]
+                        Options = [new CreateExamMultipleChoiceOptionDto
+                        {
+                            OptionText = "A", IsCorrect = true, Order = MultipleChoiceOptionOrder.A
+                        }]
                     }],
                     false => [],
                     null => null
@@ -48,8 +52,11 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
                         QuestionText = "Is this true?",
                         Weight = 1,
                         DisplayOrder = 1,
-                        TrueAnswer = "Yes",
-                        FalseAnswer = "No"
+                        Options =
+                        [
+                            new CreateExamTrueFalseOptionDto { Type = TrueFalseOptionType.True, IsCorrect = true },
+                            new CreateExamTrueFalseOptionDto { Type = TrueFalseOptionType.False }
+                        ]
                     }],
                     false => [],
                     null => null
@@ -57,6 +64,37 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             };
 
             new CreateExamCommandRequestValidator().Validate(request).IsValid.Should().Be(expectedValid);
+        }
+
+        [Theory]
+        [InlineData("""{"multipleChoiceQuestions":[{"questionText":"Question","weight":1,"displayOrder":1,"options":null}]}""", "MultipleChoiceQuestions[0].Options")]
+        [InlineData("""{"multipleChoiceQuestions":[{"questionText":"Question","weight":1,"displayOrder":1,"options":[{"optionText":"Answer"}]}]}""", "MultipleChoiceQuestions[0].Options[0].Order")]
+        [InlineData("""{"trueFalseQuestions":[{"questionText":"Question","weight":1,"displayOrder":1,"options":null}]}""", "TrueFalseQuestions[0].Options")]
+        [InlineData("""{"trueFalseQuestions":[{"questionText":"Question","weight":1,"displayOrder":1,"options":[{"isCorrect":true},{"type":2}]}]}""", "TrueFalseQuestions[0].Options")]
+        public void Exam_Validators_Should_Require_Options_And_Valid_Enum_Values(string json, string propertyName)
+        {
+            var request = JsonSerializer.Deserialize<CreateExamCommandRequest>(
+                json, new JsonSerializerOptions(JsonSerializerDefaults.Web))! with
+            {
+                Title = "Exam",
+                Description = "Exam description",
+                DurationMinutes = 30
+            };
+
+            var updateRequest = new UpdateExamCommandRequest
+            {
+                ExamId = Guid.NewGuid(),
+                Title = request.Title,
+                Description = request.Description,
+                DurationMinutes = request.DurationMinutes,
+                MultipleChoiceQuestions = request.MultipleChoiceQuestions,
+                TrueFalseQuestions = request.TrueFalseQuestions
+            };
+
+            new CreateExamCommandRequestValidator().Validate(request).Errors
+                .Should().Contain(error => error.PropertyName == propertyName);
+            new UpdateExamCommandRequestValidator().Validate(updateRequest).Errors
+                .Should().Contain(error => error.PropertyName == propertyName);
         }
 
         [Fact]
@@ -98,7 +136,7 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
                             "questionText": "Which option is correct?",
                             "weight": 2,
                             "displayOrder": 1,
-                            "options": [{ "optionText": "A", "isCorrect": true }]
+                            "options": [{ "optionText": "A", "isCorrect": true, "order": 2 }]
                         }
                     ],
                     "trueFalseQuestions": [
@@ -106,8 +144,7 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
                             "questionText": "Is this true?",
                             "weight": 3,
                             "displayOrder": 2,
-                            "trueAnswer": "Yes",
-                            "falseAnswer": "No"
+                            "options": [{ "type": 1, "isCorrect": false }, { "type": 2, "isCorrect": true }]
                         }
                     ]
                 }
@@ -117,6 +154,7 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             repository.AddAsync(Arg.Do<Exam>(exam => addedExam = exam)).Returns(Task.CompletedTask);
             var handler = new CreateExamCommandHandler(repository, Substitute.For<ILogger<CreateExamCommandHandler>>());
 
+            new CreateExamCommandRequestValidator().Validate(request).IsValid.Should().BeTrue();
             await handler.Handle(request, CancellationToken.None);
 
             addedExam.Should().NotBeNull();
@@ -130,14 +168,16 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             option.MultipleChoiceQuestionId.Should().Be(multipleChoice.Id);
             option.OptionText.Should().Be("A");
             option.IsCorrect.Should().BeTrue();
+            option.Order.Should().Be(MultipleChoiceOptionOrder.B);
 
             var trueFalse = exam.TrueFalseQuestions.Should().ContainSingle().Subject;
             trueFalse.ExamId.Should().Be(exam.Id);
             trueFalse.QuestionText.Should().Be("Is this true?");
             trueFalse.Weight.Should().Be(3);
             trueFalse.DisplayOrder.Should().Be(2);
-            trueFalse.TrueAnswer.Should().Be("Yes");
-            trueFalse.FalseAnswer.Should().Be("No");
+            trueFalse.Options.Should().OnlyContain(option => option.TrueFalseQuestionId == trueFalse.Id);
+            trueFalse.Options.Should().ContainSingle(option => option.Type == TrueFalseOptionType.True && !option.IsCorrect);
+            trueFalse.Options.Should().ContainSingle(option => option.Type == TrueFalseOptionType.False && option.IsCorrect);
             await repository.Received(1).SaveChangesAsync();
         }
 

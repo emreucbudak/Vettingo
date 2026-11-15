@@ -33,6 +33,9 @@ public sealed class ExamQuestionTrackingTests
         exam.AddMultipleChoiceQuestion(oldMultipleChoice);
         var oldTrueFalse = new TrueFalseQuestion();
         oldTrueFalse.CreateQuestion(exam.Id, "Old true/false", 1, 2, "Yes", "No");
+        var oldTrueFalseOption = new TrueFalseOption();
+        oldTrueFalseOption.CreateOption(oldTrueFalse.Id, TrueFalseOptionType.True, true);
+        oldTrueFalse.AddOption(oldTrueFalseOption);
         exam.AddTrueFalseQuestion(oldTrueFalse);
         context.Attach(exam);
 
@@ -53,7 +56,10 @@ public sealed class ExamQuestionTrackingTests
                     QuestionText = "New multiple choice",
                     Weight = 2,
                     DisplayOrder = 1,
-                    Options = [new CreateExamMultipleChoiceOptionDto { OptionText = "New option", IsCorrect = true }]
+                    Options = [new CreateExamMultipleChoiceOptionDto
+                    {
+                        OptionText = "New option", IsCorrect = true, Order = MultipleChoiceOptionOrder.C
+                    }]
                 }]
                 : [],
             TrueFalseQuestions = replaceTrueFalse
@@ -62,8 +68,11 @@ public sealed class ExamQuestionTrackingTests
                     QuestionText = "New true/false",
                     Weight = 2,
                     DisplayOrder = 2,
-                    TrueAnswer = "True",
-                    FalseAnswer = "False"
+                    Options =
+                    [
+                        new CreateExamTrueFalseOptionDto { Type = TrueFalseOptionType.True, IsCorrect = true },
+                        new CreateExamTrueFalseOptionDto { Type = TrueFalseOptionType.False, IsCorrect = false }
+                    ]
                 }]
                 : null
         };
@@ -85,6 +94,14 @@ public sealed class ExamQuestionTrackingTests
         context.Entry(option).State.Should().Be(replaceMultipleChoice ? EntityState.Added : EntityState.Unchanged);
         context.Entry(oldTrueFalse).State.Should().Be(replaceTrueFalse ? EntityState.Deleted : EntityState.Unchanged);
         context.Entry(trueFalse).State.Should().Be(replaceTrueFalse ? EntityState.Added : EntityState.Unchanged);
+        option.Order.Should().Be(replaceMultipleChoice ? MultipleChoiceOptionOrder.C : MultipleChoiceOptionOrder.A);
+        context.Entry(oldTrueFalseOption).State.Should().Be(replaceTrueFalse ? EntityState.Deleted : EntityState.Unchanged);
+        trueFalse.Options.Should().HaveCount(replaceTrueFalse ? 2 : 1);
+        foreach (var trueFalseOption in trueFalse.Options)
+        {
+            trueFalseOption.TrueFalseQuestionId.Should().Be(trueFalse.Id);
+            context.Entry(trueFalseOption).State.Should().Be(replaceTrueFalse ? EntityState.Added : EntityState.Unchanged);
+        }
         await repository.Received(1).SaveChangesAsync();
     }
 

@@ -14,25 +14,12 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam
 
             foreach (var questionRequest in request.MultipleChoiceQuestions ?? [])
             {
-                Domain.Entities.MultipleChoiceQuestion question = new();
-                question.CreateQuestion(exam.Id, questionRequest.QuestionText, questionRequest.Weight, questionRequest.DisplayOrder);
-
-                foreach (var optionRequest in questionRequest.Options)
-                {
-                    Domain.Entities.MultipleChoiceOption option = new();
-                    option.CreateOption(question.Id, optionRequest.OptionText, optionRequest.IsCorrect);
-                    question.AddOption(option);
-                }
-
-                exam.AddMultipleChoiceQuestion(question);
+                exam.AddMultipleChoiceQuestion(ExamQuestionFactory.Create(exam.Id, questionRequest));
             }
 
             foreach (var questionRequest in request.TrueFalseQuestions ?? [])
             {
-                Domain.Entities.TrueFalseQuestion question = new();
-                question.CreateQuestion(exam.Id, questionRequest.QuestionText, questionRequest.Weight, questionRequest.DisplayOrder,
-                    questionRequest.TrueAnswer, questionRequest.FalseAnswer);
-                exam.AddTrueFalseQuestion(question);
+                exam.AddTrueFalseQuestion(ExamQuestionFactory.Create(exam.Id, questionRequest));
             }
 
             await examRepository.AddAsync(exam);
