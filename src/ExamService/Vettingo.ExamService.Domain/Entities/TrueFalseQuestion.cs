@@ -15,6 +15,13 @@ namespace Vettingo.ExamService.Domain.Entities
         public int DisplayOrder { get; private set; }
         public string TrueAnswer { get; private set; } = string.Empty;
         public string FalseAnswer { get; private set; } = string.Empty;
+        public List<TrueFalseOption> Options { get; private set; } = new();
+
+        public void AddOption(TrueFalseOption option)
+        {
+            ArgumentNullException.ThrowIfNull(option);
+            Options.Add(option);
+        }
 
         public void CreateQuestion(Guid examId, string questionText, int weight, int displayOrder, string trueAnswer, string falseAnswer)
         {

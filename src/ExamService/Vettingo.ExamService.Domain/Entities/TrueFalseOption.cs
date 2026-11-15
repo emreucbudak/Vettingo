@@ -1,10 +1,8 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using Vettingo.ExamService.Domain.Common;
 using Vettingo.ExamService.Domain.Enums;
 
 namespace Vettingo.ExamService.Domain.Entities
 {
-    [NotMapped]
     public class TrueFalseOption : BaseEntity
     {
         public Guid TrueFalseQuestionId { get; private set; }

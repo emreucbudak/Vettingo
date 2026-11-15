@@ -10,6 +10,7 @@ namespace Vettingo.ExamService.Persistence.DbContext
         public DbSet<MultipleChoiceQuestion> MultipleChoiceQuestions { get; set; }
         public DbSet<MultipleChoiceOption> MultipleChoiceOptions { get; set; }
         public DbSet<TrueFalseQuestion> TrueFalseQuestions { get; set; }
+        public DbSet<TrueFalseOption> TrueFalseOptions { get; set; }
         public DbSet<ExamAttempt> ExamAttempts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -23,6 +24,10 @@ namespace Vettingo.ExamService.Persistence.DbContext
                 .ValueGeneratedNever();
 
             builder.Entity<MultipleChoiceOption>()
+                .Property(option => option.Id)
+                .ValueGeneratedNever();
+
+            builder.Entity<TrueFalseOption>()
                 .Property(option => option.Id)
                 .ValueGeneratedNever();
 
@@ -56,6 +61,12 @@ namespace Vettingo.ExamService.Persistence.DbContext
                 .HasMany(question => question.Options)
                 .WithOne(option => option.MultipleChoiceQuestion)
                 .HasForeignKey(option => option.MultipleChoiceQuestionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<TrueFalseQuestion>()
+                .HasMany(question => question.Options)
+                .WithOne(option => option.TrueFalseQuestion)
+                .HasForeignKey(option => option.TrueFalseQuestionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             base.OnModelCreating(builder);

@@ -24,17 +24,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam
                 var questions = new List<Domain.Entities.MultipleChoiceQuestion>(multipleChoiceRequests.Count);
                 foreach (var questionRequest in multipleChoiceRequests)
                 {
-                    Domain.Entities.MultipleChoiceQuestion question = new();
-                    question.CreateQuestion(exam.Id, questionRequest.QuestionText, questionRequest.Weight, questionRequest.DisplayOrder);
-
-                    foreach (var optionRequest in questionRequest.Options)
-                    {
-                        Domain.Entities.MultipleChoiceOption option = new();
-                        option.CreateOption(question.Id, optionRequest.OptionText, optionRequest.IsCorrect);
-                        question.AddOption(option);
-                    }
-
-                    questions.Add(question);
+                    questions.Add(ExamQuestionFactory.Create(exam.Id, questionRequest));
                 }
 
                 exam.UpdateMultipleChoiceQuestions(questions);
@@ -45,10 +35,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam
                 var questions = new List<Domain.Entities.TrueFalseQuestion>(trueFalseRequests.Count);
                 foreach (var questionRequest in trueFalseRequests)
                 {
-                    Domain.Entities.TrueFalseQuestion question = new();
-                    question.CreateQuestion(exam.Id, questionRequest.QuestionText, questionRequest.Weight, questionRequest.DisplayOrder,
-                        questionRequest.TrueAnswer, questionRequest.FalseAnswer);
-                    questions.Add(question);
+                    questions.Add(ExamQuestionFactory.Create(exam.Id, questionRequest));
                 }
 
                 exam.UpdateTrueFalseQuestions(questions);

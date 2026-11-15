@@ -35,6 +35,7 @@ namespace Vettingo.ExamService.Persistence.Repository
                     .Include(entity => entity.MultipleChoiceQuestions)
                         .ThenInclude(question => question.Options)
                     .Include(entity => entity.TrueFalseQuestions)
+                        .ThenInclude(question => question.Options)
                     .FirstOrDefaultAsync(entity => entity.Id == id);
 
                 return exam as T;
