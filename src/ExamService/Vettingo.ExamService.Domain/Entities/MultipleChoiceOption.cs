@@ -1,4 +1,6 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using Vettingo.ExamService.Domain.Common;
+using Vettingo.ExamService.Domain.Enums;
 
 namespace Vettingo.ExamService.Domain.Entities
 {
@@ -13,14 +15,23 @@ namespace Vettingo.ExamService.Domain.Entities
         public string OptionText { get; private set; } = string.Empty;
         public bool IsCorrect { get; private set; }
 
-        public void CreateOption(Guid multipleChoiceQuestionId, string optionText, bool isCorrect)
+        [NotMapped]
+        public MultipleChoiceOptionOrder? Order { get; private set; }
+
+        public void CreateOption(Guid multipleChoiceQuestionId, string optionText, bool isCorrect, MultipleChoiceOptionOrder? order = null)
         {
             CheckMultipleChoiceOptionContent(multipleChoiceQuestionId, optionText);
+            if (order.HasValue && !Enum.IsDefined(order.Value))
+            {
+                throw new ArgumentOutOfRangeException(nameof(order), order, "Geçersiz seçenek sırası.");
+            }
+
             SetId();
             SetCreatedAt();
             MultipleChoiceQuestionId = multipleChoiceQuestionId;
             OptionText = optionText;
             IsCorrect = isCorrect;
+            Order = order;
         }
 
         public void CheckMultipleChoiceOptionContent(Guid multipleChoiceQuestionId, string optionText)
