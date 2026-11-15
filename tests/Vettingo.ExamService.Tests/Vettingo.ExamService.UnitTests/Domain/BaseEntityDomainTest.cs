@@ -50,8 +50,9 @@ namespace Vettingo.ExamService.UnitTests.Domain
                 .UseNpgsql("Host=localhost;Database=exam_model_test;Username=test;Password=test")
                 .Options;
             using var context = new ExamDbContext(options);
+            context.Model.FindEntityType(typeof(TrueFalseOption)).Should().BeNull();
             var entityTypes = typeof(BaseEntity).Assembly.GetTypes()
-                .Where(type => !type.IsAbstract && typeof(BaseEntity).IsAssignableFrom(type));
+                .Where(type => !type.IsAbstract && typeof(BaseEntity).IsAssignableFrom(type) && type != typeof(TrueFalseOption));
 
             foreach (var entityType in entityTypes)
             {
