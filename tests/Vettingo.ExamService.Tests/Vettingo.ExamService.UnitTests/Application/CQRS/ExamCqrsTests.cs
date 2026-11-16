@@ -27,7 +27,6 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             var request = new CreateExamCommandRequest
             {
                 Title = "Backend Exam",
-                Description = "Backend exam description",
                 DurationMinutes = 60,
                 PassingScore = 70,
                 MultipleChoiceQuestions = hasMultipleChoiceQuestion switch
@@ -77,7 +76,6 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
                 json, new JsonSerializerOptions(JsonSerializerDefaults.Web))! with
             {
                 Title = "Exam",
-                Description = "Exam description",
                 DurationMinutes = 30
             };
 
@@ -85,7 +83,6 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             {
                 ExamId = Guid.NewGuid(),
                 Title = request.Title,
-                Description = request.Description,
                 DurationMinutes = request.DurationMinutes,
                 MultipleChoiceQuestions = request.MultipleChoiceQuestions,
                 TrueFalseQuestions = request.TrueFalseQuestions
@@ -107,7 +104,6 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             var request = new CreateExamCommandRequest
             {
                 Title = "Backend Exam",
-                Description = "Backend exam description",
                 DurationMinutes = 60,
                 PassingScore = 70,
                 OwnerType = ExamOwnerType.System
@@ -128,7 +124,6 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
                 """
                 {
                     "title": "Backend Exam",
-                    "description": "Backend exam description",
                     "durationMinutes": 60,
                     "passingScore": 70,
                     "multipleChoiceQuestions": [
@@ -212,7 +207,7 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
         private static Exam CreateExam()
         {
             Exam exam = new();
-            exam.CreateExam("Backend Exam", "Backend exam description", 60, 70, ExamOwnerType.System, null);
+            exam.CreateExam("Backend Exam", 60, 70, ExamOwnerType.System, null);
             return exam;
         }
 

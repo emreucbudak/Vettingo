@@ -10,7 +10,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(CreateExamCommandHandler));
             Domain.Entities.Exam exam = new();
-            exam.CreateExam(request.Title, request.Description, request.DurationMinutes, request.PassingScore, request.OwnerType, request.CompanyId);
+            exam.CreateExam(request.Title, request.DurationMinutes, request.PassingScore, request.OwnerType, request.CompanyId);
 
             foreach (var questionRequest in request.MultipleChoiceQuestions ?? [])
             {

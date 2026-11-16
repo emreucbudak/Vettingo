@@ -17,7 +17,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam
                 throw new NotFoundException("Sınav bulunamadı");
             }
 
-            exam.UpdateExam(request.Title, request.Description, request.DurationMinutes, request.PassingScore, request.OwnerType, request.CompanyId);
+            exam.UpdateExam(request.Title, request.DurationMinutes, request.PassingScore, request.OwnerType, request.CompanyId);
 
             if (request.MultipleChoiceQuestions is { Count: > 0 } multipleChoiceRequests)
             {

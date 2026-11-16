@@ -48,7 +48,7 @@ public sealed class CreateExamAttemptCommandTests
         await using var context = new ExamDbContext(new DbContextOptionsBuilder<ExamDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         var exam = new Exam();
-        exam.CreateExam("Backend", "Backend exam", 60, 70, ExamOwnerType.System, null);
+        exam.CreateExam("Backend", 60, 70, ExamOwnerType.System, null);
         var candidateId = Guid.NewGuid();
         var otherCandidateId = Guid.NewGuid();
         var jobExam = new JobStageExam { Exam = exam };
