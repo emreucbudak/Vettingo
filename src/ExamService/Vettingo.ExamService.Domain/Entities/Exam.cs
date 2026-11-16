@@ -17,7 +17,6 @@ namespace Vettingo.ExamService.Domain.Entities
         public Guid? CompanyId { get; private set; }
         public ExamOwnerType OwnerType { get; private set; }
         public string Title { get; private set; } = string.Empty;
-        public string Description { get; private set; } = string.Empty;
         public int DurationMinutes { get; private set; }
         public int PassingScore { get; private set; }
         public DateTime? UpdatedAt { get; private set; }
@@ -91,12 +90,6 @@ namespace Vettingo.ExamService.Domain.Entities
             Title = title;
         }
 
-        public void setDescription(string description)
-        {
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(description, nameof(description));
-            Description = description;
-        }
-
         public void setDurationMinutes(int durationMinutes)
         {
             if (durationMinutes <= 0)
@@ -117,12 +110,11 @@ namespace Vettingo.ExamService.Domain.Entities
             PassingScore = passingScore;
         }
 
-        public void CreateExam(string title, string description, int durationMinutes, int passingScore, ExamOwnerType ownerType, Guid? companyId)
+        public void CreateExam(string title, int durationMinutes, int passingScore, ExamOwnerType ownerType, Guid? companyId)
         {
-            CheckExamContent(title, description, durationMinutes, passingScore, ownerType, companyId);
+            CheckExamContent(title, durationMinutes, passingScore, ownerType, companyId);
             SetId();
             setTitle(title);
-            setDescription(description);
             setDurationMinutes(durationMinutes);
             setPassingScore(passingScore);
             setOwnerType(ownerType);
@@ -130,11 +122,10 @@ namespace Vettingo.ExamService.Domain.Entities
             SetCreatedAt();
         }
 
-        public void UpdateExam(string title, string description, int durationMinutes, int passingScore, ExamOwnerType ownerType, Guid? companyId)
+        public void UpdateExam(string title, int durationMinutes, int passingScore, ExamOwnerType ownerType, Guid? companyId)
         {
-            CheckExamContent(title, description, durationMinutes, passingScore, ownerType, companyId);
+            CheckExamContent(title, durationMinutes, passingScore, ownerType, companyId);
             setTitle(title);
-            setDescription(description);
             setDurationMinutes(durationMinutes);
             setPassingScore(passingScore);
             setOwnerType(ownerType);
@@ -142,10 +133,9 @@ namespace Vettingo.ExamService.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void CheckExamContent(string title, string description, int durationMinutes, int passingScore, ExamOwnerType ownerType, Guid? companyId)
+        public void CheckExamContent(string title, int durationMinutes, int passingScore, ExamOwnerType ownerType, Guid? companyId)
         {
             ArgumentNullException.ThrowIfNullOrWhiteSpace(title, nameof(title));
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(description, nameof(description));
             CheckOwnerType(ownerType);
             CheckNullableGuid(companyId, nameof(companyId));
 

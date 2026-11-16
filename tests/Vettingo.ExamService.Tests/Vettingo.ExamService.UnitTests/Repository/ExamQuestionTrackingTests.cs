@@ -24,7 +24,7 @@ public sealed class ExamQuestionTrackingTests
             .Options;
         using var context = new ExamDbContext(options);
         var exam = new Exam();
-        exam.CreateExam("Backend", "Backend exam", 60, 70, ExamOwnerType.System, null);
+        exam.CreateExam("Backend", 60, 70, ExamOwnerType.System, null);
         var oldMultipleChoice = new MultipleChoiceQuestion();
         oldMultipleChoice.CreateQuestion(exam.Id, "Old multiple choice", 1, 1);
         var oldOption = new MultipleChoiceOption();
@@ -47,7 +47,6 @@ public sealed class ExamQuestionTrackingTests
         {
             ExamId = exam.Id,
             Title = "Updated exam",
-            Description = exam.Description,
             DurationMinutes = exam.DurationMinutes,
             PassingScore = exam.PassingScore,
             MultipleChoiceQuestions = replaceMultipleChoice
@@ -113,7 +112,7 @@ public sealed class ExamQuestionTrackingTests
             .Options;
         using var context = new ExamDbContext(options);
         var exam = new Exam();
-        exam.CreateExam("Backend", "Backend exam", 60, 70, ExamOwnerType.System, null);
+        exam.CreateExam("Backend", 60, 70, ExamOwnerType.System, null);
         context.Attach(exam);
 
         var multipleChoiceQuestion = new MultipleChoiceQuestion();
@@ -142,7 +141,7 @@ public sealed class ExamQuestionTrackingTests
             .Options;
         using var context = new ExamDbContext(options);
         var exam = new Exam();
-        exam.CreateExam("Backend", "Backend exam", 60, 70, ExamOwnerType.System, null);
+        exam.CreateExam("Backend", 60, 70, ExamOwnerType.System, null);
         var multipleChoiceQuestion = new MultipleChoiceQuestion();
         multipleChoiceQuestion.CreateQuestion(exam.Id, "Which option?", 1, 1);
         var option = new MultipleChoiceOption();
@@ -172,7 +171,7 @@ public sealed class ExamQuestionTrackingTests
             .Options;
         using var context = new ExamDbContext(options);
         var exam = new Exam();
-        exam.CreateExam("Backend", "Backend exam", 60, 70, ExamOwnerType.System, null);
+        exam.CreateExam("Backend", 60, 70, ExamOwnerType.System, null);
         var question = new MultipleChoiceQuestion();
         question.CreateQuestion(exam.Id, "Which option?", 1, 1);
         var oldOption = new MultipleChoiceOption();

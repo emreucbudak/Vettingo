@@ -21,7 +21,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.JobStageExam.Query.GetB
                 CompanyId = exam.CompanyId,
                 OwnerType = exam.OwnerType,
                 Title = exam.Title,
-                Description = exam.Description,
                 DurationMinutes = exam.DurationMinutes,
                 MultipleChoiceQuestions = exam.GetMultipleChoiceQuestions()
                     .OrderBy(question => question.DisplayOrder)

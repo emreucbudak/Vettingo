@@ -77,7 +77,7 @@ namespace Vettingo.ExamService.UnitTests.Domain
         private static JobStageExam CreateJobStageExam()
         {
             var exam = new Exam();
-            exam.CreateExam("Backend", "Backend exam", 60, 70, ExamOwnerType.System, null);
+            exam.CreateExam("Backend", 60, 70, ExamOwnerType.System, null);
             var jobExam = new JobStageExam { Exam = exam };
             jobExam.CreateJobStageExam(Guid.NewGuid(), Guid.NewGuid(), exam.Id, new DateOnly(2026, 11, 8), new DateOnly(2026, 11, 9), []);
             return jobExam;

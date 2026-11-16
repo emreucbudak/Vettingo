@@ -45,7 +45,6 @@ namespace Vettingo.ExamService.API.Controllers
                 CompanyId = request.CompanyId,
                 OwnerType = request.OwnerType,
                 Title = request.Title,
-                Description = request.Description,
                 DurationMinutes = request.DurationMinutes,
                 PassingScore = request.PassingScore,
                 MultipleChoiceQuestions = request.MultipleChoiceQuestions,

@@ -23,7 +23,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
                 CompanyId = exam.CompanyId,
                 OwnerType = exam.OwnerType,
                 Title = exam.Title,
-                Description = exam.Description,
                 DurationMinutes = exam.DurationMinutes,
                 PassingScore = exam.PassingScore,
                 CreatedAt = exam.CreatedAt,

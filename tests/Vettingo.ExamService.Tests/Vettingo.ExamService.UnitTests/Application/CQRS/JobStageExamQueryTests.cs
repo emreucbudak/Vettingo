@@ -18,7 +18,7 @@ public class JobStageExamQueryTests
     {
         await using var context = CreateContext();
         var exam = new Exam();
-        exam.CreateExam("Backend", "Backend exam", 60, 70, ExamOwnerType.Company, Guid.NewGuid());
+        exam.CreateExam("Backend", 60, 70, ExamOwnerType.Company, Guid.NewGuid());
         var question = new MultipleChoiceQuestion();
         question.CreateQuestion(exam.Id, "Choose an answer", 2, 1);
         var option = new MultipleChoiceOption();
@@ -34,7 +34,7 @@ public class JobStageExamQueryTests
         attempt.CreateAttempt(jobExam, Guid.NewGuid(), 80, DateTime.UtcNow, DateTime.UtcNow);
         jobExam.AddAttempt(attempt);
         var otherExam = new Exam();
-        otherExam.CreateExam("Other", "Other exam", 30, 50, ExamOwnerType.System, null);
+        otherExam.CreateExam("Other", 30, 50, ExamOwnerType.System, null);
         var otherJobExam = new JobStageExam { Exam = otherExam };
         otherJobExam.CreateJobStageExam(Guid.NewGuid(), Guid.NewGuid(), otherExam.Id, new DateOnly(2026, 11, 8), new DateOnly(2026, 11, 9), []);
         context.JobExams.AddRange(otherJobExam, jobExam);
@@ -47,7 +47,6 @@ public class JobStageExamQueryTests
         response.CompanyId.Should().Be(exam.CompanyId);
         response.OwnerType.Should().Be(exam.OwnerType);
         response.Title.Should().Be(exam.Title);
-        response.Description.Should().Be(exam.Description);
         response.DurationMinutes.Should().Be(exam.DurationMinutes);
         var returnedQuestion = response.MultipleChoiceQuestions.Should().ContainSingle().Subject;
         returnedQuestion.Id.Should().Be(question.Id);
