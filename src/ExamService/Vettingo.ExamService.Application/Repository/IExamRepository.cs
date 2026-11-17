@@ -1,4 +1,5 @@
 using Vettingo.ExamService.Domain.Common;
+using Vettingo.ExamService.Domain.Entities;
 
 namespace Vettingo.ExamService.Application.Repository
 {
@@ -9,6 +10,7 @@ namespace Vettingo.ExamService.Application.Repository
         void Delete(T entity);
         Task<T?> GetByIdAsync(Guid id);
         Task<IEnumerable<T>> GetAllAsync();
+        Task<IReadOnlyList<Exam>> GetExamsByCompanyIdAsync(Guid companyId, CancellationToken cancellationToken);
         Task<int> SaveChangesAsync();
     }
 }

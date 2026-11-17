@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using FlashMediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -5,6 +6,7 @@ using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.DeleteExam;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetAll;
+using Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetByCompanyId;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById;
 
 namespace Vettingo.ExamService.API.Controllers
@@ -18,6 +20,18 @@ namespace Vettingo.ExamService.API.Controllers
         public async Task<IActionResult> GetAllExams([FromQuery] GetAllExamsQueryRequest request)
         {
             return Ok(await mediator.Send(request));
+        }
+
+        [Authorize(Roles = "Company,Human Resources")]
+        [HttpGet("company")]
+        public async Task<IActionResult> GetExamsByCompanyId(CancellationToken cancellationToken)
+        {
+            if (!Guid.TryParse(User.FindFirstValue("companyId"), out var companyId) || companyId == Guid.Empty)
+            {
+                return Unauthorized();
+            }
+
+            return Ok(await mediator.Send(new GetExamsByCompanyIdQueryRequest { CompanyId = companyId }, cancellationToken));
         }
 
         [Authorize(Roles = "Company,Candidate")]

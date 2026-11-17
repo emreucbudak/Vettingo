@@ -1,0 +1,35 @@
+using FlashMediator;
+using Microsoft.Extensions.Logging;
+using Vettingo.ExamService.Application.Repository;
+
+namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetByCompanyId;
+
+public sealed class GetExamsByCompanyIdQueryHandler(
+    IExamRepository<Domain.Entities.Exam> examRepository,
+    ILogger<GetExamsByCompanyIdQueryHandler> logger)
+    : IRequestHandler<GetExamsByCompanyIdQueryRequest, List<GetExamsByCompanyIdQueryResponse>>
+{
+    public async Task<List<GetExamsByCompanyIdQueryResponse>> Handle(
+        GetExamsByCompanyIdQueryRequest request, CancellationToken cancellationToken)
+    {
+        logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetExamsByCompanyIdQueryHandler));
+        var exams = await examRepository.GetExamsByCompanyIdAsync(request.CompanyId, cancellationToken);
+
+        var response = exams
+            .OrderByDescending(exam => exam.CreatedAt)
+            .Select(exam => new GetExamsByCompanyIdQueryResponse
+            {
+                Id = exam.Id,
+                CompanyId = exam.CompanyId,
+                OwnerType = exam.OwnerType,
+                Title = exam.Title,
+                DurationMinutes = exam.DurationMinutes,
+                PassingScore = exam.PassingScore,
+                TotalQuestionCount = exam.MultipleChoiceQuestions.Count + exam.TrueFalseQuestions.Count,
+                CreatedAt = exam.CreatedAt
+            })
+            .ToList();
+
+        return response;
+    }
+}
