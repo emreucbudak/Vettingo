@@ -7,6 +7,7 @@ public sealed class DeleteExamCommandRequestValidator : AbstractValidator<Delete
     public DeleteExamCommandRequestValidator()
     {
         RuleFor(x => x.ExamId).NotEmpty();
+        RuleFor(x => x.CompanyId).NotEmpty();
     }
 }
 
