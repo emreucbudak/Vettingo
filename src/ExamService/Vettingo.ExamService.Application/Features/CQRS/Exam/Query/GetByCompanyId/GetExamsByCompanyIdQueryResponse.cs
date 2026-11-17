@@ -5,7 +5,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetByCompany
 public sealed record GetExamsByCompanyIdQueryResponse
 {
     public Guid Id { get; init; }
-    public Guid? CompanyId { get; init; }
     public ExamOwnerType OwnerType { get; init; }
     public string Title { get; init; } = string.Empty;
     public int DurationMinutes { get; init; }

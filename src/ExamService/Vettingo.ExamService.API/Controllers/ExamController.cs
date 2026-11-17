@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.DeleteExam;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam;
-using Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetAll;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetByCompanyId;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById;
 
@@ -15,13 +14,6 @@ namespace Vettingo.ExamService.API.Controllers
     [ApiController]
     public class ExamController(IMediator mediator) : ControllerBase
     {
-        [Authorize(Roles = "Company,Candidate")]
-        [HttpGet]
-        public async Task<IActionResult> GetAllExams([FromQuery] GetAllExamsQueryRequest request)
-        {
-            return Ok(await mediator.Send(request));
-        }
-
         [Authorize(Roles = "Company,Human Resources")]
         [HttpGet("company")]
         public async Task<IActionResult> GetExamsByCompanyId(CancellationToken cancellationToken)

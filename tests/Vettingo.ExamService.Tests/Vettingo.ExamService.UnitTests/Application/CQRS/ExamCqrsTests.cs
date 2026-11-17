@@ -5,6 +5,7 @@ using NSubstitute;
 using Vettingo.ExamService.Application.DTOs;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam;
+using Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById;
 using Vettingo.ExamService.Application.Repository;
 using Vettingo.ExamService.Application.UnitOfWork;
 using Vettingo.ExamService.Domain.Entities;
@@ -176,6 +177,41 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             trueFalse.Options.Should().ContainSingle(option => option.Type == TrueFalseOptionType.True && !option.IsCorrect);
             trueFalse.Options.Should().ContainSingle(option => option.Type == TrueFalseOptionType.False && option.IsCorrect);
             await unitOfWork.Received(1).SaveChangesAsync(CancellationToken.None);
+        }
+
+        [Fact]
+        public async Task GetExamById_Should_Return_TrueFalse_Options()
+        {
+            var exam = new Exam();
+            exam.CreateExam("Backend Exam", 60, 70, ExamOwnerType.System, null);
+            var question = new TrueFalseQuestion();
+            question.CreateQuestion(exam.Id, "Is this true?", 3, 1);
+
+            var trueOption = new TrueFalseOption();
+            trueOption.CreateOption(question.Id, TrueFalseOptionType.True, false);
+            question.AddOption(trueOption);
+            var falseOption = new TrueFalseOption();
+            falseOption.CreateOption(question.Id, TrueFalseOptionType.False, true);
+            question.AddOption(falseOption);
+            exam.AddTrueFalseQuestion(question);
+
+            var repository = Substitute.For<IExamRepository<Exam>>();
+            repository.GetByIdAsync(exam.Id).Returns(exam);
+            var unitOfWork = Substitute.For<IExamUnitOfWork>();
+            unitOfWork.ExamRepository.Returns(repository);
+            var handler = new GetExamByIdQueryHandler(unitOfWork, Substitute.For<ILogger<GetExamByIdQueryHandler>>());
+
+            var response = await handler.Handle(
+                new GetExamByIdQueryRequest(exam.Id), CancellationToken.None);
+
+            var result = response.TrueFalseQuestions.Should().ContainSingle().Subject;
+            result.Id.Should().Be(question.Id);
+            result.Options.Should().BeEquivalentTo(question.Options.Select(option => new
+            {
+                option.Id,
+                option.Type,
+                option.IsCorrect
+            }));
         }
 
         private static async Task CompleteAsync()

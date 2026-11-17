@@ -472,7 +472,7 @@ PUT  /api/job-applications/{applicationId}/status
 ### Exams and questions
 
 ```text
-GET    /api/exams
+GET    /api/exams/company
 GET    /api/exams/{examId}
 POST   /api/exams
 PUT    /api/exams/{examId}

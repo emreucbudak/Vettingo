@@ -20,7 +20,6 @@ public sealed class GetExamsByCompanyIdQueryHandler(
             .Select(exam => new GetExamsByCompanyIdQueryResponse
             {
                 Id = exam.Id,
-                CompanyId = exam.CompanyId,
                 OwnerType = exam.OwnerType,
                 Title = exam.Title,
                 DurationMinutes = exam.DurationMinutes,

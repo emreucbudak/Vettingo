@@ -1,4 +1,5 @@
 ﻿using FlashMediator;
+using Vettingo.ExamService.Application.DTOs;
 using Vettingo.ExamService.Application.Exceptions;
 using Microsoft.Extensions.Logging;
 using Vettingo.ExamService.Application.UnitOfWork;
@@ -53,6 +54,14 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
                         QuestionText = question.QuestionText,
                         Weight = question.Weight,
                         DisplayOrder = question.DisplayOrder,
+                        Options = question.Options
+                            .Select(option => new GetExamByIdTrueFalseOptionResponse
+                            {
+                                Id = option.Id,
+                                Type = option.Type,
+                                IsCorrect = option.IsCorrect
+                            })
+                            .ToList()
                     })
                     .ToList()
             };

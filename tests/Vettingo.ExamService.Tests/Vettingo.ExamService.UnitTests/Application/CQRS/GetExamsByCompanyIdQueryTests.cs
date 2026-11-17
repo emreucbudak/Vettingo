@@ -47,8 +47,10 @@ public sealed class GetExamsByCompanyIdQueryTests
 
         var companyExam = result.Should().ContainSingle().Subject;
         companyExam.Id.Should().Be(exam.Id);
-        companyExam.CompanyId.Should().Be(companyId);
         companyExam.Title.Should().Be(exam.Title);
         companyExam.TotalQuestionCount.Should().Be(2);
+        var json = JsonSerializer.SerializeToElement(
+            companyExam, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        json.TryGetProperty("companyId", out _).Should().BeFalse();
     }
 }
