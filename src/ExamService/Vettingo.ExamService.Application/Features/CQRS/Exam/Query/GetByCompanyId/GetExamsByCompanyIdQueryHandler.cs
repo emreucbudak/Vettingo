@@ -1,11 +1,11 @@
 using FlashMediator;
 using Microsoft.Extensions.Logging;
-using Vettingo.ExamService.Application.Repository;
+using Vettingo.ExamService.Application.UnitOfWork;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetByCompanyId;
 
 public sealed class GetExamsByCompanyIdQueryHandler(
-    IExamRepository<Domain.Entities.Exam> examRepository,
+    IExamUnitOfWork unitOfWork,
     ILogger<GetExamsByCompanyIdQueryHandler> logger)
     : IRequestHandler<GetExamsByCompanyIdQueryRequest, List<GetExamsByCompanyIdQueryResponse>>
 {
@@ -13,7 +13,7 @@ public sealed class GetExamsByCompanyIdQueryHandler(
         GetExamsByCompanyIdQueryRequest request, CancellationToken cancellationToken)
     {
         logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetExamsByCompanyIdQueryHandler));
-        var exams = await examRepository.GetExamsByCompanyIdAsync(request.CompanyId, cancellationToken);
+        var exams = await unitOfWork.ExamRepository.GetExamsByCompanyIdAsync(request.CompanyId, cancellationToken);
 
         var response = exams
             .OrderByDescending(exam => exam.CreatedAt)

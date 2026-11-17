@@ -35,10 +35,7 @@ public sealed class UpdateExamCommandRequestValidator : AbstractValidator<Update
             question.RuleFor(x => x.QuestionText).NotEmpty().MaximumLength(2000);
             question.RuleFor(x => x.Weight).GreaterThan(0);
             question.RuleFor(x => x.DisplayOrder).GreaterThan(0);
-            question.RuleFor(x => x.TrueAnswer).NotEmpty().MaximumLength(2000)
-                .When(x => x.TrueAnswer is not null);
-            question.RuleFor(x => x.FalseAnswer).NotEmpty().MaximumLength(2000)
-                .When(x => x.FalseAnswer is not null);
+
             question.RuleFor(x => x.Options)
                 .Must(options => options is { Count: 2 } &&
                     options.Count(option => option is { Type: TrueFalseOptionType.True }) == 1 &&

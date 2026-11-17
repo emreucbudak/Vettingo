@@ -1,16 +1,16 @@
 ﻿using FlashMediator;
 using Vettingo.ExamService.Application.Exceptions;
 using Microsoft.Extensions.Logging;
-using Vettingo.ExamService.Application.Repository;
+using Vettingo.ExamService.Application.UnitOfWork;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam
 {
-    public class UpdateExamCommandHandler(IExamRepository<Domain.Entities.Exam> examRepository, ILogger<UpdateExamCommandHandler> logger) : IRequestHandler<UpdateExamCommandRequest>
+    public class UpdateExamCommandHandler(IExamUnitOfWork unitOfWork, ILogger<UpdateExamCommandHandler> logger) : IRequestHandler<UpdateExamCommandRequest>
     {
         public async Task Handle(UpdateExamCommandRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(UpdateExamCommandHandler));
-            var exam = await examRepository.GetByIdAsync(request.ExamId);
+            var exam = await unitOfWork.ExamRepository.GetByIdAsync(request.ExamId);
 
             if (exam is null)
             {
@@ -46,8 +46,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam
                 foreach (var questionRequest in trueFalseRequests)
                 {
                     Domain.Entities.TrueFalseQuestion question = new();
-                    question.CreateQuestion(exam.Id, questionRequest.QuestionText, questionRequest.Weight, questionRequest.DisplayOrder,
-                        questionRequest.TrueAnswer ?? "True", questionRequest.FalseAnswer ?? "False");
+                    question.CreateQuestion(exam.Id, questionRequest.QuestionText, questionRequest.Weight, questionRequest.DisplayOrder);
 
                     foreach (var optionRequest in questionRequest.Options)
                     {
@@ -62,8 +61,8 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam
                 exam.UpdateTrueFalseQuestions(questions);
             }
 
-            examRepository.Update(exam);
-            await examRepository.SaveChangesAsync();
+            unitOfWork.ExamRepository.Update(exam);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
         }
     }
 }

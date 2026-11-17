@@ -11,11 +11,13 @@ namespace Vettingo.ExamService.Persistence.UnitOfWork;
 
 public sealed class ExamUnitOfWork(
     ExamDbContext context,
+    IExamRepository<Exam> examRepository,
     ICapPublisher capPublisher,
     IDispatcher dispatcher) : IExamUnitOfWork
 {
     private PostgreSqlCapTransaction? _transaction;
 
+    public IExamRepository<Exam> ExamRepository { get; } = examRepository;
     public IExamRepository<JobStageExam> JobStageExamRepository { get; } = new ExamRepository<JobStageExam>(context);
     public IExamRepository<ExamAttempt> ExamAttemptRepository { get; } = new ExamRepository<ExamAttempt>(context);
 

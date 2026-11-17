@@ -5,6 +5,7 @@ namespace Vettingo.ExamService.Application.UnitOfWork;
 
 public interface IExamUnitOfWork : IAsyncDisposable
 {
+    IExamRepository<Exam> ExamRepository { get; }
     IExamRepository<JobStageExam> JobStageExamRepository { get; }
     IExamRepository<ExamAttempt> ExamAttemptRepository { get; }
 

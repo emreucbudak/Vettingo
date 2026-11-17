@@ -4,6 +4,7 @@ using NSubstitute;
 using Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.Query.GetByExam;
 using Vettingo.ExamService.Application.Features.CQRS.TrueFalseQuestion.Query.GetByExam;
 using Vettingo.ExamService.Application.Repository;
+using Vettingo.ExamService.Application.UnitOfWork;
 using Vettingo.ExamService.Domain.Entities;
 using Vettingo.ExamService.Domain.Enums;
 
@@ -17,18 +18,20 @@ public sealed class QuestionAggregateHandlerTests
     public async Task Question_Query_When_Exam_Is_Missing_Should_Return_Empty_Collection(bool multipleChoice)
     {
         var repository = Substitute.For<IExamRepository<Exam>>();
+        var unitOfWork = Substitute.For<IExamUnitOfWork>();
+        unitOfWork.ExamRepository.Returns(repository);
         var examId = Guid.NewGuid();
         repository.GetByIdAsync(examId).Returns((Exam?)null);
 
         if (multipleChoice)
         {
-            var result = await new GetMultipleChoiceQuestionsByExamQueryHandler(repository, Logger<GetMultipleChoiceQuestionsByExamQueryHandler>())
+            var result = await new GetMultipleChoiceQuestionsByExamQueryHandler(unitOfWork, Logger<GetMultipleChoiceQuestionsByExamQueryHandler>())
                 .Handle(new GetMultipleChoiceQuestionsByExamQueryRequest(examId), CancellationToken.None);
             result.Should().BeEmpty();
         }
         else
         {
-            var result = await new GetTrueFalseQuestionsByExamQueryHandler(repository, Logger<GetTrueFalseQuestionsByExamQueryHandler>())
+            var result = await new GetTrueFalseQuestionsByExamQueryHandler(unitOfWork, Logger<GetTrueFalseQuestionsByExamQueryHandler>())
                 .Handle(new GetTrueFalseQuestionsByExamQueryRequest(examId), CancellationToken.None);
             result.Should().BeEmpty();
         }
@@ -42,9 +45,11 @@ public sealed class QuestionAggregateHandlerTests
         firstQuestion.CreateQuestion(exam.Id, "First question", 2, 1, "Yes", "No");
         exam.AddTrueFalseQuestion(firstQuestion);
         var repository = Substitute.For<IExamRepository<Exam>>();
+        var unitOfWork = Substitute.For<IExamUnitOfWork>();
+        unitOfWork.ExamRepository.Returns(repository);
         repository.GetByIdAsync(exam.Id).Returns(exam);
 
-        var result = (await new GetTrueFalseQuestionsByExamQueryHandler(repository, Logger<GetTrueFalseQuestionsByExamQueryHandler>())
+        var result = (await new GetTrueFalseQuestionsByExamQueryHandler(unitOfWork, Logger<GetTrueFalseQuestionsByExamQueryHandler>())
             .Handle(new GetTrueFalseQuestionsByExamQueryRequest(exam.Id), CancellationToken.None)).ToList();
 
         result.Select(question => question.DisplayOrder).Should().Equal(1, 2);

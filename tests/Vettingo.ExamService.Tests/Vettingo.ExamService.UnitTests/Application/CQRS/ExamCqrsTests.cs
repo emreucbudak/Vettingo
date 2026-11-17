@@ -7,6 +7,7 @@ using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam;
 using Vettingo.ExamService.Application.Features.CQRS.MultipleChoiceQuestion.Query.GetByExam;
 using Vettingo.ExamService.Application.Repository;
+using Vettingo.ExamService.Application.UnitOfWork;
 using Vettingo.ExamService.Domain.Entities;
 using Vettingo.ExamService.Domain.Enums;
 
@@ -72,20 +73,19 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
         [InlineData("""{"trueFalseQuestions":[{"questionText":"Question","weight":1,"displayOrder":1,"options":[{"isCorrect":true},{"type":2}]}]}""", "TrueFalseQuestions[0].Options")]
         public void Exam_Validators_Should_Require_Options_And_Valid_Enum_Values(string json, string propertyName)
         {
+            var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
             var request = JsonSerializer.Deserialize<CreateExamCommandRequest>(
-                json, new JsonSerializerOptions(JsonSerializerDefaults.Web))! with
+                json, jsonOptions)! with
             {
                 Title = "Exam",
                 DurationMinutes = 30
             };
 
-            var updateRequest = new UpdateExamCommandRequest
+            var updateRequest = JsonSerializer.Deserialize<UpdateExamCommandRequest>(json, jsonOptions)! with
             {
                 ExamId = Guid.NewGuid(),
                 Title = request.Title,
-                DurationMinutes = request.DurationMinutes,
-                MultipleChoiceQuestions = request.MultipleChoiceQuestions,
-                TrueFalseQuestions = request.TrueFalseQuestions
+                DurationMinutes = request.DurationMinutes
             };
 
             new CreateExamCommandRequestValidator().Validate(request).Errors
@@ -98,9 +98,10 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
         public async Task CreateExamCommandHandler_Should_Create_And_Save_Exam()
         {
             var repository = Substitute.For<IExamRepository<Exam>>();
+            var unitOfWork = Substitute.For<IExamUnitOfWork>();
+            unitOfWork.ExamRepository.Returns(repository);
             repository.AddAsync(Arg.Any<Exam>()).Returns(_ => CompleteAsync());
-            repository.SaveChangesAsync().Returns(_ => ReturnAsync(1));
-            var handler = new CreateExamCommandHandler(repository, Substitute.For<ILogger<CreateExamCommandHandler>>());
+            var handler = new CreateExamCommandHandler(unitOfWork, Substitute.For<ILogger<CreateExamCommandHandler>>());
             var request = new CreateExamCommandRequest
             {
                 Title = "Backend Exam",
@@ -114,7 +115,7 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             await repository.Received(1).AddAsync(Arg.Is<Exam>(exam =>
                 exam.Title == request.Title &&
                 exam.PassingScore == request.PassingScore));
-            await repository.Received(1).SaveChangesAsync();
+            await unitOfWork.Received(1).SaveChangesAsync(CancellationToken.None);
         }
 
         [Fact]
@@ -145,9 +146,11 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
                 }
                 """, new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
             var repository = Substitute.For<IExamRepository<Exam>>();
+            var unitOfWork = Substitute.For<IExamUnitOfWork>();
+            unitOfWork.ExamRepository.Returns(repository);
             Exam? addedExam = null;
             repository.AddAsync(Arg.Do<Exam>(exam => addedExam = exam)).Returns(Task.CompletedTask);
-            var handler = new CreateExamCommandHandler(repository, Substitute.For<ILogger<CreateExamCommandHandler>>());
+            var handler = new CreateExamCommandHandler(unitOfWork, Substitute.For<ILogger<CreateExamCommandHandler>>());
 
             new CreateExamCommandRequestValidator().Validate(request).IsValid.Should().BeTrue();
             await handler.Handle(request, CancellationToken.None);
@@ -173,7 +176,7 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             trueFalse.Options.Should().OnlyContain(option => option.TrueFalseQuestionId == trueFalse.Id);
             trueFalse.Options.Should().ContainSingle(option => option.Type == TrueFalseOptionType.True && !option.IsCorrect);
             trueFalse.Options.Should().ContainSingle(option => option.Type == TrueFalseOptionType.False && option.IsCorrect);
-            await repository.Received(1).SaveChangesAsync();
+            await unitOfWork.Received(1).SaveChangesAsync(CancellationToken.None);
         }
 
         [Fact]
@@ -182,6 +185,8 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             typeof(GetMultipleChoiceQuestionsByExamQueryResponse).GetProperty("Topic").Should().BeNull();
             typeof(GetMultipleChoiceQuestionsByExamQueryResponse).GetProperty("Point").Should().BeNull();
             var repository = Substitute.For<IExamRepository<Exam>>();
+            var unitOfWork = Substitute.For<IExamUnitOfWork>();
+            unitOfWork.ExamRepository.Returns(repository);
             var exam = CreateExam();
             var question = CreateMultipleChoiceQuestion(exam.Id);
             var laterQuestion = new MultipleChoiceQuestion();
@@ -189,7 +194,7 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             exam.AddMultipleChoiceQuestion(laterQuestion);
             exam.AddMultipleChoiceQuestion(question);
             repository.GetByIdAsync(exam.Id).Returns(_ => ReturnAsync<Exam?>(exam));
-            var handler = new GetMultipleChoiceQuestionsByExamQueryHandler(repository, Substitute.For<ILogger<GetMultipleChoiceQuestionsByExamQueryHandler>>());
+            var handler = new GetMultipleChoiceQuestionsByExamQueryHandler(unitOfWork, Substitute.For<ILogger<GetMultipleChoiceQuestionsByExamQueryHandler>>());
 
             var response = (await handler.Handle(new GetMultipleChoiceQuestionsByExamQueryRequest(exam.Id), CancellationToken.None)).ToList();
 

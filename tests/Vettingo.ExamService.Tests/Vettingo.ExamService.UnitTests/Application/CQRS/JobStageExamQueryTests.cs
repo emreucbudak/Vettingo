@@ -2,8 +2,10 @@ using System.Text.Json;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using NSubstitute;
 using Vettingo.ExamService.Application.Exceptions;
 using Vettingo.ExamService.Application.Features.CQRS.JobStageExam.Query.GetByJobId;
+using Vettingo.ExamService.Application.UnitOfWork;
 using Vettingo.ExamService.Domain.Entities;
 using Vettingo.ExamService.Domain.Enums;
 using Vettingo.ExamService.Persistence.DbContext;
@@ -72,6 +74,11 @@ public class JobStageExamQueryTests
     private static ExamDbContext CreateContext() => new(new DbContextOptionsBuilder<ExamDbContext>()
         .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
 
-    private static GetJobStageExamByJobIdQueryHandler CreateHandler(ExamDbContext context) => new(
-        new ExamRepository<JobStageExam>(context), new ExamRepository<Exam>(context), NullLogger<GetJobStageExamByJobIdQueryHandler>.Instance);
+    private static GetJobStageExamByJobIdQueryHandler CreateHandler(ExamDbContext context)
+    {
+        var unitOfWork = Substitute.For<IExamUnitOfWork>();
+        unitOfWork.JobStageExamRepository.Returns(new ExamRepository<JobStageExam>(context));
+        unitOfWork.ExamRepository.Returns(new ExamRepository<Exam>(context));
+        return new GetJobStageExamByJobIdQueryHandler(unitOfWork, NullLogger<GetJobStageExamByJobIdQueryHandler>.Instance);
+    }
 }

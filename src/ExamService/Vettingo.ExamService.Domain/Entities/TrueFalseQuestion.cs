@@ -13,8 +13,6 @@ namespace Vettingo.ExamService.Domain.Entities
         public string QuestionText { get; private set; } = string.Empty;
         public int Weight { get; private set; }
         public int DisplayOrder { get; private set; }
-        public string TrueAnswer { get; private set; } = string.Empty;
-        public string FalseAnswer { get; private set; } = string.Empty;
         public List<TrueFalseOption> Options { get; private set; } = new();
 
         public void AddOption(TrueFalseOption option)
@@ -23,36 +21,34 @@ namespace Vettingo.ExamService.Domain.Entities
             Options.Add(option);
         }
 
-        public void CreateQuestion(Guid examId, string questionText, int weight, int displayOrder, string trueAnswer, string falseAnswer)
+        public void CreateQuestion(Guid examId, string questionText, int weight, int displayOrder)
         {
-            CheckTrueFalseQuestionContent(examId, questionText, weight, displayOrder, trueAnswer, falseAnswer);
+            CheckTrueFalseQuestionContent(examId, questionText, weight, displayOrder);
             SetId();
             SetCreatedAt();
             ExamId = examId;
-            UpdateQuestion(questionText, weight, displayOrder, trueAnswer, falseAnswer);
+            UpdateQuestion(questionText, weight, displayOrder);
         }
 
-        public void UpdateQuestion(string questionText, int weight, int displayOrder, string trueAnswer, string falseAnswer)
+        public void UpdateQuestion(string questionText, int weight, int displayOrder)
         {
-            CheckTrueFalseQuestionContent(questionText, weight, displayOrder, trueAnswer, falseAnswer);
+            CheckTrueFalseQuestionContent(questionText, weight, displayOrder);
             QuestionText = questionText;
             Weight = weight;
             DisplayOrder = displayOrder;
-            TrueAnswer = trueAnswer;
-            FalseAnswer = falseAnswer;
+
         }
 
-        public void CheckTrueFalseQuestionContent(Guid examId, string questionText, int weight, int displayOrder, string trueAnswer, string falseAnswer)
+        public void CheckTrueFalseQuestionContent(Guid examId, string questionText, int weight, int displayOrder)
         {
             CheckGuid(examId, nameof(examId));
-            CheckTrueFalseQuestionContent(questionText, weight, displayOrder, trueAnswer, falseAnswer);
+            CheckTrueFalseQuestionContent(questionText, weight, displayOrder);
         }
 
-        public void CheckTrueFalseQuestionContent(string questionText, int weight, int displayOrder, string trueAnswer, string falseAnswer)
+        public void CheckTrueFalseQuestionContent(string questionText, int weight, int displayOrder)
         {
             ArgumentNullException.ThrowIfNullOrWhiteSpace(questionText, nameof(questionText));
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(trueAnswer, nameof(trueAnswer));
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(falseAnswer, nameof(falseAnswer));
+  
 
             if (weight <= 0)
             {

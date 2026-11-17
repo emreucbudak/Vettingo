@@ -5,6 +5,7 @@ using NSubstitute;
 using Vettingo.ExamService.Application.DTOs;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam;
 using Vettingo.ExamService.Application.Repository;
+using Vettingo.ExamService.Application.UnitOfWork;
 using Vettingo.ExamService.Domain.Entities;
 using Vettingo.ExamService.Domain.Enums;
 using Vettingo.ExamService.Persistence.DbContext;
@@ -40,9 +41,11 @@ public sealed class ExamQuestionTrackingTests
         context.Attach(exam);
 
         var repository = Substitute.For<IExamRepository<Exam>>();
+        var unitOfWork = Substitute.For<IExamUnitOfWork>();
+        unitOfWork.ExamRepository.Returns(repository);
         repository.GetByIdAsync(exam.Id).Returns(exam);
         repository.When(x => x.Update(exam)).Do(_ => context.Exams.Update(exam));
-        var handler = new UpdateExamCommandHandler(repository, NullLogger<UpdateExamCommandHandler>.Instance);
+        var handler = new UpdateExamCommandHandler(unitOfWork, NullLogger<UpdateExamCommandHandler>.Instance);
         var request = new UpdateExamCommandRequest
         {
             ExamId = exam.Id,
@@ -50,27 +53,27 @@ public sealed class ExamQuestionTrackingTests
             DurationMinutes = exam.DurationMinutes,
             PassingScore = exam.PassingScore,
             MultipleChoiceQuestions = replaceMultipleChoice
-                ? [new CreateExamMultipleChoiceQuestionDto
+                ? [new UpdateExamMultipleChoiceQuestionDto
                 {
                     QuestionText = "New multiple choice",
                     Weight = 2,
                     DisplayOrder = 1,
-                    Options = [new CreateExamMultipleChoiceOptionDto
+                    Options = [new UpdateExamMultipleChoiceOptionDto
                     {
                         OptionText = "New option", IsCorrect = true, Order = MultipleChoiceOptionOrder.C
                     }]
                 }]
                 : [],
             TrueFalseQuestions = replaceTrueFalse
-                ? [new CreateExamTrueFalseQuestionDto
+                ? [new UpdateExamTrueFalseQuestionDto
                 {
                     QuestionText = "New true/false",
                     Weight = 2,
                     DisplayOrder = 2,
                     Options =
                     [
-                        new CreateExamTrueFalseOptionDto { Type = TrueFalseOptionType.True, IsCorrect = true },
-                        new CreateExamTrueFalseOptionDto { Type = TrueFalseOptionType.False, IsCorrect = false }
+                        new UpdateExamTrueFalseOptionDto { Type = TrueFalseOptionType.True, IsCorrect = true },
+                        new UpdateExamTrueFalseOptionDto { Type = TrueFalseOptionType.False, IsCorrect = false }
                     ]
                 }]
                 : null
@@ -101,7 +104,7 @@ public sealed class ExamQuestionTrackingTests
             trueFalseOption.TrueFalseQuestionId.Should().Be(trueFalse.Id);
             context.Entry(trueFalseOption).State.Should().Be(replaceTrueFalse ? EntityState.Added : EntityState.Unchanged);
         }
-        await repository.Received(1).SaveChangesAsync();
+        await unitOfWork.Received(1).SaveChangesAsync(CancellationToken.None);
     }
 
     [Fact]

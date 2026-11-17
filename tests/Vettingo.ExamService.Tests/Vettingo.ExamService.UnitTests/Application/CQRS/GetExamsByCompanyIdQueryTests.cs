@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetByCompanyId;
 using Vettingo.ExamService.Application.Repository;
+using Vettingo.ExamService.Application.UnitOfWork;
 using Vettingo.ExamService.Domain.Entities;
 using Vettingo.ExamService.Domain.Enums;
 
@@ -37,8 +38,10 @@ public sealed class GetExamsByCompanyIdQueryTests
         exam.AddTrueFalseQuestion(trueFalseQuestion);
         IReadOnlyList<Exam> exams = [exam];
         var repository = Substitute.For<IExamRepository<Exam>>();
+        var unitOfWork = Substitute.For<IExamUnitOfWork>();
+        unitOfWork.ExamRepository.Returns(repository);
         repository.GetExamsByCompanyIdAsync(companyId, CancellationToken.None).Returns(exams);
-        var handler = new GetExamsByCompanyIdQueryHandler(repository, NullLogger<GetExamsByCompanyIdQueryHandler>.Instance);
+        var handler = new GetExamsByCompanyIdQueryHandler(unitOfWork, NullLogger<GetExamsByCompanyIdQueryHandler>.Instance);
 
         var result = await handler.Handle(new GetExamsByCompanyIdQueryRequest { CompanyId = companyId }, CancellationToken.None);
 

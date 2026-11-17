@@ -1,10 +1,10 @@
 ﻿using FlashMediator;
 using Microsoft.Extensions.Logging;
-using Vettingo.ExamService.Application.Repository;
+using Vettingo.ExamService.Application.UnitOfWork;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam
 {
-    public class CreateExamCommandHandler(IExamRepository<Domain.Entities.Exam> examRepository, ILogger<CreateExamCommandHandler> logger) : IRequestHandler<CreateExamCommandRequest>
+    public class CreateExamCommandHandler(IExamUnitOfWork unitOfWork, ILogger<CreateExamCommandHandler> logger) : IRequestHandler<CreateExamCommandRequest>
     {
         public async Task Handle(CreateExamCommandRequest request, CancellationToken cancellationToken)
         {
@@ -30,8 +30,8 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam
             foreach (var questionRequest in request.TrueFalseQuestions ?? [])
             {
                 Domain.Entities.TrueFalseQuestion question = new();
-                question.CreateQuestion(exam.Id, questionRequest.QuestionText, questionRequest.Weight, questionRequest.DisplayOrder,
-                    questionRequest.TrueAnswer ?? "True", questionRequest.FalseAnswer ?? "False");
+                question.CreateQuestion(exam.Id, questionRequest.QuestionText, questionRequest.Weight, questionRequest.DisplayOrder
+                    );
 
                 foreach (var optionRequest in questionRequest.Options)
                 {
@@ -43,8 +43,8 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam
                 exam.AddTrueFalseQuestion(question);
             }
 
-            await examRepository.AddAsync(exam);
-            await examRepository.SaveChangesAsync();
+            await unitOfWork.ExamRepository.AddAsync(exam);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
         }
     }
 }
