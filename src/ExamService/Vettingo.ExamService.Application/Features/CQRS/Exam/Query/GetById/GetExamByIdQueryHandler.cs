@@ -53,8 +53,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
                         QuestionText = question.QuestionText,
                         Weight = question.Weight,
                         DisplayOrder = question.DisplayOrder,
-                        TrueAnswer = question.TrueAnswer,
-                        FalseAnswer = question.FalseAnswer
                     })
                     .ToList()
             };

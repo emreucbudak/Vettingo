@@ -34,7 +34,7 @@ public sealed class GetExamsByCompanyIdQueryTests
         question.CreateQuestion(exam.Id, "Question", 1, 1);
         exam.AddMultipleChoiceQuestion(question);
         var trueFalseQuestion = new TrueFalseQuestion();
-        trueFalseQuestion.CreateQuestion(exam.Id, "True or false?", 1, 2, "True", "False");
+        trueFalseQuestion.CreateQuestion(exam.Id, "True or false?", 1, 2);
         exam.AddTrueFalseQuestion(trueFalseQuestion);
         IReadOnlyList<Exam> exams = [exam];
         var repository = Substitute.For<IExamRepository<Exam>>();

@@ -16,7 +16,7 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS;
 public class JobStageExamQueryTests
 {
     [Fact]
-    public async Task Handle_Should_Find_By_JobId_And_Return_Exam_With_Related_Data()
+    public async Task Handle_Should_Find_By_JobId_And_ExamId_And_Return_Related_Data()
     {
         await using var context = CreateContext();
         var exam = new Exam();
@@ -28,7 +28,7 @@ public class JobStageExamQueryTests
         question.AddOption(option);
         exam.AddMultipleChoiceQuestion(question);
         var trueFalseQuestion = new TrueFalseQuestion();
-        trueFalseQuestion.CreateQuestion(exam.Id, "Is this true?", 1, 2, "True", "False");
+        trueFalseQuestion.CreateQuestion(exam.Id, "Is this true?", 1, 2);
         exam.AddTrueFalseQuestion(trueFalseQuestion);
         var jobExam = new JobStageExam { Exam = exam };
         jobExam.CreateJobStageExam(Guid.NewGuid(), Guid.NewGuid(), exam.Id, new DateOnly(2026, 11, 8), new DateOnly(2026, 11, 9), []);
@@ -38,13 +38,15 @@ public class JobStageExamQueryTests
         var otherExam = new Exam();
         otherExam.CreateExam("Other", 30, 50, ExamOwnerType.System, null);
         var otherJobExam = new JobStageExam { Exam = otherExam };
-        otherJobExam.CreateJobStageExam(Guid.NewGuid(), Guid.NewGuid(), otherExam.Id, new DateOnly(2026, 11, 8), new DateOnly(2026, 11, 9), []);
+        otherJobExam.CreateJobStageExam(Guid.NewGuid(), jobExam.JobId, otherExam.Id, new DateOnly(2026, 11, 8), new DateOnly(2026, 11, 9), []);
         context.JobExams.AddRange(otherJobExam, jobExam);
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
         var handler = CreateHandler(context);
 
-        var response = await handler.Handle(new GetJobStageExamByJobIdQueryRequest { JobId = jobExam.JobId }, CancellationToken.None);
+        var request = new GetJobStageExamByJobIdQueryRequest { JobId = jobExam.JobId, ExamId = exam.Id };
+        var responses = await handler.Handle(request, CancellationToken.None);
+        var response = responses.Should().ContainSingle().Subject;
 
         response.CompanyId.Should().Be(exam.CompanyId);
         response.OwnerType.Should().Be(exam.OwnerType);
@@ -53,7 +55,7 @@ public class JobStageExamQueryTests
         var returnedQuestion = response.MultipleChoiceQuestions.Should().ContainSingle().Subject;
         returnedQuestion.Id.Should().Be(question.Id);
         returnedQuestion.Options.Should().ContainSingle().Which.OptionText.Should().Be(option.OptionText);
-        response.TrueFalseQuestions.Should().ContainSingle().Which.TrueAnswer.Should().Be(trueFalseQuestion.TrueAnswer);
+        response.TrueFalseQuestions.Should().ContainSingle().Which.Id.Should().Be(trueFalseQuestion.Id);
         context.ChangeTracker.Entries<ExamAttempt>().Should().BeEmpty();
         var serialize = () => JsonSerializer.Serialize(response);
         serialize.Should().NotThrow();
@@ -66,7 +68,8 @@ public class JobStageExamQueryTests
         await using var context = CreateContext();
         var handler = CreateHandler(context);
 
-        var action = () => handler.Handle(new GetJobStageExamByJobIdQueryRequest { JobId = Guid.NewGuid() }, CancellationToken.None);
+        var request = new GetJobStageExamByJobIdQueryRequest { JobId = Guid.NewGuid(), ExamId = Guid.NewGuid() };
+        var action = () => handler.Handle(request, CancellationToken.None);
 
         await action.Should().ThrowAsync<NotFoundException>();
     }

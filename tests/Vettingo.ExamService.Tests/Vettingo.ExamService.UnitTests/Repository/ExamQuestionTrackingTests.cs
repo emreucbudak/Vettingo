@@ -33,7 +33,7 @@ public sealed class ExamQuestionTrackingTests
         oldMultipleChoice.AddOption(oldOption);
         exam.AddMultipleChoiceQuestion(oldMultipleChoice);
         var oldTrueFalse = new TrueFalseQuestion();
-        oldTrueFalse.CreateQuestion(exam.Id, "Old true/false", 1, 2, "Yes", "No");
+        oldTrueFalse.CreateQuestion(exam.Id, "Old true/false", 1, 2);
         var oldTrueFalseOption = new TrueFalseOption();
         oldTrueFalseOption.CreateOption(oldTrueFalse.Id, TrueFalseOptionType.True, true);
         oldTrueFalse.AddOption(oldTrueFalseOption);
@@ -124,7 +124,7 @@ public sealed class ExamQuestionTrackingTests
         option.CreateOption(multipleChoiceQuestion.Id, "A", true);
         multipleChoiceQuestion.AddOption(option);
         var trueFalseQuestion = new TrueFalseQuestion();
-        trueFalseQuestion.CreateQuestion(exam.Id, "Is this true?", 1, 2, "True", "False");
+        trueFalseQuestion.CreateQuestion(exam.Id, "Is this true?", 1, 2);
 
         exam.AddMultipleChoiceQuestion(multipleChoiceQuestion);
         exam.AddTrueFalseQuestion(trueFalseQuestion);
@@ -151,7 +151,7 @@ public sealed class ExamQuestionTrackingTests
         option.CreateOption(multipleChoiceQuestion.Id, "A", true);
         multipleChoiceQuestion.AddOption(option);
         var trueFalseQuestion = new TrueFalseQuestion();
-        trueFalseQuestion.CreateQuestion(exam.Id, "Is this true?", 1, 2, "True", "False");
+        trueFalseQuestion.CreateQuestion(exam.Id, "Is this true?", 1, 2);
         exam.AddMultipleChoiceQuestion(multipleChoiceQuestion);
         exam.AddTrueFalseQuestion(trueFalseQuestion);
         context.Attach(exam);
@@ -182,7 +182,7 @@ public sealed class ExamQuestionTrackingTests
         question.AddOption(oldOption);
         exam.AddMultipleChoiceQuestion(question);
         var trueFalseQuestion = new TrueFalseQuestion();
-        trueFalseQuestion.CreateQuestion(exam.Id, "Is this true?", 1, 2, "True", "False");
+        trueFalseQuestion.CreateQuestion(exam.Id, "Is this true?", 1, 2);
         exam.AddTrueFalseQuestion(trueFalseQuestion);
         context.Attach(exam);
 
@@ -191,7 +191,7 @@ public sealed class ExamQuestionTrackingTests
         var newOption = new MultipleChoiceOption();
         newOption.CreateOption(question.Id, "B", true);
         question.AddOption(newOption);
-        trueFalseQuestion.UpdateQuestion("Updated true/false", 2, 1, "Yes", "No");
+        trueFalseQuestion.UpdateQuestion("Updated true/false", 2, 1);
         context.ChangeTracker.DetectChanges();
 
         context.Entry(exam).State.Should().Be(EntityState.Unchanged);
