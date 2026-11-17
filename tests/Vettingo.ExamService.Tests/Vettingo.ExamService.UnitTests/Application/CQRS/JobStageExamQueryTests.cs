@@ -16,7 +16,7 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS;
 public class JobStageExamQueryTests
 {
     [Fact]
-    public async Task Handle_Should_Find_By_JobId_And_ExamId_And_Return_Related_Data()
+    public async Task Handle_Should_Return_All_Matching_Stages_With_Exam_Data()
     {
         await using var context = CreateContext();
         var exam = new Exam();
@@ -39,14 +39,18 @@ public class JobStageExamQueryTests
         otherExam.CreateExam("Other", 30, 50, ExamOwnerType.System, null);
         var otherJobExam = new JobStageExam { Exam = otherExam };
         otherJobExam.CreateJobStageExam(Guid.NewGuid(), jobExam.JobId, otherExam.Id, new DateOnly(2026, 11, 8), new DateOnly(2026, 11, 9), []);
-        context.JobExams.AddRange(otherJobExam, jobExam);
+        var matchingJobExam = new JobStageExam { Exam = exam };
+        matchingJobExam.CreateJobStageExam(Guid.NewGuid(), jobExam.JobId, exam.Id, new DateOnly(2026, 11, 10), new DateOnly(2026, 11, 11), []);
+        context.JobExams.AddRange(otherJobExam, jobExam, matchingJobExam);
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
         var handler = CreateHandler(context);
 
         var request = new GetJobStageExamByJobIdQueryRequest { JobId = jobExam.JobId, ExamId = exam.Id };
         var responses = await handler.Handle(request, CancellationToken.None);
-        var response = responses.Should().ContainSingle().Subject;
+        responses.Should().HaveCount(2);
+        var response = responses[0];
+        responses[1].Should().BeEquivalentTo(response);
 
         response.CompanyId.Should().Be(exam.CompanyId);
         response.OwnerType.Should().Be(exam.OwnerType);
@@ -81,7 +85,6 @@ public class JobStageExamQueryTests
     {
         var unitOfWork = Substitute.For<IExamUnitOfWork>();
         unitOfWork.JobStageExamRepository.Returns(new ExamRepository<JobStageExam>(context));
-        unitOfWork.ExamRepository.Returns(new ExamRepository<Exam>(context));
         return new GetJobStageExamByJobIdQueryHandler(unitOfWork, NullLogger<GetJobStageExamByJobIdQueryHandler>.Instance);
     }
 }
