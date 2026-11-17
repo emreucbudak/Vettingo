@@ -1,19 +1,19 @@
 using FlashMediator;
 using Microsoft.Extensions.Logging;
 using Vettingo.ExamService.Application.Exceptions;
-using Vettingo.ExamService.Application.Repository;
+using Vettingo.ExamService.Application.UnitOfWork;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.JobStageExam.Query.GetByJobId
 {
-    public class GetJobStageExamByJobIdQueryHandler(IExamRepository<Domain.Entities.JobStageExam> jobStageExamRepository, IExamRepository<Domain.Entities.Exam> examRepository, ILogger<GetJobStageExamByJobIdQueryHandler> logger) : IRequestHandler<GetJobStageExamByJobIdQueryRequest, GetJobStageExamByJobIdQueryResponse>
+    public class GetJobStageExamByJobIdQueryHandler(IExamUnitOfWork unitOfWork, ILogger<GetJobStageExamByJobIdQueryHandler> logger) : IRequestHandler<GetJobStageExamByJobIdQueryRequest, GetJobStageExamByJobIdQueryResponse>
     {
         public async Task<GetJobStageExamByJobIdQueryResponse> Handle(GetJobStageExamByJobIdQueryRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetJobStageExamByJobIdQueryHandler));
-            var jobStageExams = await jobStageExamRepository.GetAllAsync();
+            var jobStageExams = await unitOfWork.JobStageExamRepository.GetAllAsync();
             var jobStageExam = jobStageExams.FirstOrDefault(item => item.JobId == request.JobId)
                 ?? throw new NotFoundException("İş ilanına ait sınav bulunamadı");
-            var exam = await examRepository.GetByIdAsync(jobStageExam.ExamId)
+            var exam = await unitOfWork.ExamRepository.GetByIdAsync(jobStageExam.ExamId)
                 ?? throw new NotFoundException("Sınav bulunamadı");
 
             return new GetJobStageExamByJobIdQueryResponse
@@ -47,8 +47,6 @@ namespace Vettingo.ExamService.Application.Features.CQRS.JobStageExam.Query.GetB
                         QuestionText = question.QuestionText,
                         Weight = question.Weight,
                         DisplayOrder = question.DisplayOrder,
-                        TrueAnswer = question.TrueAnswer,
-                        FalseAnswer = question.FalseAnswer
                     }).ToList()
             };
         }

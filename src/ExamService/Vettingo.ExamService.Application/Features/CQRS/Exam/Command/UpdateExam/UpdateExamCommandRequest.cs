@@ -12,7 +12,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam
         public string Title { get; init; } = string.Empty;
         public int DurationMinutes { get; init; }
         public int PassingScore { get; init; }
-        public IReadOnlyCollection<CreateExamMultipleChoiceQuestionDto>? MultipleChoiceQuestions { get; init; }
-        public IReadOnlyCollection<CreateExamTrueFalseQuestionDto>? TrueFalseQuestions { get; init; }
+        public IReadOnlyCollection<UpdateExamMultipleChoiceQuestionDto>? MultipleChoiceQuestions { get; init; }
+        public IReadOnlyCollection<UpdateExamTrueFalseQuestionDto>? TrueFalseQuestions { get; init; }
     }
 }

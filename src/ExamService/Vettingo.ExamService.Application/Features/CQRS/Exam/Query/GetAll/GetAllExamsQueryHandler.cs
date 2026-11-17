@@ -1,15 +1,15 @@
 ﻿using FlashMediator;
 using Microsoft.Extensions.Logging;
-using Vettingo.ExamService.Application.Repository;
+using Vettingo.ExamService.Application.UnitOfWork;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetAll
 {
-    public class GetAllExamsQueryHandler(IExamRepository<Domain.Entities.Exam> examRepository, ILogger<GetAllExamsQueryHandler> logger) : IRequestHandler<GetAllExamsQueryRequest, IEnumerable<GetAllExamsQueryResponse>>
+    public class GetAllExamsQueryHandler(IExamUnitOfWork unitOfWork, ILogger<GetAllExamsQueryHandler> logger) : IRequestHandler<GetAllExamsQueryRequest, IEnumerable<GetAllExamsQueryResponse>>
     {
         public async Task<IEnumerable<GetAllExamsQueryResponse>> Handle(GetAllExamsQueryRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetAllExamsQueryHandler));
-            var exams = await examRepository.GetAllAsync();
+            var exams = await unitOfWork.ExamRepository.GetAllAsync();
 
             return exams.Select(exam => new GetAllExamsQueryResponse
             {

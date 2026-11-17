@@ -1,16 +1,16 @@
 ﻿using FlashMediator;
 using Vettingo.ExamService.Application.Exceptions;
 using Microsoft.Extensions.Logging;
-using Vettingo.ExamService.Application.Repository;
+using Vettingo.ExamService.Application.UnitOfWork;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
 {
-    public class GetExamByIdQueryHandler(IExamRepository<Domain.Entities.Exam> examRepository, ILogger<GetExamByIdQueryHandler> logger) : IRequestHandler<GetExamByIdQueryRequest, GetExamByIdQueryResponse>
+    public class GetExamByIdQueryHandler(IExamUnitOfWork unitOfWork, ILogger<GetExamByIdQueryHandler> logger) : IRequestHandler<GetExamByIdQueryRequest, GetExamByIdQueryResponse>
     {
         public async Task<GetExamByIdQueryResponse> Handle(GetExamByIdQueryRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetExamByIdQueryHandler));
-            var exam = await examRepository.GetByIdAsync(request.ExamId);
+            var exam = await unitOfWork.ExamRepository.GetByIdAsync(request.ExamId);
 
             if (exam is null)
             {
