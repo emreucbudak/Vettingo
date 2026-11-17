@@ -1,3 +1,5 @@
+using Vettingo.ExamService.Application.DTOs;
+
 namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
 {
     public sealed record GetExamByIdQueryResponse
@@ -13,31 +15,4 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
         public List<GetExamByIdMultipleChoiceQuestionResponse> MultipleChoiceQuestions { get; init; } = new();
         public List<GetExamByIdTrueFalseQuestionResponse> TrueFalseQuestions { get; init; } = new();
     }
-
-    public record GetExamByIdQuestionBaseResponse
-    {
-        public Guid Id { get; init; }
-        public string QuestionText { get; init; } = string.Empty;
-        public int Weight { get; init; }
-        public int DisplayOrder { get; init; }
-    }
-
-    public sealed record GetExamByIdMultipleChoiceQuestionResponse : GetExamByIdQuestionBaseResponse
-    {
-        public List<GetExamByIdMultipleChoiceOptionResponse> Options { get; init; } = new();
-    }
-
-    public sealed record GetExamByIdMultipleChoiceOptionResponse
-    {
-        public Guid Id { get; init; }
-        public string OptionText { get; init; } = string.Empty;
-        public bool IsCorrect { get; init; }
-    }
-
-    public sealed record GetExamByIdTrueFalseQuestionResponse : GetExamByIdQuestionBaseResponse
-    {
-        public string TrueAnswer { get; init; } = string.Empty;
-        public string FalseAnswer { get; init; } = string.Empty;
-    }
-
 }
