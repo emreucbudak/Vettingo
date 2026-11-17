@@ -1,22 +1,24 @@
 using FlashMediator;
 using Microsoft.Extensions.Logging;
+using Vettingo.ExamService.Application.DTOs;
 using Vettingo.ExamService.Application.Exceptions;
 using Vettingo.ExamService.Application.UnitOfWork;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.JobStageExam.Query.GetByJobId
 {
-    public class GetJobStageExamByJobIdQueryHandler(IExamUnitOfWork unitOfWork, ILogger<GetJobStageExamByJobIdQueryHandler> logger) : IRequestHandler<GetJobStageExamByJobIdQueryRequest, GetJobStageExamByJobIdQueryResponse>
+    public class GetJobStageExamByJobIdQueryHandler(IExamUnitOfWork unitOfWork, ILogger<GetJobStageExamByJobIdQueryHandler> logger) : IRequestHandler<GetJobStageExamByJobIdQueryRequest, List<GetJobStageExamByJobIdQueryResponse>>
     {
-        public async Task<GetJobStageExamByJobIdQueryResponse> Handle(GetJobStageExamByJobIdQueryRequest request, CancellationToken cancellationToken)
+        public async Task<List<GetJobStageExamByJobIdQueryResponse>> Handle(GetJobStageExamByJobIdQueryRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetJobStageExamByJobIdQueryHandler));
             var jobStageExams = await unitOfWork.JobStageExamRepository.GetAllAsync();
-            var jobStageExam = jobStageExams.FirstOrDefault(item => item.JobId == request.JobId)
+            var jobStageExam = jobStageExams.FirstOrDefault(
+                item => item.JobId == request.JobId && item.ExamId == request.ExamId)
                 ?? throw new NotFoundException("İş ilanına ait sınav bulunamadı");
             var exam = await unitOfWork.ExamRepository.GetByIdAsync(jobStageExam.ExamId)
                 ?? throw new NotFoundException("Sınav bulunamadı");
 
-            return new GetJobStageExamByJobIdQueryResponse
+            var response = new GetJobStageExamByJobIdQueryResponse
             {
                 CompanyId = exam.CompanyId,
                 OwnerType = exam.OwnerType,
@@ -49,6 +51,8 @@ namespace Vettingo.ExamService.Application.Features.CQRS.JobStageExam.Query.GetB
                         DisplayOrder = question.DisplayOrder,
                     }).ToList()
             };
+
+            return [response];
         }
     }
 }
