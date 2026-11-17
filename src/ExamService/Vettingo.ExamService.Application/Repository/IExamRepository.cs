@@ -12,6 +12,8 @@ namespace Vettingo.ExamService.Application.Repository
         Task<Exam?> GetExamByIdAndCompanyIdAsync(Guid examId, Guid companyId, CancellationToken cancellationToken);
         Task<IEnumerable<T>> GetAllAsync();
         Task<IReadOnlyList<Exam>> GetExamsByCompanyIdAsync(Guid companyId, CancellationToken cancellationToken);
+        Task<IReadOnlyList<JobStageExam>> GetJobStageExamsByJobIdAndExamIdAsync(
+            Guid jobId, Guid examId, CancellationToken cancellationToken);
         Task<int> SaveChangesAsync();
     }
 }
