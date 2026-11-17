@@ -24,7 +24,17 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam
                 var questions = new List<Domain.Entities.MultipleChoiceQuestion>(multipleChoiceRequests.Count);
                 foreach (var questionRequest in multipleChoiceRequests)
                 {
-                    questions.Add(ExamQuestionFactory.Create(exam.Id, questionRequest));
+                    Domain.Entities.MultipleChoiceQuestion question = new();
+                    question.CreateQuestion(exam.Id, questionRequest.QuestionText, questionRequest.Weight, questionRequest.DisplayOrder);
+
+                    foreach (var optionRequest in questionRequest.Options)
+                    {
+                        Domain.Entities.MultipleChoiceOption option = new();
+                        option.CreateOption(question.Id, optionRequest.OptionText, optionRequest.IsCorrect, optionRequest.Order);
+                        question.AddOption(option);
+                    }
+
+                    questions.Add(question);
                 }
 
                 exam.UpdateMultipleChoiceQuestions(questions);
@@ -35,7 +45,18 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam
                 var questions = new List<Domain.Entities.TrueFalseQuestion>(trueFalseRequests.Count);
                 foreach (var questionRequest in trueFalseRequests)
                 {
-                    questions.Add(ExamQuestionFactory.Create(exam.Id, questionRequest));
+                    Domain.Entities.TrueFalseQuestion question = new();
+                    question.CreateQuestion(exam.Id, questionRequest.QuestionText, questionRequest.Weight, questionRequest.DisplayOrder,
+                        questionRequest.TrueAnswer ?? "True", questionRequest.FalseAnswer ?? "False");
+
+                    foreach (var optionRequest in questionRequest.Options)
+                    {
+                        Domain.Entities.TrueFalseOption option = new();
+                        option.CreateOption(question.Id, optionRequest.Type, optionRequest.IsCorrect);
+                        question.AddOption(option);
+                    }
+
+                    questions.Add(question);
                 }
 
                 exam.UpdateTrueFalseQuestions(questions);
