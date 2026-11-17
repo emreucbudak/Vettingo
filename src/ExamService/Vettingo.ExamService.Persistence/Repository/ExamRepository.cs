@@ -38,6 +38,12 @@ namespace Vettingo.ExamService.Persistence.Repository
                 .ToListAsync(cancellationToken);
         }
 
+        public Task<Exam?> GetExamByIdAndCompanyIdAsync(Guid examId, Guid companyId, CancellationToken cancellationToken)
+        {
+            return context.Exams.FirstOrDefaultAsync(
+                exam => exam.Id == examId && exam.CompanyId == companyId, cancellationToken);
+        }
+
         public async Task<T?> GetByIdAsync(Guid id)
         {
             if (typeof(T) == typeof(Exam))

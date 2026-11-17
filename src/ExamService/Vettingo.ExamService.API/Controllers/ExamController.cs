@@ -70,9 +70,14 @@ namespace Vettingo.ExamService.API.Controllers
 
         [Authorize(Roles = "Company")]
         [HttpDelete("{examId:guid}")]
-        public async Task<IActionResult> DeleteExam([FromRoute] Guid examId)
+        public async Task<IActionResult> DeleteExam([FromRoute] Guid examId, CancellationToken cancellationToken)
         {
-            await mediator.Send(new DeleteExamCommandRequest { ExamId = examId });
+            if (!Guid.TryParse(User.FindFirstValue("companyId"), out var companyId) || companyId == Guid.Empty)
+            {
+                return Unauthorized();
+            }
+
+            await mediator.Send(new DeleteExamCommandRequest { ExamId = examId, CompanyId = companyId }, cancellationToken);
             return Ok();
         }
     }
