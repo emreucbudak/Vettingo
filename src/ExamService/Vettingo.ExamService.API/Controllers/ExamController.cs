@@ -26,11 +26,17 @@ namespace Vettingo.ExamService.API.Controllers
             return Ok(await mediator.Send(new GetExamsByCompanyIdQueryRequest { CompanyId = companyId }, cancellationToken));
         }
 
-        [Authorize(Roles = "Company,Candidate")]
+        [Authorize(Roles = "Company")]
         [HttpGet("{examId:guid}")]
-        public async Task<IActionResult> GetExamById([FromRoute] GetExamByIdQueryRequest request)
+        public async Task<IActionResult> GetExamById([FromRoute] Guid examId, CancellationToken cancellationToken)
         {
-            return Ok(await mediator.Send(request));
+            if (!Guid.TryParse(User.FindFirstValue("companyId"), out var companyId) || companyId == Guid.Empty)
+            {
+                return Unauthorized();
+            }
+
+            var request = new GetExamByIdQueryRequest(examId, companyId);
+            return Ok(await mediator.Send(request, cancellationToken));
         }
 
         [Authorize(Roles = "Company")]

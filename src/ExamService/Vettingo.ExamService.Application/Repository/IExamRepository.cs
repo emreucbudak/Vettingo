@@ -10,9 +10,10 @@ namespace Vettingo.ExamService.Application.Repository
         void Delete(T entity);
         Task<T?> GetByIdAsync(Guid id);
         Task<Exam?> GetExamByIdAndCompanyIdAsync(Guid examId, Guid companyId, CancellationToken cancellationToken);
+        Task<Exam?> GetExamDetailsByIdAndCompanyIdAsync(Guid examId, Guid companyId, CancellationToken cancellationToken);
         Task<IEnumerable<T>> GetAllAsync();
         Task<IReadOnlyList<Exam>> GetExamsByCompanyIdAsync(Guid companyId, CancellationToken cancellationToken);
-        Task<Exam?> GetExamByJobIdAndExamIdAsync(
+        Task<JobStageExam?> GetJobStageExamByJobIdAndExamIdAsync(
             Guid jobId, Guid examId, CancellationToken cancellationToken);
         Task<int> SaveChangesAsync();
     }

@@ -1,8 +1,10 @@
 using System.Text.Json;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Vettingo.ExamService.Application.DTOs;
+using Vettingo.ExamService.Application.Exceptions;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById;
@@ -10,6 +12,8 @@ using Vettingo.ExamService.Application.Repository;
 using Vettingo.ExamService.Application.UnitOfWork;
 using Vettingo.ExamService.Domain.Entities;
 using Vettingo.ExamService.Domain.Enums;
+using Vettingo.ExamService.Persistence.DbContext;
+using Vettingo.ExamService.Persistence.Repository;
 
 namespace Vettingo.ExamService.UnitTests.Application.CQRS
 {
@@ -180,10 +184,11 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
         }
 
         [Fact]
-        public async Task GetExamById_Should_Return_TrueFalse_Options()
+        public async Task GetExamById_Should_Return_Options_Only_For_The_Owning_Company()
         {
+            var companyId = Guid.NewGuid();
             var exam = new Exam();
-            exam.CreateExam("Backend Exam", 60, 70, ExamOwnerType.System, null);
+            exam.CreateExam("Backend Exam", 60, 70, ExamOwnerType.Company, companyId);
             var question = new TrueFalseQuestion();
             question.CreateQuestion(exam.Id, "Is this true?", 3, 1);
 
@@ -195,14 +200,18 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             question.AddOption(falseOption);
             exam.AddTrueFalseQuestion(question);
 
-            var repository = Substitute.For<IExamRepository<Exam>>();
-            repository.GetByIdAsync(exam.Id).Returns(exam);
+            await using var context = new ExamDbContext(new DbContextOptionsBuilder<ExamDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+            context.Exams.Add(exam);
+            await context.SaveChangesAsync();
+            context.ChangeTracker.Clear();
+
             var unitOfWork = Substitute.For<IExamUnitOfWork>();
-            unitOfWork.ExamRepository.Returns(repository);
+            unitOfWork.ExamRepository.Returns(new ExamRepository<Exam>(context));
             var handler = new GetExamByIdQueryHandler(unitOfWork, Substitute.For<ILogger<GetExamByIdQueryHandler>>());
 
-            var response = await handler.Handle(
-                new GetExamByIdQueryRequest(exam.Id), CancellationToken.None);
+            var request = new GetExamByIdQueryRequest(exam.Id, companyId);
+            var response = await handler.Handle(request, CancellationToken.None);
 
             var result = response.TrueFalseQuestions.Should().ContainSingle().Subject;
             result.Id.Should().Be(question.Id);
@@ -212,6 +221,11 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
                 option.Type,
                 option.IsCorrect
             }));
+
+            var otherCompanyRequest = new GetExamByIdQueryRequest(exam.Id, Guid.NewGuid());
+            otherCompanyRequest.CacheKey.Should().NotBe(request.CacheKey);
+            var getOtherCompanyExam = () => handler.Handle(otherCompanyRequest, CancellationToken.None);
+            await getOtherCompanyExam.Should().ThrowAsync<NotFoundException>().WithMessage("Sınav bulunamadı");
         }
 
         private static async Task CompleteAsync()

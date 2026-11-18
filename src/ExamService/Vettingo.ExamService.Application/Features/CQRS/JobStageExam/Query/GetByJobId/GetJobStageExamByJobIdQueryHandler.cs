@@ -11,14 +11,20 @@ namespace Vettingo.ExamService.Application.Features.CQRS.JobStageExam.Query.GetB
         public async Task<GetJobStageExamByJobIdQueryResponse> Handle(GetJobStageExamByJobIdQueryRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetJobStageExamByJobIdQueryHandler));
-            var exam = await unitOfWork.JobStageExamRepository
-                .GetExamByJobIdAndExamIdAsync(request.JobId, request.ExamId, cancellationToken);
+            var jobStageExam = await unitOfWork.JobStageExamRepository
+                .GetJobStageExamByJobIdAndExamIdAsync(request.JobId, request.ExamId, cancellationToken);
 
-            if (exam is null)
+            if (jobStageExam is null)
             {
                 throw new NotFoundException("İş ilanında istenen sınav bulunamadı");
             }
 
+            if (!jobStageExam.ExamCandidateList.Contains(request.UserId))
+            {
+                throw new UnauthorizedException("Bu sınava katılamazsınız");
+            }
+
+            var exam = jobStageExam.Exam;
             return new GetJobStageExamByJobIdQueryResponse
             {
                 CompanyId = exam.CompanyId,
@@ -37,8 +43,7 @@ namespace Vettingo.ExamService.Application.Features.CQRS.JobStageExam.Query.GetB
                         Options = question.Options.Select(option => new GetJobStageExamByJobIdMultipleChoiceOptionResponse
                         {
                             Id = option.Id,
-                            OptionText = option.OptionText,
-                            IsCorrect = option.IsCorrect
+                            OptionText = option.OptionText
                         }).ToList()
                     }).ToList(),
                 TrueFalseQuestions = exam.GetTrueFalseQuestions()

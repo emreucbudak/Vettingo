@@ -1,4 +1,5 @@
 using FlashMediator;
+using System.Text.Json.Serialization;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.JobStageExam.Query.GetByJobId
 {
@@ -6,5 +7,8 @@ namespace Vettingo.ExamService.Application.Features.CQRS.JobStageExam.Query.GetB
     {
         public Guid JobId { get; init; }
         public Guid ExamId { get; init; }
+
+        [JsonIgnore]
+        public Guid UserId { get; init; }
     }
 }

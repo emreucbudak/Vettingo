@@ -11,7 +11,8 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById
         public async Task<GetExamByIdQueryResponse> Handle(GetExamByIdQueryRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(GetExamByIdQueryHandler));
-            var exam = await unitOfWork.ExamRepository.GetByIdAsync(request.ExamId);
+            var exam = await unitOfWork.ExamRepository.GetExamDetailsByIdAndCompanyIdAsync(
+                request.ExamId, request.CompanyId, cancellationToken);
 
             if (exam is null)
             {

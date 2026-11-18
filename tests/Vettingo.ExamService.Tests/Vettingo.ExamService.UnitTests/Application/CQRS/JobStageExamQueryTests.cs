@@ -19,6 +19,7 @@ public class JobStageExamQueryTests
     public async Task Handle_Should_Return_One_Exam_When_Multiple_Stages_Match()
     {
         await using var context = CreateContext();
+        var userId = Guid.NewGuid();
         var exam = new Exam();
         exam.CreateExam("Backend", 60, 70, ExamOwnerType.Company, Guid.NewGuid());
         var question = new MultipleChoiceQuestion();
@@ -31,7 +32,7 @@ public class JobStageExamQueryTests
         trueFalseQuestion.CreateQuestion(exam.Id, "Is this true?", 1, 2);
         exam.AddTrueFalseQuestion(trueFalseQuestion);
         var jobExam = new JobStageExam { Exam = exam };
-        jobExam.CreateJobStageExam(Guid.NewGuid(), Guid.NewGuid(), exam.Id, new DateOnly(2026, 11, 8), new DateOnly(2026, 11, 9), []);
+        jobExam.CreateJobStageExam(Guid.NewGuid(), Guid.NewGuid(), exam.Id, new DateOnly(2026, 11, 8), new DateOnly(2026, 11, 9), [userId]);
         var attempt = new ExamAttempt();
         attempt.CreateAttempt(jobExam, Guid.NewGuid(), 80, DateTime.UtcNow, DateTime.UtcNow);
         jobExam.AddAttempt(attempt);
@@ -40,13 +41,13 @@ public class JobStageExamQueryTests
         var otherJobExam = new JobStageExam { Exam = otherExam };
         otherJobExam.CreateJobStageExam(Guid.NewGuid(), jobExam.JobId, otherExam.Id, new DateOnly(2026, 11, 8), new DateOnly(2026, 11, 9), []);
         var matchingJobExam = new JobStageExam { Exam = exam };
-        matchingJobExam.CreateJobStageExam(Guid.NewGuid(), jobExam.JobId, exam.Id, new DateOnly(2026, 11, 10), new DateOnly(2026, 11, 11), []);
+        matchingJobExam.CreateJobStageExam(Guid.NewGuid(), jobExam.JobId, exam.Id, new DateOnly(2026, 11, 10), new DateOnly(2026, 11, 11), [userId]);
         context.JobExams.AddRange(otherJobExam, jobExam, matchingJobExam);
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
         var handler = CreateHandler(context);
 
-        var request = new GetJobStageExamByJobIdQueryRequest { JobId = jobExam.JobId, ExamId = exam.Id };
+        var request = new GetJobStageExamByJobIdQueryRequest { JobId = jobExam.JobId, ExamId = exam.Id, UserId = userId };
         var response = await handler.Handle(request, CancellationToken.None);
 
         response.CompanyId.Should().Be(exam.CompanyId);
@@ -60,7 +61,27 @@ public class JobStageExamQueryTests
         context.ChangeTracker.Entries<ExamAttempt>().Should().BeEmpty();
         var serialize = () => JsonSerializer.Serialize(response);
         serialize.Should().NotThrow();
-        JsonSerializer.Serialize(response).Should().NotContain("\"Attempts\"");
+        JsonSerializer.Serialize(response).Should().NotContain("\"Attempts\"").And.NotContain("\"IsCorrect\"");
+    }
+
+    [Fact]
+    public async Task Handle_When_User_Is_Not_In_Exam_Candidate_List_Should_Throw_UnauthorizedException()
+    {
+        await using var context = CreateContext();
+        var exam = new Exam();
+        exam.CreateExam("Backend", 60, 70, ExamOwnerType.Company, Guid.NewGuid());
+        var jobExam = new JobStageExam { Exam = exam };
+        jobExam.CreateJobStageExam(Guid.NewGuid(), Guid.NewGuid(), exam.Id, new DateOnly(2026, 11, 8), new DateOnly(2026, 11, 9), [Guid.NewGuid()]);
+        context.JobExams.Add(jobExam);
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+        var handler = CreateHandler(context);
+
+        var request = new GetJobStageExamByJobIdQueryRequest { JobId = jobExam.JobId, ExamId = exam.Id, UserId = Guid.NewGuid() };
+        var action = () => handler.Handle(request, CancellationToken.None);
+
+        await action.Should().ThrowAsync<UnauthorizedException>()
+            .WithMessage("Bu sınava katılamazsınız");
     }
 
     [Fact]

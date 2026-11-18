@@ -10,6 +10,12 @@ namespace Vettingo.ExamService.Persistence.Repository
     {
         private DbSet<T> EntitySet => context.Set<T>();
 
+        private IQueryable<Exam> ExamsWithQuestions => context.Exams
+            .Include(exam => exam.MultipleChoiceQuestions)
+                .ThenInclude(question => question.Options)
+            .Include(exam => exam.TrueFalseQuestions)
+                .ThenInclude(question => question.Options);
+
         public async Task AddAsync(T entity)
         {
             await EntitySet.AddAsync(entity);
@@ -44,7 +50,13 @@ namespace Vettingo.ExamService.Persistence.Repository
                 exam => exam.Id == examId && exam.CompanyId == companyId, cancellationToken);
         }
 
-        public Task<Exam?> GetExamByJobIdAndExamIdAsync(
+        public Task<Exam?> GetExamDetailsByIdAndCompanyIdAsync(Guid examId, Guid companyId, CancellationToken cancellationToken)
+        {
+            return ExamsWithQuestions.AsNoTracking().FirstOrDefaultAsync(
+                exam => exam.Id == examId && exam.CompanyId == companyId, cancellationToken);
+        }
+
+        public Task<JobStageExam?> GetJobStageExamByJobIdAndExamIdAsync(
             Guid jobId, Guid examId, CancellationToken cancellationToken)
         {
             return context.JobExams
@@ -55,7 +67,6 @@ namespace Vettingo.ExamService.Persistence.Repository
                         .ThenInclude(question => question.Options)
                 .Include(jobStageExam => jobStageExam.Exam)
                     .ThenInclude(exam => exam.TrueFalseQuestions)
-                .Select(jobStageExam => jobStageExam.Exam)
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
@@ -63,12 +74,7 @@ namespace Vettingo.ExamService.Persistence.Repository
         {
             if (typeof(T) == typeof(Exam))
             {
-                var exam = await context.Exams
-                    .Include(entity => entity.MultipleChoiceQuestions)
-                        .ThenInclude(question => question.Options)
-                    .Include(entity => entity.TrueFalseQuestions)
-                        .ThenInclude(question => question.Options)
-                    .FirstOrDefaultAsync(entity => entity.Id == id);
+                var exam = await ExamsWithQuestions.FirstOrDefaultAsync(entity => entity.Id == id);
 
                 return exam as T;
             }
