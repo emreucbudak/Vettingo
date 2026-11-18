@@ -24,8 +24,9 @@ public sealed class ExamQuestionTrackingTests
             .UseNpgsql("Host=localhost;Database=exam_tracking_test;Username=test;Password=test")
             .Options;
         using var context = new ExamDbContext(options);
+        var companyId = Guid.NewGuid();
         var exam = new Exam();
-        exam.CreateExam("Backend", 60, 70, ExamOwnerType.System, null);
+        exam.CreateExam("Backend", 60, 70, ExamOwnerType.Company, companyId);
         var oldMultipleChoice = new MultipleChoiceQuestion();
         oldMultipleChoice.CreateQuestion(exam.Id, "Old multiple choice", 1, 1);
         var oldOption = new MultipleChoiceOption();
@@ -43,12 +44,15 @@ public sealed class ExamQuestionTrackingTests
         var repository = Substitute.For<IExamRepository<Exam>>();
         var unitOfWork = Substitute.For<IExamUnitOfWork>();
         unitOfWork.ExamRepository.Returns(repository);
-        repository.GetByIdAsync(exam.Id).Returns(exam);
+        unitOfWork.JobStageExamRepository.Returns(Substitute.For<IExamRepository<JobStageExam>>());
+        repository.GetExamForUpdateAsync(exam.Id, companyId, CancellationToken.None).Returns(exam);
         repository.When(x => x.Update(exam)).Do(_ => context.Exams.Update(exam));
         var handler = new UpdateExamCommandHandler(unitOfWork, NullLogger<UpdateExamCommandHandler>.Instance);
         var request = new UpdateExamCommandRequest
         {
             ExamId = exam.Id,
+            CompanyId = companyId,
+            OwnerType = exam.OwnerType,
             Title = "Updated exam",
             DurationMinutes = exam.DurationMinutes,
             PassingScore = exam.PassingScore,

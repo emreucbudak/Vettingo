@@ -49,20 +49,15 @@ namespace Vettingo.ExamService.API.Controllers
 
         [Authorize(Roles = "Company")]
         [HttpPut("{examId:guid}")]
-        public async Task<IActionResult> UpdateExam([FromRoute] Guid examId, [FromBody] UpdateExamCommandRequest request)
+        public async Task<IActionResult> UpdateExam(
+            [FromRoute] Guid examId, [FromBody] UpdateExamCommandRequest request, CancellationToken cancellationToken)
         {
-            await mediator.Send(new UpdateExamCommandRequest
+            if (!Guid.TryParse(User.FindFirstValue("companyId"), out var companyId) || companyId == Guid.Empty)
             {
-                ExamId = examId,
-                CompanyId = request.CompanyId,
-                OwnerType = request.OwnerType,
-                Title = request.Title,
-                DurationMinutes = request.DurationMinutes,
-                PassingScore = request.PassingScore,
-                MultipleChoiceQuestions = request.MultipleChoiceQuestions,
-                TrueFalseQuestions = request.TrueFalseQuestions
-            });
+                return Unauthorized();
+            }
 
+            await mediator.Send(request with { ExamId = examId, CompanyId = companyId }, cancellationToken);
             return Ok();
         }
 
