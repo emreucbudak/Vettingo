@@ -8,7 +8,7 @@ public sealed class UpdateExamCommandRequestValidator : AbstractValidator<Update
     public UpdateExamCommandRequestValidator()
     {
         RuleFor(x => x.ExamId).NotEmpty();
-        RuleFor(x => x.CompanyId).NotEmpty().When(x => x.CompanyId.HasValue);
+        RuleFor(x => x.CompanyId).NotEmpty();
         RuleFor(x => x.OwnerType).IsInEnum();
         RuleFor(x => x.Title).NotEmpty().MaximumLength(2000);
         RuleFor(x => x.DurationMinutes).GreaterThanOrEqualTo(0);

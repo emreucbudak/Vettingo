@@ -56,6 +56,12 @@ namespace Vettingo.ExamService.Persistence.Repository
                 exam => exam.Id == examId && exam.CompanyId == companyId, cancellationToken);
         }
 
+        public Task<Exam?> GetExamForUpdateAsync(Guid examId, Guid companyId, CancellationToken cancellationToken)
+        {
+            return ExamsWithQuestions.FirstOrDefaultAsync(
+                exam => exam.Id == examId && exam.CompanyId == companyId, cancellationToken);
+        }
+
         public Task<JobStageExam?> GetJobStageExamByJobIdAndExamIdAsync(
             Guid jobId, Guid examId, CancellationToken cancellationToken)
         {
@@ -68,6 +74,11 @@ namespace Vettingo.ExamService.Persistence.Repository
                 .Include(jobStageExam => jobStageExam.Exam)
                     .ThenInclude(exam => exam.TrueFalseQuestions)
                 .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public Task<bool> AnyJobStageExamByExamIdAsync(Guid examId, CancellationToken cancellationToken)
+        {
+            return context.JobExams.AnyAsync(jobStageExam => jobStageExam.ExamId == examId, cancellationToken);
         }
 
         public async Task<T?> GetByIdAsync(Guid id)

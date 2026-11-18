@@ -10,11 +10,17 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam
         public async Task Handle(UpdateExamCommandRequest request, CancellationToken cancellationToken)
         {
             logger.LogInformation("{HandlerName} isteği işleniyor", nameof(UpdateExamCommandHandler));
-            var exam = await unitOfWork.ExamRepository.GetByIdAsync(request.ExamId);
+            var exam = await unitOfWork.ExamRepository.GetExamForUpdateAsync(
+                request.ExamId, request.CompanyId, cancellationToken);
 
             if (exam is null)
             {
                 throw new NotFoundException("Sınav bulunamadı");
+            }
+
+            if (await unitOfWork.JobStageExamRepository.AnyJobStageExamByExamIdAsync(request.ExamId, cancellationToken))
+            {
+                throw new BusinessException("Bu sınav şu anda bir iş ilanında kullanıldığı için güncellenemez.");
             }
 
             exam.UpdateExam(request.Title, request.DurationMinutes, request.PassingScore, request.OwnerType, request.CompanyId);

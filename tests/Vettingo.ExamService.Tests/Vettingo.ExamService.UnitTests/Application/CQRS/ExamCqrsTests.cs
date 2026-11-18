@@ -88,6 +88,7 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             var updateRequest = JsonSerializer.Deserialize<UpdateExamCommandRequest>(json, jsonOptions)! with
             {
                 ExamId = Guid.NewGuid(),
+                CompanyId = Guid.NewGuid(),
                 Title = request.Title,
                 DurationMinutes = request.DurationMinutes
             };
@@ -181,6 +182,49 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS
             trueFalse.Options.Should().ContainSingle(option => option.Type == TrueFalseOptionType.True && !option.IsCorrect);
             trueFalse.Options.Should().ContainSingle(option => option.Type == TrueFalseOptionType.False && option.IsCorrect);
             await unitOfWork.Received(1).SaveChangesAsync(CancellationToken.None);
+        }
+
+        [Fact]
+        public async Task UpdateExam_Should_Check_Company_Ownership_Before_Job_Stage()
+        {
+            var request = new UpdateExamCommandRequest { ExamId = Guid.NewGuid(), CompanyId = Guid.NewGuid() };
+            var unitOfWork = Substitute.For<IExamUnitOfWork>();
+            var examRepository = Substitute.For<IExamRepository<Exam>>();
+            var jobStageExamRepository = Substitute.For<IExamRepository<JobStageExam>>();
+            unitOfWork.ExamRepository.Returns(examRepository);
+            unitOfWork.JobStageExamRepository.Returns(jobStageExamRepository);
+            var handler = new UpdateExamCommandHandler(unitOfWork, Substitute.For<ILogger<UpdateExamCommandHandler>>());
+
+            var update = () => handler.Handle(request, CancellationToken.None);
+
+            await update.Should().ThrowAsync<NotFoundException>();
+            await examRepository.Received(1).GetExamForUpdateAsync(request.ExamId, request.CompanyId, CancellationToken.None);
+            await jobStageExamRepository.DidNotReceive().AnyJobStageExamByExamIdAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>());
+            await unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+        }
+
+        [Fact]
+        public async Task UpdateExam_Should_Reject_An_Exam_Used_In_A_Job_Stage()
+        {
+            var companyId = Guid.NewGuid();
+            var exam = new Exam();
+            exam.CreateExam("Backend Exam", 60, 70, ExamOwnerType.Company, companyId);
+            var request = new UpdateExamCommandRequest { ExamId = exam.Id, CompanyId = companyId, Title = "Updated Exam" };
+            var unitOfWork = Substitute.For<IExamUnitOfWork>();
+            var examRepository = Substitute.For<IExamRepository<Exam>>();
+            var jobStageExamRepository = Substitute.For<IExamRepository<JobStageExam>>();
+            unitOfWork.ExamRepository.Returns(examRepository);
+            unitOfWork.JobStageExamRepository.Returns(jobStageExamRepository);
+            examRepository.GetExamForUpdateAsync(exam.Id, companyId, CancellationToken.None).Returns(exam);
+            jobStageExamRepository.AnyJobStageExamByExamIdAsync(exam.Id, CancellationToken.None).Returns(true);
+            var handler = new UpdateExamCommandHandler(unitOfWork, Substitute.For<ILogger<UpdateExamCommandHandler>>());
+
+            var update = () => handler.Handle(request, CancellationToken.None);
+
+            await update.Should().ThrowAsync<BusinessException>();
+            exam.Title.Should().Be("Backend Exam");
+            examRepository.DidNotReceive().Update(Arg.Any<Exam>());
+            await unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
         }
 
         [Fact]
