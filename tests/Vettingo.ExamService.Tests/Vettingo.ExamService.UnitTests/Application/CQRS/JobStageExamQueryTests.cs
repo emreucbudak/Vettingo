@@ -16,7 +16,7 @@ namespace Vettingo.ExamService.UnitTests.Application.CQRS;
 public class JobStageExamQueryTests
 {
     [Fact]
-    public async Task Handle_Should_Return_All_Matching_Stages_With_Exam_Data()
+    public async Task Handle_Should_Return_One_Exam_When_Multiple_Stages_Match()
     {
         await using var context = CreateContext();
         var exam = new Exam();
@@ -47,10 +47,7 @@ public class JobStageExamQueryTests
         var handler = CreateHandler(context);
 
         var request = new GetJobStageExamByJobIdQueryRequest { JobId = jobExam.JobId, ExamId = exam.Id };
-        var responses = await handler.Handle(request, CancellationToken.None);
-        responses.Should().HaveCount(2);
-        var response = responses[0];
-        responses[1].Should().BeEquivalentTo(response);
+        var response = await handler.Handle(request, CancellationToken.None);
 
         response.CompanyId.Should().Be(exam.CompanyId);
         response.OwnerType.Should().Be(exam.OwnerType);
@@ -75,7 +72,8 @@ public class JobStageExamQueryTests
         var request = new GetJobStageExamByJobIdQueryRequest { JobId = Guid.NewGuid(), ExamId = Guid.NewGuid() };
         var action = () => handler.Handle(request, CancellationToken.None);
 
-        await action.Should().ThrowAsync<NotFoundException>();
+        await action.Should().ThrowAsync<NotFoundException>()
+            .WithMessage("İş ilanında istenen sınav bulunamadı");
     }
 
     private static ExamDbContext CreateContext() => new(new DbContextOptionsBuilder<ExamDbContext>()
