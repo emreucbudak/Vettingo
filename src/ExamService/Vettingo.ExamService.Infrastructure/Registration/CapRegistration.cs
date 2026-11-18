@@ -19,6 +19,8 @@ public static class CapRegistration
         }
 
         services.AddTransient<IExamResultPublisher, ExamResultPublisher>();
+        services.AddTransient<IExamDeleteSucceedPublisher, ExamDeleteSucceedPublisher>();
+        services.AddTransient<ExamDeleteSubscriber>();
         services.AddTransient<ExamCreateConsumer>();
         services.AddCap(options =>
         {
