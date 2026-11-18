@@ -44,19 +44,19 @@ namespace Vettingo.ExamService.Persistence.Repository
                 exam => exam.Id == examId && exam.CompanyId == companyId, cancellationToken);
         }
 
-        public async Task<IReadOnlyList<JobStageExam>> GetJobStageExamsByJobIdAndExamIdAsync(
+        public Task<Exam?> GetExamByJobIdAndExamIdAsync(
             Guid jobId, Guid examId, CancellationToken cancellationToken)
         {
-            return await context.JobExams
+            return context.JobExams
                 .AsNoTracking()
                 .Where(jobStageExam => jobStageExam.JobId == jobId && jobStageExam.ExamId == examId)
-                .OrderByDescending(jobStageExam => jobStageExam.CreatedAt)
                 .Include(jobStageExam => jobStageExam.Exam)
                     .ThenInclude(exam => exam.MultipleChoiceQuestions)
                         .ThenInclude(question => question.Options)
                 .Include(jobStageExam => jobStageExam.Exam)
                     .ThenInclude(exam => exam.TrueFalseQuestions)
-                .ToListAsync(cancellationToken);
+                .Select(jobStageExam => jobStageExam.Exam)
+                .FirstOrDefaultAsync(cancellationToken);
         }
 
         public async Task<T?> GetByIdAsync(Guid id)
