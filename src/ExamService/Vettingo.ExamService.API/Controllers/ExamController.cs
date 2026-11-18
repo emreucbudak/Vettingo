@@ -23,7 +23,7 @@ namespace Vettingo.ExamService.API.Controllers
                 return Unauthorized();
             }
 
-            return Ok(await mediator.Send(new GetExamsByCompanyIdQueryRequest { CompanyId = companyId }, cancellationToken));
+            return Ok(await mediator.Send(new GetExamsByCompanyIdQueryRequest(companyId), cancellationToken));
         }
 
         [Authorize(Roles = "Company")]

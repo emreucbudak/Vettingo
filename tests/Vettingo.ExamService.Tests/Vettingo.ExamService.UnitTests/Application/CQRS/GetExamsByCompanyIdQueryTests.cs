@@ -16,12 +16,22 @@ public sealed class GetExamsByCompanyIdQueryTests
     public void CompanyId_Should_Be_Ignored_In_Json()
     {
         var companyId = Guid.NewGuid();
-        var request = new GetExamsByCompanyIdQueryRequest { CompanyId = companyId };
+        var request = new GetExamsByCompanyIdQueryRequest(companyId);
         var json = JsonSerializer.Serialize(request);
 
         json.Should().Be("{}");
         JsonSerializer.Deserialize<GetExamsByCompanyIdQueryRequest>($$"""{"CompanyId":"{{companyId}}"}""")!
             .CompanyId.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Cache_Key_Should_Include_Company_Id()
+    {
+        var companyId = Guid.NewGuid();
+        FlashMediator.ICacheableQuery request = new GetExamsByCompanyIdQueryRequest(companyId);
+
+        request.CacheKey.Should().Be($"{companyId}-exams");
+        request.Expiration.Should().Be(TimeSpan.FromMinutes(30));
     }
 
     [Fact]
@@ -43,7 +53,7 @@ public sealed class GetExamsByCompanyIdQueryTests
         repository.GetExamsByCompanyIdAsync(companyId, CancellationToken.None).Returns(exams);
         var handler = new GetExamsByCompanyIdQueryHandler(unitOfWork, NullLogger<GetExamsByCompanyIdQueryHandler>.Instance);
 
-        var result = await handler.Handle(new GetExamsByCompanyIdQueryRequest { CompanyId = companyId }, CancellationToken.None);
+        var result = await handler.Handle(new GetExamsByCompanyIdQueryRequest(companyId), CancellationToken.None);
 
         var companyExam = result.Should().ContainSingle().Subject;
         companyExam.Id.Should().Be(exam.Id);
