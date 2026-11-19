@@ -31,6 +31,7 @@ public static class CapRegister
         services.AddScoped<
             ISubscriptionRegistrationPublisher,
             SubscriptionRegistrationPublisher>();
+        services.AddTransient<DecreaseSubscriptionSubscriber>();
         services
             .AddCap(options =>
             {
@@ -50,7 +51,7 @@ public static class CapRegister
                 options.FailedRetryInterval = 60;
                 options.ConsumerThreadCount = 3;
                 options.FailedRetryCount = 5;
-            });
+            }).AddSubscriberAssembly(typeof(DecreaseSubscriptionSubscriber));
 
         return services;
     }
