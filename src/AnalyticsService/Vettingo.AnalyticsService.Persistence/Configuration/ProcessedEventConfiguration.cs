@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Vettingo.AnalyticsService.Domain.Entities;
 
-namespace Vettingo.AnalyticsService.Persistence.Configurations;
+namespace Vettingo.AnalyticsService.Persistence.Configuration;
 
 public sealed class ProcessedEventConfiguration : IEntityTypeConfiguration<ProcessedEvent>
 {

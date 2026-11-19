@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Vettingo.SubscriptionService.Domain.Entities;
+using Vettingo.SubscriptionService.Persistence.Configuration;
 
 namespace Vettingo.SubscriptionService.Persistence.DbContext
 {
@@ -11,88 +12,10 @@ namespace Vettingo.SubscriptionService.Persistence.DbContext
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<Plan>(entity =>
-            {
-                entity.HasKey(plan => plan.Id);
-
-                entity.Property(plan => plan.Id)
-                    .ValueGeneratedOnAdd();
-
-                entity.Property(plan => plan.PlanName)
-                    .HasMaxLength(100)
-                    .IsRequired();
-
-                entity.Property(plan => plan.Price)
-                    .IsRequired();
-
-                entity.Property(plan => plan.PlanType)
-                    .HasConversion<string>()
-                    .HasMaxLength(20)
-                    .IsRequired();
-
-                entity.HasMany(plan => plan.PlanProperties)
-                    .WithOne()
-                    .HasForeignKey("PlanId")
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.Navigation(plan => plan.PlanProperties)
-                    .UsePropertyAccessMode(PropertyAccessMode.Field);
-            });
-
-            builder.Entity<PlanProperties>(entity =>
-            {
-                entity.HasKey(planProperties => planProperties.Id);
-
-                entity.Property(planProperties => planProperties.Id)
-                    .ValueGeneratedOnAdd();
-
-                entity.Property(planProperties => planProperties.PropertiesName)
-                    .HasMaxLength(100)
-                    .IsRequired();
-
-                entity.Property(planProperties => planProperties.Count)
-                    .IsRequired();
-            });
-
-            builder.Entity<CompanySubscription>(entity =>
-            {
-                entity.ToTable("CompanySubscriptions");
-                entity.HasKey(subscription => subscription.Id);
-
-                entity.Property(subscription => subscription.Id)
-                    .ValueGeneratedNever();
-
-                entity.Property(subscription => subscription.StartDate)
-                    .IsRequired();
-
-                entity.HasOne(subscription => subscription.Plan)
-                    .WithMany()
-                    .HasForeignKey(subscription => subscription.PlanId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasIndex(subscription => subscription.CompanyId);
-                entity.HasIndex(subscription => subscription.PlanId);
-            });
-
-            builder.Entity<CandidateSubscription>(entity =>
-            {
-                entity.ToTable("CandidateSubscriptions");
-                entity.HasKey(subscription => subscription.Id);
-
-                entity.Property(subscription => subscription.Id)
-                    .ValueGeneratedNever();
-
-                entity.Property(subscription => subscription.StartDate)
-                    .IsRequired();
-
-                entity.HasOne(subscription => subscription.Plan)
-                    .WithMany()
-                    .HasForeignKey(subscription => subscription.PlanId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasIndex(subscription => subscription.CandidateId);
-                entity.HasIndex(subscription => subscription.PlanId);
-            });
+            builder.ApplyConfiguration(new PlanConfiguration());
+            builder.ApplyConfiguration(new PlanPropertiesConfiguration());
+            builder.ApplyConfiguration(new CompanySubscriptionConfiguration());
+            builder.ApplyConfiguration(new CandidateSubscriptionConfiguration());
 
             base.OnModelCreating(builder);
         }

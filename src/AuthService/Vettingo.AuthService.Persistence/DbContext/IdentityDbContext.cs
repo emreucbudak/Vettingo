@@ -19,10 +19,6 @@ namespace Vettingo.AuthService.Persistence.DbContext
         {
             base.OnModelCreating(builder);
             builder.ApplyConfigurationsFromAssembly(typeof(IdentityDbContext).Assembly);
-            builder.Entity<User>()
-                .HasIndex(x => x.NormalizedEmail)
-                .IsUnique()
-                .HasDatabaseName("EmailIndex");
         }
     }
 }

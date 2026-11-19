@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Vettingo.ExamService.Domain.Entities;
+using Vettingo.ExamService.Persistence.Configuration;
 
 namespace Vettingo.ExamService.Persistence.DbContext
 {
@@ -15,59 +16,12 @@ namespace Vettingo.ExamService.Persistence.DbContext
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<MultipleChoiceQuestion>()
-                .Property(question => question.Id)
-                .ValueGeneratedNever();
-
-            builder.Entity<TrueFalseQuestion>()
-                .Property(question => question.Id)
-                .ValueGeneratedNever();
-
-            builder.Entity<MultipleChoiceOption>()
-                .Property(option => option.Id)
-                .ValueGeneratedNever();
-
-            builder.Entity<TrueFalseOption>()
-                .Property(option => option.Id)
-                .ValueGeneratedNever();
-
-            builder.Entity<Exam>()
-                .Property(exam => exam.OwnerType)
-                .HasConversion<string>();
-
-            builder.Entity<Exam>()
-                .HasMany(exam => exam.MultipleChoiceQuestions)
-                .WithOne(question => question.Exam)
-                .HasForeignKey(question => question.ExamId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<Exam>()
-                .HasMany(exam => exam.TrueFalseQuestions)
-                .WithOne(question => question.Exam)
-                .HasForeignKey(question => question.ExamId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<JobStageExam>()
-                .Property(jobStageExam => jobStageExam.ExamCandidateList)
-                .IsConcurrencyToken();
-
-            builder.Entity<JobStageExam>()
-                .HasMany(jobExam => jobExam.Attempts)
-                .WithOne(attempt => attempt.JobExam)
-                .HasForeignKey(attempt => attempt.JobExamId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<MultipleChoiceQuestion>()
-                .HasMany(question => question.Options)
-                .WithOne(option => option.MultipleChoiceQuestion)
-                .HasForeignKey(option => option.MultipleChoiceQuestionId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<TrueFalseQuestion>()
-                .HasMany(question => question.Options)
-                .WithOne(option => option.TrueFalseQuestion)
-                .HasForeignKey(option => option.TrueFalseQuestionId)
-                .OnDelete(DeleteBehavior.Cascade);
+            builder.ApplyConfiguration(new MultipleChoiceQuestionConfiguration());
+            builder.ApplyConfiguration(new TrueFalseQuestionConfiguration());
+            builder.ApplyConfiguration(new MultipleChoiceOptionConfiguration());
+            builder.ApplyConfiguration(new TrueFalseOptionConfiguration());
+            builder.ApplyConfiguration(new ExamConfiguration());
+            builder.ApplyConfiguration(new JobStageExamConfiguration());
 
             base.OnModelCreating(builder);
         }

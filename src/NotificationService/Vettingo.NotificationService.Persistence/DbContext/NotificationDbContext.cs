@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Vettingo.NotificationService.Domain.Entities;
+using Vettingo.NotificationService.Persistence.Configuration;
 
 namespace Vettingo.NotificationService.Persistence.DbContext
 {
@@ -9,10 +10,7 @@ namespace Vettingo.NotificationService.Persistence.DbContext
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<Notification>(entity =>
-            {
-                entity.HasKey(notification => notification.Id);
-            });
+            builder.ApplyConfiguration(new NotificationConfiguration());
 
             base.OnModelCreating(builder);
         }
