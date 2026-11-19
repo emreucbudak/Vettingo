@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Vettingo.InterviewService.Domain.Entities;
+using Vettingo.InterviewService.Persistence.Configuration;
 
 namespace Vettingo.InterviewService.Persistence.DbContext
 {
@@ -10,8 +11,7 @@ namespace Vettingo.InterviewService.Persistence.DbContext
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<Interview>()
-                .HasIndex(interview => new { interview.CompanyId, interview.InterviewDate, interview.StartedTime });
+            builder.ApplyConfiguration(new InterviewConfiguration());
 
             base.OnModelCreating(builder);
         }

@@ -14,8 +14,7 @@ public sealed class EvaluationDbContext(DbContextOptions<EvaluationDbContext> op
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new CvConfiguration());
-        modelBuilder.Entity<CandidateSkill>().HasOne<Cv>().WithMany(cv => cv.CandidateSkills)
-            .HasForeignKey(candidateSkill => candidateSkill.CvId);
+        modelBuilder.ApplyConfiguration(new CandidateSkillConfiguration());
 
         base.OnModelCreating(modelBuilder);
     }

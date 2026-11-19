@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Vettingo.AnalyticsService.Domain.Entities;
-using Vettingo.AnalyticsService.Persistence.Configurations;
+using Vettingo.AnalyticsService.Persistence.Configuration;
 
 namespace Vettingo.AnalyticsService.Persistence.DbContext
 {
@@ -14,15 +14,7 @@ namespace Vettingo.AnalyticsService.Persistence.DbContext
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.ApplyConfiguration(new ProcessedEventConfiguration());
-            builder.Entity<CompanyStatistic>(entity =>
-            {
-                entity.HasMany(statistic => statistic.HiringVolumes)
-                    .WithOne()
-                    .HasForeignKey(volume => volume.CompanyStatisticId);
-                entity.HasOne(statistic => statistic.CandidateSource)
-                    .WithMany()
-                    .HasForeignKey(statistic => statistic.CandidateSourceId);
-            });
+            builder.ApplyConfiguration(new CompanyStatisticConfiguration());
 
             base.OnModelCreating(builder);
         }
