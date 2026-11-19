@@ -34,7 +34,7 @@ public class JobStageExamQueryTests
         var jobExam = new JobStageExam { Exam = exam };
         jobExam.CreateJobStageExam(Guid.NewGuid(), Guid.NewGuid(), exam.Id, new DateOnly(2026, 11, 8), new DateOnly(2026, 11, 9), [userId]);
         var attempt = new ExamAttempt();
-        attempt.CreateAttempt(jobExam, Guid.NewGuid(), 80, DateTime.UtcNow, DateTime.UtcNow);
+        attempt.CreateAttempt(jobExam, Guid.NewGuid(), 80, DateTime.UtcNow, DateTime.UtcNow, passed: true);
         jobExam.AddAttempt(attempt);
         var otherExam = new Exam();
         otherExam.CreateExam("Other", 30, 50, ExamOwnerType.System, null);

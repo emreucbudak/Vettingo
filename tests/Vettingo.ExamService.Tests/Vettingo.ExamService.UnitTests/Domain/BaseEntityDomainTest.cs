@@ -27,7 +27,7 @@ namespace Vettingo.ExamService.UnitTests.Domain
             var startedDate = new DateOnly(2026, 11, 8);
             var endDate = new DateOnly(2026, 11, 9);
             jobExam.CreateJobStageExam(stepId, Guid.NewGuid(), exam.Id, startedDate, endDate, []);
-            attempt.CreateAttempt(jobExam, Guid.NewGuid(), 80, DateTime.UtcNow, DateTime.UtcNow);
+            attempt.CreateAttempt(jobExam, Guid.NewGuid(), 80, DateTime.UtcNow, DateTime.UtcNow, passed: true);
             var after = DateOnly.FromDateTime(DateTime.UtcNow);
 
             jobExam.Id.Should().Be(stepId);

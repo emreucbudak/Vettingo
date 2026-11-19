@@ -7,17 +7,19 @@ namespace Vettingo.ExamService.UnitTests.Domain
     public class ExamAttemptDomainTest
     {
         [Theory]
-        [InlineData(69, false)]
-        [InlineData(70, true)]
+        [InlineData(0, false)]
+        [InlineData(69, true)]
+        [InlineData(70, false)]
         [InlineData(71, true)]
-        public void Create_ExamAttempt_Should_Use_Exam_PassingScore(int score, bool passed)
+        [InlineData(101, true)]
+        public void Create_ExamAttempt_Should_Store_The_Provided_Result(int score, bool passed)
         {
             var jobExam = CreateJobStageExam();
             var attempt = new ExamAttempt();
             var startedAt = new DateTime(2026, 11, 8, 7, 0, 0, DateTimeKind.Utc);
             var completedAt = startedAt.AddMinutes(30);
 
-            attempt.CreateAttempt(jobExam, Guid.NewGuid(), score, startedAt, completedAt);
+            attempt.CreateAttempt(jobExam, Guid.NewGuid(), score, startedAt, completedAt, passed);
 
             attempt.Passed.Should().Be(passed);
             attempt.Score.Should().Be(score);
@@ -32,7 +34,7 @@ namespace Vettingo.ExamService.UnitTests.Domain
             var candidateId = Guid.NewGuid();
             var attempt = new ExamAttempt();
 
-            attempt.CreateAttempt(jobExam, candidateId, 80, DateTime.UtcNow, DateTime.UtcNow);
+            attempt.CreateAttempt(jobExam, candidateId, 80, DateTime.UtcNow, DateTime.UtcNow, passed: true);
 
             attempt.JobExamId.Should().Be(jobExam.Id);
             attempt.CandidateId.Should().Be(candidateId);
@@ -43,17 +45,17 @@ namespace Vettingo.ExamService.UnitTests.Domain
         {
             var attempt = new ExamAttempt();
             var jobExam = new JobStageExam();
-            Action action = () => attempt.CreateAttempt(jobExam, Guid.NewGuid(), 80, DateTime.UtcNow, DateTime.UtcNow);
+            Action action = () => attempt.CreateAttempt(jobExam, Guid.NewGuid(), 80, DateTime.UtcNow, DateTime.UtcNow, passed: true);
 
             action.Should().Throw<ArgumentException>();
         }
 
         [Fact]
-        public void Create_ExamAttempt_With_Invalid_Score_Should_Throw()
+        public void Create_ExamAttempt_With_Negative_Score_Should_Throw()
         {
             var jobExam = CreateJobStageExam();
             var attempt = new ExamAttempt();
-            Action action = () => attempt.CreateAttempt(jobExam, Guid.NewGuid(), 101, DateTime.UtcNow, DateTime.UtcNow);
+            Action action = () => attempt.CreateAttempt(jobExam, Guid.NewGuid(), -1, DateTime.UtcNow, DateTime.UtcNow, passed: false);
 
             action.Should().Throw<ArgumentOutOfRangeException>();
         }
@@ -66,7 +68,7 @@ namespace Vettingo.ExamService.UnitTests.Domain
             var otherCandidateId = Guid.NewGuid();
             jobExam.ExamCandidateList.AddRange([candidateId, otherCandidateId]);
             var attempt = new ExamAttempt();
-            attempt.CreateAttempt(jobExam, candidateId, 80, DateTime.UtcNow, DateTime.UtcNow);
+            attempt.CreateAttempt(jobExam, candidateId, 80, DateTime.UtcNow, DateTime.UtcNow, passed: true);
 
             jobExam.AddAttempt(attempt);
 

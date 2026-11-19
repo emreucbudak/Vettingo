@@ -7,6 +7,7 @@ using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.DeleteExam;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetByCompanyId;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Query.GetById;
+using Vettingo.ExamService.Application.Features.CQRS.ExamAttempt.Command.Create;
 
 namespace Vettingo.ExamService.API.Controllers
 {
@@ -44,6 +45,21 @@ namespace Vettingo.ExamService.API.Controllers
         public async Task<IActionResult> CreateExam([FromBody] CreateExamCommandRequest request)
         {
             await mediator.Send(request);
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpPost("attempts")]
+        public async Task<IActionResult> CreateExamAttempt(
+            [FromBody] CreateExamAttemptCommandRequest request, CancellationToken cancellationToken)
+        {
+            var subject = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+            if (!Guid.TryParse(subject, out var candidateId) || candidateId == Guid.Empty)
+            {
+                return Unauthorized();
+            }
+
+            await mediator.Send(request with { CandidateId = candidateId }, cancellationToken);
             return Ok();
         }
 

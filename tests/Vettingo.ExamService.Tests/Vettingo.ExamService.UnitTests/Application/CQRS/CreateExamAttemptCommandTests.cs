@@ -3,6 +3,7 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using Vettingo.ExamService.Application.DTOs;
+using Vettingo.ExamService.Application.Exceptions;
 using Vettingo.ExamService.Application.Features.CQRS.ExamAttempt.Command.Create;
 using Vettingo.ExamService.Application.Messaging;
 using Vettingo.ExamService.Application.UnitOfWork;
@@ -26,7 +27,6 @@ public sealed class CreateExamAttemptCommandTests
         {
             JobStageExamId = Guid.NewGuid(),
             CandidateId = Guid.Empty,
-            Score = 0,
             StartedAt = startedAt,
             CompletedAt = startedAt
         };
@@ -35,7 +35,7 @@ public sealed class CreateExamAttemptCommandTests
 
         var exception = await action.Should().ThrowAsync<ValidationException>();
         exception.Which.Errors.Select(error => error.PropertyName).Should().BeEquivalentTo(
-            nameof(request.CandidateId), nameof(request.Score), nameof(request.CompletedAt));
+            nameof(request.CandidateId), nameof(request.CompletedAt));
         unitOfWork.ReceivedCalls().Should().BeEmpty();
     }
 
@@ -49,6 +49,23 @@ public sealed class CreateExamAttemptCommandTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         var exam = new Exam();
         exam.CreateExam("Backend", 60, 70, ExamOwnerType.System, null);
+        var multipleChoiceQuestion = new MultipleChoiceQuestion();
+        multipleChoiceQuestion.CreateQuestion(exam.Id, "Choose the correct option", 69, 1);
+        var multipleChoiceOption = new MultipleChoiceOption();
+        multipleChoiceOption.CreateOption(multipleChoiceQuestion.Id, "Correct option", true);
+        multipleChoiceQuestion.AddOption(multipleChoiceOption);
+        exam.AddMultipleChoiceQuestion(multipleChoiceQuestion);
+
+        var trueFalseQuestion = new TrueFalseQuestion();
+        trueFalseQuestion.CreateQuestion(exam.Id, "Is this true?", 1, 2);
+        var trueOption = new TrueFalseOption();
+        trueOption.CreateOption(trueFalseQuestion.Id, TrueFalseOptionType.True, true);
+        var falseOption = new TrueFalseOption();
+        falseOption.CreateOption(trueFalseQuestion.Id, TrueFalseOptionType.False, false);
+        trueFalseQuestion.AddOption(trueOption);
+        trueFalseQuestion.AddOption(falseOption);
+        exam.AddTrueFalseQuestion(trueFalseQuestion);
+
         var candidateId = Guid.NewGuid();
         var otherCandidateId = Guid.NewGuid();
         var jobExam = new JobStageExam { Exam = exam };
@@ -60,6 +77,7 @@ public sealed class CreateExamAttemptCommandTests
 
         var publisher = Substitute.For<IExamResultPublisher>();
         var unitOfWork = Substitute.For<IExamUnitOfWork>();
+        unitOfWork.ExamRepository.Returns(new ExamRepository<Exam>(context));
         unitOfWork.JobStageExamRepository.Returns(new ExamRepository<JobStageExam>(context));
         unitOfWork.ExamAttemptRepository.Returns(new ExamRepository<ExamAttempt>(context));
         unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>())
@@ -70,12 +88,29 @@ public sealed class CreateExamAttemptCommandTests
         {
             JobStageExamId = jobExam.Id,
             CandidateId = candidateId,
-            Score = score,
+            MultipleQuestionsAnswers =
+            [
+                new MultipleQuestionsAnswersDto
+                {
+                    MultipleQuestionId = multipleChoiceQuestion.Id,
+                    MultipleChoiceOptionId = multipleChoiceOption.Id
+                }
+            ],
+            TrueFalseQuestionAnswers =
+            [
+                new TrueFalseQuestionAnswersDto
+                {
+                    TrueFalseQuestionId = trueFalseQuestion.Id,
+                    TrueFalseOptionId = score == 70 ? trueOption.Id : falseOption.Id
+                }
+            ],
             StartedAt = completedAt.AddMinutes(-20),
             CompletedAt = completedAt
         };
 
-        await handler.Handle(request with { CandidateId = Guid.NewGuid() }, CancellationToken.None);
+        var submitAsUnlistedCandidate = () =>
+            handler.Handle(request with { CandidateId = Guid.NewGuid() }, CancellationToken.None);
+        await submitAsUnlistedCandidate.Should().ThrowAsync<UnauthorizedException>();
         (await context.ExamAttempts.AnyAsync()).Should().BeFalse();
         await publisher.DidNotReceiveWithAnyArgs().PublishAsync(default!, default);
 
@@ -101,13 +136,15 @@ public sealed class CreateExamAttemptCommandTests
         await handler.Handle(request, CancellationToken.None);
         context.ChangeTracker.Clear();
         var saved = await context.ExamAttempts.AsNoTracking().SingleAsync();
+        saved.Score.Should().Be(score);
         saved.Passed.Should().Be(passed);
         saved.JobExamId.Should().Be(jobExam.Id);
         saved.CandidateId.Should().Be(request.CandidateId);
         var savedStage = await context.JobExams.AsNoTracking().SingleAsync();
         savedStage.ExamCandidateList.Should().Equal(otherCandidateId);
 
-        await handler.Handle(request, CancellationToken.None);
+        var resubmit = () => handler.Handle(request, CancellationToken.None);
+        await resubmit.Should().ThrowAsync<UnauthorizedException>();
         (await context.ExamAttempts.CountAsync()).Should().Be(1);
         Received.InOrder(() =>
         {

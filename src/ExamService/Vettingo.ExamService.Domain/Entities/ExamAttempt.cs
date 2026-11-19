@@ -16,13 +16,13 @@ namespace Vettingo.ExamService.Domain.Entities
         public int Score { get; private set; }
         public bool Passed { get; private set; }
 
-        public void CreateAttempt(JobStageExam jobExam, Guid candidateId, int score, DateTime startedAt, DateTime completedAt)
+        public void CreateAttempt(
+            JobStageExam jobExam, Guid candidateId, int score, DateTime startedAt, DateTime completedAt, bool passed)
         {
             ArgumentNullException.ThrowIfNull(jobExam);
             CheckGuid(jobExam.Id, nameof(JobExamId));
             CheckGuid(candidateId, nameof(candidateId));
             CheckScore(score);
-            var exam = jobExam.Exam ?? throw new ArgumentException("İlana bağlı sınav yüklenmelidir.", nameof(jobExam));
 
             SetId();
             SetCreatedAt();
@@ -32,14 +32,14 @@ namespace Vettingo.ExamService.Domain.Entities
             StartedAt = startedAt.ToUniversalTime();
             Score = score;
             CompletedAt = completedAt.ToUniversalTime();
-            Passed = score >= exam.PassingScore;
+            Passed = passed;
         }
 
         public void CheckScore(int score)
         {
-            if (score is < 0 or > 100)
+            if (score < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(score), score, "Skor 0 ile 100 arasında olmalıdır.");
+                throw new ArgumentOutOfRangeException(nameof(score), score, "Skor 0'dan küçük olamaz.");
             }
         }
 

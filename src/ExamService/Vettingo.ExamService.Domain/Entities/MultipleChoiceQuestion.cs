@@ -9,7 +9,7 @@ namespace Vettingo.ExamService.Domain.Entities
         }
 
         public Guid ExamId { get; private set; }
-        public Exam? Exam { get; private set; }
+        public Exam Exam { get; private set; }
         public string QuestionText { get; private set; } = string.Empty;
         public int Weight { get; private set; }
         public int DisplayOrder { get; private set; }
