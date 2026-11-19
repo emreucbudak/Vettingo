@@ -73,6 +73,7 @@ namespace Vettingo.ExamService.Persistence.Repository
                         .ThenInclude(question => question.Options)
                 .Include(jobStageExam => jobStageExam.Exam)
                     .ThenInclude(exam => exam.TrueFalseQuestions)
+                        .ThenInclude(question => question.Options)
                 .FirstOrDefaultAsync(cancellationToken);
         }
 

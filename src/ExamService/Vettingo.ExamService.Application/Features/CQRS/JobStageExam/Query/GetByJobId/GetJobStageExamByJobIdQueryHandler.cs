@@ -27,20 +27,17 @@ namespace Vettingo.ExamService.Application.Features.CQRS.JobStageExam.Query.GetB
             var exam = jobStageExam.Exam;
             return new GetJobStageExamByJobIdQueryResponse
             {
-                CompanyId = exam.CompanyId,
-                OwnerType = exam.OwnerType,
                 Title = exam.Title,
                 DurationMinutes = exam.DurationMinutes,
                 MultipleChoiceQuestions = exam.GetMultipleChoiceQuestions()
                     .OrderBy(question => question.DisplayOrder)
-                    .Select(question => new GetJobStageExamByJobIdMultipleChoiceQuestionResponse
+                    .Select(question => new GetJobStageExamByJobIdMultipleChoiceQuestionDto
                     {
                         Id = question.Id,
-                        ExamId = question.ExamId,
                         QuestionText = question.QuestionText,
                         Weight = question.Weight,
                         DisplayOrder = question.DisplayOrder,
-                        Options = question.Options.Select(option => new GetJobStageExamByJobIdMultipleChoiceOptionResponse
+                        Options = question.Options.Select(option => new GetJobStageExamByJobIdMultipleChoiceOptionDto
                         {
                             Id = option.Id,
                             OptionText = option.OptionText
@@ -48,13 +45,17 @@ namespace Vettingo.ExamService.Application.Features.CQRS.JobStageExam.Query.GetB
                     }).ToList(),
                 TrueFalseQuestions = exam.GetTrueFalseQuestions()
                     .OrderBy(question => question.DisplayOrder)
-                    .Select(question => new GetJobStageExamByJobIdTrueFalseQuestionResponse
+                    .Select(question => new GetJobStageExamByJobIdTrueFalseQuestionDto
                     {
                         Id = question.Id,
-                        ExamId = question.ExamId,
                         QuestionText = question.QuestionText,
                         Weight = question.Weight,
                         DisplayOrder = question.DisplayOrder,
+                        Options = question.Options.Select(option => new GetJobStageExamByJobIdTrueFalseOptionDto
+                        {
+                            Id = option.Id,
+                            Type = option.Type
+                        }).ToList()
                     }).ToList()
             };
         }

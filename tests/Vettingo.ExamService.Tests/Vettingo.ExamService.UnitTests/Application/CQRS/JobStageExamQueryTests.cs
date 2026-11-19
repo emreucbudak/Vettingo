@@ -30,6 +30,12 @@ public class JobStageExamQueryTests
         exam.AddMultipleChoiceQuestion(question);
         var trueFalseQuestion = new TrueFalseQuestion();
         trueFalseQuestion.CreateQuestion(exam.Id, "Is this true?", 1, 2);
+        var trueOption = new TrueFalseOption();
+        trueOption.CreateOption(trueFalseQuestion.Id, TrueFalseOptionType.True, false);
+        trueFalseQuestion.AddOption(trueOption);
+        var falseOption = new TrueFalseOption();
+        falseOption.CreateOption(trueFalseQuestion.Id, TrueFalseOptionType.False, true);
+        trueFalseQuestion.AddOption(falseOption);
         exam.AddTrueFalseQuestion(trueFalseQuestion);
         var jobExam = new JobStageExam { Exam = exam };
         jobExam.CreateJobStageExam(Guid.NewGuid(), Guid.NewGuid(), exam.Id, new DateOnly(2026, 11, 8), new DateOnly(2026, 11, 9), [userId]);
@@ -50,18 +56,20 @@ public class JobStageExamQueryTests
         var request = new GetJobStageExamByJobIdQueryRequest { JobId = jobExam.JobId, ExamId = exam.Id, UserId = userId };
         var response = await handler.Handle(request, CancellationToken.None);
 
-        response.CompanyId.Should().Be(exam.CompanyId);
-        response.OwnerType.Should().Be(exam.OwnerType);
         response.Title.Should().Be(exam.Title);
         response.DurationMinutes.Should().Be(exam.DurationMinutes);
         var returnedQuestion = response.MultipleChoiceQuestions.Should().ContainSingle().Subject;
         returnedQuestion.Id.Should().Be(question.Id);
         returnedQuestion.Options.Should().ContainSingle().Which.OptionText.Should().Be(option.OptionText);
-        response.TrueFalseQuestions.Should().ContainSingle().Which.Id.Should().Be(trueFalseQuestion.Id);
+        var returnedTrueFalseQuestion = response.TrueFalseQuestions.Should().ContainSingle().Subject;
+        returnedTrueFalseQuestion.Id.Should().Be(trueFalseQuestion.Id);
+        returnedTrueFalseQuestion.Options.Select(returnedOption => new { returnedOption.Id, returnedOption.Type })
+            .Should().BeEquivalentTo(trueFalseQuestion.Options.Select(expectedOption => new { expectedOption.Id, expectedOption.Type }));
         context.ChangeTracker.Entries<ExamAttempt>().Should().BeEmpty();
         var serialize = () => JsonSerializer.Serialize(response);
         serialize.Should().NotThrow();
-        JsonSerializer.Serialize(response).Should().NotContain("\"Attempts\"").And.NotContain("\"IsCorrect\"");
+        JsonSerializer.Serialize(response).Should().NotContain("\"Attempts\"")
+            .And.NotContain("\"IsCorrect\"").And.NotContain("\"CompanyId\"").And.NotContain("\"OwnerType\"");
     }
 
     [Fact]
