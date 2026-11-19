@@ -39,10 +39,8 @@ public static class CapRegister
         services.AddTransient<IInterviewStageAdvancedPublisher, InterviewStageAdvancedPublisher>();
         services.AddTransient<IOfferStageAdvancedPublisher, OfferStageAdvancedPublisher>();
         services.AddTransient<IJobApplicationCreatedPublisher, JobApplicationCreatedPublisher>();
-        services.AddTransient<IExamDeletePublisher, ExamDeletePublisher>();
         services.AddTransient<PersonalizedJobPostingRequestedConsumer>();
         services.AddTransient<ExamResultSubscriber>();
-        services.AddTransient<ExamDeleteSucceedSubscriber>();
         services.AddTransient<InterviewResultSubscriber>();
         services
             .AddCap(options =>

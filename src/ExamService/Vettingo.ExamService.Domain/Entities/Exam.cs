@@ -19,11 +19,15 @@ namespace Vettingo.ExamService.Domain.Entities
         public string Title { get; private set; } = string.Empty;
         public int DurationMinutes { get; private set; }
         public int PassingScore { get; private set; }
+        public bool IsActive { get; private set; }
         public DateTime? UpdatedAt { get; private set; }
         public IReadOnlyCollection<MultipleChoiceQuestion> MultipleChoiceQuestions => _multipleChoiceQuestions.AsReadOnly();
         public IReadOnlyCollection<TrueFalseQuestion> TrueFalseQuestions => _trueFalseQuestions.AsReadOnly();
         
-
+        public void UpdateExamActivate()
+        {
+            IsActive = false;
+        }
         public IReadOnlyCollection<MultipleChoiceQuestion> GetMultipleChoiceQuestions()
         {
             return _multipleChoiceQuestions.AsReadOnly();
@@ -120,6 +124,7 @@ namespace Vettingo.ExamService.Domain.Entities
             setOwnerType(ownerType);
             setCompanyId(companyId);
             SetCreatedAt();
+            IsActive = true;
         }
 
         public void UpdateExam(string title, int durationMinutes, int passingScore, ExamOwnerType ownerType, Guid? companyId)

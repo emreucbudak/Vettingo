@@ -141,6 +141,7 @@ services:
       RabbitMq__UserName: vettingo
       RabbitMq__VirtualHost: /
       Redis__ConnectionString: redis:6379,password=,abortConnect=false
+      Grpc__Endpoint: https://localhost:7000
     image: vettingo/exam-api:local
     ports:
       - mode: ingress

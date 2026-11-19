@@ -22,6 +22,7 @@ public sealed class JobUnitOfWork(JobDbContext context, ICapPublisher capPublish
     public DbSet<Skill> Skills => context.Skills;
     public DbSet<PersonalizedJobPostings> PersonalizedJobPostings => context.PersonalizedJobPostings;
     public DbSet<JobOffer> JobOffers => context.JobOffers;
+    public DbSet<JobSteps> JobSteps => context.JobSteps;
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         => context.SaveChangesAsync(cancellationToken);

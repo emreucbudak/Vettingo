@@ -1,0 +1,11 @@
+﻿syntax = "proto3";
+package delete_exam;
+service ExamDeletesService {
+  rpc DeleteExam (DeleteExamRequest) returns (DeleteExamResponse);
+}
+message DeleteExamRequest {
+  string examId = 1;
+}
+message DeleteExamResponse {
+  bool success = 1;
+}

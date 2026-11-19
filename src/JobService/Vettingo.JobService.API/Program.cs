@@ -11,6 +11,7 @@ using Vettingo.JobService.Application.Features.CQRS.JobPosting.Command.CreateJob
 using Vettingo.JobService.Persistence.Registration;
 using Vettingo.JobService.Infrastructure.Jobs;
 using Vettingo.JobService.Infrastructure.Register;
+using Vettingo.JobService.Application.Protos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +28,7 @@ string jwtIssuer = builder.Configuration["JwtSettings:Issuer"]
     ?? throw new InvalidOperationException("JwtSettings:Issuer is not configured.");
 string jwtAudience = builder.Configuration["JwtSettings:Audience"]
     ?? throw new InvalidOperationException("JwtSettings:Audience is not configured.");
-
+builder.Services.AddGrpc();
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -98,16 +99,16 @@ builder.Services.AddExceptionHandler<BusinessExceptionHandler>();
 builder.Services.AddExceptionHandler<BaseExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
+
 builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter<Vettingo.JobService.Domain.Enums.ApplicationStatus>()));
 
 var app = builder.Build();
-
+app.MapGrpcService<ExamDeleteService>();
 app.UseSerilogRequestLogging(options =>
 {
     options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} isteği {StatusCode} durum koduyla {Elapsed:0.0000} ms içinde tamamlandı";
 });
-
 app.UseHttpsRedirection();
 
 app.UseRouting();

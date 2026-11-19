@@ -39,7 +39,7 @@ namespace Vettingo.ExamService.API.Controllers
             return Ok(await mediator.Send(request, cancellationToken));
         }
 
-        [Authorize(Roles = "Company")]
+        [Authorize(Roles = "Company,Human Resources")]
         [HttpPost]
         public async Task<IActionResult> CreateExam([FromBody] CreateExamCommandRequest request)
         {
