@@ -106,9 +106,9 @@ namespace Vettingo.ExamService.Domain.Entities
 
         public void setPassingScore(int passingScore)
         {
-            if (passingScore is < 0 or > 100)
+            if (passingScore is < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(passingScore), passingScore, "Geçme puanı 0 ile 100 arasında olmalıdır.");
+                throw new ArgumentOutOfRangeException(nameof(passingScore), passingScore, "Geçme puanı negatif olamaz.");
             }
 
             PassingScore = passingScore;
@@ -154,9 +154,9 @@ namespace Vettingo.ExamService.Domain.Entities
                 throw new ArgumentOutOfRangeException(nameof(durationMinutes), durationMinutes, "Süre sıfırdan büyük olmalıdır.");
             }
 
-            if (passingScore is < 0 or > 100)
+            if (passingScore is < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(passingScore), passingScore, "Geçme puanı 0 ile 100 arasında olmalıdır.");
+                throw new ArgumentOutOfRangeException(nameof(passingScore), passingScore, "Geçme puanı negatif olamaz.");
             }
         }
 

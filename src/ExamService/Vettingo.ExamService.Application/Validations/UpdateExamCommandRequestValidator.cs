@@ -12,7 +12,7 @@ public sealed class UpdateExamCommandRequestValidator : AbstractValidator<Update
         RuleFor(x => x.OwnerType).IsInEnum();
         RuleFor(x => x.Title).NotEmpty().MaximumLength(2000);
         RuleFor(x => x.DurationMinutes).GreaterThanOrEqualTo(0);
-        RuleFor(x => x.PassingScore).InclusiveBetween(0, 100);
+        RuleFor(x => x.PassingScore).GreaterThanOrEqualTo(0);
         RuleFor(x => x)
             .Must(x => x.MultipleChoiceQuestions is { Count: > 0 } || x.TrueFalseQuestions is { Count: > 0 })
             .WithMessage("Sınav en az bir çoktan seçmeli veya doğru/yanlış sorusu içermelidir.");
