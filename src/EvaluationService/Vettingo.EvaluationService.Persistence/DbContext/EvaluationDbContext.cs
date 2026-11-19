@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Vettingo.EvaluationService.Domain.Models;
-using Vettingo.EvaluationService.Persistence.Configuration;
 
 namespace Vettingo.EvaluationService.Persistence.DbContext;
 
@@ -13,8 +12,7 @@ public sealed class EvaluationDbContext(DbContextOptions<EvaluationDbContext> op
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfiguration(new CvConfiguration());
-        modelBuilder.ApplyConfiguration(new CandidateSkillConfiguration());
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(EvaluationDbContext).Assembly);
 
         base.OnModelCreating(modelBuilder);
     }

@@ -1,7 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Vettingo.JobService.Domain.Entities;
-using Vettingo.JobService.Persistence.Configuration;
-using Vettingo.JobService.Persistence.SeedData;
 
 namespace Vettingo.JobService.Persistence.DbContext
 {
@@ -19,14 +17,7 @@ namespace Vettingo.JobService.Persistence.DbContext
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.ApplyConfiguration(new JobPostingConfiguration());
-            builder.ApplyConfiguration(new JobApplicationConfiguration());
-            builder.ApplyConfiguration(new CandidateSkillConfiguration());
-            builder.ApplyConfiguration(new JobOfferConfiguration());
-            builder.ApplyConfiguration(new OffersConfiguration());
-            builder.ApplyConfiguration(new JobStepsConfiguration());
-            builder.ApplyConfiguration(new CityDataSeedConfiguration());
-            builder.ApplyConfiguration(new PersonalizedJobPostingsConfiguration());
+            builder.ApplyConfigurationsFromAssembly(typeof(JobDbContext).Assembly);
 
             base.OnModelCreating(builder);
         }

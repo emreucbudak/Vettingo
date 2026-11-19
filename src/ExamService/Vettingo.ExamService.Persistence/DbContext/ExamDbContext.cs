@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Vettingo.ExamService.Domain.Entities;
-using Vettingo.ExamService.Persistence.Configuration;
 
 namespace Vettingo.ExamService.Persistence.DbContext
 {
@@ -16,12 +15,7 @@ namespace Vettingo.ExamService.Persistence.DbContext
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.ApplyConfiguration(new MultipleChoiceQuestionConfiguration());
-            builder.ApplyConfiguration(new TrueFalseQuestionConfiguration());
-            builder.ApplyConfiguration(new MultipleChoiceOptionConfiguration());
-            builder.ApplyConfiguration(new TrueFalseOptionConfiguration());
-            builder.ApplyConfiguration(new ExamConfiguration());
-            builder.ApplyConfiguration(new JobStageExamConfiguration());
+            builder.ApplyConfigurationsFromAssembly(typeof(ExamDbContext).Assembly);
 
             base.OnModelCreating(builder);
         }

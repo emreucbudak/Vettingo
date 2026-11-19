@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Vettingo.SubscriptionService.Domain.Entities;
-using Vettingo.SubscriptionService.Persistence.Configuration;
 
 namespace Vettingo.SubscriptionService.Persistence.DbContext
 {
@@ -12,10 +11,7 @@ namespace Vettingo.SubscriptionService.Persistence.DbContext
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.ApplyConfiguration(new PlanConfiguration());
-            builder.ApplyConfiguration(new PlanPropertiesConfiguration());
-            builder.ApplyConfiguration(new CompanySubscriptionConfiguration());
-            builder.ApplyConfiguration(new CandidateSubscriptionConfiguration());
+            builder.ApplyConfigurationsFromAssembly(typeof(SubscriptionDbContext).Assembly);
 
             base.OnModelCreating(builder);
         }
