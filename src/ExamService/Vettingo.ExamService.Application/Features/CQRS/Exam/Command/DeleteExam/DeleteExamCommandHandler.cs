@@ -2,10 +2,11 @@
 using Vettingo.ExamService.Application.Exceptions;
 using Microsoft.Extensions.Logging;
 using Vettingo.ExamService.Application.UnitOfWork;
+using DeleteExam;
 
 namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.DeleteExam
 {
-    public class DeleteExamCommandHandler(IExamUnitOfWork unitOfWork, ILogger<DeleteExamCommandHandler> logger) : IRequestHandler<DeleteExamCommandRequest>
+    public class DeleteExamCommandHandler(IExamUnitOfWork unitOfWork, ILogger<DeleteExamCommandHandler> logger, ExamDeletesService.ExamDeletesServiceClient client) : IRequestHandler<DeleteExamCommandRequest>
     {
         public async Task Handle(DeleteExamCommandRequest request, CancellationToken cancellationToken)
         {
@@ -16,8 +17,15 @@ namespace Vettingo.ExamService.Application.Features.CQRS.Exam.Command.DeleteExam
             {
                 throw new NotFoundException("Sınav bulunamadı");
             }
-
-            unitOfWork.ExamRepository.Delete(exam);
+            var deleteExamRequest = new DeleteExamRequest();
+            deleteExamRequest.ExamId = exam.Id.ToString();
+            var examInUse = await client.DeleteExamAsync(deleteExamRequest);
+            if (examInUse.Success)
+            {
+                throw new Exception("Bu Sınav Kullanımda!");
+            }
+            exam.UpdateExamActivate();
+            unitOfWork.ExamRepository.Update(exam);
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
     }

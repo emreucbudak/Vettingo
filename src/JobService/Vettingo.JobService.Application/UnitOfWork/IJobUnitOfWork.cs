@@ -13,6 +13,7 @@ public interface IJobUnitOfWork : IAsyncDisposable
     DbSet<Skill> Skills { get; }
     DbSet<PersonalizedJobPostings> PersonalizedJobPostings { get; }
     DbSet<JobOffer> JobOffers { get; }
+    DbSet<JobSteps> JobSteps { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     Task BeginTransactionAsync(CancellationToken cancellationToken = default);
     Task CommitTransactionAsync(CancellationToken cancellationToken = default);

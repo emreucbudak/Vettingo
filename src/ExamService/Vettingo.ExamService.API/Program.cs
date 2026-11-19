@@ -9,6 +9,7 @@ using Vettingo.ExamService.API.ExceptionHandlers;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam;
 using Vettingo.ExamService.Infrastructure.Registration;
 using Vettingo.ExamService.Persistence.Registration;
+using DeleteExam;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,7 +60,10 @@ builder.Services.AddRateLimiter(options =>
                 AutoReplenishment = true
             }));
 });
-
+builder.Services.AddGrpcClient<ExamDeletesService.ExamDeletesServiceClient>(options =>
+{
+    options.Address = new Uri(builder.Configuration["Grpc:Endpoint"] ?? throw new InvalidOperationException("ExamService:GrpcEndpoint is not configured."));
+});
 builder.Services.SaveDb(builder.Configuration);
 builder.Services.AddExamCap(builder.Configuration);
 builder.Services.AddFlashMediator(typeof(CreateExamCommandHandler).Assembly);
