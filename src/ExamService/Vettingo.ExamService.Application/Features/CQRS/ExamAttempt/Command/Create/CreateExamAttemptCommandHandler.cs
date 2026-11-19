@@ -22,11 +22,47 @@ public sealed class CreateExamAttemptCommandHandler(
 
         if (!jobStageExam.ExamCandidateList.Contains(request.CandidateId))
         {
-            return;
+            throw new UnauthorizedException("Bu sınava katılamazsınız");
         }
 
+        var exam = await unitOfWork.ExamRepository.GetByIdAsync(jobStageExam.ExamId);
+
+        int score = 0;
+        if (request.MultipleQuestionsAnswers is not null)
+        {
+            foreach (var answer in request.MultipleQuestionsAnswers)
+            {
+                var question = exam?.MultipleChoiceQuestions
+                    .FirstOrDefault(examQuestion => examQuestion.Id == answer.MultipleQuestionId);
+                var option = question?.Options
+                    .FirstOrDefault(questionOption => questionOption.Id == answer.MultipleChoiceOptionId);
+
+                if (question is not null && option?.IsCorrect == true)
+                {
+                    score += question.Weight;
+                }
+            }
+        }
+
+        if (request.TrueFalseQuestionAnswers is not null)
+        {
+            foreach (var answer in request.TrueFalseQuestionAnswers)
+            {
+                var question = exam?.TrueFalseQuestions
+                    .FirstOrDefault(examQuestion => examQuestion.Id == answer.TrueFalseQuestionId);
+                var option = question?.Options
+                    .FirstOrDefault(questionOption => questionOption.Id == answer.TrueFalseOptionId);
+
+                if (question is not null && option?.IsCorrect == true)
+                {
+                    score += question.Weight;
+                }
+            }
+        }
+
+        var passed = score >= exam!.PassingScore;
         var attempt = new ExamAttemptEntity();
-        attempt.CreateAttempt(jobStageExam, request.CandidateId, request.Score, request.StartedAt, request.CompletedAt);
+        attempt.CreateAttempt(jobStageExam, request.CandidateId, score, request.StartedAt, request.CompletedAt, passed);
 
         cancellationToken.ThrowIfCancellationRequested();
         await unitOfWork.BeginTransactionAsync(cancellationToken);

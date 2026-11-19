@@ -8,10 +8,11 @@ namespace Vettingo.ExamService.Domain.Entities
 
         public Guid JobId { get; set; }
         public Guid ExamId { get; set; }
+        public Exam Exam { get; set; } = null!;
         public DateOnly StartedDate { get; set; }
         public DateOnly EndDate { get; set; }
         public List<Guid> ExamCandidateList { get; set; } = new();
-        public Exam Exam { get; set; } = null!;
+        
         public IReadOnlyCollection<ExamAttempt> Attempts => _attempts.AsReadOnly();
 
         public void CreateJobStageExam(
