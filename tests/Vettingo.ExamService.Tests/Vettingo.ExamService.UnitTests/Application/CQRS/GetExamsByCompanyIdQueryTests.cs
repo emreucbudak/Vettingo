@@ -62,5 +62,6 @@ public sealed class GetExamsByCompanyIdQueryTests
         var json = JsonSerializer.SerializeToElement(
             companyExam, new JsonSerializerOptions(JsonSerializerDefaults.Web));
         json.TryGetProperty("companyId", out _).Should().BeFalse();
+        json.TryGetProperty("ownerType", out _).Should().BeFalse();
     }
 }

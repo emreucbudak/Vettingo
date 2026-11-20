@@ -40,6 +40,7 @@ builder.Services
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtSecretKey)),
+            RoleClaimType = "Role",
             ClockSkew = TimeSpan.Zero
         };
     });
