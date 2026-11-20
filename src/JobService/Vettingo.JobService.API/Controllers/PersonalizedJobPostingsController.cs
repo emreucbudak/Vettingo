@@ -12,7 +12,7 @@ namespace Vettingo.JobService.API.Controllers;
 [Authorize]
 public class PersonalizedJobPostingsController(IMediator mediator) : ControllerBase
 {
-    [HttpGet("user")]
+    [HttpGet]
     [Authorize(Roles = "Candidate")]
     public async Task<IActionResult> GetByUser(CancellationToken cancellationToken)
     {
