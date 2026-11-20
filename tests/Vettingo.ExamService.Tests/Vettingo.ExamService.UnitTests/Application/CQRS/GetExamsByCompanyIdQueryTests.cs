@@ -35,7 +35,7 @@ public sealed class GetExamsByCompanyIdQueryTests
     }
 
     [Fact]
-    public async Task Handler_Should_Query_Company_Exams_And_Map_Question_Counts()
+    public async Task Handler_Should_List_Active_Company_Exams_And_Map_Question_Counts()
     {
         var companyId = Guid.NewGuid();
         var exam = new Exam();
@@ -46,7 +46,10 @@ public sealed class GetExamsByCompanyIdQueryTests
         var trueFalseQuestion = new TrueFalseQuestion();
         trueFalseQuestion.CreateQuestion(exam.Id, "True or false?", 1, 2);
         exam.AddTrueFalseQuestion(trueFalseQuestion);
-        IReadOnlyList<Exam> exams = [exam];
+        var deletedExam = new Exam();
+        deletedExam.CreateExam("Deleted exam", 60, 70, ExamOwnerType.Company, companyId);
+        deletedExam.UpdateExamActivate();
+        IReadOnlyList<Exam> exams = [exam, deletedExam];
         var repository = Substitute.For<IExamRepository<Exam>>();
         var unitOfWork = Substitute.For<IExamUnitOfWork>();
         unitOfWork.ExamRepository.Returns(repository);

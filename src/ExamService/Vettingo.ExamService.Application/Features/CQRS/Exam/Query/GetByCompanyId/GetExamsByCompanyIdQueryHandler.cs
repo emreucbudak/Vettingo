@@ -16,6 +16,7 @@ public sealed class GetExamsByCompanyIdQueryHandler(
         var exams = await unitOfWork.ExamRepository.GetExamsByCompanyIdAsync(request.CompanyId, cancellationToken);
 
         var response = exams
+            .Where(exam => exam.IsActive)
             .OrderByDescending(exam => exam.CreatedAt)
             .Select(exam => new GetExamsByCompanyIdQueryResponse
             {
