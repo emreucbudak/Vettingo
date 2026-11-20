@@ -2,6 +2,7 @@ using System.Security.Claims;
 using FlashMediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Hybrid;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.CreateExam;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.DeleteExam;
 using Vettingo.ExamService.Application.Features.CQRS.Exam.Command.UpdateExam;
@@ -13,7 +14,7 @@ namespace Vettingo.ExamService.API.Controllers
 {
     [Route("api/exams")]
     [ApiController]
-    public class ExamController(IMediator mediator) : ControllerBase
+    public class ExamController(IMediator mediator, HybridCache cache) : ControllerBase
     {
         [Authorize(Roles = "Company,Human Resources")]
         [HttpGet("company")]
@@ -77,7 +78,7 @@ namespace Vettingo.ExamService.API.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Company")]
+        [Authorize(Roles = "Company,Human Resources")]
         [HttpDelete("{examId:guid}")]
         public async Task<IActionResult> DeleteExam([FromRoute] Guid examId, CancellationToken cancellationToken)
         {
@@ -87,6 +88,7 @@ namespace Vettingo.ExamService.API.Controllers
             }
 
             await mediator.Send(new DeleteExamCommandRequest { ExamId = examId, CompanyId = companyId }, cancellationToken);
+            await cache.RemoveAsync(new GetExamsByCompanyIdQueryRequest(companyId).CacheKey);
             return Ok();
         }
     }
