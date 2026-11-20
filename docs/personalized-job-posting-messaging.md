@@ -24,7 +24,7 @@ FlashMediator. The handler stores the user-to-job-posting association rather tha
 copying job details. The entity declares `UserId`, `JobPostingId`, and the
 `JobPosting` navigation; identity and timestamps remain inherited from `BaseEntity`.
 
-`GET /api/personalized-job-postings/user` requires a Candidate token and uses its
+`GET /api/personalized-job-postings` requires a Candidate token and uses its
 nonempty user GUID to list only that user's personalized postings, ordered by
 association `CreatedAt` descending, then `Id` descending. The response is a flat
 array of mobile card data: `jobPostingId`, `companyId`, `companyName`, `title`, `cityName`,
